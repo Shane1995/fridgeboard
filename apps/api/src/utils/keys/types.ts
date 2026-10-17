@@ -8,3 +8,4 @@ export type Invite = {
   expiresAt: number;
   ttl: number;
 };
+export type GsiKey = { GSI1PK: string };
