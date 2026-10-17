@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
+  "entry": ["apps/web/src/main.tsx"],
+  "workspaces": {
+    "packages": ["apps/*"]
+  },
+  "ignorePatterns": [
+    "dist/**",
+    "**/node_modules/**",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/vitest.setup.ts"
+  ],
+  "duplicates": {
+    "minOccurrences": 3
+  },
+  "rules": {
+    "unused-files": "error",
+    "unused-exports": "error"
+  }
+}

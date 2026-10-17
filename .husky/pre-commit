@@ -1,0 +1,3 @@
+pnpm lint-staged
+pnpm run typecheck
+npx fallow@2.89.0 dead-code --production --fail-on-issues

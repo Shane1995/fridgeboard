@@ -1,0 +1,23 @@
+@import 'tailwindcss';
+@import '@heroui/styles';
+@import '@fontsource-variable/figtree';
+@import '@fontsource/caveat/600.css';
+
+:root {
+  --accent: #e2462f;
+  --success: #26a383;
+  --warning: #edb02b;
+  --foreground: #1d2b3a;
+  --background: #f4f6f3;
+}
+
+@theme {
+  --font-sans: 'Figtree Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-hand: 'Caveat', cursive;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
