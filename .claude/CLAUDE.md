@@ -6,7 +6,7 @@ Fridgeboard: a PWA for Shane and his wife to share a shopping list and her work 
 
 - **Design (source of truth):** `~/Obsidian/Brain/Claude/Plans/fridgeboard-design.md`
 - **Project state:** `~/Obsidian/Brain/Claude/Projects/fridgeboard.md`
-- **Code standards:** follow every rule in `~/Dev/ReYoGo/CODE_STANDARDS.md` for all TS/Node/React code, including its tooling baseline, with **one override: UI components use HeroUI v3 (`@heroui/react`), not shadcn/ui**.
+- **Code standards:** follow every rule in [`CODE_STANDARDS.md`](CODE_STANDARDS.md) (this folder) for all TS/Node/React code, including its tooling baseline.
 - **Design pack** (palette, type, user flow, screens per feature, notifications): `~/Obsidian/Brain/Claude/Plans/fridgeboard-design-pack.html`. Implement it as a HeroUI v3 theme: primary Tomato #E2462F, success Mint #26A383, warning Mustard #EDB02B, foreground Biro ink #1D2B3A, background Enamel #F4F6F3; fonts Figtree (UI) and Caveat (logo/empty states only).
 - **Solution pack** (architecture, stack, security, risks, cost): `~/Obsidian/Brain/Claude/Plans/fridgeboard-solution-pack.html`. Keep cost near zero and state £/month for any new service.
 
