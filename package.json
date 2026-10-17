@@ -1,6 +1,7 @@
 {
   "name": "fridgeboard-workspace",
   "private": true,
+  "license": "UNLICENSED",
   "packageManager": "pnpm@9.15.0",
   "engines": {
     "node": ">=24.0.0",
