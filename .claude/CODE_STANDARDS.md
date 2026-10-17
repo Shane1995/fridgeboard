@@ -1,0 +1,42 @@
+# Code Standards
+
+TypeScript, Node and React standards for Fridgeboard. Apply every rule to any code you write, touch, or review.
+
+`apps/web/src/screens/Home/` is the reference implementation for now. When in doubt, copy its shape.
+
+## File layout
+
+1. **Every unit of code lives at `<dir>/<Name>/index.ts(x)`**, with its siblings:
+   - tests: `<Name>/index.test.ts(x)`
+   - types: `<Name>/types.ts`
+   - constants: `<Name>/constants.ts`
+2. **Types go in the co-located `types.ts`**, never inline in `index.ts(x)`. Local types use unprefixed names (`ReviewItem`, `CategoryRowProps`). The `I` prefix is reserved for types re-exported from a shared types package (e.g. a future `@fridgeboard/types`). If a type is consumed outside its own directory, re-export it from `index.ts`.
+3. **Constants and magic strings go in the co-located `constants.ts`** (e.g. `HOME_COPY` in `screens/Home/constants.ts`).
+4. **One function per component file.** Helpers move to a sibling `hooks/` (stateful) or `utils/` (pure) directory.
+5. **Sub-components live in a co-located `components/` directory:**
+   - used by one parent → `<Parent>/components/<Name>/`
+   - shared by siblings → the lowest common ancestor's `components/<Name>/`. Example: `ShoppingList/components/ItemCheckbox/` shared by `ItemRow` and `BucketRow`, whereas `ShoppingList/ItemRow/components/ItemMenu/` is used only by `ItemRow`.
+
+## Types
+
+6. **Use a real TS `enum` for a fixed set of values**, not an `as const` object literal. The exception is values that cross a boundary: anything persisted (DynamoDB) or sent over the wire (HTTP API, AppSync Events). Those stay a string union or an `as const` object.
+7. **Fix the underlying types instead of using `as` assertions** in any code you touch. For example, add an explicit annotation so enum members aren't widened.
+
+## Style
+
+8. **Use `const` and build new arrays/objects** rather than using `let` or mutating in place.
+
+## Tests
+
+9. **Every hook and util has `index.test.ts` coverage.** Extracting one keeps or adds its tests.
+
+## Tooling baseline
+
+The repo's root config files are the source of truth:
+
+- pnpm workspaces + Turborepo, Node ≥ 24
+- Vitest
+- oxfmt (`.oxfmtrc.json`) + oxlint, run through lint-staged
+- Husky pre-commit + commitlint (conventional commits)
+- fallow for code health (`.fallowrc.json`)
+- UI: Tailwind CSS 4, HeroUI v3 (`@heroui/react`), Lucide icons. No global state library: React Context where needed, `useState` otherwise
