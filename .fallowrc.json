@@ -1,17 +1,10 @@
 {
   "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
-  "entry": [
-    "apps/web/src/main.tsx"
-  ],
+  "entry": ["apps/web/src/main.tsx", "apps/web/scripts/thirdPartyLicenses/index.ts"],
   "workspaces": {
-    "packages": [
-      "apps/*"
-    ]
+    "packages": ["apps/*"]
   },
-  "ignorePatterns": [
-    "dist/**",
-    "**/node_modules/**"
-  ],
+  "ignorePatterns": ["dist/**", "**/node_modules/**"],
   "duplicates": {
     "minOccurrences": 3
   },
@@ -20,9 +13,6 @@
     "unused-exports": "error"
   },
   "health": {
-    "ignore": [
-      "apps/web/index.html",
-      "apps/web/src/main.tsx"
-    ]
+    "ignore": ["apps/web/index.html", "apps/web/src/main.tsx"]
   }
 }
