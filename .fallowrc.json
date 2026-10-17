@@ -1,6 +1,12 @@
 {
   "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
-  "entry": ["apps/web/src/main.tsx", "apps/web/scripts/thirdPartyLicenses/index.ts"],
+  "entry": [
+    "apps/web/src/main.tsx",
+    "apps/web/scripts/thirdPartyLicenses/index.ts",
+    "apps/api/src/handlers/*/index.ts",
+    "apps/api/scripts/**/index.ts",
+    "apps/api/src/utils/keys/index.ts"
+  ],
   "workspaces": {
     "packages": ["apps/*"]
   },
