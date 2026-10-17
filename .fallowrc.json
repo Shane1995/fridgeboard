@@ -18,5 +18,11 @@
   "rules": {
     "unused-files": "error",
     "unused-exports": "error"
+  },
+  "health": {
+    "ignore": [
+      "apps/web/index.html",
+      "apps/web/src/main.tsx"
+    ]
   }
 }
