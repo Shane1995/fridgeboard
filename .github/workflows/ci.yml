@@ -32,3 +32,29 @@ jobs:
       - run: pnpm test
       - run: pnpm build
       - run: npx fallow@2.89.0 dead-code --production --fail-on-issues
+
+  fallow-report:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Generate report
+        run: npx fallow@2.89.0 dead-code --production --format pr-comment-github --quiet > fallow.md || true
+      - name: Post or update PR comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          id=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" --paginate \
+            --jq '.[] | select(.body | contains("<!-- fallow-id: fallow-results -->")) | .id' | head -1)
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$id" -F body=@fallow.md > /dev/null
+          else
+            gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body-file fallow.md
+          fi
