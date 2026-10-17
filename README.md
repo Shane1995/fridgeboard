@@ -41,3 +41,9 @@ Each unit lives at `<Name>/index.tsx`, with its `types.ts`, `constants.ts` and `
 ## Contributing
 
 `main` is protected, so all changes go through a pull request. Commits follow [Conventional Commits](https://www.conventionalcommits.org). The pre-commit hook formats, lints, typechecks and checks for dead code.
+
+## Licence
+
+Copyright © 2026 Shane Linden. All rights reserved. The source is public to read, but no licence is granted to copy, modify or reuse it. See [LICENSE](LICENSE).
+
+To report a security issue, see [SECURITY.md](SECURITY.md).
