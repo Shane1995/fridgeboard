@@ -117,7 +117,7 @@ jobs:
         if: failure()
         run: |
           while read -r fn prev; do
-            aws lambda update-alias --function-name "$fn" --name live --function-version "$prev" > /dev/null
+            aws lambda update-alias --function-name "$fn" --name live --function-version "$prev" --description "prev=$prev" > /dev/null
           done < "$RUNNER_TEMP/flipped"
       - name: Upload hashed assets (cached for a year)
         run: aws s3 sync dist/assets "s3://$BUCKET/assets" --cache-control "public,max-age=31536000,immutable"
