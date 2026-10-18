@@ -1,10 +1,13 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-
-const ROOTS = ['apps', 'packages'];
-const SKIPPED_DIRECTORIES = new Set(['node_modules', 'dist', 'coverage']);
-const SOURCE_FILE = /\.(ts|tsx)$/;
-const REEXPORT = /^\s*export\s+(?:type\s+)?(?:\*(?:\s+as\s+\w+)?|\{[^}]*\})\s+from\s/m;
+import {
+  REEXPORT,
+  REEXPORT_ERROR,
+  ROOTS,
+  SKIPPED_DIRECTORIES,
+  SKIPPED_FILE,
+  SOURCE_FILE,
+} from './constants.ts';
 
 const listSources = (directory: string): string[] =>
   readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -12,7 +15,7 @@ const listSources = (directory: string): string[] =>
     if (entry.isDirectory()) {
       return SKIPPED_DIRECTORIES.has(entry.name) ? [] : listSources(path);
     }
-    return SOURCE_FILE.test(entry.name) && entry.name !== 'routeTree.gen.ts' ? [path] : [];
+    return SOURCE_FILE.test(entry.name) && entry.name !== SKIPPED_FILE ? [path] : [];
   });
 
 const offenders = ROOTS.flatMap(listSources).filter((path) =>
@@ -20,8 +23,6 @@ const offenders = ROOTS.flatMap(listSources).filter((path) =>
 );
 
 if (offenders.length > 0) {
-  console.error(
-    `Re-exports are not allowed (import from the source file):\n${offenders.join('\n')}`,
-  );
+  console.error(`${REEXPORT_ERROR}\n${offenders.join('\n')}`);
   process.exitCode = 1;
 }

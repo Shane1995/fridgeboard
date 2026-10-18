@@ -3,6 +3,11 @@
   "private": true,
   "license": "UNLICENSED",
   "type": "module",
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=24.0.0",
+    "pnpm": ">=9.0.0"
+  },
   "scripts": {
     "build": "turbo run build",
     "test": "turbo run test",
@@ -27,10 +32,5 @@
       "oxfmt",
       "oxlint"
     ]
-  },
-  "engines": {
-    "node": ">=24.0.0",
-    "pnpm": ">=9.0.0"
-  },
-  "packageManager": "pnpm@9.15.0"
+  }
 }
