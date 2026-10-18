@@ -13,10 +13,15 @@ const sesMock = mockClient(SESv2Client);
 const ssmMock = mockClient(SSMClient);
 
 const ORIGIN = 'https://app.fridgeboard.uk';
+const ORIGIN_SECRET = 'origin-secret';
 
 const buildEvent = (
   routeKey: string,
-  headers: Record<string, string> = { origin: ORIGIN, 'content-type': 'application/json' },
+  headers: Record<string, string> = {
+    origin: ORIGIN,
+    'content-type': 'application/json',
+    'x-api-origin-verify': ORIGIN_SECRET,
+  },
 ): APIGatewayProxyEventV2 => ({
   version: '2.0',
   routeKey,
@@ -52,6 +57,7 @@ describe('auth handler', () => {
     sesMock.reset();
     ssmMock.reset();
     vi.stubEnv('APP_ORIGIN', ORIGIN);
+    vi.stubEnv('API_ORIGIN_SECRET', ORIGIN_SECRET);
     vi.stubEnv('SECRETS_PARAM', '/fridgeboard/auth/secrets');
     ssmMock.on(GetParameterCommand).resolves({
       Parameter: {
@@ -63,6 +69,16 @@ describe('auth handler', () => {
         }),
       },
     });
+  });
+
+  it('returns 403 forbidden when the origin secret header is missing', async () => {
+    const result = await handler(
+      buildEvent('POST /api/v1/auth/start', { origin: ORIGIN, 'content-type': 'application/json' }),
+    );
+
+    expect(result.statusCode).toBe(403);
+    expect(JSON.parse(result.body ?? '')).toEqual({ reason: 'forbidden' });
+    expect(ssmMock.commandCalls(GetParameterCommand)).toHaveLength(0);
   });
 
   it('start returns 403 forbidden for a wrong Origin', async () => {

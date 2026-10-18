@@ -17,7 +17,7 @@ const buildEvent = (
   routeKey: 'GET /api/v1/me',
   rawPath: '/api/v1/me',
   rawQueryString: '',
-  headers: {},
+  headers: { 'x-api-origin-verify': 'origin-secret' },
   isBase64Encoded: false,
   requestContext: {
     accountId: '123',
@@ -46,8 +46,16 @@ describe('me handler', () => {
   beforeEach(() => {
     ddbMock.reset();
     vi.stubEnv('TABLE_NAME', 'fridgeboard');
+    vi.stubEnv('API_ORIGIN_SECRET', 'origin-secret');
     ddbMock.on(GetCommand).resolves({ Item: profile });
     ddbMock.on(QueryCommand).resolves({ Items: [] });
+  });
+
+  it('returns 403 when the origin secret header is missing', async () => {
+    const result = await handler({ ...buildEvent(), headers: {} });
+
+    expect(result.statusCode).toBe(403);
+    expect(ddbMock.commandCalls(GetCommand)).toHaveLength(0);
   });
 
   it('returns the profile with an empty households list', async () => {
