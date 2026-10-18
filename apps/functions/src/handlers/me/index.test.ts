@@ -63,7 +63,7 @@ describe('me handler', () => {
 
     expect(result).toMatchObject({
       statusCode: 200,
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', 'cache-control': 'no-store' },
     });
     expect(JSON.parse(result.body ?? '')).toEqual({
       sub: 'sub-1',

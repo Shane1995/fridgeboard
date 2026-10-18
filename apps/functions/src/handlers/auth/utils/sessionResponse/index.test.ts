@@ -11,7 +11,7 @@ describe('sessionResponse', () => {
       ]),
     ).toEqual({
       statusCode: 200,
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', 'cache-control': 'no-store' },
       body: '{"accessToken":"access-1","expiresIn":900}',
       cookies: [REFRESH_COOKIE, 'a=1'],
     });

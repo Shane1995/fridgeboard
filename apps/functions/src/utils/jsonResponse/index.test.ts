@@ -4,7 +4,7 @@ describe('jsonResponse', () => {
   it('builds a JSON response with cookies', () => {
     expect(jsonResponse(403, { reason: 'forbidden' }, ['a=1'])).toEqual({
       statusCode: 403,
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', 'cache-control': 'no-store' },
       body: '{"reason":"forbidden"}',
       cookies: ['a=1'],
     });

@@ -66,7 +66,10 @@ describe('verify route', () => {
       Session: 's3',
     });
     expect(result.statusCode).toBe(200);
-    expect(result.headers).toEqual({ 'content-type': 'application/json' });
+    expect(result.headers).toEqual({
+      'content-type': 'application/json',
+      'cache-control': 'no-store',
+    });
     expect(JSON.parse(result.body ?? '')).toEqual({ accessToken: 'access-1', expiresIn: 900 });
     expect(result.cookies).toEqual([REFRESH_COOKIE, CLEARED_FLOW_COOKIE]);
   });
@@ -143,7 +146,10 @@ describe('verify route', () => {
       },
     });
     expect(result.statusCode).toBe(202);
-    expect(result.headers).toEqual({ 'content-type': 'application/json' });
+    expect(result.headers).toEqual({
+      'content-type': 'application/json',
+      'cache-control': 'no-store',
+    });
     expect(JSON.parse(result.body ?? '')).toEqual({ next: 'enter-code' });
     expect(result.cookies?.[0]).toMatch(
       /^fb_auth_flow=[^;]+; Secure; HttpOnly; SameSite=Strict; Path=\/api\/v1\/auth; Max-Age=180$/,

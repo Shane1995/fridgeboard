@@ -90,7 +90,10 @@ describe('auth handler', () => {
     );
 
     expect(result.statusCode).toBe(403);
-    expect(result.headers).toEqual({ 'content-type': 'application/json' });
+    expect(result.headers).toEqual({
+      'content-type': 'application/json',
+      'cache-control': 'no-store',
+    });
     expect(JSON.parse(result.body ?? '')).toEqual({ reason: 'forbidden' });
     expect(sesMock.calls()).toHaveLength(0);
     expect(cognitoMock.calls()).toHaveLength(0);
