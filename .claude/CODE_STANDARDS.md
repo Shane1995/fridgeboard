@@ -2,7 +2,7 @@
 
 TypeScript, Node and React standards for Fridgeboard. Apply every rule to any code you write, touch, or review.
 
-`apps/web/src/screens/Home/` is the reference implementation for now. When in doubt, copy its shape.
+`apps/web/src/pages/Home/` is the reference implementation for now. When in doubt, copy its shape.
 
 ## File layout
 
@@ -11,11 +11,24 @@ TypeScript, Node and React standards for Fridgeboard. Apply every rule to any co
    - types: `<Name>/types.ts`
    - constants: `<Name>/constants.ts`
 2. **Types go in the co-located `types.ts`**, never inline in `index.ts(x)`. Local types use unprefixed names (`ReviewItem`, `CategoryRowProps`). The `I` prefix is reserved for types re-exported from a shared types package (`@fridgeboard/contract`). If a type is consumed outside its own directory, re-export it from `index.ts`.
-3. **Constants and magic strings go in the co-located `constants.ts`** (e.g. `HOME_COPY` in `screens/Home/constants.ts`).
+3. **Constants and magic strings go in the co-located `constants.ts`** (e.g. `HOME_COPY` in `pages/Home/constants.ts`).
 4. **One function per component file.** Helpers move to a sibling `hooks/` (stateful) or `utils/` (pure) directory.
 5. **Sub-components live in a co-located `components/` directory:**
    - used by one parent → `<Parent>/components/<Name>/`
    - shared by siblings → the lowest common ancestor's `components/<Name>/`. Example: `ShoppingList/components/ItemCheckbox/` shared by `ItemRow` and `BucketRow`, whereas `ShoppingList/ItemRow/components/ItemMenu/` is used only by `ItemRow`.
+
+## Web layout
+
+`apps/web/src` is split by role. Create a folder only when a unit lands in it.
+
+| Folder        | Holds                                    |
+| ------------- | ---------------------------------------- |
+| `pages/`      | full screens                             |
+| `components/` | reusable UI shared across pages          |
+| `routes/`     | path → page switching                    |
+| `services/`   | I/O (API client, session)                |
+| `hooks/`      | React hooks                              |
+| `utils/`      | pure helpers                             |
 
 ## Types
 

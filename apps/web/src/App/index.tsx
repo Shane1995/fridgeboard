@@ -1,5 +1,5 @@
-import { Home } from '../screens/Home';
+import { Routes } from '../routes';
 
 export function App() {
-  return <Home />;
+  return <Routes />;
 }
