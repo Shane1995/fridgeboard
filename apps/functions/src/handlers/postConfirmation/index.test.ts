@@ -94,12 +94,41 @@ describe('postConfirmation handler', () => {
     expect(cognitoMock.calls()).toHaveLength(0);
   });
 
-  it('tolerates a retried profile write', async () => {
-    ddbMock.on(GetCommand).resolves({ Item: { type: 'app' } });
+  it('tolerates a retried profile write and still finishes the flow', async () => {
+    ddbMock.on(GetCommand).resolves({ Item: { type: 'app', admin: true } });
     ddbMock
       .on(PutCommand)
       .rejects(new ConditionalCheckFailedException({ message: 'exists', $metadata: {} }));
 
     await expect(handler(buildEvent())).resolves.toBeDefined();
+    expect(cognitoMock.commandCalls(AdminAddUserToGroupCommand)).toHaveLength(1);
+    expect(ddbMock.commandCalls(DeleteCommand)).toHaveLength(1);
+  });
+
+  it('does not delete the invite when adding to the admin group fails', async () => {
+    ddbMock.on(GetCommand).resolves({ Item: { type: 'app', admin: true } });
+    cognitoMock.on(AdminAddUserToGroupCommand).rejects(new Error('cognito down'));
+
+    await expect(handler(buildEvent())).rejects.toThrow('cognito down');
+    expect(ddbMock.commandCalls(DeleteCommand)).toHaveLength(0);
+  });
+
+  it('throws when sub is missing', async () => {
+    const event = buildEvent();
+    event.request.userAttributes = { email: 'jess@example.com' };
+
+    await expect(handler(event)).rejects.toThrow('MISSING_SUB');
+    expect(ddbMock.calls()).toHaveLength(0);
+  });
+
+  it('sets canCreateHousehold false and deletes nothing when no invite exists', async () => {
+    ddbMock.on(GetCommand).resolves({});
+
+    await handler(buildEvent());
+
+    expect(ddbMock.commandCalls(PutCommand)[0]?.args[0].input.Item).toMatchObject({
+      canCreateHousehold: false,
+    });
+    expect(ddbMock.commandCalls(DeleteCommand)).toHaveLength(0);
   });
 });

@@ -13,7 +13,13 @@ import type { PostConfirmationTriggerEvent } from 'aws-lambda';
 import { inviteKey, profileKey } from '../../utils/keys/index.ts';
 import type { Invite } from '../../utils/keys/index.ts';
 import { normaliseEmail } from '../../utils/normaliseEmail/index.ts';
-import { ADMIN_GROUP, CONFIRM_SIGN_UP_SOURCE, MISSING_SUB_ERROR } from './constants.ts';
+import {
+  ADMIN_GROUP,
+  APP_INVITE_TYPE,
+  PROFILE_NOT_EXISTS_CONDITION,
+  CONFIRM_SIGN_UP_SOURCE,
+  MISSING_SUB_ERROR,
+} from './constants.ts';
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const cognito = new CognitoIdentityProviderClient({});
@@ -46,9 +52,9 @@ export const handler = async (
           ...profileKey(sub),
           email,
           createdAt: new Date().toISOString(),
-          canCreateHousehold: type === 'app',
+          canCreateHousehold: type === APP_INVITE_TYPE,
         },
-        ConditionExpression: 'attribute_not_exists(PK)',
+        ConditionExpression: PROFILE_NOT_EXISTS_CONDITION,
       }),
     );
   } catch (error) {
@@ -67,7 +73,7 @@ export const handler = async (
     );
   }
 
-  if (type === 'app') {
+  if (type === APP_INVITE_TYPE) {
     await client.send(new DeleteCommand({ TableName, Key: inviteKey(email) }));
   }
 
