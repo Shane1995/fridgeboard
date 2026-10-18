@@ -1,14 +1,7 @@
-export type AuthReason =
-  | 'no-invite'
-  | 'verify-email'
-  | 'bad-code'
-  | 'expired'
-  | 'forbidden'
-  | 'unauthorised';
+import type {
+  IAuthErrorResponse,
+  ITokenResponse,
+  IVerifyNextResponse,
+} from '@fridgeboard/contract';
 
-export type VerifyNextResponse = { next: 'enter-code' };
-
-export type ResponseBody =
-  | { reason: AuthReason }
-  | { accessToken: string; expiresIn: number }
-  | VerifyNextResponse;
+export type ResponseBody = IAuthErrorResponse | ITokenResponse | IVerifyNextResponse;

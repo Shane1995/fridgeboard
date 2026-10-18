@@ -10,7 +10,7 @@ TypeScript, Node and React standards for Fridgeboard. Apply every rule to any co
    - tests: `<Name>/index.test.ts(x)`
    - types: `<Name>/types.ts`
    - constants: `<Name>/constants.ts`
-2. **Types go in the co-located `types.ts`**, never inline in `index.ts(x)`. Local types use unprefixed names (`ReviewItem`, `CategoryRowProps`). The `I` prefix is reserved for types re-exported from a shared types package (e.g. a future `@fridgeboard/types`). If a type is consumed outside its own directory, re-export it from `index.ts`.
+2. **Types go in the co-located `types.ts`**, never inline in `index.ts(x)`. Local types use unprefixed names (`ReviewItem`, `CategoryRowProps`). The `I` prefix is reserved for types re-exported from a shared types package (`@fridgeboard/contract`). If a type is consumed outside its own directory, re-export it from `index.ts`.
 3. **Constants and magic strings go in the co-located `constants.ts`** (e.g. `HOME_COPY` in `screens/Home/constants.ts`).
 4. **One function per component file.** Helpers move to a sibling `hooks/` (stateful) or `utils/` (pure) directory.
 5. **Sub-components live in a co-located `components/` directory:**

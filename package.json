@@ -27,7 +27,7 @@
     "turbo": "^2.11.9"
   },
   "lint-staged": {
-    "apps/**/*.{ts,tsx,js,cjs,mjs}": [
+    "{apps,packages}/**/*.{ts,tsx,js,cjs,mjs}": [
       "oxfmt",
       "oxlint"
     ]
