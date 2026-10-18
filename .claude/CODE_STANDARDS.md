@@ -10,7 +10,7 @@ TypeScript, Node and React standards for Fridgeboard. Apply every rule to any co
    - tests: `<Name>/index.test.ts(x)`
    - types: `<Name>/types.ts`
    - constants: `<Name>/constants.ts`
-2. **Types go in the co-located `types.ts`**, never inline in `index.ts(x)`. Local types use unprefixed names (`ReviewItem`, `CategoryRowProps`). The `I` prefix is reserved for types re-exported from a shared types package (`@fridgeboard/contract`). If a type is consumed outside its own directory, re-export it from `index.ts`.
+2. **Types go in the co-located `types.ts`**, never inline in `index.ts(x)`. Local types use unprefixed names (`ReviewItem`, `CategoryRowProps`). The `I` prefix is reserved for types re-exported from a shared types package (`@fridgeboard/contract`). If a type is consumed outside its own directory, import it from that directory's `types.ts` directly; never re-export it from `index.ts`.
 3. **Constants and magic strings go in the co-located `constants.ts`** (e.g. `HOME_COPY` in `pages/Home/constants.ts`).
 4. **One function per component file.** Helpers move to a sibling `hooks/` (stateful) or `utils/` (pure) directory.
 5. **Sub-components live in a co-located `components/` directory:**
@@ -45,6 +45,15 @@ TypeScript, Node and React standards for Fridgeboard. Apply every rule to any co
 ## Style
 
 8. **Use `const` and build new arrays/objects** rather than using `let` or mutating in place.
+
+## Exports
+
+- **Named exports only.** No `export default`. Exceptions are config files a tool loads by default export: `apps/web/vite.config.ts`, `apps/web/vitest.config.ts`, `apps/functions/vitest.config.ts`, `commitlint.config.cjs`, and any other root or app config. They are listed in the `.oxlintrc.json` `overrides`.
+- **Functions and components are `export const name = (…): Ret => …`.** No `function` declarations. Recursive functions are `const` arrows that reference themselves. Lambda handlers are `export const handler = async (…) => …`.
+- **No barrel files.** `<Name>/index.ts(x)` holds that unit's implementation only and never re-exports. Import types from `<Name>/types.ts` and constants from `<Name>/constants.ts` directly.
+- **Shared packages expose subpaths via `package.json` `exports`, not an index barrel.** Example: `@fridgeboard/contract/auth`, `@fridgeboard/contract/auth/constants`, `@fridgeboard/contract/me`.
+- `React.lazy` maps the named export: `lazy(() => import('./X').then((m) => ({ default: m.X })))`.
+- Enforced by oxlint: `import/no-default-export`, `func-style` (`"expression"`), `oxc/no-barrel-file` (threshold 0). The barrel rule only detects `export * from`, so named re-exports (`export { x } from`) are caught in review.
 
 ## Tests
 
