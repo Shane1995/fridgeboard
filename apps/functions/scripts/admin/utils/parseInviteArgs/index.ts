@@ -1,4 +1,5 @@
-import { parseArgs, type ParsedArgs } from '../parseArgs/index.ts';
+import { parseArgs } from '../parseArgs/index.ts';
+import type { ParsedArgs } from '../parseArgs/types.ts';
 
 export const parseInviteArgs = (argv: string[]): ParsedArgs => {
   const args = parseArgs(argv);

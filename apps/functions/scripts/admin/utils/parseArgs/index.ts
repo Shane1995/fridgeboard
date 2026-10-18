@@ -1,8 +1,6 @@
 import { HOUSEHOLD_FLAG, KNOWN_FLAGS, USAGE } from './constants.ts';
 import type { ParsedArgs } from './types.ts';
 
-export type { ParsedArgs } from './types.ts';
-
 export const parseArgs = (argv: string[]): ParsedArgs => {
   const flags = argv.filter((arg) => arg.startsWith('--'));
   const unknown = flags.find((flag) => !KNOWN_FLAGS.includes(flag));

@@ -1,5 +1,6 @@
 import { GetParameterCommand } from '@aws-sdk/client-ssm';
-import { SECRETS_PARAM, ssm } from '../clients/index.ts';
+import { SECRETS_PARAM } from '../clients/constants.ts';
+import { ssm } from '../clients/index.ts';
 import { INVALID_SECRETS_ERROR } from './constants.ts';
 
 const parseSecrets = (value: string): { userPoolId?: unknown } => {

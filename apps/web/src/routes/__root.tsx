@@ -8,15 +8,15 @@ const Devtools = import.meta.env.DEV
   ? lazy(() => import('../components/Devtools').then((m) => ({ default: m.Devtools })))
   : null;
 
-function NotFound() {
+const NotFound = () => {
   return <RouteFallback title={ROUTER_COPY.notFound} />;
-}
+};
 
-function RouteError() {
+const RouteError = () => {
   return <RouteFallback title={ROUTER_COPY.error} />;
-}
+};
 
-function Root() {
+const Root = () => {
   return (
     <>
       <Outlet />
@@ -27,7 +27,7 @@ function Root() {
       )}
     </>
   );
-}
+};
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   component: Root,

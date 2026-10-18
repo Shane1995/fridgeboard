@@ -5,8 +5,6 @@ import { SSMClient } from '@aws-sdk/client-ssm';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { REGION } from './constants.ts';
 
-export { SECRETS_PARAM, TABLE_NAME } from './constants.ts';
-
 export const doc = DynamoDBDocumentClient.from(new DynamoDBClient({ region: REGION }));
 export const cognito = new CognitoIdentityProviderClient({ region: REGION });
 export const ses = new SESv2Client({ region: REGION });

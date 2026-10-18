@@ -6,8 +6,11 @@ import { DeleteEmailIdentityCommand, NotFoundException } from '@aws-sdk/client-s
 import { DeleteCommand } from '@aws-sdk/lib-dynamodb';
 import { fetchMemberships } from '../../../../src/handlers/me/utils/fetchMemberships/index.ts';
 import { householdIdFromKey } from '../../../../src/utils/keys/index.ts';
-import { buildDeletePlan, MEMBER_SK_PREFIX, type Key } from '../buildDeletePlan/index.ts';
-import { cognito, doc, ses, TABLE_NAME } from '../clients/index.ts';
+import { buildDeletePlan } from '../buildDeletePlan/index.ts';
+import { MEMBER_SK_PREFIX } from '../buildDeletePlan/constants.ts';
+import type { Key } from '../buildDeletePlan/types.ts';
+import { TABLE_NAME } from '../clients/constants.ts';
+import { cognito, doc, ses } from '../clients/index.ts';
 import { queryAll } from '../queryAll/index.ts';
 import { resolveUser } from '../resolveUser/index.ts';
 

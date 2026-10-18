@@ -2,8 +2,6 @@ import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm';
 import { CACHE_KEY, INVALID_SECRETS_ERROR } from './constants.ts';
 import type { Secrets } from './types.ts';
 
-export type { Secrets } from './types.ts';
-
 const ssm = new SSMClient({});
 const cache = new Map<string, Promise<Secrets>>();
 

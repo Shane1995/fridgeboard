@@ -14,7 +14,7 @@ import { FLOW_COOKIE, FLOW_MAX_AGE } from '../../utils/cookies/constants.ts';
 import { readCookie, serialiseCookie } from '../../utils/cookies/index.ts';
 import { emailOtpSignIn } from '../../utils/emailOtpSignIn/index.ts';
 import { openFlow, sealFlow } from '../../utils/flowToken/index.ts';
-import type { AuthFlow } from '../../utils/flowToken/index.ts';
+import type { AuthFlow } from '../../utils/flowToken/types.ts';
 import { jsonResponse } from '../../utils/jsonResponse/index.ts';
 import { readBodyField } from '../../utils/readBodyField/index.ts';
 import { secretHash } from '../../utils/secretHash/index.ts';

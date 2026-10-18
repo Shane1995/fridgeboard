@@ -11,7 +11,7 @@ import {
 } from '@aws-sdk/lib-dynamodb';
 import type { PostConfirmationTriggerEvent } from 'aws-lambda';
 import { inviteKey, profileKey } from '../../utils/keys/index.ts';
-import type { Invite } from '../../utils/keys/index.ts';
+import type { Invite } from '../../utils/keys/types.ts';
 import { normaliseEmail } from '../../utils/normaliseEmail/index.ts';
 import {
   ADMIN_GROUP,

@@ -2,8 +2,6 @@ import { createCipheriv, createDecipheriv, hkdfSync, randomBytes } from 'node:cr
 import { CIPHER, FLOW_TTL_MS, IV_LENGTH, KEY_INFO, KEY_LENGTH, TAG_LENGTH } from './constants.ts';
 import type { AuthFlow, FlowPayload } from './types.ts';
 
-export type { AuthFlow } from './types.ts';
-
 const deriveKey = (flowKey: string): Buffer =>
   Buffer.from(hkdfSync('sha256', flowKey, '', KEY_INFO, KEY_LENGTH));
 

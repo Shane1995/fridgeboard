@@ -1,4 +1,4 @@
-import type { Invite } from '../../utils/keys/index.ts';
+import type { Invite } from '../../utils/keys/types.ts';
 
 export const ADMIN_GROUP = 'admin';
 export const CONFIRM_SIGN_UP_SOURCE = 'PostConfirmation_ConfirmSignUp';

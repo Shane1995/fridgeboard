@@ -6,7 +6,9 @@
     "apps/web/scripts/thirdPartyLicenses/index.ts",
     "apps/functions/src/handlers/*/index.ts",
     "apps/functions/scripts/**/index.ts",
-    "packages/contract/src/index.ts"
+    "packages/contract/src/auth/constants.ts",
+    "packages/contract/src/auth/types.ts",
+    "packages/contract/src/me/types.ts"
   ],
   "workspaces": {
     "packages": [

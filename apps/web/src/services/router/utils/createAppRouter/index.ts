@@ -2,7 +2,7 @@ import { createRouter, type RouterHistory } from '@tanstack/react-router';
 import { routeTree } from '../../routeTree.gen';
 import { queryClient } from '../../../queryClient';
 
-export function createAppRouter(history?: RouterHistory) {
+export const createAppRouter = (history?: RouterHistory) => {
   return createRouter({
     routeTree,
     ...(history && { history }),
@@ -11,4 +11,4 @@ export function createAppRouter(history?: RouterHistory) {
     defaultPreloadStaleTime: 0,
     scrollRestoration: true,
   });
-}
+};

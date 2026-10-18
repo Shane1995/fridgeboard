@@ -5,8 +5,6 @@ import { loadUserPoolId } from '../loadUserPoolId/index.ts';
 import { NO_SUB_ERROR } from './constants.ts';
 import type { ResolvedUser } from './types.ts';
 
-export type { ResolvedUser } from './types.ts';
-
 export const resolveUser = async (email: string): Promise<ResolvedUser> => {
   const userPoolId = await loadUserPoolId();
   const username = normaliseEmail(email);

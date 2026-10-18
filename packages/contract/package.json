@@ -4,9 +4,10 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    "./auth": "./src/auth/types.ts",
+    "./auth/constants": "./src/auth/constants.ts",
+    "./me": "./src/me/types.ts"
   },
-  "types": "./src/index.ts",
   "scripts": {
     "typecheck": "tsc -b",
     "lint": "oxlint --config ../../.oxlintrc.json src/",

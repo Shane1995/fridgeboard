@@ -7,7 +7,8 @@ import {
   profileKey,
 } from '../../../../src/utils/keys/index.ts';
 import { fetchMemberships } from '../../../../src/handlers/me/utils/fetchMemberships/index.ts';
-import { doc, TABLE_NAME } from '../clients/index.ts';
+import { TABLE_NAME } from '../clients/constants.ts';
+import { doc } from '../clients/index.ts';
 import { resolveUser } from '../resolveUser/index.ts';
 
 export const runExportUser = async (email: string, directory: string): Promise<string> => {

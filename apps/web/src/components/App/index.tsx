@@ -3,10 +3,10 @@ import { RouterProvider } from '@tanstack/react-router';
 import { queryClient } from '../../services/queryClient';
 import { router } from '../../services/router';
 
-export function App() {
+export const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
     </QueryClientProvider>
   );
-}
+};

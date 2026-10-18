@@ -9,8 +9,6 @@ import {
 } from './constants.ts';
 import type { GsiKey, TableKey } from './types.ts';
 
-export type { GsiKey, Invite, TableKey } from './types.ts';
-
 export const inviteKey = (email: string): TableKey => ({
   PK: `${INVITE_PK_PREFIX}${normaliseEmail(email)}`,
   SK: INVITE_SK,

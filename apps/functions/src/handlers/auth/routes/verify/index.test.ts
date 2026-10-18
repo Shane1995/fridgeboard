@@ -12,7 +12,7 @@ import {
 import { mockClient } from 'aws-sdk-client-mock';
 import { openFlow, sealFlow } from '../../utils/flowToken/index.ts';
 import { readCookie } from '../../utils/cookies/index.ts';
-import type { AuthFlow } from '../../utils/flowToken/index.ts';
+import type { AuthFlow } from '../../utils/flowToken/types.ts';
 import { verify } from './index.ts';
 
 const cognitoMock = mockClient(CognitoIdentityProviderClient);

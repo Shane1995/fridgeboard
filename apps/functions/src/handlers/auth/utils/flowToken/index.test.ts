@@ -1,5 +1,5 @@
 import { openFlow, sealFlow } from './index.ts';
-import type { AuthFlow } from './index.ts';
+import type { AuthFlow } from './types.ts';
 
 const KEY = 'flow-key';
 const NOW = 1_700_000_000_000;

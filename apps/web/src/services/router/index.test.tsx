@@ -2,10 +2,10 @@ import { createMemoryHistory, RouterProvider } from '@tanstack/react-router';
 import { render, screen } from '@testing-library/react';
 import { createAppRouter } from './utils/createAppRouter';
 
-function renderAt(path: string) {
+const renderAt = (path: string) => {
   const router = createAppRouter(createMemoryHistory({ initialEntries: [path] }));
   render(<RouterProvider router={router} />);
-}
+};
 
 describe('router', () => {
   it('renders the home page at /', async () => {
