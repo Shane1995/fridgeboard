@@ -1,5 +1,6 @@
-import { createRootRouteWithContext, Link, Outlet } from '@tanstack/react-router';
+import { createRootRouteWithContext, Outlet } from '@tanstack/react-router';
 import { lazy, Suspense } from 'react';
+import { RouteFallback } from '../components/RouteFallback';
 import { ROUTER_COPY } from '../services/router/constants';
 import type { RouterContext } from '../services/router/types';
 
@@ -8,21 +9,11 @@ const Devtools = import.meta.env.DEV
   : null;
 
 function NotFound() {
-  return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center gap-4 p-6 text-center">
-      <h1 className="text-2xl">{ROUTER_COPY.notFound}</h1>
-      <Link to="/">{ROUTER_COPY.home}</Link>
-    </main>
-  );
+  return <RouteFallback title={ROUTER_COPY.notFound} />;
 }
 
 function RouteError() {
-  return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center gap-4 p-6 text-center">
-      <h1 className="text-2xl">{ROUTER_COPY.error}</h1>
-      <Link to="/">{ROUTER_COPY.home}</Link>
-    </main>
-  );
+  return <RouteFallback title={ROUTER_COPY.error} />;
 }
 
 function Root() {
