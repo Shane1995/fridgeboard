@@ -110,6 +110,108 @@ describe('me handler', () => {
     ]);
   });
 
+  it('dedupes duplicate memberships for one household', async () => {
+    ddbMock.on(QueryCommand).resolves({
+      Items: [
+        { GSI1SK: 'HH#h1', role: 'owner' },
+        { GSI1SK: 'HH#h1', role: 'owner' },
+      ],
+    });
+    ddbMock.on(BatchGetCommand).resolves({
+      Responses: { fridgeboard: [{ PK: 'HH#h1', SK: 'META', name: 'Home' }] },
+    });
+
+    const result = await handler(buildEvent());
+
+    expect(ddbMock.commandCalls(BatchGetCommand)[0]?.args[0].input).toEqual({
+      RequestItems: { fridgeboard: { Keys: [{ PK: 'HH#h1', SK: 'META' }] } },
+    });
+    expect(JSON.parse(result.body ?? '').households).toEqual([
+      { id: 'h1', name: 'Home', role: 'owner' },
+    ]);
+  });
+
+  it('skips memberships with a missing or malformed GSI1SK', async () => {
+    ddbMock.on(QueryCommand).resolves({
+      Items: [{ role: 'owner' }, { GSI1SK: 'junk', role: 'owner' }],
+    });
+
+    const result = await handler(buildEvent());
+
+    expect(JSON.parse(result.body ?? '').households).toEqual([]);
+    expect(ddbMock.commandCalls(BatchGetCommand)).toHaveLength(0);
+  });
+
+  it('follows LastEvaluatedKey until the membership query is done', async () => {
+    ddbMock
+      .on(QueryCommand)
+      .resolvesOnce({
+        Items: [{ GSI1SK: 'HH#h1', role: 'owner' }],
+        LastEvaluatedKey: { PK: 'HH#h1', SK: 'MEMBER#sub-1' },
+      })
+      .resolvesOnce({ Items: [{ GSI1SK: 'HH#h2', role: 'member' }] });
+    ddbMock.on(BatchGetCommand).resolves({
+      Responses: {
+        fridgeboard: [
+          { PK: 'HH#h1', SK: 'META', name: 'Home' },
+          { PK: 'HH#h2', SK: 'META', name: 'Cabin' },
+        ],
+      },
+    });
+
+    const result = await handler(buildEvent());
+
+    const queries = ddbMock.commandCalls(QueryCommand);
+    expect(queries).toHaveLength(2);
+    expect(queries[1]?.args[0].input.ExclusiveStartKey).toEqual({
+      PK: 'HH#h1',
+      SK: 'MEMBER#sub-1',
+    });
+    expect(JSON.parse(result.body ?? '').households).toHaveLength(2);
+  });
+
+  it('chunks BatchGet at 100 keys', async () => {
+    const Items = Array.from({ length: 101 }, (_, i) => ({ GSI1SK: `HH#h${i}`, role: 'member' }));
+    ddbMock.on(QueryCommand).resolves({ Items });
+    ddbMock.on(BatchGetCommand).resolves({ Responses: { fridgeboard: [] } });
+
+    await handler(buildEvent());
+
+    const calls = ddbMock.commandCalls(BatchGetCommand);
+    expect(calls.map((c) => c.args[0].input.RequestItems?.fridgeboard?.Keys?.length)).toEqual([
+      100, 1,
+    ]);
+  });
+
+  it('retries unprocessed BatchGet keys once', async () => {
+    ddbMock.on(QueryCommand).resolves({ Items: [{ GSI1SK: 'HH#h1', role: 'owner' }] });
+    ddbMock
+      .on(BatchGetCommand)
+      .resolvesOnce({
+        Responses: { fridgeboard: [] },
+        UnprocessedKeys: { fridgeboard: { Keys: [{ PK: 'HH#h1', SK: 'META' }] } },
+      })
+      .resolvesOnce({ Responses: { fridgeboard: [{ PK: 'HH#h1', SK: 'META', name: 'Home' }] } });
+
+    const result = await handler(buildEvent());
+
+    expect(ddbMock.commandCalls(BatchGetCommand)).toHaveLength(2);
+    expect(JSON.parse(result.body ?? '').households).toEqual([
+      { id: 'h1', name: 'Home', role: 'owner' },
+    ]);
+  });
+
+  it('throws when BatchGet keys are still unprocessed after the retry', async () => {
+    ddbMock.on(QueryCommand).resolves({ Items: [{ GSI1SK: 'HH#h1', role: 'owner' }] });
+    ddbMock.on(BatchGetCommand).resolves({
+      Responses: { fridgeboard: [] },
+      UnprocessedKeys: { fridgeboard: { Keys: [{ PK: 'HH#h1', SK: 'META' }] } },
+    });
+
+    await expect(handler(buildEvent())).rejects.toThrow();
+    expect(ddbMock.commandCalls(BatchGetCommand)).toHaveLength(2);
+  });
+
   it('marks admins from cognito:groups', async () => {
     const result = await handler(buildEvent({ sub: 'sub-1', 'cognito:groups': '[admin]' }));
 
@@ -120,6 +222,8 @@ describe('me handler', () => {
     ['bare string', 'admin', true],
     ['among others', '[staff admin]', true],
     ['similar name', '[administrators]', false],
+    ['suffixed name', '[admin2]', false],
+    ['prefixed name', '[notadmin]', false],
     ['other group', '[staff]', false],
     ['missing', undefined, false],
   ])('reads cognito:groups as %s', async (_name, groups, expected) => {
