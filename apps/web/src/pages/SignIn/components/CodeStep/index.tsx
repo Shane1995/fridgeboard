@@ -3,14 +3,9 @@ import { useState, type FormEvent } from 'react';
 import { useStartSignInMutation } from '../../../../hooks/useStartSignInMutation';
 import { useVerifyCodeMutation } from '../../../../hooks/useVerifyCodeMutation';
 import { CODE_PATTERN, SIGN_IN_COPY } from '../../constants';
+import { UNKNOWN_FEEDBACK } from './constants';
 import type { CodeFeedback, CodeStepProps } from './types';
 import { toVerifyFeedback } from './utils/toVerifyFeedback';
-
-const UNKNOWN_FEEDBACK: CodeFeedback = {
-  message: SIGN_IN_COPY.reasons.unknown,
-  isError: true,
-  isExpired: false,
-};
 
 export const CodeStep = ({ email, onSignedIn, onBack }: CodeStepProps) => {
   const [code, setCode] = useState('');

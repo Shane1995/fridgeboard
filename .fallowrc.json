@@ -2,7 +2,6 @@
   "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
   "entry": [
     "apps/web/src/main.tsx",
-    "apps/web/src/hooks/useSession/index.ts",
     "apps/web/src/routes/**/*.tsx",
     "apps/web/scripts/thirdPartyLicenses/index.ts",
     "apps/functions/src/handlers/*/index.ts",

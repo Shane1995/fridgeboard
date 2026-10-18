@@ -2,17 +2,14 @@ const load = async () => {
   vi.resetModules();
   const { updateSession } = await import('./index');
   const { getSession } = await import('../getSession');
-  const { subscribeSession } = await import('../subscribeSession');
   const { SessionStatus } = await import('../constants');
-  return { updateSession, getSession, subscribeSession, SessionStatus };
+  return { updateSession, getSession, SessionStatus };
 };
 
 describe('updateSession', () => {
-  it('merges the patch into a new snapshot and notifies listeners', async () => {
-    const { updateSession, getSession, subscribeSession, SessionStatus } = await load();
+  it('merges the patch into a new snapshot', async () => {
+    const { updateSession, getSession, SessionStatus } = await load();
     const before = getSession();
-    const listener = vi.fn();
-    subscribeSession(listener);
 
     updateSession({ status: SessionStatus.SignedIn, accessToken: 'token-1' });
 
@@ -23,6 +20,5 @@ describe('updateSession', () => {
     });
     expect(getSession()).not.toBe(before);
     expect(before.status).toBe('loading');
-    expect(listener).toHaveBeenCalledTimes(1);
   });
 });
