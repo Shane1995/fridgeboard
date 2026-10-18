@@ -1,11 +1,9 @@
-import { householdIdFromKey, inviteKey } from '../../../../src/utils/keys/index.ts';
+import { householdIdFromKey } from '../../../../src/utils/keys/householdIdFromKey/index.ts';
+import { inviteKey } from '../../../../src/utils/keys/inviteKey/index.ts';
 import { MEMBER_SK_PREFIX } from './constants.ts';
-import type { DeletePlan, DeletePlanInput, Key } from './types.ts';
-
-const hasKeys = (item: Key): boolean =>
-  typeof item['PK'] === 'string' && typeof item['SK'] === 'string';
-
-const pick = (item: Key): Key => ({ PK: item['PK'], SK: item['SK'] });
+import type { DeletePlan, DeletePlanInput } from './types.ts';
+import { hasKeys } from './utils/hasKeys/index.ts';
+import { pickKey } from './utils/pickKey/index.ts';
 
 export const buildDeletePlan = ({
   sub,
@@ -28,8 +26,8 @@ export const buildDeletePlan = ({
     }));
   return {
     keys: [
-      ...userItems.filter(hasKeys).map(pick),
-      ...households.filter(({ empty }) => !empty).map(({ item }) => pick(item)),
+      ...userItems.filter(hasKeys).map(pickKey),
+      ...households.filter(({ empty }) => !empty).map(({ item }) => pickKey(item)),
       inviteKey(email),
     ],
     emptyHouseholds: households.filter(({ empty }) => empty).map(({ id }) => id),

@@ -1,37 +1,12 @@
-import {
-  CreateEmailIdentityCommand,
-  DeleteEmailIdentityCommand,
-  GetEmailIdentityCommand,
-  NotFoundException,
-} from '@aws-sdk/client-sesv2';
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import { normaliseEmail } from '../../../../src/utils/normaliseEmail/index.ts';
 import { buildInvite } from '../buildInvite/index.ts';
 import { TABLE_NAME } from '../clients/constants.ts';
-import { doc, ses } from '../clients/index.ts';
+import { doc } from '../clients/index.ts';
 import { joinLink } from '../joinLink/index.ts';
+import { INVITED_BY_ADMIN } from './constants.ts';
 import type { InviteOptions, InviteResult } from './types.ts';
-
-const ensureIdentity = async (EmailIdentity: string): Promise<InviteResult['identity']> => {
-  const existing = await ses
-    .send(new GetEmailIdentityCommand({ EmailIdentity }))
-    .catch((error: unknown) => {
-      if (error instanceof NotFoundException) {
-        return undefined;
-      }
-      throw error;
-    });
-  if (!existing) {
-    await ses.send(new CreateEmailIdentityCommand({ EmailIdentity }));
-    return 'created';
-  }
-  if (existing.VerifiedForSendingStatus) {
-    return 'verified';
-  }
-  await ses.send(new DeleteEmailIdentityCommand({ EmailIdentity }));
-  await ses.send(new CreateEmailIdentityCommand({ EmailIdentity }));
-  return 'recreated';
-};
+import { ensureIdentity } from './utils/ensureIdentity/index.ts';
 
 export const runInvite = async ({
   email,
@@ -44,7 +19,14 @@ export const runInvite = async ({
   await doc.send(
     new PutCommand({
       TableName: TABLE_NAME,
-      Item: buildInvite({ email: normalised, app, admin, household, invitedBy: 'admin', now }),
+      Item: buildInvite({
+        email: normalised,
+        app,
+        admin,
+        household,
+        invitedBy: INVITED_BY_ADMIN,
+        now,
+      }),
     }),
   );
   return { link: joinLink(normalised), identity: await ensureIdentity(normalised) };

@@ -1,5 +1,5 @@
 import { type DynamoDBDocumentClient, QueryCommand } from '@aws-sdk/lib-dynamodb';
-import { membershipGsiKey } from '../../../../utils/keys/index.ts';
+import { membershipGsiKey } from '../../../../utils/keys/membershipGsiKey/index.ts';
 import { MEMBERSHIP_INDEX, MEMBERSHIP_PK_VALUE, MEMBERSHIP_QUERY } from './constants.ts';
 
 export const fetchMemberships = async (

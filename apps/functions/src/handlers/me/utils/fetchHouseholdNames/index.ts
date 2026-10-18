@@ -1,5 +1,6 @@
 import type { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
-import { householdIdFromKey, householdMetaKey } from '../../../../utils/keys/index.ts';
+import { householdIdFromKey } from '../../../../utils/keys/householdIdFromKey/index.ts';
+import { householdMetaKey } from '../../../../utils/keys/householdMetaKey/index.ts';
 import { batchGetMetas } from '../batchGetMetas/index.ts';
 import { BATCH_GET_LIMIT } from './constants.ts';
 

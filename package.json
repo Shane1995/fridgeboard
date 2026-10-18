@@ -2,15 +2,11 @@
   "name": "fridgeboard-workspace",
   "private": true,
   "license": "UNLICENSED",
-  "packageManager": "pnpm@9.15.0",
-  "engines": {
-    "node": ">=24.0.0",
-    "pnpm": ">=9.0.0"
-  },
+  "type": "module",
   "scripts": {
     "build": "turbo run build",
     "test": "turbo run test",
-    "lint": "turbo run lint",
+    "lint": "node scripts/checkReexports/index.ts && turbo run lint",
     "format": "turbo run format",
     "format:check": "turbo run format:check",
     "typecheck": "turbo run typecheck",
@@ -31,5 +27,10 @@
       "oxfmt",
       "oxlint"
     ]
-  }
+  },
+  "engines": {
+    "node": ">=24.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.0"
 }

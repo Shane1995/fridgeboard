@@ -5,8 +5,8 @@ import type {
   APIGatewayProxyEventV2WithJWTAuthorizer,
   APIGatewayProxyStructuredResultV2,
 } from 'aws-lambda';
-import { profileKey } from '../../utils/keys/index.ts';
-import { jsonResponse } from '../auth/utils/jsonResponse/index.ts';
+import { profileKey } from '../../utils/keys/profileKey/index.ts';
+import { jsonResponse } from '../../utils/jsonResponse/index.ts';
 import { ADMIN_GROUP, GROUPS_CLAIM } from './constants.ts';
 import { fetchHouseholdNames } from './utils/fetchHouseholdNames/index.ts';
 import { fetchMemberships } from './utils/fetchMemberships/index.ts';

@@ -1,6 +1,6 @@
 import { createMemoryHistory, RouterProvider } from '@tanstack/react-router';
 import { render, screen } from '@testing-library/react';
-import { createAppRouter } from './utils/createAppRouter';
+import { createAppRouter } from './index';
 
 const renderAt = (path: string) => {
   const router = createAppRouter(createMemoryHistory({ initialEntries: [path] }));

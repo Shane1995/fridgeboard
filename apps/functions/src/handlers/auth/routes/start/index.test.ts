@@ -9,8 +9,9 @@ import {
 } from '@aws-sdk/client-cognito-identity-provider';
 import { GetEmailIdentityCommand, NotFoundException, SESv2Client } from '@aws-sdk/client-sesv2';
 import { mockClient } from 'aws-sdk-client-mock';
-import { openFlow, sealFlow } from '../../utils/flowToken/index.ts';
-import { readCookie } from '../../utils/cookies/index.ts';
+import { openFlow } from '../../utils/flowToken/openFlow/index.ts';
+import { sealFlow } from '../../utils/flowToken/sealFlow/index.ts';
+import { readCookie } from '../../utils/cookies/readCookie/index.ts';
 import { start } from './index.ts';
 
 const cognitoMock = mockClient(CognitoIdentityProviderClient);

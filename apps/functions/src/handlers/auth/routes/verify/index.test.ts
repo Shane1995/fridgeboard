@@ -10,8 +10,9 @@ import {
   UserNotFoundException,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { mockClient } from 'aws-sdk-client-mock';
-import { openFlow, sealFlow } from '../../utils/flowToken/index.ts';
-import { readCookie } from '../../utils/cookies/index.ts';
+import { openFlow } from '../../utils/flowToken/openFlow/index.ts';
+import { sealFlow } from '../../utils/flowToken/sealFlow/index.ts';
+import { readCookie } from '../../utils/cookies/readCookie/index.ts';
 import type { AuthFlow } from '../../utils/flowToken/types.ts';
 import { verify } from './index.ts';
 

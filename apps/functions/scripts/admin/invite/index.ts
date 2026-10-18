@@ -1,6 +1,7 @@
 import { parseInviteArgs } from '../utils/parseInviteArgs/index.ts';
 import { runCli } from '../utils/runCli/index.ts';
 import { runInvite } from '../utils/runInvite/index.ts';
+import { NEXT_STEP_MESSAGE, VERIFY_MESSAGE } from './constants.ts';
 
 await runCli(async () => {
   const { email, app, admin, household } = parseInviteArgs(process.argv.slice(2));
@@ -13,8 +14,6 @@ await runCli(async () => {
   });
   console.log(`Invite written for ${email} (SES identity: ${identity}).`);
   console.log(`Join link: ${link}`);
-  console.log(
-    'Next: send them the link. If the identity is new or re-created, they must first tap',
-  );
-  console.log('the verification link in the email from Amazon Web Services (SES sandbox).');
+  console.log(NEXT_STEP_MESSAGE);
+  console.log(VERIFY_MESSAGE);
 });

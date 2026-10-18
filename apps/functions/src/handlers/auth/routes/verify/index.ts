@@ -11,10 +11,13 @@ import {
 } from '@aws-sdk/client-cognito-identity-provider';
 import type { Route } from '../../types.ts';
 import { FLOW_COOKIE, FLOW_MAX_AGE } from '../../utils/cookies/constants.ts';
-import { clearCookie, readCookie, serialiseCookie } from '../../utils/cookies/index.ts';
+import { clearCookie } from '../../utils/cookies/clearCookie/index.ts';
+import { readCookie } from '../../utils/cookies/readCookie/index.ts';
+import { serialiseCookie } from '../../utils/cookies/serialiseCookie/index.ts';
 import { emailOtpSignIn } from '../../utils/emailOtpSignIn/index.ts';
-import { openFlow, sealFlow } from '../../utils/flowToken/index.ts';
-import { jsonResponse } from '../../utils/jsonResponse/index.ts';
+import { openFlow } from '../../utils/flowToken/openFlow/index.ts';
+import { sealFlow } from '../../utils/flowToken/sealFlow/index.ts';
+import { jsonResponse } from '../../../../utils/jsonResponse/index.ts';
 import { readBodyField } from '../../utils/readBodyField/index.ts';
 import { secretHash } from '../../utils/secretHash/index.ts';
 import { sessionResponse } from '../../utils/sessionResponse/index.ts';

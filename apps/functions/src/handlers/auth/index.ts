@@ -13,7 +13,7 @@ import { start } from './routes/start/index.ts';
 import { verify } from './routes/verify/index.ts';
 import type { Route } from './types.ts';
 import { isTrustedRequest } from './utils/csrf/index.ts';
-import { jsonResponse } from './utils/jsonResponse/index.ts';
+import { jsonResponse } from '../../utils/jsonResponse/index.ts';
 import { loadSecrets } from './utils/loadSecrets/index.ts';
 
 const ROUTES = new Map<string, Route>([

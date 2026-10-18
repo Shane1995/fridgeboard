@@ -7,7 +7,8 @@ import {
 } from '@aws-sdk/client-cognito-identity-provider';
 import type { Route } from '../../types.ts';
 import { REFRESH_COOKIE } from '../../utils/cookies/constants.ts';
-import { clearCookie, readCookie } from '../../utils/cookies/index.ts';
+import { clearCookie } from '../../utils/cookies/clearCookie/index.ts';
+import { readCookie } from '../../utils/cookies/readCookie/index.ts';
 
 const cognito = new CognitoIdentityProviderClient({});
 
