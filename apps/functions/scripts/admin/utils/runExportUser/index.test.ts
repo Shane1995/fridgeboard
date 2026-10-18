@@ -3,7 +3,6 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DynamoDBDocumentClient, GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { mockClient } from 'aws-sdk-client-mock';
-import { resetAdminUserMocks } from '../__mocks__/adminUser.ts';
 import { runExportUser } from './index.ts';
 
 const ddbMock = mockClient(DynamoDBDocumentClient);
@@ -15,7 +14,6 @@ describe('runExportUser', () => {
 
   beforeEach(() => {
     ddbMock.reset();
-    resetAdminUserMocks();
   });
 
   it('writes the profile and memberships with household META to export-<sub>.json', async () => {

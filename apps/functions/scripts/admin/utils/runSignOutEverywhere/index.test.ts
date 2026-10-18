@@ -1,13 +1,9 @@
 import { AdminUserGlobalSignOutCommand } from '@aws-sdk/client-cognito-identity-provider';
 import { GetParameterCommand } from '@aws-sdk/client-ssm';
-import { cognitoMock, resetAdminUserMocks, ssmMock } from '../__mocks__/adminUser.ts';
+import { cognitoMock, ssmMock } from '../__mocks__/adminUser.ts';
 import { runSignOutEverywhere } from './index.ts';
 
 describe('runSignOutEverywhere', () => {
-  beforeEach(() => {
-    resetAdminUserMocks();
-  });
-
   it('signs out the normalised email in the pool from SSM', async () => {
     await runSignOutEverywhere(' Jess@Example.com ');
 

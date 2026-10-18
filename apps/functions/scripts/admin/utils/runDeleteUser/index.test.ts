@@ -5,7 +5,7 @@ import {
 import { DeleteEmailIdentityCommand, NotFoundException, SESv2Client } from '@aws-sdk/client-sesv2';
 import { DeleteCommand, DynamoDBDocumentClient, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { mockClient } from 'aws-sdk-client-mock';
-import { cognitoMock, resetAdminUserMocks } from '../__mocks__/adminUser.ts';
+import { cognitoMock } from '../__mocks__/adminUser.ts';
 import { runDeleteUser } from './index.ts';
 
 const ddbMock = mockClient(DynamoDBDocumentClient);
@@ -20,7 +20,6 @@ describe('runDeleteUser', () => {
   beforeEach(() => {
     ddbMock.reset();
     sesMock.reset();
-    resetAdminUserMocks();
   });
 
   it('signs out, deletes data and empty households, then deletes the user last', async () => {
