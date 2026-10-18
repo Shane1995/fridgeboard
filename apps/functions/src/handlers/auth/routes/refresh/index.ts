@@ -2,6 +2,8 @@ import {
   CognitoIdentityProviderClient,
   GetTokensFromRefreshTokenCommand,
   NotAuthorizedException,
+  RefreshTokenReuseException,
+  UserNotFoundException,
 } from '@aws-sdk/client-cognito-identity-provider';
 import type { Route } from '../../types.ts';
 import { REFRESH_COOKIE, REFRESH_MAX_AGE } from '../../utils/cookies/constants.ts';
@@ -28,7 +30,11 @@ export const refresh: Route = async (request, { clientId, clientSecret }) => {
       }),
     )
     .catch((error: unknown) => {
-      if (error instanceof NotAuthorizedException) {
+      if (
+        error instanceof NotAuthorizedException ||
+        error instanceof RefreshTokenReuseException ||
+        error instanceof UserNotFoundException
+      ) {
         return undefined;
       }
       throw error;

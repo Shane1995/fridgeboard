@@ -12,20 +12,20 @@ import { normaliseEmail } from '../../../../utils/normaliseEmail/index.ts';
 import { NO_INVITE_ERROR } from '../../../preSignUp/constants.ts';
 import type { Route } from '../../types.ts';
 import { FLOW_COOKIE, FLOW_MAX_AGE } from '../../utils/cookies/constants.ts';
-import { serialiseCookie } from '../../utils/cookies/index.ts';
-import { signFlow } from '../../utils/flowToken/index.ts';
+import { readCookie, serialiseCookie } from '../../utils/cookies/index.ts';
+import { openFlow, sealFlow } from '../../utils/flowToken/index.ts';
 import type { AuthFlow } from '../../utils/flowToken/index.ts';
 import { jsonResponse } from '../../utils/jsonResponse/index.ts';
 import { readBodyField } from '../../utils/readBodyField/index.ts';
 import { secretHash } from '../../utils/secretHash/index.ts';
-import { MISSING_SESSION_ERROR, USER_NOT_FOUND } from './constants.ts';
+import { EMAIL_MARKER, MISSING_SESSION_ERROR, USER_NOT_FOUND } from './constants.ts';
 
 const cognito = new CognitoIdentityProviderClient({});
 const ses = new SESv2Client({});
 
 export const start: Route = async (request, { userPoolId, clientId, clientSecret, flowKey }) => {
   const email = normaliseEmail(readBodyField(request, 'email'));
-  if (!email) {
+  if (!email.includes(EMAIL_MARKER)) {
     return { statusCode: 400 };
   }
 
@@ -55,7 +55,7 @@ export const start: Route = async (request, { userPoolId, clientId, clientSecret
   const SecretHash = secretHash(email, clientId, clientSecret);
   const withFlow = (flow: AuthFlow) => ({
     statusCode: 204,
-    cookies: [serialiseCookie(FLOW_COOKIE, signFlow(flow, flowKey, Date.now()), FLOW_MAX_AGE)],
+    cookies: [serialiseCookie(FLOW_COOKIE, sealFlow(flow, flowKey, Date.now()), FLOW_MAX_AGE)],
   });
 
   if (status === USER_NOT_FOUND) {
@@ -87,7 +87,10 @@ export const start: Route = async (request, { userPoolId, clientId, clientSecret
     await cognito.send(
       new ResendConfirmationCodeCommand({ ClientId: clientId, SecretHash, Username: email }),
     );
-    return withFlow({ email, session: '', kind: 'sign-up' });
+    const previous = openFlow(readCookie(request.cookies, FLOW_COOKIE) ?? '', flowKey, Date.now());
+    const session =
+      previous?.email === email && previous.kind === 'sign-up' ? previous.session : '';
+    return withFlow({ email, session, kind: 'sign-up' });
   }
 
   const { Session } = await cognito.send(

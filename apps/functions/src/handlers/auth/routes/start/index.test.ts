@@ -9,7 +9,7 @@ import {
 } from '@aws-sdk/client-cognito-identity-provider';
 import { GetEmailIdentityCommand, NotFoundException, SESv2Client } from '@aws-sdk/client-sesv2';
 import { mockClient } from 'aws-sdk-client-mock';
-import { verifyFlow } from '../../utils/flowToken/index.ts';
+import { openFlow, sealFlow } from '../../utils/flowToken/index.ts';
 import { readCookie } from '../../utils/cookies/index.ts';
 import { start } from './index.ts';
 
@@ -29,7 +29,7 @@ const FLOW_COOKIE_PATTERN =
 const request = { body: JSON.stringify({ email: ' Jess@Example.com ' }), isBase64Encoded: false };
 
 const flowFrom = (cookies: string[] | undefined) =>
-  verifyFlow(readCookie(cookies, 'fb_auth_flow') ?? '', SECRETS.flowKey, Date.now());
+  openFlow(readCookie(cookies, 'fb_auth_flow') ?? '', SECRETS.flowKey, Date.now());
 
 describe('start route', () => {
   beforeEach(() => {
@@ -138,6 +138,39 @@ describe('start route', () => {
     });
   });
 
+  it('carries a sign-up session from a matching flow cookie into the resend flow', async () => {
+    cognitoMock.on(AdminGetUserCommand).resolves({ Username: 'u', UserStatus: 'UNCONFIRMED' });
+    cognitoMock.on(ResendConfirmationCodeCommand).resolves({});
+    const previous = sealFlow(
+      { email: 'jess@example.com', session: 's1', kind: 'sign-up' },
+      SECRETS.flowKey,
+      Date.now(),
+    );
+
+    const result = await start({ ...request, cookies: [`fb_auth_flow=${previous}`] }, SECRETS);
+
+    expect(cognitoMock.commandCalls(ResendConfirmationCodeCommand)).toHaveLength(1);
+    expect(flowFrom(result.cookies)).toEqual({
+      email: 'jess@example.com',
+      session: 's1',
+      kind: 'sign-up',
+    });
+  });
+
+  it('does not carry a session from a flow cookie for another email', async () => {
+    cognitoMock.on(AdminGetUserCommand).resolves({ Username: 'u', UserStatus: 'UNCONFIRMED' });
+    cognitoMock.on(ResendConfirmationCodeCommand).resolves({});
+    const previous = sealFlow(
+      { email: 'eve@example.com', session: 's1', kind: 'sign-up' },
+      SECRETS.flowKey,
+      Date.now(),
+    );
+
+    const result = await start({ ...request, cookies: [`fb_auth_flow=${previous}`] }, SECRETS);
+
+    expect(flowFrom(result.cookies)?.session).toBe('');
+  });
+
   it('begins EMAIL_OTP sign-in for a confirmed user', async () => {
     cognitoMock.on(AdminGetUserCommand).resolves({ Username: 'u', UserStatus: 'CONFIRMED' });
     cognitoMock.on(InitiateAuthCommand).resolves({ ChallengeName: 'EMAIL_OTP', Session: 's2' });
@@ -168,6 +201,17 @@ describe('start route', () => {
 
   it('returns 400 with no AWS call when the email is missing', async () => {
     const result = await start({ body: '{}', isBase64Encoded: false }, SECRETS);
+
+    expect(result.statusCode).toBe(400);
+    expect(sesMock.calls()).toHaveLength(0);
+    expect(cognitoMock.calls()).toHaveLength(0);
+  });
+
+  it('returns 400 with no AWS call when the email has no @', async () => {
+    const result = await start(
+      { body: JSON.stringify({ email: 'jess.example.com' }), isBase64Encoded: false },
+      SECRETS,
+    );
 
     expect(result.statusCode).toBe(400);
     expect(sesMock.calls()).toHaveLength(0);

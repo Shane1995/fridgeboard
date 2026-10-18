@@ -1,7 +1,9 @@
 import {
   CognitoIdentityProviderClient,
-  NotAuthorizedException,
+  InvalidParameterException,
   RevokeTokenCommand,
+  UnauthorizedException,
+  UnsupportedTokenTypeException,
 } from '@aws-sdk/client-cognito-identity-provider';
 import type { Route } from '../../types.ts';
 import { REFRESH_COOKIE } from '../../utils/cookies/constants.ts';
@@ -17,7 +19,13 @@ export const signOut: Route = async (request, { clientId, clientSecret }) => {
         new RevokeTokenCommand({ ClientId: clientId, ClientSecret: clientSecret, Token: token }),
       )
       .catch((error: unknown) => {
-        if (!(error instanceof NotAuthorizedException)) {
+        if (
+          !(
+            error instanceof UnsupportedTokenTypeException ||
+            error instanceof InvalidParameterException ||
+            error instanceof UnauthorizedException
+          )
+        ) {
           throw error;
         }
       });

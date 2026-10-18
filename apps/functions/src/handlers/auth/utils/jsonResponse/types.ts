@@ -6,4 +6,9 @@ export type AuthReason =
   | 'forbidden'
   | 'unauthorised';
 
-export type ResponseBody = { reason: AuthReason } | { accessToken: string; expiresIn: number };
+export type VerifyNextResponse = { next: 'enter-code' };
+
+export type ResponseBody =
+  | { reason: AuthReason }
+  | { accessToken: string; expiresIn: number }
+  | VerifyNextResponse;

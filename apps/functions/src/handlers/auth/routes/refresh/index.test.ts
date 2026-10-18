@@ -2,6 +2,8 @@ import {
   CognitoIdentityProviderClient,
   GetTokensFromRefreshTokenCommand,
   NotAuthorizedException,
+  RefreshTokenReuseException,
+  UserNotFoundException,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { mockClient } from 'aws-sdk-client-mock';
 import { refresh } from './index.ts';
@@ -51,6 +53,19 @@ describe('refresh route', () => {
     cognitoMock
       .on(GetTokensFromRefreshTokenCommand)
       .rejects(new NotAuthorizedException({ message: 'revoked', $metadata: {} }));
+
+    const result = await refresh(request, SECRETS);
+
+    expect(result.statusCode).toBe(401);
+    expect(JSON.parse(result.body ?? '')).toEqual({ reason: 'unauthorised' });
+    expect(result.cookies).toEqual([CLEARED_REFRESH_COOKIE]);
+  });
+
+  it.each([
+    ['RefreshTokenReuseException', new RefreshTokenReuseException({ message: 'x', $metadata: {} })],
+    ['UserNotFoundException', new UserNotFoundException({ message: 'x', $metadata: {} })],
+  ])('returns 401 and clears fb_rt on %s', async (_name, error) => {
+    cognitoMock.on(GetTokensFromRefreshTokenCommand).rejects(error);
 
     const result = await refresh(request, SECRETS);
 

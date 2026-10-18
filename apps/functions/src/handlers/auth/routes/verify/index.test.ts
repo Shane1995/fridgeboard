@@ -6,9 +6,12 @@ import {
   InitiateAuthCommand,
   NotAuthorizedException,
   RespondToAuthChallengeCommand,
+  TooManyFailedAttemptsException,
+  UserNotFoundException,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { mockClient } from 'aws-sdk-client-mock';
-import { signFlow } from '../../utils/flowToken/index.ts';
+import { openFlow, sealFlow } from '../../utils/flowToken/index.ts';
+import { readCookie } from '../../utils/cookies/index.ts';
 import type { AuthFlow } from '../../utils/flowToken/index.ts';
 import { verify } from './index.ts';
 
@@ -32,7 +35,7 @@ const CLEARED_FLOW_COOKIE =
 const buildRequest = (flow: AuthFlow, issuedAt = Date.now()) => ({
   body: JSON.stringify({ code: '123456' }),
   isBase64Encoded: false,
-  cookies: [`fb_auth_flow=${signFlow(flow, SECRETS.flowKey, issuedAt)}`],
+  cookies: [`fb_auth_flow=${sealFlow(flow, SECRETS.flowKey, issuedAt)}`],
 });
 
 describe('verify route', () => {
@@ -120,15 +123,47 @@ describe('verify route', () => {
     expect(JSON.parse(result.body ?? '')).toEqual({ reason: 'expired' });
   });
 
-  it('returns 400 expired when confirmation gives no session to sign in with', async () => {
+  it('starts an EMAIL_OTP sign-in when confirmation gives no session', async () => {
     cognitoMock.on(ConfirmSignUpCommand).resolves({});
+    cognitoMock.on(InitiateAuthCommand).resolves({ ChallengeName: 'EMAIL_OTP', Session: 's4' });
 
     const result = await verify(buildRequest({ ...SIGN_UP, session: '' }), SECRETS);
 
     expect(
       cognitoMock.commandCalls(ConfirmSignUpCommand)[0]?.args[0].input.Session,
     ).toBeUndefined();
-    expect(cognitoMock.commandCalls(InitiateAuthCommand)).toHaveLength(0);
+    expect(cognitoMock.commandCalls(InitiateAuthCommand)[0]?.args[0].input).toEqual({
+      AuthFlow: 'USER_AUTH',
+      ClientId: 'client-123',
+      AuthParameters: {
+        USERNAME: 'jess@example.com',
+        PREFERRED_CHALLENGE: 'EMAIL_OTP',
+        SECRET_HASH: SECRET_HASH,
+      },
+    });
+    expect(result.statusCode).toBe(202);
+    expect(result.headers).toEqual({ 'content-type': 'application/json' });
+    expect(JSON.parse(result.body ?? '')).toEqual({ next: 'enter-code' });
+    expect(result.cookies?.[0]).toMatch(
+      /^fb_auth_flow=[^;]+; Secure; HttpOnly; SameSite=Strict; Path=\/api\/v1\/auth; Max-Age=180$/,
+    );
+    expect(
+      openFlow(readCookie(result.cookies, 'fb_auth_flow') ?? '', SECRETS.flowKey, Date.now()),
+    ).toEqual({ email: 'jess@example.com', session: 's4', kind: 'sign-in' });
+  });
+
+  it.each([
+    [
+      'TooManyFailedAttemptsException',
+      new TooManyFailedAttemptsException({ message: 'x', $metadata: {} }),
+    ],
+    ['UserNotFoundException', new UserNotFoundException({ message: 'x', $metadata: {} })],
+  ])('returns 400 expired on %s', async (_name, error) => {
+    cognitoMock.on(RespondToAuthChallengeCommand).rejects(error);
+
+    const result = await verify(buildRequest(SIGN_IN), SECRETS);
+
+    expect(result.statusCode).toBe(400);
     expect(JSON.parse(result.body ?? '')).toEqual({ reason: 'expired' });
   });
 
