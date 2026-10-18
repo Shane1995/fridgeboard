@@ -5,6 +5,10 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build/index.ts",
+    "admin:invite": "node scripts/admin/invite/index.ts",
+    "admin:delete-user": "node scripts/admin/deleteUser/index.ts",
+    "admin:export-user": "node scripts/admin/exportUser/index.ts",
+    "admin:sign-out-everywhere": "node scripts/admin/signOutEverywhere/index.ts",
     "typecheck": "tsc -b",
     "test": "vitest run",
     "lint": "oxlint --config ../../.oxlintrc.json src/ scripts/",
