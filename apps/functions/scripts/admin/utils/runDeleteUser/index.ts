@@ -6,7 +6,7 @@ import { DeleteEmailIdentityCommand, NotFoundException } from '@aws-sdk/client-s
 import { DeleteCommand } from '@aws-sdk/lib-dynamodb';
 import { fetchMemberships } from '../../../../src/handlers/me/utils/fetchMemberships/index.ts';
 import { householdIdFromKey } from '../../../../src/utils/keys/index.ts';
-import { buildDeletePlan, type Key } from '../buildDeletePlan/index.ts';
+import { buildDeletePlan, MEMBER_SK_PREFIX, type Key } from '../buildDeletePlan/index.ts';
 import { cognito, doc, ses, TABLE_NAME } from '../clients/index.ts';
 import { queryAll } from '../queryAll/index.ts';
 import { resolveUser } from '../resolveUser/index.ts';
@@ -18,7 +18,7 @@ const memberSks = async (householdId: string): Promise<string[]> =>
   (
     await queryAll({
       KeyConditionExpression: 'PK = :pk AND begins_with(SK, :sk)',
-      ExpressionAttributeValues: { ':pk': `HH#${householdId}`, ':sk': 'MEMBER#' },
+      ExpressionAttributeValues: { ':pk': `HH#${householdId}`, ':sk': MEMBER_SK_PREFIX },
     })
   ).flatMap((item) => (typeof item['SK'] === 'string' ? [item['SK']] : []));
 
@@ -35,7 +35,9 @@ export const runDeleteUser = async (email: string): Promise<{ households: number
   const memberships = await fetchMemberships(doc, TABLE_NAME, sub);
   const ids = memberships.flatMap((item) => householdIdFromKey(item['PK']) ?? []);
   const householdMembers = Object.fromEntries(
-    await Promise.all(ids.map(async (id) => [id, await memberSks(id)] as const)),
+    await Promise.all(
+      ids.map(async (id): Promise<[string, string[]]> => [id, await memberSks(id)]),
+    ),
   );
   const { keys, emptyHouseholds } = buildDeletePlan({
     sub,
@@ -45,13 +47,13 @@ export const runDeleteUser = async (email: string): Promise<{ households: number
     householdMembers,
   });
 
+  const own = `${MEMBER_SK_PREFIX}${sub}`;
   await Promise.all(
     emptyHouseholds.map(async (id) => {
       const items = await queryAll({
         KeyConditionExpression: 'PK = :pk',
         ExpressionAttributeValues: { ':pk': `HH#${id}` },
       });
-      const own = `MEMBER#${sub}`;
       await Promise.all(items.filter((item) => item['SK'] !== own).map(deleteKey));
       await Promise.all(items.filter((item) => item['SK'] === own).map(deleteKey));
     }),

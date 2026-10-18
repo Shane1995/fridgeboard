@@ -6,7 +6,7 @@ import { runDeleteUser } from '../utils/runDeleteUser/index.ts';
 
 await runCli(async () => {
   const { email, yes } = parseArgs(process.argv.slice(2));
-  if (!yes && !(await confirmDeletion(email, (question) => promptUser(question)))) {
+  if (!yes && !(await confirmDeletion(email, promptUser))) {
     console.log('Email did not match. Nothing deleted.');
     process.exitCode = 1;
     return;

@@ -9,17 +9,9 @@ import { normaliseEmail } from '../../../../src/utils/normaliseEmail/index.ts';
 import { buildInvite } from '../buildInvite/index.ts';
 import { doc, ses, TABLE_NAME } from '../clients/index.ts';
 import { joinLink } from '../joinLink/index.ts';
-import type { InviteResult } from './types.ts';
+import type { InviteOptions, InviteResult } from './types.ts';
 
 export type { InviteResult } from './types.ts';
-
-type Options = {
-  email: string;
-  app: boolean;
-  admin: boolean;
-  household: string | undefined;
-  now: number;
-};
 
 const ensureIdentity = async (EmailIdentity: string): Promise<InviteResult['identity']> => {
   const existing = await ses
@@ -48,7 +40,7 @@ export const runInvite = async ({
   admin,
   household,
   now,
-}: Options): Promise<InviteResult> => {
+}: InviteOptions): Promise<InviteResult> => {
   const normalised = normaliseEmail(email);
   await doc.send(
     new PutCommand({
