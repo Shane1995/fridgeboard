@@ -1,6 +1,6 @@
 import { AdminUserGlobalSignOutCommand } from '@aws-sdk/client-cognito-identity-provider';
 import { GetParameterCommand } from '@aws-sdk/client-ssm';
-import { cognitoMock, resetAdminUserMocks, ssmMock } from '../mockAdminUser/index.ts';
+import { cognitoMock, resetAdminUserMocks, ssmMock } from '../__mocks__/adminUser.ts';
 import { runSignOutEverywhere } from './index.ts';
 
 describe('runSignOutEverywhere', () => {
