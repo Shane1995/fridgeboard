@@ -81,7 +81,10 @@ describe('start route', () => {
     const result = await start(request, SECRETS);
 
     expect(result.statusCode).toBe(403);
-    expect(result.headers).toEqual({ 'content-type': 'application/json' });
+    expect(result.headers).toEqual({
+      'content-type': 'application/json',
+      'cache-control': 'no-store',
+    });
     expect(JSON.parse(result.body ?? '')).toEqual({ reason: 'no-invite' });
     expect(result.cookies).toEqual([]);
   });

@@ -42,7 +42,10 @@ describe('refresh route', () => {
       RefreshToken: 'old-refresh',
     });
     expect(result.statusCode).toBe(200);
-    expect(result.headers).toEqual({ 'content-type': 'application/json' });
+    expect(result.headers).toEqual({
+      'content-type': 'application/json',
+      'cache-control': 'no-store',
+    });
     expect(JSON.parse(result.body ?? '')).toEqual({ accessToken: 'access-2', expiresIn: 900 });
     expect(result.cookies).toEqual([
       'fb_rt=new-refresh; Secure; HttpOnly; SameSite=Strict; Path=/api/v1/auth; Max-Age=315360000',
