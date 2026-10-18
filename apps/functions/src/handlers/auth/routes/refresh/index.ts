@@ -6,10 +6,10 @@ import {
   UserNotFoundException,
 } from '@aws-sdk/client-cognito-identity-provider';
 import type { Route } from '../../types.ts';
-import { REFRESH_COOKIE, REFRESH_MAX_AGE } from '../../utils/cookies/constants.ts';
-import { clearCookie, readCookie, serialiseCookie } from '../../utils/cookies/index.ts';
+import { REFRESH_COOKIE } from '../../utils/cookies/constants.ts';
+import { clearCookie, readCookie } from '../../utils/cookies/index.ts';
 import { jsonResponse } from '../../utils/jsonResponse/index.ts';
-import { MISSING_TOKENS_ERROR } from './constants.ts';
+import { sessionResponse } from '../../utils/sessionResponse/index.ts';
 
 const cognito = new CognitoIdentityProviderClient({});
 
@@ -43,12 +43,5 @@ export const refresh: Route = async (request, { clientId, clientSecret }) => {
     return unauthorised;
   }
 
-  const { AccessToken, ExpiresIn, RefreshToken } = result.AuthenticationResult ?? {};
-  if (!AccessToken || !RefreshToken || ExpiresIn === undefined) {
-    throw new Error(MISSING_TOKENS_ERROR);
-  }
-
-  return jsonResponse(200, { accessToken: AccessToken, expiresIn: ExpiresIn }, [
-    serialiseCookie(REFRESH_COOKIE, RefreshToken, REFRESH_MAX_AGE),
-  ]);
+  return sessionResponse(result.AuthenticationResult);
 };

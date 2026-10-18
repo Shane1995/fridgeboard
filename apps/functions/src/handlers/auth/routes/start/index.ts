@@ -1,7 +1,6 @@
 import {
   AdminGetUserCommand,
   CognitoIdentityProviderClient,
-  InitiateAuthCommand,
   ResendConfirmationCodeCommand,
   SignUpCommand,
   UserLambdaValidationException,
@@ -13,12 +12,13 @@ import { NO_INVITE_ERROR } from '../../../preSignUp/constants.ts';
 import type { Route } from '../../types.ts';
 import { FLOW_COOKIE, FLOW_MAX_AGE } from '../../utils/cookies/constants.ts';
 import { readCookie, serialiseCookie } from '../../utils/cookies/index.ts';
+import { emailOtpSignIn } from '../../utils/emailOtpSignIn/index.ts';
 import { openFlow, sealFlow } from '../../utils/flowToken/index.ts';
 import type { AuthFlow } from '../../utils/flowToken/index.ts';
 import { jsonResponse } from '../../utils/jsonResponse/index.ts';
 import { readBodyField } from '../../utils/readBodyField/index.ts';
 import { secretHash } from '../../utils/secretHash/index.ts';
-import { EMAIL_MARKER, MISSING_SESSION_ERROR, USER_NOT_FOUND } from './constants.ts';
+import { EMAIL_MARKER, USER_NOT_FOUND } from './constants.ts';
 
 const cognito = new CognitoIdentityProviderClient({});
 const ses = new SESv2Client({});
@@ -93,19 +93,6 @@ export const start: Route = async (request, { userPoolId, clientId, clientSecret
     return withFlow({ email, session, kind: 'sign-up' });
   }
 
-  const { Session } = await cognito.send(
-    new InitiateAuthCommand({
-      AuthFlow: 'USER_AUTH',
-      ClientId: clientId,
-      AuthParameters: {
-        USERNAME: email,
-        PREFERRED_CHALLENGE: 'EMAIL_OTP',
-        SECRET_HASH: SecretHash,
-      },
-    }),
-  );
-  if (!Session) {
-    throw new Error(MISSING_SESSION_ERROR);
-  }
-  return withFlow({ email, session: Session, kind: 'sign-in' });
+  const session = await emailOtpSignIn({ clientId, username: email, secretHash: SecretHash });
+  return withFlow({ email, session, kind: 'sign-in' });
 };

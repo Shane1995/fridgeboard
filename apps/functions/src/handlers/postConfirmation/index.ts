@@ -16,9 +16,9 @@ import { normaliseEmail } from '../../utils/normaliseEmail/index.ts';
 import {
   ADMIN_GROUP,
   APP_INVITE_TYPE,
-  PROFILE_NOT_EXISTS_CONDITION,
   CONFIRM_SIGN_UP_SOURCE,
   MISSING_SUB_ERROR,
+  PROFILE_NOT_EXISTS_CONDITION,
 } from './constants.ts';
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient({}));
@@ -38,9 +38,8 @@ export const handler = async (
 
   const TableName = process.env.TABLE_NAME;
   const email = normaliseEmail(event.request.userAttributes.email ?? '');
-  const { Item } = await client.send(
-    new GetCommand({ TableName, Key: inviteKey(email), ConsistentRead: true }),
-  );
+  const Key = inviteKey(email);
+  const { Item } = await client.send(new GetCommand({ TableName, Key, ConsistentRead: true }));
   const type: Invite['type'] | undefined = Item?.type;
   const admin: Invite['admin'] = Item?.admin;
 
@@ -74,7 +73,7 @@ export const handler = async (
   }
 
   if (type === APP_INVITE_TYPE) {
-    await client.send(new DeleteCommand({ TableName, Key: inviteKey(email) }));
+    await client.send(new DeleteCommand({ TableName, Key }));
   }
 
   return event;
