@@ -33,10 +33,13 @@ pnpm dev          # http://localhost:5173
 ```
 apps/web/            PWA
   src/App/           root component
-  src/screens/<Name> one folder per screen
+  src/pages/<Name>   one folder per page
+  src/routes/        path to page switching
 ```
 
 Each unit lives at `<Name>/index.tsx`, with its `types.ts`, `constants.ts` and `index.test.tsx` beside it.
+
+See the Web layout section in `.claude/CODE_STANDARDS.md` for the full folder table.
 
 ## Contributing
 
