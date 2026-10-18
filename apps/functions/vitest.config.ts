@@ -9,7 +9,7 @@ export default defineConfig({
         extends: true,
         test: {
           name: 'handlers',
-          include: ['src/**/*.test.ts'],
+          include: ['src/**/*.test.ts', 'scripts/build/**/*.test.ts', 'scripts/smoke/**/*.test.ts'],
         },
       },
       {

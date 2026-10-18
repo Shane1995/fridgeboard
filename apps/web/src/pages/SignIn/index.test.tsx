@@ -1,14 +1,29 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { createMemoryHistory, RouterProvider } from '@tanstack/react-router';
+import {
+  createMemoryHistory,
+  createRootRoute,
+  createRoute,
+  createRouter,
+  RouterProvider,
+} from '@tanstack/react-router';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { createAppRouter } from '../../app/router/utils/createAppRouter';
 import { startSignIn } from '../../services/session/startSignIn';
 import { SIGN_IN_COPY } from './constants';
+import { SignIn } from '.';
 
 vi.mock('../../services/session/startSignIn', () => ({ startSignIn: vi.fn() }));
 
 const renderSignIn = async () => {
-  const router = createAppRouter(createMemoryHistory({ initialEntries: ['/sign-in'] }));
+  const rootRoute = createRootRoute();
+  const signInRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/sign-in',
+    component: () => <SignIn redirectTo="/" />,
+  });
+  const router = createRouter({
+    routeTree: rootRoute.addChildren([signInRoute]),
+    history: createMemoryHistory({ initialEntries: ['/sign-in'] }),
+  });
   render(
     <QueryClientProvider client={new QueryClient()}>
       <RouterProvider router={router} />

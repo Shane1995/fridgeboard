@@ -1,9 +1,15 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { createMemoryHistory, RouterProvider } from '@tanstack/react-router';
+import {
+  createMemoryHistory,
+  createRootRoute,
+  createRoute,
+  createRouter,
+  RouterProvider,
+} from '@tanstack/react-router';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { createAppRouter } from '../../app/router/utils/createAppRouter';
 import { SIGN_IN_COPY } from '../SignIn/constants';
 import { JOIN_COPY } from './constants';
+import { Join } from '.';
 
 const stubDisplayMode = (standalone: boolean) =>
   vi.stubGlobal('matchMedia', (query: string) => ({
@@ -11,7 +17,16 @@ const stubDisplayMode = (standalone: boolean) =>
   }));
 
 const renderJoin = () => {
-  const router = createAppRouter(createMemoryHistory({ initialEntries: ['/join'] }));
+  const rootRoute = createRootRoute();
+  const joinRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/join',
+    component: Join,
+  });
+  const router = createRouter({
+    routeTree: rootRoute.addChildren([joinRoute]),
+    history: createMemoryHistory({ initialEntries: ['/join'] }),
+  });
   render(
     <QueryClientProvider client={new QueryClient()}>
       <RouterProvider router={router} />

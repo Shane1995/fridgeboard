@@ -1,21 +1,38 @@
 import { QueryClientProvider } from '@tanstack/react-query';
-import { createMemoryHistory, RouterProvider } from '@tanstack/react-router';
+import {
+  createMemoryHistory,
+  createRootRoute,
+  createRoute,
+  createRouter,
+  RouterProvider,
+} from '@tanstack/react-router';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { createAppRouter } from '../../app/router/utils/createAppRouter';
 import { getMe } from '../../services/api/getMe';
 import { queryClient } from '../../services/queryClient';
 import { SessionStatus } from '../../services/session/constants';
 import { getSessionStatus } from '../../services/session/getSessionStatus';
 import { signOut } from '../../services/session/signOut';
+import { SignIn } from '../SignIn';
 import { SIGN_IN_COPY } from '../SignIn/constants';
 import { HOME_COPY } from './constants';
+import { Home } from '.';
 
 vi.mock('../../services/api/getMe', () => ({ getMe: vi.fn() }));
 vi.mock('../../services/session/getSessionStatus', () => ({ getSessionStatus: vi.fn() }));
 vi.mock('../../services/session/signOut', () => ({ signOut: vi.fn() }));
 
 const renderHome = () => {
-  const router = createAppRouter(createMemoryHistory({ initialEntries: ['/'] }));
+  const rootRoute = createRootRoute();
+  const homeRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: Home });
+  const signInRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/sign-in',
+    component: () => <SignIn redirectTo="/" />,
+  });
+  const router = createRouter({
+    routeTree: rootRoute.addChildren([homeRoute, signInRoute]),
+    history: createMemoryHistory({ initialEntries: ['/'] }),
+  });
   render(
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
