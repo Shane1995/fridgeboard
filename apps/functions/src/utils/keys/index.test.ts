@@ -1,4 +1,4 @@
-import { inviteKey, membershipGsiKey, profileKey } from './index.ts';
+import { householdMetaKey, inviteKey, membershipGsiKey, profileKey } from './index.ts';
 
 describe('keys', () => {
   it('builds a normalised invite key', () => {
@@ -14,5 +14,9 @@ describe('keys', () => {
 
   it('builds a membership GSI key', () => {
     expect(membershipGsiKey('abc')).toEqual({ GSI1PK: 'USER#abc' });
+  });
+
+  it('builds a household META key', () => {
+    expect(householdMetaKey('h1')).toEqual({ PK: 'HH#h1', SK: 'META' });
   });
 });
