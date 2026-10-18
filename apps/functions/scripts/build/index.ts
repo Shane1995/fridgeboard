@@ -1,10 +1,11 @@
-import { readdirSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { build } from 'esbuild';
 import { HANDLERS_DIR, OUT_DIR } from './constants.ts';
 
 const handlers = readdirSync(HANDLERS_DIR, { withFileTypes: true })
   .filter((entry) => entry.isDirectory())
-  .map((entry) => entry.name);
+  .map((entry) => entry.name)
+  .filter((name) => existsSync(`${HANDLERS_DIR}/${name}/index.ts`));
 
 await Promise.all(
   handlers.map((name) =>
