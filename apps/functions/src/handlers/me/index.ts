@@ -10,10 +10,6 @@ import { jsonResponse } from '../../utils/jsonResponse/index.ts';
 import { withVerifiedOrigin } from '../../utils/originVerified/index.ts';
 import { ADMIN_GROUP, GROUPS_CLAIM } from './constants.ts';
 import { fetchHouseholdNames } from './utils/fetchHouseholdNames/index.ts';
-
-if (process.env.AWS_LAMBDA_FUNCTION_NAME) {
-  throw new Error('forced bad deploy');
-}
 import { fetchMemberships } from './utils/fetchMemberships/index.ts';
 import { householdRoles } from './utils/householdRoles/index.ts';
 import { parseGroups } from './utils/parseGroups/index.ts';
