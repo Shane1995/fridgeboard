@@ -8,7 +8,9 @@
     "apps/functions/scripts/**/index.ts",
     "packages/contract/src/auth/constants.ts",
     "packages/contract/src/auth/types.ts",
-    "packages/contract/src/me/types.ts"
+    "packages/contract/src/me/types.ts",
+    "apps/functions/scripts/admin/utils/mockAdminUser/index.ts",
+    "scripts/checkReexports/index.ts"
   ],
   "workspaces": {
     "packages": [

@@ -10,7 +10,7 @@
   },
   "scripts": {
     "build": "turbo run build",
-    "test": "turbo run test",
+    "test": "vitest run && turbo run test",
     "lint": "node scripts/checkReexports/index.ts && turbo run lint",
     "format": "turbo run format",
     "format:check": "turbo run format:check",
@@ -25,7 +25,8 @@
     "lint-staged": "^16.4.0",
     "oxfmt": "^0.73.0",
     "oxlint": "^1.88.0",
-    "turbo": "^2.11.9"
+    "turbo": "^2.11.9",
+    "vitest": "^5.0.5"
   },
   "lint-staged": {
     "{apps,packages}/**/*.{ts,tsx,js,cjs,mjs}": [

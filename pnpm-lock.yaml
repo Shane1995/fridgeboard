@@ -29,6 +29,9 @@ importers:
       turbo:
         specifier: ^2.11.9
         version: 2.11.9
+      vitest:
+        specifier: ^5.0.5
+        version: 5.0.5(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
 
   apps/functions:
     devDependencies:
