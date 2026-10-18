@@ -4,6 +4,7 @@ import {
   AdminUserGlobalSignOutCommand,
   CognitoIdentityProviderClient,
 } from '@aws-sdk/client-cognito-identity-provider';
+import { DeleteEmailIdentityCommand, NotFoundException, SESv2Client } from '@aws-sdk/client-sesv2';
 import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm';
 import { DeleteCommand, DynamoDBDocumentClient, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { mockClient } from 'aws-sdk-client-mock';
@@ -12,6 +13,7 @@ import { runDeleteUser } from './index.ts';
 const ddbMock = mockClient(DynamoDBDocumentClient);
 const cognitoMock = mockClient(CognitoIdentityProviderClient);
 const ssmMock = mockClient(SSMClient);
+const sesMock = mockClient(SESv2Client);
 
 const queryFor = (pk: string, sk?: string) => ({
   KeyConditionExpression: sk ? 'PK = :pk AND begins_with(SK, :sk)' : 'PK = :pk',
@@ -23,6 +25,7 @@ describe('runDeleteUser', () => {
     ddbMock.reset();
     cognitoMock.reset();
     ssmMock.reset();
+    sesMock.reset();
     ssmMock
       .on(GetParameterCommand)
       .resolves({ Parameter: { Value: JSON.stringify({ userPoolId: 'pool-1' }) } });
@@ -62,13 +65,14 @@ describe('runDeleteUser', () => {
     const result = await runDeleteUser('Jess@Example.com');
 
     const deleted = ddbMock.commandCalls(DeleteCommand).map((call) => call.args[0].input.Key);
-    expect(deleted).toHaveLength(4);
+    expect(deleted).toHaveLength(5);
     expect(deleted).toEqual(
       expect.arrayContaining([
         { PK: 'USER#u1', SK: 'PROFILE' },
         { PK: 'HH#h1', SK: 'MEMBER#u1' },
         { PK: 'HH#h2', SK: 'META' },
         { PK: 'HH#h2', SK: 'MEMBER#u1' },
+        { PK: 'INVITE#jess@example.com', SK: 'INVITE' },
       ]),
     );
     expect(deleted).not.toContainEqual({ PK: 'HH#h1', SK: 'MEMBER#u2' });
@@ -85,5 +89,51 @@ describe('runDeleteUser', () => {
       UserPoolId: 'pool-1',
       Username: 'jess@example.com',
     });
+  });
+
+  it('deletes the household member row last and every Dynamo delete precedes AdminDeleteUser', async () => {
+    const events: string[] = [];
+    ddbMock
+      .on(QueryCommand, queryFor('USER#u1'))
+      .resolves({ Items: [] })
+      .on(QueryCommand, { IndexName: 'GSI1' })
+      .resolves({ Items: [{ PK: 'HH#h2', SK: 'MEMBER#u1' }] })
+      .on(QueryCommand, queryFor('HH#h2', 'MEMBER#'))
+      .resolves({ Items: [{ PK: 'HH#h2', SK: 'MEMBER#u1' }] })
+      .on(QueryCommand, queryFor('HH#h2'))
+      .resolves({
+        Items: [
+          { PK: 'HH#h2', SK: 'MEMBER#u1' },
+          { PK: 'HH#h2', SK: 'META' },
+          { PK: 'HH#h2', SK: 'ITEM#1' },
+        ],
+      })
+      .on(DeleteCommand)
+      .callsFake((input: { Key: { SK: string } }) => {
+        events.push(`ddb:${input.Key.SK}`);
+      });
+    cognitoMock.on(AdminDeleteUserCommand).callsFake(() => {
+      events.push('cognito-delete');
+    });
+    sesMock.on(DeleteEmailIdentityCommand).callsFake(() => {
+      events.push('ses');
+    });
+
+    await runDeleteUser('Jess@Example.com');
+
+    expect(events.indexOf('ddb:MEMBER#u1')).toBeGreaterThan(events.indexOf('ddb:META'));
+    expect(events.indexOf('ddb:MEMBER#u1')).toBeGreaterThan(events.indexOf('ddb:ITEM#1'));
+    expect(events.at(-1)).toBe('cognito-delete');
+    expect(events).toContain('ses');
+  });
+
+  it('ignores a missing SES identity', async () => {
+    ddbMock.on(QueryCommand).resolves({ Items: [] });
+    sesMock
+      .on(DeleteEmailIdentityCommand)
+      .rejects(new NotFoundException({ message: 'x', $metadata: {} }));
+
+    await expect(runDeleteUser('Jess@Example.com')).resolves.toEqual({ households: 0 });
+    expect(cognitoMock.commandCalls(AdminDeleteUserCommand)).toHaveLength(1);
   });
 });

@@ -2,6 +2,7 @@ export type Key = Record<string, unknown>;
 
 export type DeletePlanInput = {
   sub: string;
+  email: string;
   userItems: Key[];
   memberships: Key[];
   householdMembers: Record<string, string[]>;

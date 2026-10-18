@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -54,5 +54,14 @@ describe('runExportUser', () => {
         },
       ],
     });
+  });
+
+  it('refuses to overwrite an existing export file', async () => {
+    ddbMock.on(GetCommand).resolves({}).on(QueryCommand).resolves({ Items: [] });
+    const dir = await directory;
+    await writeFile(join(dir, 'export-u1.json'), 'old');
+
+    await expect(runExportUser('Jess@Example.com', dir)).rejects.toThrow('already exists');
+    expect(await readFile(join(dir, 'export-u1.json'), 'utf8')).toBe('old');
   });
 });

@@ -8,6 +8,7 @@ export const buildInvite = ({
   email,
   app,
   admin,
+  household,
   invitedBy,
   now,
 }: BuildInviteInput): Invite & TableKey => {
@@ -15,6 +16,7 @@ export const buildInvite = ({
   return {
     ...inviteKey(email),
     type: app ? 'app' : 'household',
+    ...(household ? { hhId: household } : {}),
     ...(admin ? { admin: true } : {}),
     invitedBy,
     expiresAt,

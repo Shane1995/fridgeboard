@@ -13,7 +13,13 @@ import type { InviteResult } from './types.ts';
 
 export type { InviteResult } from './types.ts';
 
-type Options = { email: string; app: boolean; admin: boolean; now: number };
+type Options = {
+  email: string;
+  app: boolean;
+  admin: boolean;
+  household: string | undefined;
+  now: number;
+};
 
 const ensureIdentity = async (EmailIdentity: string): Promise<InviteResult['identity']> => {
   const existing = await ses
@@ -36,12 +42,18 @@ const ensureIdentity = async (EmailIdentity: string): Promise<InviteResult['iden
   return 'recreated';
 };
 
-export const runInvite = async ({ email, app, admin, now }: Options): Promise<InviteResult> => {
+export const runInvite = async ({
+  email,
+  app,
+  admin,
+  household,
+  now,
+}: Options): Promise<InviteResult> => {
   const normalised = normaliseEmail(email);
   await doc.send(
     new PutCommand({
       TableName: TABLE_NAME,
-      Item: buildInvite({ email: normalised, app, admin, invitedBy: 'admin', now }),
+      Item: buildInvite({ email: normalised, app, admin, household, invitedBy: 'admin', now }),
     }),
   );
   return { link: joinLink(normalised), identity: await ensureIdentity(normalised) };

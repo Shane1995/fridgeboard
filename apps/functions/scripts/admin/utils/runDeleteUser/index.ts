@@ -2,11 +2,12 @@ import {
   AdminDeleteUserCommand,
   AdminUserGlobalSignOutCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
+import { DeleteEmailIdentityCommand, NotFoundException } from '@aws-sdk/client-sesv2';
 import { DeleteCommand } from '@aws-sdk/lib-dynamodb';
 import { fetchMemberships } from '../../../../src/handlers/me/utils/fetchMemberships/index.ts';
 import { householdIdFromKey } from '../../../../src/utils/keys/index.ts';
 import { buildDeletePlan, type Key } from '../buildDeletePlan/index.ts';
-import { cognito, doc, TABLE_NAME } from '../clients/index.ts';
+import { cognito, doc, ses, TABLE_NAME } from '../clients/index.ts';
 import { queryAll } from '../queryAll/index.ts';
 import { resolveUser } from '../resolveUser/index.ts';
 
@@ -38,6 +39,7 @@ export const runDeleteUser = async (email: string): Promise<{ households: number
   );
   const { keys, emptyHouseholds } = buildDeletePlan({
     sub,
+    email,
     userItems,
     memberships,
     householdMembers,
@@ -49,10 +51,19 @@ export const runDeleteUser = async (email: string): Promise<{ households: number
         KeyConditionExpression: 'PK = :pk',
         ExpressionAttributeValues: { ':pk': `HH#${id}` },
       });
-      await Promise.all(items.map(deleteKey));
+      const own = `MEMBER#${sub}`;
+      await Promise.all(items.filter((item) => item['SK'] !== own).map(deleteKey));
+      await Promise.all(items.filter((item) => item['SK'] === own).map(deleteKey));
     }),
   );
   await Promise.all(keys.map(deleteKey));
+  try {
+    await ses.send(new DeleteEmailIdentityCommand({ EmailIdentity: username }));
+  } catch (error: unknown) {
+    if (!(error instanceof NotFoundException)) {
+      throw error;
+    }
+  }
 
   await cognito.send(new AdminDeleteUserCommand({ UserPoolId: userPoolId, Username: username }));
   return { households: emptyHouseholds.length };

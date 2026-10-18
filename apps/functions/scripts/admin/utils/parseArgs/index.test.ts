@@ -30,4 +30,13 @@ describe('parseArgs', () => {
   it('throws on an unknown flag', () => {
     expect(() => parseArgs(['a@b.co', '--nope'])).toThrow('Unknown flag --nope');
   });
+
+  it('reads --household with its value without treating it as the email', () => {
+    expect(parseArgs(['--household', 'h1', 'a@b.co']).household).toBe('h1');
+    expect(parseArgs(['a@b.co']).household).toBeUndefined();
+  });
+
+  it('throws when --household has no value', () => {
+    expect(() => parseArgs(['a@b.co', '--household'])).toThrow('Usage');
+  });
 });

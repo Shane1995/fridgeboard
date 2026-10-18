@@ -30,4 +30,12 @@ describe('buildInvite', () => {
   it('records who invited', () => {
     expect(buildInvite(base).invitedBy).toBe('admin');
   });
+
+  it('sets hhId from household', () => {
+    expect(buildInvite({ ...base, household: 'h1' })).toMatchObject({
+      type: 'household',
+      hhId: 'h1',
+    });
+    expect(buildInvite(base)).not.toHaveProperty('hhId');
+  });
 });

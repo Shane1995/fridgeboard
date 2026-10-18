@@ -28,6 +28,11 @@ export const runExportUser = async (email: string, directory: string): Promise<s
   const path = join(directory, `export-${sub}.json`);
   await writeFile(path, JSON.stringify({ sub, profile, memberships: withHouseholds }, null, 2), {
     mode: 0o600,
+    flag: 'wx',
+  }).catch((error: unknown) => {
+    throw error instanceof Error && 'code' in error && error.code === 'EEXIST'
+      ? new Error(`${path} already exists; move or delete it first`)
+      : error;
   });
   return path;
 };

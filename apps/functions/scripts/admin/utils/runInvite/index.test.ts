@@ -11,7 +11,13 @@ import { runInvite } from './index.ts';
 
 const ddbMock = mockClient(DynamoDBDocumentClient);
 const sesMock = mockClient(SESv2Client);
-const options = { email: ' Jess@Example.com', app: true, admin: false, now: 1000 };
+const options = {
+  email: ' Jess@Example.com',
+  app: true,
+  admin: false,
+  household: undefined,
+  now: 1000,
+};
 
 describe('runInvite', () => {
   beforeEach(() => {

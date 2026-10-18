@@ -1,4 +1,4 @@
-import { householdIdFromKey } from '../../../../src/utils/keys/index.ts';
+import { householdIdFromKey, inviteKey } from '../../../../src/utils/keys/index.ts';
 import type { DeletePlan, DeletePlanInput, Key } from './types.ts';
 
 export type { DeletePlan, Key } from './types.ts';
@@ -12,13 +12,14 @@ const pick = (item: Key): Key => ({ PK: item['PK'], SK: item['SK'] });
 
 export const buildDeletePlan = ({
   sub,
+  email,
   userItems,
   memberships,
   householdMembers,
 }: DeletePlanInput): DeletePlan => {
   const own = `${MEMBER_SK_PREFIX}${sub}`;
   const households = memberships
-    .filter(hasKeys)
+    .filter((item) => hasKeys(item) && item['SK'] === own)
     .flatMap((item) => {
       const id = householdIdFromKey(item['PK']);
       return id ? [{ id, item }] : [];
@@ -32,6 +33,7 @@ export const buildDeletePlan = ({
     keys: [
       ...userItems.filter(hasKeys).map(pick),
       ...households.filter(({ empty }) => !empty).map(({ item }) => pick(item)),
+      inviteKey(email),
     ],
     emptyHouseholds: households.filter(({ empty }) => empty).map(({ id }) => id),
   };
