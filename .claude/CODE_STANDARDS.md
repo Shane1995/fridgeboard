@@ -70,4 +70,5 @@ The repo's root config files are the source of truth:
 - oxfmt (`.oxfmtrc.json`) + oxlint, run through lint-staged
 - Husky pre-commit + commitlint (conventional commits)
 - fallow for code health (`.fallowrc.json`)
+- Server data: TanStack Query via `hooks/useQuery` / `hooks/useMutation` wrappers only
 - UI: Tailwind CSS 4, HeroUI v3 (`@heroui/react`), Lucide icons. No global state library: React Context where needed, `useState` otherwise

@@ -1,0 +1,59 @@
+import type { ITokenResponse } from '@fridgeboard/contract/auth';
+import { API_PATHS } from '@fridgeboard/contract/auth/constants';
+
+const TOKENS: ITokenResponse = { accessToken: 'token-1', expiresIn: 900 };
+
+const fetchMock = vi.fn<typeof fetch>();
+
+const loadSession = async () => {
+  vi.resetModules();
+  const { signOut } = await import('./index');
+  const { verifyCode } = await import('../verifyCode');
+  const { getAccessToken } = await import('../getAccessToken');
+  const { getSessionStatus } = await import('../getSessionStatus');
+  const { queryClient } = await import('../../queryClient');
+  return { signOut, verifyCode, getAccessToken, getSessionStatus, queryClient };
+};
+
+describe('signOut', () => {
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal('fetch', fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('revokes the session server-side and forgets the token and cached data', async () => {
+    fetchMock
+      .mockResolvedValueOnce(new Response(JSON.stringify(TOKENS), { status: 200 }))
+      .mockResolvedValueOnce(new Response(null, { status: 204 }));
+    const { signOut, verifyCode, getAccessToken, getSessionStatus, queryClient } =
+      await loadSession();
+    await verifyCode('123456');
+    queryClient.setQueryData(['me'], { email: 'jess@example.com' });
+
+    await signOut();
+
+    expect(fetchMock).toHaveBeenLastCalledWith(
+      API_PATHS.signOut,
+      expect.objectContaining({ method: 'POST', credentials: 'same-origin' }),
+    );
+    expect(getAccessToken()).toBeUndefined();
+    expect(getSessionStatus()).toBe('signed-out');
+    expect(queryClient.getQueryData(['me'])).toBeUndefined();
+  });
+
+  it('signs out locally when the network fails', async () => {
+    fetchMock
+      .mockResolvedValueOnce(new Response(JSON.stringify(TOKENS), { status: 200 }))
+      .mockRejectedValueOnce(new TypeError('offline'));
+    const { signOut, verifyCode, getAccessToken } = await loadSession();
+    await verifyCode('123456');
+
+    await expect(signOut()).resolves.toBeUndefined();
+
+    expect(getAccessToken()).toBeUndefined();
+  });
+});

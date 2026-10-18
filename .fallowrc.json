@@ -3,6 +3,11 @@
   "entry": [
     "apps/web/src/main.tsx",
     "apps/web/src/routes/**/*.tsx",
+    "apps/web/src/hooks/useSession/index.ts",
+    "apps/web/src/hooks/useMeQuery/index.ts",
+    "apps/web/src/hooks/useStartSignInMutation/index.ts",
+    "apps/web/src/hooks/useVerifyCodeMutation/index.ts",
+    "apps/web/src/hooks/useSignOutMutation/index.ts",
     "apps/web/scripts/thirdPartyLicenses/index.ts",
     "apps/functions/src/handlers/*/index.ts",
     "apps/functions/scripts/**/index.ts",
