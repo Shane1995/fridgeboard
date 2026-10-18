@@ -124,4 +124,13 @@ describe('refreshSession', () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
+
+  it('resolves false instead of rejecting when the 200 body is malformed', async () => {
+    fetchMock.mockResolvedValueOnce(new Response('{', { status: 200 }));
+    const { refreshSession, getAccessToken, getSessionStatus } = await loadSession();
+
+    await expect(refreshSession()).resolves.toBe(false);
+    expect(getAccessToken()).toBeUndefined();
+    expect(getSessionStatus()).toBe('signed-out');
+  });
 });

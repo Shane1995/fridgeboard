@@ -1,5 +1,6 @@
 import { refreshSession } from '../../session/refreshSession';
-import { API_PREFIX, OUTSIDE_API_ERROR, UNAUTHORISED_STATUS } from '../constants';
+import { UNAUTHORISED_STATUS } from '../../constants';
+import { API_PREFIX, OUTSIDE_API_ERROR } from '../constants';
 import { sendRequest } from './utils/sendRequest';
 
 export const apiFetch = async (path: string, init: RequestInit = {}): Promise<Response> => {

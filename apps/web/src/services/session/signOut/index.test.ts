@@ -12,7 +12,8 @@ const loadSession = async () => {
   const { getAccessToken } = await import('../getAccessToken');
   const { getSessionStatus } = await import('../getSessionStatus');
   const { queryClient } = await import('../../queryClient');
-  return { signOut, verifyCode, getAccessToken, getSessionStatus, queryClient };
+  const { refreshSession } = await import('../refreshSession');
+  return { signOut, verifyCode, refreshSession, getAccessToken, getSessionStatus, queryClient };
 };
 
 describe('signOut', () => {
@@ -55,5 +56,27 @@ describe('signOut', () => {
     await expect(signOut()).resolves.toBeUndefined();
 
     expect(getAccessToken()).toBeUndefined();
+  });
+
+  it('keeps the session signed out when a refresh in flight resolves afterwards', async () => {
+    const release: ((response: Response) => void)[] = [];
+    const pending = new Promise<Response>((resolve) => release.push(resolve));
+    fetchMock
+      .mockResolvedValueOnce(new Response(JSON.stringify(TOKENS), { status: 200 }))
+      .mockReturnValueOnce(pending)
+      .mockResolvedValueOnce(new Response(null, { status: 204 }));
+    const { signOut, verifyCode, refreshSession, getAccessToken, getSessionStatus } =
+      await loadSession();
+    await verifyCode('123456');
+
+    const flight = refreshSession();
+    await signOut();
+    release[0]?.(
+      new Response(JSON.stringify({ ...TOKENS, accessToken: 'token-2' }), { status: 200 }),
+    );
+
+    await expect(flight).resolves.toBe(false);
+    expect(getAccessToken()).toBeUndefined();
+    expect(getSessionStatus()).toBe('signed-out');
   });
 });

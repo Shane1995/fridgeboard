@@ -1,4 +1,5 @@
-import { JSON_HEADERS, POST, SAME_ORIGIN } from '../../constants';
+import { JSON_HEADERS, SAME_ORIGIN } from '../../../constants';
+import { POST } from '../../constants';
 
 export const postAuth = (path: string, body?: object): Promise<Response> =>
   fetch(path, {

@@ -1,3 +1,4 @@
+import { SessionStatus } from '../constants';
 import { updateSession } from '../updateSession';
 import { subscribeSession } from './index';
 
@@ -6,9 +7,9 @@ describe('subscribeSession', () => {
     const listener = vi.fn();
     const unsubscribe = subscribeSession(listener);
 
-    updateSession({ status: 'signed-out' });
+    updateSession({ status: SessionStatus.SignedOut });
     unsubscribe();
-    updateSession({ status: 'signed-in' });
+    updateSession({ status: SessionStatus.SignedIn });
 
     expect(listener).toHaveBeenCalledTimes(1);
   });

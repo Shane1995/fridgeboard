@@ -72,4 +72,17 @@ describe('verifyCode', () => {
 
     expect(getAccessToken()).toBeUndefined();
   });
+
+  it.each([
+    [200, 'not json'],
+    [200, '{"accessToken":42}'],
+    [202, 'not json'],
+    [202, '{"next":"elsewhere"}'],
+  ])('returns unknown for a malformed %i body', async (status, body) => {
+    fetchMock.mockResolvedValue(new Response(body, { status }));
+    const { verifyCode, getAccessToken } = await loadSession();
+
+    await expect(verifyCode('123456')).resolves.toEqual({ ok: false, reason: 'unknown' });
+    expect(getAccessToken()).toBeUndefined();
+  });
 });

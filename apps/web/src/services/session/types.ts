@@ -1,7 +1,5 @@
 import type { IAuthErrorReason, IVerifyNextResponse } from '@fridgeboard/contract/auth';
-import type { SESSION_KEY, REFRESH_KEY, UNKNOWN_REASON } from './constants';
-
-export type SessionStatus = 'loading' | 'signed-in' | 'signed-out';
+import type { REFRESH_KEY, SESSION_KEY, SessionStatus, UNKNOWN_REASON } from './constants';
 
 export type SessionSnapshot = {
   accessToken: string | undefined;
