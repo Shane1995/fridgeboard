@@ -4,6 +4,12 @@ on:
   pull_request:
   push:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      rollback:
+        description: Flip every live alias back to its previous version
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -14,6 +20,7 @@ concurrency:
 
 jobs:
   checks:
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -76,22 +83,71 @@ jobs:
         with:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
           aws-region: eu-west-2
-      - name: Upload hashed assets (cached for a year)
-        run: aws s3 sync dist/assets "s3://$BUCKET/assets" --cache-control "public,max-age=31536000,immutable"
-      - name: Upload everything else (always revalidated)
-        run: aws s3 sync dist "s3://$BUCKET" --exclude "assets/*" --cache-control "no-cache" --delete
       - name: Deploy API Lambdas
         run: |
           set -euo pipefail
+          : > "$RUNNER_TEMP/flipped"
           for pair in auth:auth me:me preSignUp:pre-sign-up postConfirmation:post-confirmation; do
             dir="${pair%%:*}"
             fn="fridgeboard-${pair##*:}"
             zip -j "$RUNNER_TEMP/$dir.zip" "api-dist/$dir/index.mjs"
             aws lambda update-function-code --function-name "$fn" --zip-file "fileb://$RUNNER_TEMP/$dir.zip" > /dev/null
             aws lambda wait function-updated --function-name "$fn"
+            new=$(aws lambda publish-version --function-name "$fn" --query Version --output text)
+            prev=$(aws lambda get-alias --function-name "$fn" --name live --query FunctionVersion --output text)
+            aws lambda update-alias --function-name "$fn" --name live --function-version "$new" --description "prev=$prev" > /dev/null
+            echo "$fn $prev" >> "$RUNNER_TEMP/flipped"
           done
+      - name: Smoke check
+        run: |
+          set -euo pipefail
+          for i in 1 2 3 4 5; do
+            out=$(curl -s -o /dev/null -w '%{http_code} %{content_type}' https://app.fridgeboard.uk/api/v1/me || true)
+            case "$out" in "401 application/json"*) exit 0 ;; esac
+            sleep 5
+          done
+          echo "unexpected /api/v1/me response: $out"
+          exit 1
+      - name: Roll back aliases
+        if: failure()
+        run: |
+          while read -r fn prev; do
+            aws lambda update-alias --function-name "$fn" --name live --function-version "$prev" > /dev/null
+          done < "$RUNNER_TEMP/flipped"
+      - name: Upload hashed assets (cached for a year)
+        run: aws s3 sync dist/assets "s3://$BUCKET/assets" --cache-control "public,max-age=31536000,immutable"
+      - name: Upload everything else (always revalidated)
+        run: aws s3 sync dist "s3://$BUCKET" --exclude "assets/*" --cache-control "no-cache" --delete
       - name: Invalidate CloudFront
         run: aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths "/*" > /dev/null
+
+  rollback:
+    if: github.event_name == 'workflow_dispatch' && inputs.rollback && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment:
+      name: production
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: eu-west-2
+      - name: Flip aliases to previous versions
+        run: |
+          set -euo pipefail
+          for fn in fridgeboard-auth fridgeboard-me fridgeboard-pre-sign-up fridgeboard-post-confirmation; do
+            read -r cur desc < <(aws lambda get-alias --function-name "$fn" --name live --query '[FunctionVersion,Description]' --output text)
+            prev="${desc#prev=}"
+            [[ "$prev" =~ ^[0-9]+$ ]] || { echo "$fn: no previous version recorded"; exit 1; }
+            aws lambda update-alias --function-name "$fn" --name live --function-version "$prev" --description "prev=$cur" > /dev/null
+            echo "$fn: $cur -> $prev"
+          done
 
   fallow-report:
     if: github.event_name == 'pull_request'
