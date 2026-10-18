@@ -1,6 +1,6 @@
 import { existsSync, readdirSync } from 'node:fs';
 import { build } from 'esbuild';
-import { HANDLERS_DIR, OUT_DIR } from './constants.ts';
+import { ESM_REQUIRE_BANNER, HANDLERS_DIR, OUT_DIR } from './constants.ts';
 
 const handlers = readdirSync(HANDLERS_DIR, { withFileTypes: true })
   .filter((entry) => entry.isDirectory())
@@ -18,6 +18,7 @@ await Promise.all(
       format: 'esm',
       minify: true,
       sourcemap: false,
+      banner: { js: ESM_REQUIRE_BANNER },
     }),
   ),
 );
