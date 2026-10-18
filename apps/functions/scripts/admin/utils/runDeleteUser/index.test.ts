@@ -1,18 +1,14 @@
 import {
   AdminDeleteUserCommand,
-  AdminGetUserCommand,
   AdminUserGlobalSignOutCommand,
-  CognitoIdentityProviderClient,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { DeleteEmailIdentityCommand, NotFoundException, SESv2Client } from '@aws-sdk/client-sesv2';
-import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm';
 import { DeleteCommand, DynamoDBDocumentClient, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { mockClient } from 'aws-sdk-client-mock';
+import { cognitoMock } from '../__mocks__/adminUser.ts';
 import { runDeleteUser } from './index.ts';
 
 const ddbMock = mockClient(DynamoDBDocumentClient);
-const cognitoMock = mockClient(CognitoIdentityProviderClient);
-const ssmMock = mockClient(SSMClient);
 const sesMock = mockClient(SESv2Client);
 
 const queryFor = (pk: string, sk?: string) => ({
@@ -23,15 +19,7 @@ const queryFor = (pk: string, sk?: string) => ({
 describe('runDeleteUser', () => {
   beforeEach(() => {
     ddbMock.reset();
-    cognitoMock.reset();
-    ssmMock.reset();
     sesMock.reset();
-    ssmMock
-      .on(GetParameterCommand)
-      .resolves({ Parameter: { Value: JSON.stringify({ userPoolId: 'pool-1' }) } });
-    cognitoMock
-      .on(AdminGetUserCommand)
-      .resolves({ UserAttributes: [{ Name: 'sub', Value: 'u1' }] });
   });
 
   it('signs out, deletes data and empty households, then deletes the user last', async () => {

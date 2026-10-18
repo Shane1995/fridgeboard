@@ -1,18 +1,11 @@
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import {
-  AdminGetUserCommand,
-  CognitoIdentityProviderClient,
-} from '@aws-sdk/client-cognito-identity-provider';
-import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm';
 import { DynamoDBDocumentClient, GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { mockClient } from 'aws-sdk-client-mock';
 import { runExportUser } from './index.ts';
 
 const ddbMock = mockClient(DynamoDBDocumentClient);
-const cognitoMock = mockClient(CognitoIdentityProviderClient);
-const ssmMock = mockClient(SSMClient);
 
 describe('runExportUser', () => {
   const directory = mkdtemp(join(tmpdir(), 'export-test-'));
@@ -21,14 +14,6 @@ describe('runExportUser', () => {
 
   beforeEach(() => {
     ddbMock.reset();
-    cognitoMock.reset();
-    ssmMock.reset();
-    ssmMock
-      .on(GetParameterCommand)
-      .resolves({ Parameter: { Value: JSON.stringify({ userPoolId: 'pool-1' }) } });
-    cognitoMock
-      .on(AdminGetUserCommand)
-      .resolves({ UserAttributes: [{ Name: 'sub', Value: 'u1' }] });
   });
 
   it('writes the profile and memberships with household META to export-<sub>.json', async () => {
