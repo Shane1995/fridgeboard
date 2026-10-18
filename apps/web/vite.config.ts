@@ -9,7 +9,11 @@ const TOMATO = '#E2462F';
 
 export default defineConfig({
   plugins: [
-    tanstackRouter({ target: 'react', autoCodeSplitting: true }),
+    tanstackRouter({
+      target: 'react',
+      autoCodeSplitting: true,
+      generatedRouteTree: './src/services/router/routeTree.gen.ts',
+    }),
     react(),
     tailwindcss(),
     VitePWA({

@@ -25,10 +25,17 @@ TypeScript, Node and React standards for Fridgeboard. Apply every rule to any co
 | ------------- | ---------------------------------------- |
 | `pages/`      | full screens                             |
 | `components/` | reusable UI shared across pages          |
-| `routes/`     | path → page switching                    |
+| `routes/`     | TanStack file routes (thin)              |
 | `services/`   | I/O (API client, session)                |
 | `hooks/`      | React hooks                              |
 | `utils/`      | pure helpers                             |
+
+- `routes/` holds TanStack file routes, named by router convention (`__root.tsx`, `index.tsx`, `join.tsx`, `_authenticated.tsx`, `_authenticated/...`). This is the one exception to `<Name>/index.tsx`.
+- Route files stay thin: `createFileRoute`, `beforeLoad`, `loader` (via `queryClient.ensureQueryData`), `validateSearch`, and the page component imported from `pages/`.
+- Server data goes through TanStack Query, only via the `hooks/useQuery` and `hooks/useMutation` wrappers.
+- Navigation uses typed `<Link>` and `useNavigate`, never string `href`s for internal routes.
+- `components/App` is the root component (providers + `RouterProvider`).
+- The generated route tree lives at `services/router/routeTree.gen.ts`; it is committed and never hand-edited.
 
 ## Types
 

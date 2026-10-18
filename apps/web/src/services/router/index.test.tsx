@@ -1,14 +1,9 @@
-import { createMemoryHistory, createRouter, RouterProvider } from '@tanstack/react-router';
+import { createMemoryHistory, RouterProvider } from '@tanstack/react-router';
 import { render, screen } from '@testing-library/react';
-import { routeTree } from '../../routeTree.gen';
-import { queryClient } from '../queryClient';
+import { createAppRouter } from './utils/createAppRouter';
 
 function renderAt(path: string) {
-  const router = createRouter({
-    routeTree,
-    context: { queryClient },
-    history: createMemoryHistory({ initialEntries: [path] }),
-  });
+  const router = createAppRouter(createMemoryHistory({ initialEntries: [path] }));
   render(<RouterProvider router={router} />);
 }
 
