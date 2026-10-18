@@ -23,6 +23,7 @@ TypeScript, Node and React standards for Fridgeboard. Apply every rule to any co
 
 | Folder        | Holds                                    |
 | ------------- | ---------------------------------------- |
+| `app/`        | framework wiring (router instance, route tree, devtools, providers' singletons) |
 | `pages/`      | full screens                             |
 | `components/` | reusable UI shared across pages          |
 | `routes/`     | TanStack file routes (thin)              |
@@ -35,7 +36,8 @@ TypeScript, Node and React standards for Fridgeboard. Apply every rule to any co
 - Server data goes through TanStack Query, only via the `hooks/useQuery` and `hooks/useMutation` wrappers.
 - Navigation uses typed `<Link>` and `useNavigate`, never string `href`s for internal routes.
 - `components/App` is the root component (providers + `RouterProvider`).
-- The generated route tree lives at `services/router/routeTree.gen.ts`; it is committed and never hand-edited.
+- **`services/` must not import React, TanStack React packages or any UI-framework package (type-only imports excepted).** Framework bindings go in `app/`, `hooks/` or `components/`. Enforced by oxlint `no-restricted-imports`.
+- The generated route tree lives at `app/router/routeTree.gen.ts`; it is committed and never hand-edited.
 
 ## Types
 

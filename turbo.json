@@ -1,8 +1,16 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": [
+    ".oxlintrc.json",
+    ".oxfmtrc.json",
+    ".fallowrc.json",
+    "tsconfig.base.json"
+  ],
   "tasks": {
     "build": {
-      "outputs": ["dist/**"]
+      "outputs": [
+        "dist/**"
+      ]
     },
     "test": {},
     "typecheck": {},

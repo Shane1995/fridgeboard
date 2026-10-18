@@ -19,7 +19,7 @@
   "ignorePatterns": [
     "dist/**",
     "**/node_modules/**",
-    "apps/web/src/services/router/routeTree.gen.ts"
+    "apps/web/src/app/router/routeTree.gen.ts"
   ],
   "duplicates": {
     "minOccurrences": 3

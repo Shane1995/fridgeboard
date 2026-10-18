@@ -1,4 +1,4 @@
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/query-core';
 import { QUERY_RETRY_COUNT, QUERY_STALE_TIME_MS } from './constants';
 
 export const queryClient = new QueryClient({

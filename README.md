@@ -33,8 +33,10 @@ pnpm dev          # http://localhost:5173
 ```
 apps/web/            PWA
   src/App/           root component
+  src/app/           framework wiring: router, route tree, devtools
   src/pages/<Name>   one folder per page
   src/routes/        path to page switching
+  src/services/      framework-agnostic I/O (no React or UI-framework imports)
 ```
 
 Each unit lives at `<Name>/index.tsx`, with its `types.ts`, `constants.ts` and `index.test.tsx` beside it.

@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { ROUTER_COPY } from '../../services/router/constants';
+import { ROUTER_COPY } from '../../app/router/constants';
 import type { RouteFallbackProps } from './types';
 
 export const RouteFallback = ({ title }: RouteFallbackProps) => {

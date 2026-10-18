@@ -1,11 +1,11 @@
 import { createRootRouteWithContext, Outlet } from '@tanstack/react-router';
 import { lazy, Suspense } from 'react';
 import { RouteFallback } from '../components/RouteFallback';
-import { ROUTER_COPY } from '../services/router/constants';
-import type { RouterContext } from '../services/router/types';
+import { ROUTER_COPY } from '../app/router/constants';
+import type { RouterContext } from '../app/router/types';
 
 const Devtools = import.meta.env.DEV
-  ? lazy(() => import('../components/Devtools').then((m) => ({ default: m.Devtools })))
+  ? lazy(() => import('../app/devtools').then((m) => ({ default: m.Devtools })))
   : null;
 
 const NotFound = () => {
