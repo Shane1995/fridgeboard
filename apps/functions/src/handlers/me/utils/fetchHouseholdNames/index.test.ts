@@ -37,4 +37,16 @@ describe('fetchHouseholdNames', () => {
       .map((call) => call.args[0].input.RequestItems?.fridgeboard?.Keys?.length);
     expect(sizes).toEqual([100, 1]);
   });
+
+  it('stops at a failing chunk and makes no further calls', async () => {
+    ddbMock
+      .on(BatchGetCommand)
+      .resolvesOnce({ Responses: { fridgeboard: [] } })
+      .rejectsOnce(new Error('boom'))
+      .resolves({ Responses: { fridgeboard: [] } });
+    const ids = Array.from({ length: 250 }, (_, i) => `h${i}`);
+
+    await expect(fetchHouseholdNames(client, 'fridgeboard', ids)).rejects.toThrow('boom');
+    expect(ddbMock.commandCalls(BatchGetCommand)).toHaveLength(2);
+  });
 });

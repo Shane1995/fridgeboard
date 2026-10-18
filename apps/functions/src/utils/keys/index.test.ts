@@ -33,4 +33,8 @@ describe('keys', () => {
   it.each(['', 'HH#', 'USER#h1', 'h1'])('returns undefined for %j', (value) => {
     expect(householdIdFromKey(value)).toBeUndefined();
   });
+
+  it.each([undefined, 1, {}])('returns undefined for non-string %j', (value) => {
+    expect(householdIdFromKey(value)).toBeUndefined();
+  });
 });

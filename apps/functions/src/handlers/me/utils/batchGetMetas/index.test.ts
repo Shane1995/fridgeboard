@@ -32,6 +32,23 @@ describe('batchGetMetas', () => {
     expect(ddbMock.commandCalls(BatchGetCommand)).toHaveLength(2);
   });
 
+  it('resends only the unprocessed keys and merges items from both calls', async () => {
+    const otherKey = { PK: 'HH#h2', SK: 'META' };
+    const otherMeta = { ...otherKey, name: 'Flat' };
+    ddbMock
+      .on(BatchGetCommand)
+      .resolvesOnce({
+        Responses: { fridgeboard: [meta] },
+        UnprocessedKeys: { fridgeboard: { Keys: [otherKey] } },
+      })
+      .resolvesOnce({ Responses: { fridgeboard: [otherMeta] } });
+
+    expect(await batchGetMetas(client, 'fridgeboard', [key, otherKey])).toEqual([meta, otherMeta]);
+    expect(ddbMock.commandCalls(BatchGetCommand)[1]?.args[0].input).toEqual({
+      RequestItems: { fridgeboard: { Keys: [otherKey] } },
+    });
+  });
+
   it('throws when keys are still unprocessed after the retry', async () => {
     ddbMock.on(BatchGetCommand).resolves({ UnprocessedKeys: { fridgeboard: { Keys: [key] } } });
 

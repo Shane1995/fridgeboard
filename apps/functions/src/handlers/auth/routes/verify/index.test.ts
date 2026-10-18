@@ -182,4 +182,17 @@ describe('verify route', () => {
     expect(JSON.parse(result.body ?? '')).toEqual({ reason: 'expired' });
     expect(cognitoMock.calls()).toHaveLength(0);
   });
+
+  it('rethrows MISSING_SESSION instead of mapping it to a reason', async () => {
+    cognitoMock.on(ConfirmSignUpCommand).resolves({});
+    cognitoMock.on(InitiateAuthCommand).resolves({});
+
+    await expect(verify(buildRequest(SIGN_UP), SECRETS)).rejects.toThrow('MISSING_SESSION');
+  });
+
+  it('rethrows MISSING_TOKENS instead of mapping it to a reason', async () => {
+    cognitoMock.on(RespondToAuthChallengeCommand).resolves({});
+
+    await expect(verify(buildRequest(SIGN_IN), SECRETS)).rejects.toThrow('MISSING_TOKENS');
+  });
 });

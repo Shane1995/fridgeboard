@@ -55,4 +55,19 @@ describe('preSignUp handler', () => {
       ConsistentRead: true,
     });
   });
+
+  it('rejects with exactly the NO_INVITE message', async () => {
+    ddbMock.on(GetCommand).resolves({});
+
+    await expect(handler(buildEvent('jess@example.com'))).rejects.toThrow(/^NO_INVITE$/);
+  });
+
+  it.each([{}, { expiresAt: String(nowSeconds() + 3600) }, { expiresAt: null }])(
+    'rejects an invite with no numeric expiresAt: %j',
+    async (Item) => {
+      ddbMock.on(GetCommand).resolves({ Item });
+
+      await expect(handler(buildEvent('jess@example.com'))).rejects.toThrow(/^NO_INVITE$/);
+    },
+  );
 });
