@@ -30,7 +30,9 @@ export const householdMetaKey = (id: string): TableKey => ({
   SK: HOUSEHOLD_META_SK,
 });
 
-export const householdIdFromKey = (sk: string): string | undefined =>
-  sk.startsWith(HOUSEHOLD_PK_PREFIX) && sk.length > HOUSEHOLD_PK_PREFIX.length
-    ? sk.slice(HOUSEHOLD_PK_PREFIX.length)
+export const householdIdFromKey = (key: unknown): string | undefined =>
+  typeof key === 'string' &&
+  key.startsWith(HOUSEHOLD_PK_PREFIX) &&
+  key.length > HOUSEHOLD_PK_PREFIX.length
+    ? key.slice(HOUSEHOLD_PK_PREFIX.length)
     : undefined;
