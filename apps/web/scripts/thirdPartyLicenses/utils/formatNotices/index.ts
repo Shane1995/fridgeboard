@@ -1,6 +1,6 @@
 import type { Notice } from '../../types.ts';
 
-export function formatNotices(notices: Notice[]): string {
+export const formatNotices = (notices: Notice[]): string => {
   const header = `Fridgeboard includes the following third-party software.`;
   const sections = notices.map((n) =>
     [
@@ -11,4 +11,4 @@ export function formatNotices(notices: Notice[]): string {
     ].join('\n'),
   );
   return [header, ...sections].join(`\n${'-'.repeat(72)}\n\n`) + '\n';
-}
+};

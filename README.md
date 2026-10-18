@@ -19,24 +19,31 @@ pnpm dev          # http://localhost:5173
 
 ## Scripts
 
-| Command | What it does |
-|---|---|
-| `pnpm dev` | Run the web app with hot reload |
-| `pnpm build` | Typecheck and build every app |
-| `pnpm test` | Run Vitest |
-| `pnpm lint` | Run oxlint |
-| `pnpm typecheck` | Run `tsc -b` |
-| `pnpm format` | Format with oxfmt |
+| Command          | What it does                    |
+| ---------------- | ------------------------------- |
+| `pnpm dev`       | Run the web app with hot reload |
+| `pnpm build`     | Typecheck and build every app   |
+| `pnpm test`      | Run Vitest                      |
+| `pnpm lint`      | Run oxlint                      |
+| `pnpm typecheck` | Run `tsc -b`                    |
+| `pnpm format`    | Format with oxfmt               |
 
 ## Layout
 
 ```
 apps/web/            PWA
-  src/App/           root component
-  src/screens/<Name> one folder per screen
+  src/app/           framework wiring: router, route tree, devtools
+  src/components/    reusable UI, including the root App
+  src/hooks/         React hooks
+  src/pages/<Name>   one folder per page
+  src/routes/        TanStack file routes (thin)
+  src/services/      framework-agnostic I/O (no React or UI-framework imports)
+  src/utils/         pure helpers
 ```
 
 Each unit lives at `<Name>/index.tsx`, with its `types.ts`, `constants.ts` and `index.test.tsx` beside it.
+
+See the Web layout section in `.claude/CODE_STANDARDS.md` for the full folder table.
 
 ## Contributing
 

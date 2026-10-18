@@ -1,3 +1,4 @@
+import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
@@ -8,11 +9,17 @@ const TOMATO = '#E2462F';
 
 export default defineConfig({
   plugins: [
+    tanstackRouter({
+      target: 'react',
+      autoCodeSplitting: true,
+      generatedRouteTree: './src/app/router/routeTree.gen.ts',
+    }),
     react(),
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
+      workbox: { navigateFallbackDenylist: [/^\/api\//] },
       manifest: {
         name: 'Fridgeboard',
         short_name: 'Fridgeboard',

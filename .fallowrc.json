@@ -1,10 +1,26 @@
 {
   "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
-  "entry": ["apps/web/src/main.tsx", "apps/web/scripts/thirdPartyLicenses/index.ts"],
+  "entry": [
+    "apps/web/src/main.tsx",
+    "apps/web/src/routes/**/*.tsx",
+    "apps/web/scripts/thirdPartyLicenses/index.ts",
+    "apps/functions/src/handlers/*/index.ts",
+    "apps/functions/scripts/**/index.ts",
+    "packages/contract/src/auth/constants.ts",
+    "packages/contract/src/auth/types.ts",
+    "packages/contract/src/me/types.ts"
+  ],
   "workspaces": {
-    "packages": ["apps/*"]
+    "packages": [
+      "apps/*",
+      "packages/*"
+    ]
   },
-  "ignorePatterns": ["dist/**", "**/node_modules/**"],
+  "ignorePatterns": [
+    "dist/**",
+    "**/node_modules/**",
+    "apps/web/src/app/router/routeTree.gen.ts"
+  ],
   "duplicates": {
     "minOccurrences": 3
   },
@@ -13,6 +29,9 @@
     "unused-exports": "error"
   },
   "health": {
-    "ignore": ["apps/web/index.html", "apps/web/src/main.tsx"]
+    "ignore": [
+      "apps/web/index.html",
+      "apps/web/src/main.tsx"
+    ]
   }
 }

@@ -1,10 +1,10 @@
 import type { PnpmLicenses, ShippedPackage } from '../../types.ts';
 
-export function selectPackages(
+export const selectPackages = (
   prod: PnpmLicenses,
   all: PnpmLicenses,
   shippedDevPackages: string[],
-): ShippedPackage[] {
+): ShippedPackage[] => {
   const shippedDev = Object.values(all)
     .flat()
     .filter((entry) => shippedDevPackages.includes(entry.name));
@@ -22,4 +22,4 @@ export function selectPackages(
 
   const unique = new Map(packages.map((p) => [`${p.name}@${p.version}`, p]));
   return [...unique.values()].sort((a, b) => a.name.localeCompare(b.name));
-}
+};

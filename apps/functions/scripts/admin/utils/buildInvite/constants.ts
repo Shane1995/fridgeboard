@@ -1,0 +1,1 @@
+export const INVITE_TTL_SECONDS = 604800;

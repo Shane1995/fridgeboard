@@ -1,11 +1,87 @@
 {
-  "plugins": ["react", "typescript"],
+  "plugins": [
+    "react",
+    "typescript",
+    "import",
+    "oxc"
+  ],
   "env": {
     "browser": true
   },
   "rules": {
     "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": "error",
-    "@typescript-eslint/no-explicit-any": "error"
-  }
+    "@typescript-eslint/no-explicit-any": "error",
+    "import/no-default-export": "error",
+    "func-style": [
+      "error",
+      "expression"
+    ],
+    "oxc/no-barrel-file": [
+      "error",
+      {
+        "threshold": 0
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "apps/web/vite.config.ts",
+        "apps/web/vitest.config.ts",
+        "apps/functions/vitest.config.ts",
+        "commitlint.config.cjs"
+      ],
+      "rules": {
+        "import/no-default-export": "off"
+      }
+    },
+    {
+      "files": [
+        "apps/web/src/services/**"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "react",
+                "message": "services/ must stay framework-agnostic; put framework bindings in app/, hooks/ or components/.",
+                "allowTypeImports": true
+              },
+              {
+                "name": "react-dom",
+                "message": "services/ must stay framework-agnostic; put framework bindings in app/, hooks/ or components/.",
+                "allowTypeImports": true
+              },
+              {
+                "name": "react/jsx-runtime",
+                "message": "services/ must stay framework-agnostic; put framework bindings in app/, hooks/ or components/.",
+                "allowTypeImports": true
+              },
+              {
+                "name": "react-dom/client",
+                "message": "services/ must stay framework-agnostic; put framework bindings in app/, hooks/ or components/.",
+                "allowTypeImports": true
+              }
+            ],
+            "patterns": [
+              {
+                "group": [
+                  "@tanstack/react-*",
+                  "@heroui/*"
+                ],
+                "message": "services/ must stay framework-agnostic; put framework bindings in app/, hooks/ or components/.",
+                "allowTypeImports": true
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "ignorePatterns": [
+    "**/routeTree.gen.ts"
+  ]
 }

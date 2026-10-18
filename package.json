@@ -2,6 +2,7 @@
   "name": "fridgeboard-workspace",
   "private": true,
   "license": "UNLICENSED",
+  "type": "module",
   "packageManager": "pnpm@9.15.0",
   "engines": {
     "node": ">=24.0.0",
@@ -10,7 +11,7 @@
   "scripts": {
     "build": "turbo run build",
     "test": "turbo run test",
-    "lint": "turbo run lint",
+    "lint": "node scripts/checkReexports/index.ts && turbo run lint",
     "format": "turbo run format",
     "format:check": "turbo run format:check",
     "typecheck": "turbo run typecheck",
@@ -27,7 +28,7 @@
     "turbo": "^2.11.9"
   },
   "lint-staged": {
-    "apps/**/*.{ts,tsx,js,cjs,mjs}": [
+    "{apps,packages}/**/*.{ts,tsx,js,cjs,mjs}": [
       "oxfmt",
       "oxlint"
     ]

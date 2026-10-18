@@ -10,3 +10,4 @@ coverage
 *.tsbuildinfo
 .fallow/
 .idea
+export-*.json

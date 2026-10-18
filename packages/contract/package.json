@@ -1,0 +1,20 @@
+{
+  "name": "@fridgeboard/contract",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./auth": "./src/auth/types.ts",
+    "./auth/constants": "./src/auth/constants.ts",
+    "./me": "./src/me/types.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -b",
+    "lint": "oxlint --config ../../.oxlintrc.json src/",
+    "format": "oxfmt src/",
+    "format:check": "oxfmt --check src/"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2"
+  }
+}
