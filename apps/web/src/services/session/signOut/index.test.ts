@@ -70,12 +70,44 @@ describe('signOut', () => {
     await verifyCode('123456');
 
     const flight = refreshSession();
-    await signOut();
+    const signingOut = signOut();
     release[0]?.(
       new Response(JSON.stringify({ ...TOKENS, accessToken: 'token-2' }), { status: 200 }),
     );
+    await signingOut;
 
     await expect(flight).resolves.toBe(false);
+    expect(getAccessToken()).toBeUndefined();
+    expect(getSessionStatus()).toBe('signed-out');
+  });
+
+  it('waits for a refresh in flight before posting sign-out', async () => {
+    const release: ((response: Response) => void)[] = [];
+    const pending = new Promise<Response>((resolve) => release.push(resolve));
+    fetchMock
+      .mockResolvedValueOnce(new Response(JSON.stringify(TOKENS), { status: 200 }))
+      .mockReturnValueOnce(pending)
+      .mockResolvedValueOnce(new Response(null, { status: 204 }));
+    const { signOut, verifyCode, refreshSession, getAccessToken, getSessionStatus } =
+      await loadSession();
+    await verifyCode('123456');
+
+    const flight = refreshSession();
+    const signingOut = signOut();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+
+    release[0]?.(
+      new Response(JSON.stringify({ ...TOKENS, accessToken: 'token-2' }), { status: 200 }),
+    );
+    await signingOut;
+    await flight;
+
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(fetchMock).toHaveBeenLastCalledWith(
+      API_PATHS.signOut,
+      expect.objectContaining({ method: 'POST' }),
+    );
     expect(getAccessToken()).toBeUndefined();
     expect(getSessionStatus()).toBe('signed-out');
   });
