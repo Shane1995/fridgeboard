@@ -1,5 +1,5 @@
 import { INITIAL_EPOCH, INITIAL_SESSION, SESSION_KEY } from '../constants';
-import type { RefreshKey, SessionKey, SessionSnapshot } from '../types';
+import type { RefreshKey, SessionKey, SessionListener, SessionSnapshot } from '../types';
 
 export const sessionStore = new Map<SessionKey, SessionSnapshot>([[SESSION_KEY, INITIAL_SESSION]]);
 
@@ -8,3 +8,5 @@ export const sessionEpochs = new Map<SessionKey, number>([[SESSION_KEY, INITIAL_
 export const refreshFlights = new Map<RefreshKey, Promise<boolean>>();
 
 export const refreshTimers = new Map<RefreshKey, ReturnType<typeof setTimeout>>();
+
+export const sessionListeners = new Set<SessionListener>();
