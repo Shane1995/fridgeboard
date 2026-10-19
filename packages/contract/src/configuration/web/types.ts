@@ -12,7 +12,6 @@ export type WebConfigurationInput = z.infer<typeof WebConfigurationSchema>;
 export type WebConfiguration = {
   version: 1;
   featureFlags: Record<WebFeatureFlag, boolean>;
-  params: Record<string, string>;
   services: Record<WebService, ServiceDefinition>;
   settings: WebSettings;
   queries: QueryEntries;

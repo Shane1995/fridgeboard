@@ -6,9 +6,8 @@ const RESOLVED_PREFIX = '/api/';
 export const resolveServiceUrl = (
   service: ServiceDefinition,
   values: Record<string, string> = {},
-  sharedParams: Record<string, string> = {},
 ): string => {
-  const merged = { ...sharedParams, ...service.params, ...values };
+  const merged = { ...service.params, ...values };
 
   const resolved = service.url.replace(PLACEHOLDER_PATTERN, (_match, name: string) => {
     const value = merged[name];

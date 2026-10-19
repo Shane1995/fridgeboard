@@ -12,8 +12,9 @@ describe('WebConfigurationSchema', () => {
     const result = WebConfigurationSchema.safeParse({
       version: 1,
       featureFlags: { ENABLE_ADMIN_INVITES: true },
-      params: { version: 'v2' },
-      services: { me: { url: '/api/{version}/{id}', params: { id: 'x' } } },
+      services: {
+        me: { url: '/api/{version}/{id}', params: { version: 'v2', id: 'x' } },
+      },
     });
     expect(result.success).toBe(true);
   });
@@ -25,7 +26,12 @@ describe('WebConfigurationSchema', () => {
       services: {},
       settings: { refreshLeadMs: 5_000, refreshMinIntervalMs: 600_000 },
       queries: {
-        default: { staleTimeMs: 0, gcTimeMs: 3_600_000, retry: 5, refetchOnWindowFocus: false },
+        default: {
+          staleTimeMs: 0,
+          gcTimeMs: 3_600_000,
+          retry: 5,
+          refetchOnWindowFocus: false,
+        },
         me: { retry: 0 },
       },
       mutations: { default: { retry: 1 }, signOut: { retry: 0 } },
@@ -36,7 +42,10 @@ describe('WebConfigurationSchema', () => {
   it('accepts the maximum me stale time and other queries up to an hour', () => {
     const result = WebConfigurationSchema.safeParse({
       ...BASE,
-      queries: { me: { staleTimeMs: 300_000 }, default: { staleTimeMs: 3_600_000 } },
+      queries: {
+        me: { staleTimeMs: 300_000 },
+        default: { staleTimeMs: 3_600_000 },
+      },
     });
     expect(result.success).toBe(true);
   });
@@ -47,19 +56,35 @@ describe('WebConfigurationSchema', () => {
     ['wrong version', { version: 2, featureFlags: {}, services: {} }],
     [
       'non-boolean flag',
-      { version: 1, featureFlags: { ENABLE_ADMIN_INVITES: 'yes' }, services: {} },
+      {
+        version: 1,
+        featureFlags: { ENABLE_ADMIN_INVITES: 'yes' },
+        services: {},
+      },
     ],
     [
       'absolute service url',
-      { version: 1, featureFlags: {}, services: { me: { url: 'https://evil.example/x' } } },
+      {
+        version: 1,
+        featureFlags: {},
+        services: { me: { url: 'https://evil.example/x' } },
+      },
     ],
     [
       'protocol-relative service url',
-      { version: 1, featureFlags: {}, services: { me: { url: '//evil.example/x' } } },
+      {
+        version: 1,
+        featureFlags: {},
+        services: { me: { url: '//evil.example/x' } },
+      },
     ],
     [
       'unknown service field',
-      { version: 1, featureFlags: {}, services: { me: { url: '/api/x', token: 't' } } },
+      {
+        version: 1,
+        featureFlags: {},
+        services: { me: { url: '/api/x', token: 't' } },
+      },
     ],
     [
       'unknown service name',
@@ -89,40 +114,52 @@ describe('WebConfigurationSchema', () => {
     ['service url with double slash', { ...BASE, services: { me: { url: '/api//x' } } }],
     ['service url with backslash', { ...BASE, services: { me: { url: '/api/x\\y' } } }],
     ['service url with whitespace', { ...BASE, services: { me: { url: '/api/x y' } } }],
-    ['shared param empty value', { ...BASE, params: { version: '' } }],
     [
       'service param empty value',
       { ...BASE, services: { me: { url: '/api/x', params: { version: '' } } } },
     ],
-    ['shared param long value', { ...BASE, params: { version: 'a'.repeat(17) } }],
     [
       'service param long value',
-      { ...BASE, services: { me: { url: '/api/x', params: { version: 'a'.repeat(17) } } } },
+      {
+        ...BASE,
+        services: {
+          me: { url: '/api/x', params: { version: 'a'.repeat(17) } },
+        },
+      },
     ],
-    ['shared param dotted value', { ...BASE, params: { version: '..' } }],
     [
       'service param dotted value',
-      { ...BASE, services: { me: { url: '/api/x', params: { version: '..' } } } },
+      {
+        ...BASE,
+        services: { me: { url: '/api/x', params: { version: '..' } } },
+      },
     ],
-    ['shared param slash value', { ...BASE, params: { version: 'a/b' } }],
     [
       'service param slash value',
-      { ...BASE, services: { me: { url: '/api/x', params: { version: 'a/b' } } } },
+      {
+        ...BASE,
+        services: { me: { url: '/api/x', params: { version: 'a/b' } } },
+      },
     ],
-    ['shared param digit-leading name', { ...BASE, params: { '1v': 'x' } }],
     [
       'service param digit-leading name',
       { ...BASE, services: { me: { url: '/api/x', params: { '1v': 'x' } } } },
     ],
-    ['shared param long name', { ...BASE, params: { ['a'.repeat(33)]: 'x' } }],
     [
       'service param long name',
-      { ...BASE, services: { me: { url: '/api/x', params: { ['a'.repeat(33)]: 'x' } } } },
+      {
+        ...BASE,
+        services: { me: { url: '/api/x', params: { ['a'.repeat(33)]: 'x' } } },
+      },
     ],
     ['me stale time above 5 minutes', { ...BASE, queries: { me: { staleTimeMs: 300_001 } } }],
     ['startSignIn mutation entry', { ...BASE, mutations: { startSignIn: { retry: 0 } } }],
     ['verifyCode mutation entry', { ...BASE, mutations: { verifyCode: { retry: 0 } } }],
-    ['non-string param', { version: 1, featureFlags: {}, params: { version: 2 }, services: {} }],
+    ['top-level params', { ...BASE, params: { version: 'v1' } }],
+    [
+      'non-string service param',
+      { ...BASE, services: { me: { url: '/api/x', params: { version: 2 } } } },
+    ],
   ])('rejects %s', (_name, input) => {
     expect(WebConfigurationSchema.safeParse(input).success).toBe(false);
   });
