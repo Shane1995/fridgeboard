@@ -17,7 +17,7 @@ export const Home = () => {
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center gap-6 p-6 text-center">
-      <h1 className="font-hand text-6xl text-accent">{HOME_COPY.title}</h1>
+      <h1 className="font-hand px-3 text-6xl text-accent">{HOME_COPY.title}</h1>
       <p className="text-lg">{HOME_COPY.tagline}</p>
       {data && (
         <p>

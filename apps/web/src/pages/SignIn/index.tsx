@@ -12,7 +12,7 @@ export const SignIn = ({ initialEmail, redirectTo, children }: SignInProps) => {
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center gap-6 p-6">
-      <h1 className="font-hand text-center text-6xl text-accent">{SIGN_IN_COPY.logo}</h1>
+      <h1 className="font-hand px-3 text-center text-6xl text-accent">{SIGN_IN_COPY.logo}</h1>
       {children}
       <Card>
         <Card.Content>
