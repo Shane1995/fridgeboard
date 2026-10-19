@@ -7,7 +7,6 @@ import {
 } from '@fridgeboard/contract/configuration/flags/constants';
 import { resolveServiceUrl } from '@fridgeboard/contract/configuration/resolveServiceUrl';
 import {
-  DEFAULT_WEB_PARAMS,
   DEFAULT_WEB_SERVICES,
   WEB_SERVICES,
   WebService,
@@ -23,6 +22,7 @@ import {
 } from '@fridgeboard/contract/configuration/settings/constants';
 import { mergeSettings } from '@fridgeboard/contract/configuration/settings/mergeSettings';
 import { stripUnknownKeys } from '@fridgeboard/contract/configuration/stripUnknownKeys';
+import { stripTopLevelParams } from '@fridgeboard/contract/configuration/stripTopLevelParams';
 import { stripUnknownFlags } from '@fridgeboard/contract/configuration/stripUnknownFlags';
 import { stripUnknownServices } from '@fridgeboard/contract/configuration/stripUnknownServices';
 import { setConfiguration } from './setConfiguration';
@@ -31,6 +31,7 @@ import { CONFIGURATION_PATH, CONFIGURATION_TIMEOUT_MS } from './constants';
 
 const stripUnknown = (raw: unknown): unknown =>
   [
+    stripTopLevelParams,
     (value: unknown) => stripUnknownFlags(value, WEB_FEATURE_FLAGS),
     (value: unknown) => stripUnknownServices(value, WEB_SERVICES),
     (value: unknown) => stripUnknownKeys(value, 'settings', WEB_SETTINGS),
@@ -58,7 +59,6 @@ export const getConfiguration = async (): Promise<WebConfiguration> => {
     const configuration: WebConfiguration = {
       ...parsed.data,
       featureFlags: { ...DEFAULT_WEB_FLAGS, ...parsed.data.featureFlags },
-      params: { ...DEFAULT_WEB_PARAMS, ...parsed.data.params },
       services: { ...DEFAULT_WEB_SERVICES, ...parsed.data.services },
       settings: mergeSettings(DEFAULT_WEB_SETTINGS, parsed.data.settings),
       queries: { ...parsed.data.queries },
@@ -72,10 +72,10 @@ export const getConfiguration = async (): Promise<WebConfiguration> => {
 };
 
 export const getServicePath = (service: WebService): string => {
-  const { services, params } = configurationStore.current;
+  const { services } = configurationStore.current;
   try {
-    return resolveServiceUrl(services[service], {}, params);
+    return resolveServiceUrl(services[service], {});
   } catch {
-    return resolveServiceUrl(DEFAULT_WEB_SERVICES[service], {}, DEFAULT_WEB_PARAMS);
+    return resolveServiceUrl(DEFAULT_WEB_SERVICES[service], {});
   }
 };

@@ -25,7 +25,11 @@ describe('getConfiguration', () => {
   });
 
   it('merges served flags over the defaults', async () => {
-    respond({ version: 1, featureFlags: { ENABLE_ADMIN_INVITES: true }, services: {} });
+    respond({
+      version: 1,
+      featureFlags: { ENABLE_ADMIN_INVITES: true },
+      services: {},
+    });
 
     await expect(getConfiguration()).resolves.toEqual({
       ...DEFAULT_WEB_CONFIGURATION,
@@ -39,29 +43,43 @@ describe('getConfiguration', () => {
     await expect(getConfiguration()).resolves.toEqual(DEFAULT_WEB_CONFIGURATION);
   });
 
-  it('merges served params and services over the defaults', async () => {
+  it('merges served services over the defaults', async () => {
+    const me = { url: '/api/{version}/profile', params: { version: 'v2' } };
+    respond({ version: 1, featureFlags: {}, services: { me } });
+
+    await expect(getConfiguration()).resolves.toEqual({
+      ...DEFAULT_WEB_CONFIGURATION,
+      services: { ...DEFAULT_WEB_CONFIGURATION.services, me },
+    });
+  });
+
+  it('ignores a legacy top-level params key', async () => {
     respond({
       version: 1,
       featureFlags: {},
       params: { version: 'v2' },
-      services: { me: { url: '/api/{version}/profile' } },
+      services: {},
     });
 
-    await expect(getConfiguration()).resolves.toEqual({
-      ...DEFAULT_WEB_CONFIGURATION,
-      params: { version: 'v2' },
-      services: { ...DEFAULT_WEB_CONFIGURATION.services, me: { url: '/api/{version}/profile' } },
-    });
+    await expect(getConfiguration()).resolves.toEqual(DEFAULT_WEB_CONFIGURATION);
   });
 
   it('ignores service names the app does not know', async () => {
-    respond({ version: 1, featureFlags: {}, services: { removed: { url: '/api/x' } } });
+    respond({
+      version: 1,
+      featureFlags: {},
+      services: { removed: { url: '/api/x' } },
+    });
 
     await expect(getConfiguration()).resolves.toEqual(DEFAULT_WEB_CONFIGURATION);
   });
 
   it('rejects a service url outside /api/', async () => {
-    respond({ version: 1, featureFlags: {}, services: { me: { url: '/other' } } });
+    respond({
+      version: 1,
+      featureFlags: {},
+      services: { me: { url: '/other' } },
+    });
 
     await expect(getConfiguration()).resolves.toEqual(DEFAULT_WEB_CONFIGURATION);
   });
@@ -73,7 +91,12 @@ describe('getConfiguration', () => {
   });
 
   it('merges served settings over the defaults', async () => {
-    respond({ version: 1, featureFlags: {}, services: {}, settings: { refreshLeadMs: 10_000 } });
+    respond({
+      version: 1,
+      featureFlags: {},
+      services: {},
+      settings: { refreshLeadMs: 10_000 },
+    });
 
     await expect(getConfiguration()).resolves.toEqual({
       ...DEFAULT_WEB_CONFIGURATION,
@@ -134,13 +157,23 @@ describe('getConfiguration', () => {
   });
 
   it('rejects a setting outside its bounds', async () => {
-    respond({ version: 1, featureFlags: {}, services: {}, settings: { refreshLeadMs: 1 } });
+    respond({
+      version: 1,
+      featureFlags: {},
+      services: {},
+      settings: { refreshLeadMs: 1 },
+    });
 
     await expect(getConfiguration()).resolves.toEqual(DEFAULT_WEB_CONFIGURATION);
   });
 
   it('stores the loaded configuration for getSetting', async () => {
-    respond({ version: 1, featureFlags: {}, services: {}, settings: { refreshLeadMs: 10_000 } });
+    respond({
+      version: 1,
+      featureFlags: {},
+      services: {},
+      settings: { refreshLeadMs: 10_000 },
+    });
 
     await getConfiguration();
 
@@ -148,7 +181,12 @@ describe('getConfiguration', () => {
   });
 
   it('leaves the store untouched when the fetch fails', async () => {
-    respond({ version: 1, featureFlags: {}, services: {}, settings: { refreshLeadMs: 10_000 } });
+    respond({
+      version: 1,
+      featureFlags: {},
+      services: {},
+      settings: { refreshLeadMs: 10_000 },
+    });
     await getConfiguration();
     respond({}, 500);
 
@@ -190,7 +228,11 @@ describe('getServicePath', () => {
   });
 
   it('follows a served version bump once the configuration has loaded', async () => {
-    respond({ version: 1, featureFlags: {}, params: { version: 'v2' }, services: {} });
+    respond({
+      version: 1,
+      featureFlags: {},
+      services: { me: { url: '/api/{version}/me', params: { version: 'v2' } } },
+    });
 
     await getConfiguration();
 
@@ -206,7 +248,11 @@ describe('getServicePath', () => {
   });
 
   it('keeps the last loaded configuration when a later fetch fails', async () => {
-    respond({ version: 1, featureFlags: {}, params: { version: 'v2' }, services: {} });
+    respond({
+      version: 1,
+      featureFlags: {},
+      services: { me: { url: '/api/{version}/me', params: { version: 'v2' } } },
+    });
     await getConfiguration();
     vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('offline'));
 

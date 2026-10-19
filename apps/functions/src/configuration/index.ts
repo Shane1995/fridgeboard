@@ -11,6 +11,7 @@ import {
   LAMBDA_SETTINGS,
 } from '@fridgeboard/contract/configuration/settings/constants';
 import { mergeSettings } from '@fridgeboard/contract/configuration/settings/mergeSettings';
+import { stripTopLevelParams } from '@fridgeboard/contract/configuration/stripTopLevelParams';
 import { stripUnknownFlags } from '@fridgeboard/contract/configuration/stripUnknownFlags';
 import { stripUnknownKeys } from '@fridgeboard/contract/configuration/stripUnknownKeys';
 import { CONFIGURATION_TTL_MS, DEFAULT_CONFIG_KEY } from './constants.ts';
@@ -29,7 +30,11 @@ const fetchConfiguration = async (): Promise<LambdaConfiguration> => {
   );
   const raw: unknown = JSON.parse((await Body?.transformToString()) ?? '');
   const parsed = LambdaConfigurationSchema.parse(
-    stripUnknownKeys(stripUnknownFlags(raw, LAMBDA_FEATURE_FLAGS), 'settings', LAMBDA_SETTINGS),
+    stripUnknownKeys(
+      stripUnknownFlags(stripTopLevelParams(raw), LAMBDA_FEATURE_FLAGS),
+      'settings',
+      LAMBDA_SETTINGS,
+    ),
   );
   return {
     ...parsed,

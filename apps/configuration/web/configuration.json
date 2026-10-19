@@ -1,24 +1,36 @@
 {
   "version": 1,
   "featureFlags": {},
-  "params": {
-    "version": "v1"
-  },
   "services": {
     "start": {
-      "url": "/api/{version}/auth/start"
+      "url": "/api/{version}/auth/start",
+      "params": {
+        "version": "v1"
+      }
     },
     "verify": {
-      "url": "/api/{version}/auth/verify"
+      "url": "/api/{version}/auth/verify",
+      "params": {
+        "version": "v1"
+      }
     },
     "refresh": {
-      "url": "/api/{version}/auth/refresh"
+      "url": "/api/{version}/auth/refresh",
+      "params": {
+        "version": "v1"
+      }
     },
     "signOut": {
-      "url": "/api/{version}/auth/sign-out"
+      "url": "/api/{version}/auth/sign-out",
+      "params": {
+        "version": "v1"
+      }
     },
     "me": {
-      "url": "/api/{version}/me"
+      "url": "/api/{version}/me",
+      "params": {
+        "version": "v1"
+      }
     }
   },
   "settings": {

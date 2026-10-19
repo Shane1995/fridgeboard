@@ -28,6 +28,7 @@
     "./configuration/stripUnknownKeys": "./src/configuration/stripUnknownKeys/index.ts",
     "./configuration/resolveServiceUrl": "./src/configuration/resolveServiceUrl/index.ts",
     "./configuration/stripUnknownFlags": "./src/configuration/stripUnknownFlags/index.ts",
+    "./configuration/stripTopLevelParams": "./src/configuration/stripTopLevelParams/index.ts",
     "./configuration/stripUnknownServices": "./src/configuration/stripUnknownServices/index.ts"
   },
   "scripts": {

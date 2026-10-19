@@ -8,7 +8,10 @@ afterEach(() => {
 
 describe('setConfiguration', () => {
   it('replaces the stored configuration', () => {
-    const next = { ...DEFAULT_WEB_CONFIGURATION, params: { version: 'v9' } };
+    const next = {
+      ...DEFAULT_WEB_CONFIGURATION,
+      featureFlags: { ENABLE_ADMIN_INVITES: true },
+    };
 
     setConfiguration(next);
 
