@@ -2,7 +2,7 @@ import { createRouter, type RouterHistory } from '@tanstack/react-router';
 import { AppLoader } from '../../../../components/AppLoader';
 import { ROUTER_PENDING_MIN_MS, ROUTER_PENDING_MS } from '../../constants';
 import { routeTree } from '../../routeTree.gen';
-import { queryClient } from '../../../../services/queryClient';
+import { queryClient } from '../../../queryClient';
 import { getSessionStatus } from '../../../../services/session/getSessionStatus';
 import { refreshSession } from '../../../../services/session/refreshSession';
 

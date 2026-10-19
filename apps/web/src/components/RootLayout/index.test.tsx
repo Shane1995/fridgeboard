@@ -9,7 +9,8 @@ import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/w
 import { QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import { getConfiguration } from '../../services/configuration';
-import { queryClient } from '../../services/queryClient';
+import { queryClient } from '../../app/queryClient';
+import { RemoteConfigProvider } from '../../Context/RemoteConfig';
 import { RootLayout } from '.';
 
 vi.mock('../../services/configuration', () => ({ getConfiguration: vi.fn() }));
@@ -29,7 +30,9 @@ const renderLayout = () => {
   vi.mocked(getConfiguration).mockResolvedValue(DEFAULT_WEB_CONFIGURATION);
   render(
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      <RemoteConfigProvider>
+        <RouterProvider router={router} />
+      </RemoteConfigProvider>
     </QueryClientProvider>,
   );
 };
