@@ -4,6 +4,7 @@ export type QueryOptions<TData> = {
   queryKey: readonly unknown[];
   queryFn: () => Promise<TData>;
   staleTime?: number;
+  enabled?: boolean;
 };
 
 export type QueryResult<TData> = UseQueryResult<TData, Error>;

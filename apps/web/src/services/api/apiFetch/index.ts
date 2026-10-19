@@ -1,3 +1,5 @@
+import { SessionStatus } from '../../session/constants';
+import { getSessionStatus } from '../../session/getSessionStatus';
 import { refreshSession } from '../../session/refreshSession';
 import { UNAUTHORISED_STATUS } from '../../constants';
 import { API_PREFIX, OUTSIDE_API_ERROR } from '../constants';
@@ -9,7 +11,11 @@ export const apiFetch = async (path: string, init: RequestInit = {}): Promise<Re
   }
 
   const response = await sendRequest(path, init);
-  if (response.status !== UNAUTHORISED_STATUS || !(await refreshSession())) {
+  if (
+    response.status !== UNAUTHORISED_STATUS ||
+    getSessionStatus() === SessionStatus.SignedOut ||
+    !(await refreshSession())
+  ) {
     return response;
   }
   return sendRequest(path, init);

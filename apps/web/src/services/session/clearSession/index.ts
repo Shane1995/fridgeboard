@@ -8,6 +8,6 @@ export const clearSession = (): void => {
   bumpEpoch();
   clearTimeout(refreshTimers.get(REFRESH_KEY));
   refreshTimers.delete(REFRESH_KEY);
-  queryClient.clear();
   updateSession({ accessToken: undefined, status: SessionStatus.SignedOut });
+  queryClient.clear();
 };
