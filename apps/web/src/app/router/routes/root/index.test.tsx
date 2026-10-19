@@ -29,6 +29,7 @@ const renderAt = (path: string) => {
     history: createMemoryHistory({ initialEntries: [path] }),
     context: {
       queryClient: new QueryClient(),
+      mePath: '/api/v1/me',
       session: { getStatus: () => SessionStatus.SignedOut, refresh: async () => false },
     },
   });
@@ -40,6 +41,8 @@ const renderAt = (path: string) => {
     </QueryClientProvider>,
   );
 };
+
+vi.mock('../../../../services/session/watchSession', () => ({ watchSession: vi.fn() }));
 
 describe('root route', () => {
   beforeEach(() => vi.spyOn(console, 'error').mockImplementation(() => {}));

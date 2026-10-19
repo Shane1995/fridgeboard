@@ -1,9 +1,12 @@
+import { API_PATHS } from '@fridgeboard/contract/auth/constants';
+import type { SessionConfig } from '../types';
 import type { ITokenResponse } from '@fridgeboard/contract/auth';
 
-vi.mock('../../configuration', async () => {
-  const { API_PATHS } = await import('@fridgeboard/contract/auth/constants');
-  return { getServicePath: (service: keyof typeof API_PATHS) => API_PATHS[service] };
-});
+const CONFIG: SessionConfig = {
+  refreshPath: API_PATHS.refresh,
+  refreshLeadMs: 60_000,
+  refreshMinIntervalMs: 60_000,
+};
 
 const TOKENS: ITokenResponse = { accessToken: 'token-1', expiresIn: 900 };
 
@@ -14,10 +17,10 @@ const setVisibility = (state: DocumentVisibilityState): void => {
   document.dispatchEvent(new Event('visibilitychange'));
 };
 
-const loadWatch = async () => {
+const loadWatch = async (config: SessionConfig = CONFIG) => {
   vi.resetModules();
   const { watchSession } = await import('./index');
-  return watchSession;
+  return () => watchSession(config);
 };
 
 describe('watchSession', () => {
@@ -80,14 +83,7 @@ describe('watchSession', () => {
   });
 
   it('uses the configured minimum refresh interval', async () => {
-    const watch = await loadWatch();
-    const { setConfiguration } = await import('../../configuration/setConfiguration');
-    const { DEFAULT_WEB_CONFIGURATION } =
-      await import('@fridgeboard/contract/configuration/web/constants');
-    setConfiguration({
-      ...DEFAULT_WEB_CONFIGURATION,
-      settings: { ...DEFAULT_WEB_CONFIGURATION.settings, refreshMinIntervalMs: 120_000 },
-    });
+    const watch = await loadWatch({ ...CONFIG, refreshMinIntervalMs: 120_000 });
     const stop = watch();
     await vi.advanceTimersByTimeAsync(90_000);
 

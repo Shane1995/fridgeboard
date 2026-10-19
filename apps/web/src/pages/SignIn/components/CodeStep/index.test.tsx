@@ -1,3 +1,5 @@
+import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/web/constants';
+import { RemoteConfigContext } from '../../../../Context/RemoteConfig';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { startSignIn } from '../../../../services/session/startSignIn';
@@ -13,9 +15,11 @@ const onBack = vi.fn();
 
 const renderStep = () =>
   render(
-    <QueryClientProvider client={new QueryClient()}>
-      <CodeStep email="a@b.com" onSignedIn={onSignedIn} onBack={onBack} />
-    </QueryClientProvider>,
+    <RemoteConfigContext.Provider value={DEFAULT_WEB_CONFIGURATION}>
+      <QueryClientProvider client={new QueryClient()}>
+        <CodeStep email="a@b.com" onSignedIn={onSignedIn} onBack={onBack} />
+      </QueryClientProvider>
+    </RemoteConfigContext.Provider>,
   );
 
 const submitCode = (code: string) => {
@@ -39,7 +43,7 @@ describe('CodeStep', () => {
     renderStep();
     submitCode(code);
     await waitFor(() => expect(onSignedIn).toHaveBeenCalledTimes(1));
-    expect(vi.mocked(verifyCode).mock.calls[0]?.[0]).toBe(code);
+    expect(vi.mocked(verifyCode).mock.calls[0]?.[2]).toBe(code);
   });
 
   it('shows the bad-code copy', async () => {
@@ -59,7 +63,7 @@ describe('CodeStep', () => {
 
     fireEvent.click(screen.getByRole('button', { name: SIGN_IN_COPY.resend }));
     expect(await screen.findByText(SIGN_IN_COPY.resent)).toBeInTheDocument();
-    expect(vi.mocked(startSignIn).mock.calls[0]?.[0]).toBe('a@b.com');
+    expect(vi.mocked(startSignIn).mock.calls[0]?.[1]).toBe('a@b.com');
   });
 
   it('clears the field and confirms on next=enter-code', async () => {

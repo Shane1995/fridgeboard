@@ -6,6 +6,7 @@ import { SIGN_IN_COPY } from '../../pages/SignIn/constants';
 import { App } from '.';
 
 vi.mock('../../services/session/getSessionStatus', () => ({ getSessionStatus: vi.fn() }));
+vi.mock('../../services/session/watchSession', () => ({ watchSession: vi.fn() }));
 vi.mock('../../services/session/refreshSession', () => ({ refreshSession: vi.fn() }));
 
 describe('App', () => {

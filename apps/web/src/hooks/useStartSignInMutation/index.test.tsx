@@ -1,6 +1,8 @@
+import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/web/constants';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
+import { RemoteConfigContext } from '../../Context/RemoteConfig';
 import { startSignIn } from '../../services/session/startSignIn';
 import { useStartSignInMutation } from './index';
 
@@ -8,7 +10,11 @@ vi.mock('../../services/session/startSignIn', () => ({ startSignIn: vi.fn() }));
 
 const client = new QueryClient();
 const wrapper = ({ children }: { children: ReactNode }) => (
-  <QueryClientProvider client={client}>{children}</QueryClientProvider>
+  <QueryClientProvider client={client}>
+    <RemoteConfigContext.Provider value={DEFAULT_WEB_CONFIGURATION}>
+      {children}
+    </RemoteConfigContext.Provider>
+  </QueryClientProvider>
 );
 
 describe('useStartSignInMutation', () => {
@@ -19,7 +25,7 @@ describe('useStartSignInMutation', () => {
     await act(async () => {
       await expect(result.current.mutateAsync('jess@example.com')).resolves.toEqual({ ok: true });
     });
-    expect(startSignIn).toHaveBeenCalledWith('jess@example.com', expect.anything());
+    expect(startSignIn).toHaveBeenCalledWith('/api/v1/auth/start', 'jess@example.com');
   });
 
   it('registers under its mutation name', async () => {

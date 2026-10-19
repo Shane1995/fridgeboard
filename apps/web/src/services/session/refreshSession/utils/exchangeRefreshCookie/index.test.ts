@@ -1,9 +1,12 @@
+import { API_PATHS } from '@fridgeboard/contract/auth/constants';
+import type { SessionConfig } from '../../../types';
 import type { ITokenResponse } from '@fridgeboard/contract/auth';
 
-vi.mock('../../../../configuration', async () => {
-  const { API_PATHS } = await import('@fridgeboard/contract/auth/constants');
-  return { getServicePath: (service: keyof typeof API_PATHS) => API_PATHS[service] };
-});
+const CONFIG: SessionConfig = {
+  refreshPath: API_PATHS.refresh,
+  refreshLeadMs: 60_000,
+  refreshMinIntervalMs: 60_000,
+};
 
 const TOKENS: ITokenResponse = { accessToken: 'token-1', expiresIn: 900 };
 
@@ -33,7 +36,7 @@ describe('exchangeRefreshCookie', () => {
     const onExpiring = vi.fn(async () => true);
     const { exchangeRefreshCookie, getSession } = await load();
 
-    await expect(exchangeRefreshCookie(onExpiring)).resolves.toBe(true);
+    await expect(exchangeRefreshCookie(CONFIG, onExpiring)).resolves.toBe(true);
     expect(getSession()).toMatchObject({ accessToken: 'token-1', status: 'signed-in' });
 
     await vi.advanceTimersByTimeAsync(840_000);
@@ -47,8 +50,8 @@ describe('exchangeRefreshCookie', () => {
     const onExpiring = vi.fn(async () => true);
     const { exchangeRefreshCookie, getSession } = await load();
 
-    await exchangeRefreshCookie(onExpiring);
-    await expect(exchangeRefreshCookie(onExpiring)).resolves.toBe(false);
+    await exchangeRefreshCookie(CONFIG, onExpiring);
+    await expect(exchangeRefreshCookie(CONFIG, onExpiring)).resolves.toBe(false);
     await vi.advanceTimersByTimeAsync(900_000);
 
     expect(getSession().status).toBe('signed-out');
@@ -64,14 +67,14 @@ describe('exchangeRefreshCookie', () => {
     const onExpiring = vi.fn(async () => true);
     const { exchangeRefreshCookie, getSession } = await load();
 
-    await exchangeRefreshCookie(onExpiring);
-    await expect(exchangeRefreshCookie(onExpiring)).resolves.toBe(false);
+    await exchangeRefreshCookie(CONFIG, onExpiring);
+    await expect(exchangeRefreshCookie(CONFIG, onExpiring)).resolves.toBe(false);
     expect(getSession()).toMatchObject({ accessToken: undefined, status: 'signed-out' });
 
-    await expect(exchangeRefreshCookie(onExpiring)).resolves.toBe(false);
+    await expect(exchangeRefreshCookie(CONFIG, onExpiring)).resolves.toBe(false);
     expect(getSession().accessToken).toBeUndefined();
 
-    await expect(exchangeRefreshCookie(onExpiring)).resolves.toBe(true);
+    await expect(exchangeRefreshCookie(CONFIG, onExpiring)).resolves.toBe(true);
     expect(getSession()).toMatchObject({ accessToken: 'token-1', status: 'signed-in' });
   });
 
@@ -83,7 +86,7 @@ describe('exchangeRefreshCookie', () => {
     const { exchangeRefreshCookie, getSession } = await load();
     const { clearSession } = await import('../../../clearSession');
 
-    const flight = exchangeRefreshCookie(onExpiring);
+    const flight = exchangeRefreshCookie(CONFIG, onExpiring);
     clearSession();
     release[0]?.(new Response(JSON.stringify(TOKENS), { status: 200 }));
 

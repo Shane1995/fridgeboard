@@ -1,10 +1,12 @@
+import type { SessionConfig } from '../types';
 import type { ITokenResponse } from '@fridgeboard/contract/auth';
 import { API_PATHS } from '@fridgeboard/contract/auth/constants';
 
-vi.mock('../../configuration', async () => {
-  const { API_PATHS } = await import('@fridgeboard/contract/auth/constants');
-  return { getServicePath: (service: keyof typeof API_PATHS) => API_PATHS[service] };
-});
+const CONFIG: SessionConfig = {
+  refreshPath: API_PATHS.refresh,
+  refreshLeadMs: 60_000,
+  refreshMinIntervalMs: 60_000,
+};
 
 const TOKENS: ITokenResponse = { accessToken: 'token-1', expiresIn: 900 };
 
@@ -37,7 +39,11 @@ describe('refreshSession', () => {
     fetchMock.mockResolvedValue(respond(200, TOKENS));
     const { refreshSession } = await loadSession();
 
-    const results = await Promise.all([refreshSession(), refreshSession(), refreshSession()]);
+    const results = await Promise.all([
+      refreshSession(CONFIG),
+      refreshSession(CONFIG),
+      refreshSession(CONFIG),
+    ]);
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(results).toEqual([true, true, true]);
@@ -47,7 +53,7 @@ describe('refreshSession', () => {
     fetchMock.mockResolvedValue(respond(200, TOKENS));
     const { refreshSession, getAccessToken, getSessionStatus } = await loadSession();
 
-    await refreshSession();
+    await refreshSession(CONFIG);
 
     expect(fetchMock).toHaveBeenCalledWith(
       API_PATHS.refresh,
@@ -67,8 +73,8 @@ describe('refreshSession', () => {
       .mockResolvedValueOnce(respond(401, { reason: 'unauthorised' }));
     const { refreshSession, getAccessToken, getSessionStatus } = await loadSession();
 
-    await refreshSession();
-    const result = await refreshSession();
+    await refreshSession(CONFIG);
+    const result = await refreshSession(CONFIG);
 
     expect(result).toBe(false);
     expect(getAccessToken()).toBeUndefined();
@@ -80,7 +86,7 @@ describe('refreshSession', () => {
     fetchMock.mockImplementation(async () => respond(200, TOKENS));
     const { refreshSession } = await loadSession();
 
-    await refreshSession();
+    await refreshSession(CONFIG);
     await vi.advanceTimersByTimeAsync(839_999);
     expect(fetchMock).toHaveBeenCalledTimes(1);
 
@@ -94,7 +100,7 @@ describe('refreshSession', () => {
     fetchMock.mockResolvedValue(respond(200, TOKENS));
     const { refreshSession } = await loadSession();
 
-    await expect(refreshSession()).resolves.toBe(true);
+    await expect(refreshSession(CONFIG)).resolves.toBe(true);
 
     expect(request).toHaveBeenCalledWith('fb-refresh', expect.any(Function));
   });
@@ -103,8 +109,8 @@ describe('refreshSession', () => {
     fetchMock.mockResolvedValueOnce(respond(200, TOKENS)).mockResolvedValueOnce(respond(500));
     const { refreshSession, getAccessToken, getSessionStatus } = await loadSession();
 
-    await refreshSession();
-    const result = await refreshSession();
+    await refreshSession(CONFIG);
+    const result = await refreshSession(CONFIG);
 
     expect(result).toBe(true);
     expect(getAccessToken()).toBe('token-1');
@@ -115,7 +121,7 @@ describe('refreshSession', () => {
     fetchMock.mockRejectedValue(new TypeError('offline'));
     const { refreshSession, getSessionStatus } = await loadSession();
 
-    await expect(refreshSession()).resolves.toBe(false);
+    await expect(refreshSession(CONFIG)).resolves.toBe(false);
 
     expect(getSessionStatus()).toBe('signed-out');
   });
@@ -124,8 +130,8 @@ describe('refreshSession', () => {
     fetchMock.mockImplementation(async () => respond(200, TOKENS));
     const { refreshSession } = await loadSession();
 
-    await refreshSession();
-    await refreshSession();
+    await refreshSession(CONFIG);
+    await refreshSession(CONFIG);
 
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
@@ -134,7 +140,7 @@ describe('refreshSession', () => {
     fetchMock.mockResolvedValueOnce(new Response('{', { status: 200 }));
     const { refreshSession, getAccessToken, getSessionStatus } = await loadSession();
 
-    await expect(refreshSession()).resolves.toBe(false);
+    await expect(refreshSession(CONFIG)).resolves.toBe(false);
     expect(getAccessToken()).toBeUndefined();
     expect(getSessionStatus()).toBe('signed-out');
   });

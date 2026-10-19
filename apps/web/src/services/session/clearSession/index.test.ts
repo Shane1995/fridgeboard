@@ -1,4 +1,11 @@
+import type { SessionConfig } from '../types';
 import type { ITokenResponse } from '@fridgeboard/contract/auth';
+
+const CONFIG: SessionConfig = {
+  refreshPath: '/api/v1/auth/refresh',
+  refreshLeadMs: 60_000,
+  refreshMinIntervalMs: 60_000,
+};
 
 const TOKENS: ITokenResponse = { accessToken: 'token-1', expiresIn: 900 };
 
@@ -23,7 +30,7 @@ describe('clearSession', () => {
   it('drops the token and scheduled refresh, and starts a new epoch', async () => {
     const { clearSession, applyTokens, getSession, getEpoch } = await load();
     const onExpiring = vi.fn(async () => true);
-    applyTokens(TOKENS, onExpiring);
+    applyTokens(TOKENS, CONFIG, onExpiring);
     const epoch = getEpoch();
 
     clearSession();

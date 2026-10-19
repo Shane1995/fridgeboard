@@ -1,3 +1,5 @@
+import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/web/constants';
+import { RemoteConfigContext } from '../../Context/RemoteConfig';
 import { QueryClientProvider } from '@tanstack/react-query';
 import {
   createMemoryHistory,
@@ -34,9 +36,11 @@ const renderHome = () => {
     history: createMemoryHistory({ initialEntries: ['/'] }),
   });
   render(
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>,
+    <RemoteConfigContext.Provider value={DEFAULT_WEB_CONFIGURATION}>
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
+    </RemoteConfigContext.Provider>,
   );
 };
 

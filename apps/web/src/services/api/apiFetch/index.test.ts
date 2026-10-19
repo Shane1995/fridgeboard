@@ -1,10 +1,12 @@
 import type { ITokenResponse } from '@fridgeboard/contract/auth';
 import { API_PATHS } from '@fridgeboard/contract/auth/constants';
+import type { SessionConfig } from '../../session/types';
 
-vi.mock('../../configuration', async () => {
-  const { API_PATHS } = await import('@fridgeboard/contract/auth/constants');
-  return { getServicePath: (service: keyof typeof API_PATHS) => API_PATHS[service] };
-});
+const CONFIG: SessionConfig = {
+  refreshPath: API_PATHS.refresh,
+  refreshLeadMs: 60_000,
+  refreshMinIntervalMs: 60_000,
+};
 
 const respond = (status: number, body?: unknown): Response =>
   new Response(body === undefined ? null : JSON.stringify(body), { status });
@@ -17,7 +19,8 @@ const loadApi = async () => {
   vi.resetModules();
   const { apiFetch } = await import('./index');
   const { refreshSession } = await import('../../session/refreshSession');
-  return { apiFetch, refreshSession };
+  const refresh = () => refreshSession(CONFIG);
+  return { apiFetch, refresh };
 };
 
 const headersOf = (call: number): Headers => new Headers(fetchMock.mock.calls[call]?.[1]?.headers);
@@ -35,10 +38,10 @@ describe('apiFetch', () => {
   it('adds the bearer token, a JSON content type and same-origin credentials', async () => {
     fetchMock.mockResolvedValueOnce(respond(200, tokens('token-1')));
     fetchMock.mockResolvedValueOnce(respond(200, {}));
-    const { apiFetch, refreshSession } = await loadApi();
-    await refreshSession();
+    const { apiFetch, refresh } = await loadApi();
+    await refresh();
 
-    await apiFetch(API_PATHS.me);
+    await apiFetch(API_PATHS.me, refresh);
 
     expect(fetchMock).toHaveBeenLastCalledWith(
       API_PATHS.me,
@@ -53,9 +56,9 @@ describe('apiFetch', () => {
       .mockResolvedValueOnce(respond(401))
       .mockResolvedValueOnce(respond(200, tokens('token-2')))
       .mockResolvedValueOnce(respond(200, { ok: true }));
-    const { apiFetch } = await loadApi();
+    const { apiFetch, refresh } = await loadApi();
 
-    const response = await apiFetch(API_PATHS.me);
+    const response = await apiFetch(API_PATHS.me, refresh);
 
     expect(response.status).toBe(200);
     expect(fetchMock).toHaveBeenCalledTimes(3);
@@ -68,9 +71,9 @@ describe('apiFetch', () => {
       .mockResolvedValueOnce(respond(401))
       .mockResolvedValueOnce(respond(200, tokens('token-2')))
       .mockResolvedValueOnce(respond(401));
-    const { apiFetch } = await loadApi();
+    const { apiFetch, refresh } = await loadApi();
 
-    const response = await apiFetch(API_PATHS.me);
+    const response = await apiFetch(API_PATHS.me, refresh);
 
     expect(response.status).toBe(401);
     expect(fetchMock).toHaveBeenCalledTimes(3);
@@ -78,9 +81,9 @@ describe('apiFetch', () => {
 
   it('returns the 401 without retrying when the refresh fails', async () => {
     fetchMock.mockResolvedValueOnce(respond(401)).mockResolvedValueOnce(respond(401));
-    const { apiFetch } = await loadApi();
+    const { apiFetch, refresh } = await loadApi();
 
-    const response = await apiFetch(API_PATHS.me);
+    const response = await apiFetch(API_PATHS.me, refresh);
 
     expect(response.status).toBe(401);
     expect(fetchMock).toHaveBeenCalledTimes(2);
@@ -88,21 +91,32 @@ describe('apiFetch', () => {
 
   it('does not refresh after sign-out', async () => {
     fetchMock.mockResolvedValueOnce(respond(401));
-    const { apiFetch } = await loadApi();
+    const { apiFetch, refresh } = await loadApi();
     const { clearSession } = await import('../../session/clearSession');
     clearSession();
 
-    const response = await apiFetch(API_PATHS.me);
+    const response = await apiFetch(API_PATHS.me, refresh);
 
     expect(response.status).toBe(401);
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
-  it('refuses paths outside the same-origin api', async () => {
+  it('uses the supplied refresh function on 401', async () => {
+    fetchMock.mockResolvedValueOnce(respond(401)).mockResolvedValueOnce(respond(200, {}));
     const { apiFetch } = await loadApi();
+    const refresh = vi.fn(async () => true);
 
-    await expect(apiFetch('https://evil.example/api/v1/me')).rejects.toThrow();
-    await expect(apiFetch('//evil.example/api/v1/me')).rejects.toThrow();
+    const response = await apiFetch(API_PATHS.me, refresh);
+
+    expect(response.status).toBe(200);
+    expect(refresh).toHaveBeenCalledTimes(1);
+  });
+
+  it('refuses paths outside the same-origin api', async () => {
+    const { apiFetch, refresh } = await loadApi();
+
+    await expect(apiFetch('https://evil.example/api/v1/me', refresh)).rejects.toThrow();
+    await expect(apiFetch('//evil.example/api/v1/me', refresh)).rejects.toThrow();
     expect(fetchMock).not.toHaveBeenCalled();
   });
 });

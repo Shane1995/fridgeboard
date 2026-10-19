@@ -1,20 +1,20 @@
-import { WebService } from '@fridgeboard/contract/configuration/services/constants';
 import { UNAUTHORISED_STATUS } from '../../../../constants';
 import { applyTokens } from '../../../applyTokens';
 import { clearSession } from '../../../clearSession';
 import { SessionStatus } from '../../../constants';
 import { getEpoch } from '../../../getEpoch';
 import { getSession } from '../../../getSession';
+import type { SessionConfig } from '../../../types';
 import { updateSession } from '../../../updateSession';
 import { isTokenResponse } from '../../../utils/isTokenResponse';
 import { postAuth } from '../../../utils/postAuth';
-import { getServicePath } from '../../../../configuration';
 
 export const exchangeRefreshCookie = async (
+  config: SessionConfig,
   onExpiring: () => Promise<boolean>,
 ): Promise<boolean> => {
   const epoch = getEpoch();
-  const response = await postAuth(getServicePath(WebService.refresh)).catch(() => undefined);
+  const response = await postAuth(config.refreshPath).catch(() => undefined);
   const body: unknown = response?.ok ? await response.json().catch(() => undefined) : undefined;
 
   if (getEpoch() !== epoch) {
@@ -26,7 +26,7 @@ export const exchangeRefreshCookie = async (
       clearSession();
       return false;
     }
-    applyTokens(body, onExpiring);
+    applyTokens(body, config, onExpiring);
     return true;
   }
 

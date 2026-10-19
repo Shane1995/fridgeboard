@@ -1,4 +1,11 @@
 import type { ITokenResponse } from '@fridgeboard/contract/auth';
+import type { SessionConfig } from '../types';
+
+const CONFIG: SessionConfig = {
+  refreshPath: '/api/v1/auth/refresh',
+  refreshLeadMs: 60_000,
+  refreshMinIntervalMs: 60_000,
+};
 
 const load = async () => {
   vi.resetModules();
@@ -22,7 +29,7 @@ describe('applyTokens', () => {
     const onExpiring = vi.fn(async () => true);
     const tokens: ITokenResponse = { accessToken: 'token-1', expiresIn: 900 };
 
-    applyTokens(tokens, onExpiring);
+    applyTokens(tokens, CONFIG, onExpiring);
 
     expect(getSession()).toEqual({
       accessToken: 'token-1',
@@ -40,7 +47,7 @@ describe('applyTokens', () => {
     const { applyTokens } = await load();
     const onExpiring = vi.fn(async () => true);
 
-    applyTokens({ accessToken: 'token-1', expiresIn: 30 }, onExpiring);
+    applyTokens({ accessToken: 'token-1', expiresIn: 30 }, CONFIG, onExpiring);
     vi.advanceTimersByTime(59_999);
     expect(onExpiring).not.toHaveBeenCalled();
     vi.advanceTimersByTime(1);
@@ -50,16 +57,13 @@ describe('applyTokens', () => {
 
   it('never schedules a zero delay when the lead exceeds the lifetime', async () => {
     const { applyTokens } = await load();
-    const { setConfiguration } = await import('../../configuration/setConfiguration');
-    const { DEFAULT_WEB_CONFIGURATION } =
-      await import('@fridgeboard/contract/configuration/web/constants');
-    setConfiguration({
-      ...DEFAULT_WEB_CONFIGURATION,
-      settings: { refreshLeadMs: 300_000, refreshMinIntervalMs: 120_000 },
-    });
     const onExpiring = vi.fn(async () => true);
 
-    applyTokens({ accessToken: 'token-1', expiresIn: 0 }, onExpiring);
+    applyTokens(
+      { accessToken: 'token-1', expiresIn: 0 },
+      { ...CONFIG, refreshLeadMs: 300_000, refreshMinIntervalMs: 120_000 },
+      onExpiring,
+    );
     vi.advanceTimersByTime(119_999);
     expect(onExpiring).not.toHaveBeenCalled();
     vi.advanceTimersByTime(1);
@@ -69,16 +73,13 @@ describe('applyTokens', () => {
 
   it('uses the configured refresh lead', async () => {
     const { applyTokens } = await load();
-    const { setConfiguration } = await import('../../configuration/setConfiguration');
-    const { DEFAULT_WEB_CONFIGURATION } =
-      await import('@fridgeboard/contract/configuration/web/constants');
-    setConfiguration({
-      ...DEFAULT_WEB_CONFIGURATION,
-      settings: { ...DEFAULT_WEB_CONFIGURATION.settings, refreshLeadMs: 300_000 },
-    });
     const onExpiring = vi.fn(async () => true);
 
-    applyTokens({ accessToken: 'token-1', expiresIn: 900 }, onExpiring);
+    applyTokens(
+      { accessToken: 'token-1', expiresIn: 900 },
+      { ...CONFIG, refreshLeadMs: 300_000 },
+      onExpiring,
+    );
     vi.advanceTimersByTime(599_999);
     expect(onExpiring).not.toHaveBeenCalled();
     vi.advanceTimersByTime(1);

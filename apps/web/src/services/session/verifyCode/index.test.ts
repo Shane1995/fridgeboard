@@ -1,10 +1,12 @@
+import type { SessionConfig } from '../types';
 import type { ITokenResponse } from '@fridgeboard/contract/auth';
 import { API_PATHS } from '@fridgeboard/contract/auth/constants';
 
-vi.mock('../../configuration', async () => {
-  const { API_PATHS } = await import('@fridgeboard/contract/auth/constants');
-  return { getServicePath: (service: keyof typeof API_PATHS) => API_PATHS[service] };
-});
+const CONFIG: SessionConfig = {
+  refreshPath: API_PATHS.refresh,
+  refreshLeadMs: 60_000,
+  refreshMinIntervalMs: 60_000,
+};
 
 const TOKENS: ITokenResponse = { accessToken: 'token-1', expiresIn: 900 };
 
@@ -37,7 +39,7 @@ describe('verifyCode', () => {
     fetchMock.mockResolvedValue(respond(200, TOKENS));
     const { verifyCode, getAccessToken, getSessionStatus } = await loadSession();
 
-    await expect(verifyCode('12345678')).resolves.toEqual({ ok: true });
+    await expect(verifyCode(API_PATHS.verify, CONFIG, '12345678')).resolves.toEqual({ ok: true });
 
     expect(getAccessToken()).toBe('token-1');
     expect(getSessionStatus()).toBe('signed-in');
@@ -50,7 +52,7 @@ describe('verifyCode', () => {
     fetchMock.mockResolvedValue(respond(200, TOKENS));
     const { verifyCode } = await loadSession();
 
-    await verifyCode('123456');
+    await verifyCode(API_PATHS.verify, CONFIG, '123456');
 
     expect(fetchMock).toHaveBeenCalledWith(API_PATHS.verify, {
       method: 'POST',
@@ -64,7 +66,10 @@ describe('verifyCode', () => {
     fetchMock.mockResolvedValue(respond(202, { next: 'enter-code' }));
     const { verifyCode, getAccessToken } = await loadSession();
 
-    await expect(verifyCode('123456')).resolves.toEqual({ ok: false, next: 'enter-code' });
+    await expect(verifyCode(API_PATHS.verify, CONFIG, '123456')).resolves.toEqual({
+      ok: false,
+      next: 'enter-code',
+    });
 
     expect(getAccessToken()).toBeUndefined();
   });
@@ -73,7 +78,10 @@ describe('verifyCode', () => {
     fetchMock.mockResolvedValue(respond(400, { reason: 'bad-code' }));
     const { verifyCode, getAccessToken } = await loadSession();
 
-    await expect(verifyCode('000000')).resolves.toEqual({ ok: false, reason: 'bad-code' });
+    await expect(verifyCode(API_PATHS.verify, CONFIG, '000000')).resolves.toEqual({
+      ok: false,
+      reason: 'bad-code',
+    });
 
     expect(getAccessToken()).toBeUndefined();
   });
@@ -87,7 +95,10 @@ describe('verifyCode', () => {
     fetchMock.mockResolvedValue(new Response(body, { status }));
     const { verifyCode, getAccessToken } = await loadSession();
 
-    await expect(verifyCode('123456')).resolves.toEqual({ ok: false, reason: 'unknown' });
+    await expect(verifyCode(API_PATHS.verify, CONFIG, '123456')).resolves.toEqual({
+      ok: false,
+      reason: 'unknown',
+    });
     expect(getAccessToken()).toBeUndefined();
   });
 });

@@ -25,3 +25,9 @@ export type SessionContext = {
   getStatus: () => SessionStatus;
   refresh: () => Promise<boolean>;
 };
+
+export type SessionConfig = {
+  refreshPath: string;
+  refreshLeadMs: number;
+  refreshMinIntervalMs: number;
+};

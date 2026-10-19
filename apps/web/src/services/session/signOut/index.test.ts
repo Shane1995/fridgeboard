@@ -1,10 +1,12 @@
+import type { SessionConfig } from '../types';
 import type { ITokenResponse } from '@fridgeboard/contract/auth';
 import { API_PATHS } from '@fridgeboard/contract/auth/constants';
 
-vi.mock('../../configuration', async () => {
-  const { API_PATHS } = await import('@fridgeboard/contract/auth/constants');
-  return { getServicePath: (service: keyof typeof API_PATHS) => API_PATHS[service] };
-});
+const CONFIG: SessionConfig = {
+  refreshPath: API_PATHS.refresh,
+  refreshLeadMs: 60_000,
+  refreshMinIntervalMs: 60_000,
+};
 
 const TOKENS: ITokenResponse = { accessToken: 'token-1', expiresIn: 900 };
 
@@ -35,9 +37,9 @@ describe('signOut', () => {
       .mockResolvedValueOnce(new Response(JSON.stringify(TOKENS), { status: 200 }))
       .mockResolvedValueOnce(new Response(null, { status: 204 }));
     const { signOut, verifyCode, getAccessToken, getSessionStatus } = await loadSession();
-    await verifyCode('123456');
+    await verifyCode(API_PATHS.verify, CONFIG, '123456');
 
-    await signOut();
+    await signOut(API_PATHS.signOut);
 
     expect(fetchMock).toHaveBeenLastCalledWith(
       API_PATHS.signOut,
@@ -52,9 +54,9 @@ describe('signOut', () => {
       .mockResolvedValueOnce(new Response(JSON.stringify(TOKENS), { status: 200 }))
       .mockRejectedValueOnce(new TypeError('offline'));
     const { signOut, verifyCode, getAccessToken } = await loadSession();
-    await verifyCode('123456');
+    await verifyCode(API_PATHS.verify, CONFIG, '123456');
 
-    await expect(signOut()).resolves.toBeUndefined();
+    await expect(signOut(API_PATHS.signOut)).resolves.toBeUndefined();
 
     expect(getAccessToken()).toBeUndefined();
   });
@@ -68,10 +70,10 @@ describe('signOut', () => {
       .mockResolvedValueOnce(new Response(null, { status: 204 }));
     const { signOut, verifyCode, refreshSession, getAccessToken, getSessionStatus } =
       await loadSession();
-    await verifyCode('123456');
+    await verifyCode(API_PATHS.verify, CONFIG, '123456');
 
-    const flight = refreshSession();
-    const signingOut = signOut();
+    const flight = refreshSession(CONFIG);
+    const signingOut = signOut(API_PATHS.signOut);
     release[0]?.(
       new Response(JSON.stringify({ ...TOKENS, accessToken: 'token-2' }), { status: 200 }),
     );
@@ -91,10 +93,10 @@ describe('signOut', () => {
       .mockResolvedValueOnce(new Response(null, { status: 204 }));
     const { signOut, verifyCode, refreshSession, getAccessToken, getSessionStatus } =
       await loadSession();
-    await verifyCode('123456');
+    await verifyCode(API_PATHS.verify, CONFIG, '123456');
 
-    const flight = refreshSession();
-    const signingOut = signOut();
+    const flight = refreshSession(CONFIG);
+    const signingOut = signOut(API_PATHS.signOut);
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(fetchMock).toHaveBeenCalledTimes(2);
 

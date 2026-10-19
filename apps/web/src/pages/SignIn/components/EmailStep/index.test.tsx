@@ -1,3 +1,5 @@
+import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/web/constants';
+import { RemoteConfigContext } from '../../../../Context/RemoteConfig';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { startSignIn } from '../../../../services/session/startSignIn';
@@ -10,9 +12,11 @@ const onCodeSent = vi.fn();
 
 const renderStep = (initialEmail?: string) =>
   render(
-    <QueryClientProvider client={new QueryClient()}>
-      <EmailStep initialEmail={initialEmail} onCodeSent={onCodeSent} />
-    </QueryClientProvider>,
+    <RemoteConfigContext.Provider value={DEFAULT_WEB_CONFIGURATION}>
+      <QueryClientProvider client={new QueryClient()}>
+        <EmailStep initialEmail={initialEmail} onCodeSent={onCodeSent} />
+      </QueryClientProvider>
+    </RemoteConfigContext.Provider>,
   );
 
 const submitEmail = (email: string) => {

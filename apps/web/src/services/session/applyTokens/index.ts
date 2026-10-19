@@ -1,22 +1,19 @@
 import type { ITokenResponse } from '@fridgeboard/contract/auth';
 import { bumpEpoch } from '../bumpEpoch';
-import { WEB_SETTING } from '@fridgeboard/contract/configuration/settings/constants';
-import { getSetting } from '../../configuration/getSetting';
 import { MS_PER_SECOND, SessionStatus } from '../constants';
 import { scheduleRefresh } from '../scheduleRefresh';
+import type { SessionConfig } from '../types';
 import { updateSession } from '../updateSession';
 
 export const applyTokens = (
   { accessToken, expiresIn }: ITokenResponse,
+  { refreshLeadMs, refreshMinIntervalMs }: SessionConfig,
   onExpiring: () => Promise<boolean>,
 ): void => {
   bumpEpoch();
   updateSession({ accessToken, status: SessionStatus.SignedIn, lastRefreshAt: Date.now() });
   scheduleRefresh(
-    Math.max(
-      getSetting(WEB_SETTING.refreshMinIntervalMs),
-      expiresIn * MS_PER_SECOND - getSetting(WEB_SETTING.refreshLeadMs),
-    ),
+    Math.max(refreshMinIntervalMs, expiresIn * MS_PER_SECOND - refreshLeadMs),
     onExpiring,
   );
 };
