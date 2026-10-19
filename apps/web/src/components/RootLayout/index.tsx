@@ -1,8 +1,6 @@
 import { Outlet } from '@tanstack/react-router';
 import { lazy, Suspense } from 'react';
 import { useApplyQuerySettings } from '../../hooks/useApplyQuerySettings';
-import { useWatchSession } from '../../hooks/useWatchSession';
-import { useResetCacheOnSignOut } from '../../hooks/useResetCacheOnSignOut';
 import { queryClient } from '../../app/queryClient';
 
 const Devtools = import.meta.env.DEV
@@ -10,9 +8,7 @@ const Devtools = import.meta.env.DEV
   : null;
 
 export const RootLayout = () => {
-  useResetCacheOnSignOut(queryClient);
   useApplyQuerySettings(queryClient);
-  useWatchSession();
 
   return (
     <>

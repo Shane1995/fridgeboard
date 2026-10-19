@@ -12,6 +12,22 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { SIGN_IN_COPY } from '../SignIn/constants';
 import { JOIN_COPY } from './constants';
 import { Join } from '.';
+import { SessionContext } from '../../Context/Session';
+import type { SessionContextValue } from '../../Context/Session/types';
+import { SessionStatus } from '../../services/session/constants';
+
+const startSignIn = vi.fn();
+const verifyCode = vi.fn();
+const signOut = vi.fn();
+const apiFetch = vi.fn();
+const session: SessionContextValue = {
+  status: SessionStatus.SignedIn,
+  startSignIn,
+  verifyCode,
+  signOut,
+  refresh: vi.fn(),
+  apiFetch,
+};
 
 const stubDisplayMode = (standalone: boolean) =>
   vi.stubGlobal('matchMedia', (query: string) => ({
@@ -31,9 +47,11 @@ const renderJoin = () => {
   });
   render(
     <RemoteConfigContext.Provider value={DEFAULT_WEB_CONFIGURATION}>
-      <QueryClientProvider client={new QueryClient()}>
-        <RouterProvider router={router} />
-      </QueryClientProvider>
+      <SessionContext.Provider value={session}>
+        <QueryClientProvider client={new QueryClient()}>
+          <RouterProvider router={router} />
+        </QueryClientProvider>
+      </SessionContext.Provider>
     </RemoteConfigContext.Provider>,
   );
 };

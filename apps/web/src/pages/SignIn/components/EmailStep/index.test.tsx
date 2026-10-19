@@ -2,20 +2,35 @@ import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/w
 import { RemoteConfigContext } from '../../../../Context/RemoteConfig';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { startSignIn } from '../../../../services/session/startSignIn';
 import { SIGN_IN_COPY } from '../../constants';
 import { EmailStep } from './index';
+import { SessionContext } from '../../../../Context/Session';
+import type { SessionContextValue } from '../../../../Context/Session/types';
+import { SessionStatus } from '../../../../services/session/constants';
 
-vi.mock('../../../../services/session/startSignIn', () => ({ startSignIn: vi.fn() }));
+const startSignIn = vi.fn();
+const verifyCode = vi.fn();
+const signOut = vi.fn();
+const apiFetch = vi.fn();
+const session: SessionContextValue = {
+  status: SessionStatus.SignedIn,
+  startSignIn,
+  verifyCode,
+  signOut,
+  refresh: vi.fn(),
+  apiFetch,
+};
 
 const onCodeSent = vi.fn();
 
 const renderStep = (initialEmail?: string) =>
   render(
     <RemoteConfigContext.Provider value={DEFAULT_WEB_CONFIGURATION}>
-      <QueryClientProvider client={new QueryClient()}>
-        <EmailStep initialEmail={initialEmail} onCodeSent={onCodeSent} />
-      </QueryClientProvider>
+      <SessionContext.Provider value={session}>
+        <QueryClientProvider client={new QueryClient()}>
+          <EmailStep initialEmail={initialEmail} onCodeSent={onCodeSent} />
+        </QueryClientProvider>
+      </SessionContext.Provider>
     </RemoteConfigContext.Provider>,
   );
 
@@ -40,7 +55,7 @@ describe('EmailStep', () => {
   });
 
   it('hands the email on when the code is sent', async () => {
-    vi.mocked(startSignIn).mockResolvedValue({ ok: true });
+    startSignIn.mockResolvedValue({ ok: true });
     renderStep();
     submitEmail('a@b.com');
     await waitFor(() => expect(onCodeSent).toHaveBeenCalledWith('a@b.com'));
@@ -49,7 +64,7 @@ describe('EmailStep', () => {
   it.each(['no-invite', 'verify-email', 'forbidden', 'unknown'] as const)(
     'shows the %s copy',
     async (reason) => {
-      vi.mocked(startSignIn).mockResolvedValue({ ok: false, reason });
+      startSignIn.mockResolvedValue({ ok: false, reason });
       renderStep();
       submitEmail('a@b.com');
       expect(await screen.findByText(SIGN_IN_COPY.reasons[reason])).toBeInTheDocument();

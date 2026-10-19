@@ -1,25 +1,31 @@
-import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/web/constants';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
-import { RemoteConfigContext } from '../../Context/RemoteConfig';
-import { verifyCode } from '../../services/session/verifyCode';
+import { SessionContext } from '../../Context/Session';
+import type { SessionContextValue } from '../../Context/Session/types';
+import { SessionStatus } from '../../services/session/constants';
 import { useVerifyCodeMutation } from './index';
 
-vi.mock('../../services/session/verifyCode', () => ({ verifyCode: vi.fn() }));
+const verifyCode = vi.fn();
+const session: SessionContextValue = {
+  status: SessionStatus.SignedOut,
+  startSignIn: vi.fn(),
+  verifyCode,
+  signOut: vi.fn(),
+  refresh: vi.fn(),
+  apiFetch: vi.fn(),
+};
 
 const client = new QueryClient();
 const wrapper = ({ children }: { children: ReactNode }) => (
   <QueryClientProvider client={client}>
-    <RemoteConfigContext.Provider value={DEFAULT_WEB_CONFIGURATION}>
-      {children}
-    </RemoteConfigContext.Provider>
+    <SessionContext.Provider value={session}>{children}</SessionContext.Provider>
   </QueryClientProvider>
 );
 
 describe('useVerifyCodeMutation', () => {
   it('calls verifyCode and returns its result', async () => {
-    vi.mocked(verifyCode).mockResolvedValue({ ok: false, next: 'enter-code' });
+    verifyCode.mockResolvedValue({ ok: false, next: 'enter-code' });
     const { result } = renderHook(() => useVerifyCodeMutation(), { wrapper });
 
     await act(async () => {
@@ -28,19 +34,11 @@ describe('useVerifyCodeMutation', () => {
         next: 'enter-code',
       });
     });
-    expect(verifyCode).toHaveBeenCalledWith(
-      '/api/v1/auth/verify',
-      {
-        refreshPath: '/api/v1/auth/refresh',
-        refreshLeadMs: 60_000,
-        refreshMinIntervalMs: 60_000,
-      },
-      '123456',
-    );
+    expect(verifyCode).toHaveBeenCalledWith('123456');
   });
 
   it('registers under its mutation name', async () => {
-    vi.mocked(verifyCode).mockResolvedValue({ ok: false, next: 'enter-code' });
+    verifyCode.mockResolvedValue({ ok: false, next: 'enter-code' });
     const { result } = renderHook(() => useVerifyCodeMutation(), { wrapper });
 
     await act(async () => {

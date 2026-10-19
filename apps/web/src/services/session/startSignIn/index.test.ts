@@ -17,12 +17,17 @@ describe('startSignIn', () => {
     fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
 
     await expect(startSignIn(API_PATHS.start, 'jess@example.com')).resolves.toEqual({ ok: true });
-    expect(fetchMock).toHaveBeenCalledWith(API_PATHS.start, {
-      method: 'POST',
-      credentials: 'same-origin',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: 'jess@example.com' }),
-    });
+    expect(fetchMock).toHaveBeenCalledWith(
+      API_PATHS.start,
+      expect.objectContaining({
+        method: 'POST',
+        credentials: 'same-origin',
+        body: JSON.stringify({ email: 'jess@example.com' }),
+      }),
+    );
+    expect(new Headers(fetchMock.mock.calls[0]?.[1]?.headers).get('Content-Type')).toBe(
+      'application/json',
+    );
   });
 
   it.each(['no-invite', 'verify-email', 'forbidden'])('returns the %s reason', async (reason) => {

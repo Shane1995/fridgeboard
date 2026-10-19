@@ -9,11 +9,24 @@ import {
   RouterProvider,
 } from '@tanstack/react-router';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { startSignIn } from '../../services/session/startSignIn';
 import { SIGN_IN_COPY } from './constants';
 import { SignIn } from '.';
+import { SessionContext } from '../../Context/Session';
+import type { SessionContextValue } from '../../Context/Session/types';
+import { SessionStatus } from '../../services/session/constants';
 
-vi.mock('../../services/session/startSignIn', () => ({ startSignIn: vi.fn() }));
+const startSignIn = vi.fn();
+const verifyCode = vi.fn();
+const signOut = vi.fn();
+const apiFetch = vi.fn();
+const session: SessionContextValue = {
+  status: SessionStatus.SignedIn,
+  startSignIn,
+  verifyCode,
+  signOut,
+  refresh: vi.fn(),
+  apiFetch,
+};
 
 const renderSignIn = async () => {
   const rootRoute = createRootRoute();
@@ -28,9 +41,11 @@ const renderSignIn = async () => {
   });
   render(
     <RemoteConfigContext.Provider value={DEFAULT_WEB_CONFIGURATION}>
-      <QueryClientProvider client={new QueryClient()}>
-        <RouterProvider router={router} />
-      </QueryClientProvider>
+      <SessionContext.Provider value={session}>
+        <QueryClientProvider client={new QueryClient()}>
+          <RouterProvider router={router} />
+        </QueryClientProvider>
+      </SessionContext.Provider>
     </RemoteConfigContext.Provider>,
   );
   return screen.findByLabelText(SIGN_IN_COPY.emailLabel);
@@ -45,7 +60,7 @@ describe('SignIn', () => {
   beforeEach(() => vi.resetAllMocks());
 
   it('shows the no-invite copy when startSignIn returns no-invite', async () => {
-    vi.mocked(startSignIn).mockResolvedValue({ ok: false, reason: 'no-invite' });
+    startSignIn.mockResolvedValue({ ok: false, reason: 'no-invite' });
     submitEmail(await renderSignIn());
     expect(
       await screen.findByText(
@@ -55,13 +70,13 @@ describe('SignIn', () => {
   });
 
   it('shows the verify-email copy', async () => {
-    vi.mocked(startSignIn).mockResolvedValue({ ok: false, reason: 'verify-email' });
+    startSignIn.mockResolvedValue({ ok: false, reason: 'verify-email' });
     submitEmail(await renderSignIn());
     expect(await screen.findByText(/Open the email from Amazon Web Services/)).toBeInTheDocument();
   });
 
   it('moves to the code step once the code is sent', async () => {
-    vi.mocked(startSignIn).mockResolvedValue({ ok: true });
+    startSignIn.mockResolvedValue({ ok: true });
     submitEmail(await renderSignIn());
     expect(await screen.findByLabelText(SIGN_IN_COPY.codeLabel)).toBeInTheDocument();
   });

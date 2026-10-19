@@ -11,11 +11,9 @@ import { render, screen } from '@testing-library/react';
 import { getConfiguration } from '../../services/configuration';
 import { queryClient } from '../../app/queryClient';
 import { RemoteConfigProvider } from '../../Context/RemoteConfig';
-import { watchSession } from '../../services/session/watchSession';
 import { RootLayout } from '.';
 
 vi.mock('../../services/configuration', () => ({ getConfiguration: vi.fn() }));
-vi.mock('../../services/session/watchSession', () => ({ watchSession: vi.fn() }));
 vi.mock('../../app/devtools', () => ({ Devtools: () => <div data-testid="devtools" /> }));
 
 const renderLayout = () => {
@@ -48,11 +46,5 @@ describe('RootLayout', () => {
   it('loads the devtools in development', async () => {
     renderLayout();
     expect(await screen.findByTestId('devtools')).toBeInTheDocument();
-  });
-
-  it('watches the session', async () => {
-    renderLayout();
-    await screen.findByText('page content');
-    expect(watchSession).toHaveBeenCalledTimes(1);
   });
 });

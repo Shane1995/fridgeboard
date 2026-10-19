@@ -1,33 +1,50 @@
-import { RemoteConfigProvider } from '../../../../Context/RemoteConfig';
-import { QueryClientProvider } from '@tanstack/react-query';
+import { API_PATHS } from '@fridgeboard/contract/auth/constants';
 import { createMemoryHistory, RouterProvider } from '@tanstack/react-router';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { getMe } from '../../../../services/api/getMe';
-import { queryClient } from '../../../queryClient';
-import { SessionStatus } from '../../../../services/session/constants';
-import { getSessionStatus } from '../../../../services/session/getSessionStatus';
-import { refreshSession } from '../../../../services/session/refreshSession';
-import { startSignIn } from '../../../../services/session/startSignIn';
-import { verifyCode } from '../../../../services/session/verifyCode';
-import { HOME_COPY } from '../../../../pages/Home/constants';
 import { APP_LOADER_COPY } from '../../../../components/AppLoader/constants';
+import { GlobalContextProvider } from '../../../../Context/Global';
+import { HOME_COPY } from '../../../../pages/Home/constants';
 import { SIGN_IN_COPY } from '../../../../pages/SignIn/constants';
+import { queryClient } from '../../../queryClient';
 import { createAppRouter } from './index';
 
-vi.mock('../../../../services/api/getMe', () => ({ getMe: vi.fn() }));
-vi.mock('../../../../services/session/getSessionStatus', () => ({ getSessionStatus: vi.fn() }));
-vi.mock('../../../../services/session/refreshSession', () => ({ refreshSession: vi.fn() }));
-vi.mock('../../../../services/session/startSignIn', () => ({ startSignIn: vi.fn() }));
-vi.mock('../../../../services/session/verifyCode', () => ({ verifyCode: vi.fn() }));
+const TOKENS = { accessToken: 'token-1', expiresIn: 900 };
+const ME = {
+  sub: 's',
+  email: 'a@b.com',
+  isAdmin: false,
+  canCreateHousehold: false,
+  households: [],
+};
+
+const json = (body: unknown, status = 200): Response =>
+  new Response(JSON.stringify(body), { status });
+
+const fetchMock = vi.fn<typeof fetch>();
+
+const serve = (refresh: () => Promise<Response>) => {
+  fetchMock.mockImplementation(async (input) => {
+    switch (input) {
+      case API_PATHS.refresh:
+        return refresh();
+      case API_PATHS.start:
+        return new Response(null, { status: 204 });
+      case API_PATHS.verify:
+        return json(TOKENS);
+      case API_PATHS.me:
+        return json(ME);
+      default:
+        return new Response(null, { status: 404 });
+    }
+  });
+};
 
 const renderAt = (path: string) => {
   const router = createAppRouter(createMemoryHistory({ initialEntries: [path] }));
   render(
-    <QueryClientProvider client={queryClient}>
-      <RemoteConfigProvider>
-        <RouterProvider router={router} />
-      </RemoteConfigProvider>
-    </QueryClientProvider>,
+    <GlobalContextProvider>
+      <RouterProvider router={router} />
+    </GlobalContextProvider>,
   );
   return router;
 };
@@ -46,28 +63,19 @@ const signIn = async () => {
 describe('router', () => {
   beforeEach(() => {
     queryClient.clear();
-    vi.resetAllMocks();
-    vi.mocked(getSessionStatus).mockReturnValue(SessionStatus.SignedOut);
-    vi.mocked(refreshSession).mockResolvedValue(false);
-    vi.mocked(getMe).mockResolvedValue({
-      sub: 's',
-      email: 'a@b.com',
-      isAdmin: false,
-      canCreateHousehold: false,
-      households: [],
-    });
+    fetchMock.mockReset();
+    vi.stubGlobal('fetch', fetchMock);
+    serve(async () => new Response(null, { status: 401 }));
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it('renders the signed-in home at / with the account email', async () => {
-    vi.mocked(getSessionStatus).mockReturnValue(SessionStatus.SignedIn);
+    serve(async () => json(TOKENS));
     renderAt('/');
     expect(await screen.findByText(`${HOME_COPY.signedInAs} a@b.com`)).toBeInTheDocument();
-  });
-
-  it('provides the session to the route context', () => {
-    const { options } = createAppRouter(createMemoryHistory({ initialEntries: ['/'] }));
-    expect(options.context?.session.getStatus()).toBe(SessionStatus.SignedOut);
-    expect(options.context?.session.refresh).toBeInstanceOf(Function);
   });
 
   it('renders the not-found component for an unknown path', async () => {
@@ -76,11 +84,6 @@ describe('router', () => {
   });
 
   it('redirects / to /sign-in when signed out and back to / after sign-in', async () => {
-    vi.mocked(startSignIn).mockResolvedValue({ ok: true });
-    vi.mocked(verifyCode).mockImplementation(async () => {
-      vi.mocked(getSessionStatus).mockReturnValue(SessionStatus.SignedIn);
-      return { ok: true };
-    });
     const router = renderAt('/');
     await signIn();
     expect(await screen.findByText(`${HOME_COPY.signedInAs} a@b.com`)).toBeInTheDocument();
@@ -96,11 +99,6 @@ describe('router', () => {
   });
 
   it('ignores a cross-origin redirect search param on /sign-in', async () => {
-    vi.mocked(startSignIn).mockResolvedValue({ ok: true });
-    vi.mocked(verifyCode).mockImplementation(async () => {
-      vi.mocked(getSessionStatus).mockReturnValue(SessionStatus.SignedIn);
-      return { ok: true };
-    });
     const router = renderAt('/sign-in?redirect=https%3A%2F%2Fevil.com');
     expect(await screen.findByLabelText(SIGN_IN_COPY.emailLabel)).toBeInTheDocument();
     expect(router.state.location.search).toEqual({ redirect: '/' });
@@ -110,17 +108,11 @@ describe('router', () => {
   });
 
   it('shows the app loader while the session refresh is pending', async () => {
-    let finishRefresh: (signedIn: boolean) => void = () => {};
-    vi.mocked(getSessionStatus).mockReturnValue(SessionStatus.Loading);
-    vi.mocked(refreshSession).mockReturnValue(
-      new Promise<boolean>((resolve) => {
-        finishRefresh = resolve;
-      }),
-    );
+    const release: ((response: Response) => void)[] = [];
+    serve(() => new Promise<Response>((resolve) => release.push(resolve)));
     renderAt('/');
     expect(await screen.findByRole('status', { name: APP_LOADER_COPY.label })).toBeInTheDocument();
-    vi.mocked(getSessionStatus).mockReturnValue(SessionStatus.SignedIn);
-    finishRefresh(true);
+    release[0]?.(json(TOKENS));
     expect(await screen.findByText(`${HOME_COPY.signedInAs} a@b.com`)).toBeInTheDocument();
     expect(screen.queryByRole('status', { name: APP_LOADER_COPY.label })).not.toBeInTheDocument();
   });

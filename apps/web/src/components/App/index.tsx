@@ -1,14 +1,9 @@
-import { QueryClientProvider } from '@tanstack/react-query';
-import { queryClient } from '../../app/queryClient';
-import { RemoteConfigProvider } from '../../Context/RemoteConfig';
-import { AppRouter } from '../AppRouter';
+import { RouterProvider } from '@tanstack/react-router';
+import { router } from '../../app/router';
+import { GlobalContextProvider } from '../../Context/Global';
 
-export const App = () => {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <RemoteConfigProvider>
-        <AppRouter />
-      </RemoteConfigProvider>
-    </QueryClientProvider>
-  );
-};
+export const App = () => (
+  <GlobalContextProvider>
+    <RouterProvider router={router} />
+  </GlobalContextProvider>
+);

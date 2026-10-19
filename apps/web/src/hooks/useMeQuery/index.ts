@@ -3,21 +3,19 @@ import type { IMeResponse } from '@fridgeboard/contract/me';
 import { getMe } from '../../services/api/getMe';
 import { resolveServicePath } from '../../services/configuration/resolveServicePath';
 import { SessionStatus } from '../../services/session/constants';
-import { getSessionStatus } from '../../services/session/getSessionStatus';
-import { refreshSession } from '../../services/session/refreshSession';
 import { useQuery } from '../useQuery';
 import type { QueryResult } from '../useQuery/types';
-import { useRemoteConfig } from '../useRemoteConfig';
-import { useSessionConfig } from '../useSessionConfig';
+import { useRemoteConfigContext } from '../useRemoteConfigContext';
+import { useSessionContext } from '../useSessionContext';
 import { ME_QUERY_KEY } from './constants';
 
 export const useMeQuery = (): QueryResult<IMeResponse> => {
-  const { services } = useRemoteConfig();
-  const sessionConfig = useSessionConfig();
+  const { services } = useRemoteConfigContext();
+  const { status, apiFetch } = useSessionContext();
   return useQuery({
     queryKey: ME_QUERY_KEY,
-    queryFn: () =>
-      getMe(resolveServicePath(services, WebService.me), () => refreshSession(sessionConfig)),
-    enabled: getSessionStatus() !== SessionStatus.SignedOut,
+    queryFn: () => getMe(resolveServicePath(services, WebService.me), (path) => apiFetch(path)),
+    staleTime: Number.POSITIVE_INFINITY,
+    enabled: status === SessionStatus.SignedIn,
   });
 };

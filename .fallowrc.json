@@ -2,6 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
   "entry": [
     "apps/web/src/main.tsx",
+    "apps/web/src/app/router/types.ts",
     "apps/web/src/routes/**/*.tsx",
     "apps/web/scripts/thirdPartyLicenses/index.ts",
     "apps/web/src/hooks/useFeatureFlag/index.ts",
@@ -15,10 +16,7 @@
     "scripts/checkReexports/index.ts"
   ],
   "workspaces": {
-    "packages": [
-      "apps/*",
-      "packages/*"
-    ]
+    "packages": ["apps/*", "packages/*"]
   },
   "ignorePatterns": [
     "dist/**",
@@ -34,12 +32,7 @@
     "unused-exports": "error"
   },
   "health": {
-    "ignore": [
-      "apps/web/index.html",
-      "apps/web/src/main.tsx"
-    ]
+    "ignore": ["apps/web/index.html", "apps/web/src/main.tsx"]
   },
-  "ignoreUnresolvedImports": [
-    "/react-aria-pressable.css"
-  ]
+  "ignoreUnresolvedImports": ["/react-aria-pressable.css"]
 }

@@ -1,9 +1,6 @@
 import { API_PATHS } from '@fridgeboard/contract/auth/constants';
 import type { IMeResponse } from '@fridgeboard/contract/me';
-import { apiFetch } from '../apiFetch';
 import { getMe } from './index';
-
-vi.mock('../apiFetch', () => ({ apiFetch: vi.fn() }));
 
 const ME: IMeResponse = {
   sub: 'sub-1',
@@ -13,19 +10,17 @@ const ME: IMeResponse = {
   households: [],
 };
 
-const refresh = vi.fn(async () => true);
-
 describe('getMe', () => {
-  it('returns the /me body through apiFetch', async () => {
-    vi.mocked(apiFetch).mockResolvedValue(new Response(JSON.stringify(ME), { status: 200 }));
+  it('returns the /me body fetched from the path', async () => {
+    const fetcher = vi.fn(async () => new Response(JSON.stringify(ME), { status: 200 }));
 
-    await expect(getMe(API_PATHS.me, refresh)).resolves.toEqual(ME);
-    expect(apiFetch).toHaveBeenCalledWith(API_PATHS.me, refresh);
+    await expect(getMe(API_PATHS.me, fetcher)).resolves.toEqual(ME);
+    expect(fetcher).toHaveBeenCalledWith(API_PATHS.me);
   });
 
   it('throws with the status as the cause when the request fails', async () => {
-    vi.mocked(apiFetch).mockResolvedValue(new Response(null, { status: 404 }));
+    const fetcher = vi.fn(async () => new Response(null, { status: 404 }));
 
-    await expect(getMe(API_PATHS.me, refresh)).rejects.toMatchObject({ cause: 404 });
+    await expect(getMe(API_PATHS.me, fetcher)).rejects.toMatchObject({ cause: 404 });
   });
 });

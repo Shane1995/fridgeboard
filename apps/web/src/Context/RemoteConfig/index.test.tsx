@@ -3,13 +3,13 @@ import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/w
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import { getConfiguration } from '../../services/configuration';
-import { useRemoteConfig } from '../../hooks/useRemoteConfig';
+import { useRemoteConfigContext } from '../../hooks/useRemoteConfigContext';
 import { RemoteConfigProvider } from '.';
 
 vi.mock('../../services/configuration', () => ({ getConfiguration: vi.fn() }));
 
 const Probe = () => {
-  const { featureFlags } = useRemoteConfig();
+  const { featureFlags } = useRemoteConfigContext();
   return <p>{String(featureFlags[WebFeatureFlag.ENABLE_ADMIN_INVITES])}</p>;
 };
 

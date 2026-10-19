@@ -1,19 +1,13 @@
 import { MutationName } from '@fridgeboard/contract/configuration/mutations/constants';
-import { WebService } from '@fridgeboard/contract/configuration/services/constants';
-import { resolveServicePath } from '../../services/configuration/resolveServicePath';
 import type { VerifyResult } from '../../services/session/types';
-import { verifyCode } from '../../services/session/verifyCode';
 import { useMutation } from '../useMutation';
 import type { MutationResult } from '../useMutation/types';
-import { useRemoteConfig } from '../useRemoteConfig';
-import { useSessionConfig } from '../useSessionConfig';
+import { useSessionContext } from '../useSessionContext';
 
 export const useVerifyCodeMutation = (): MutationResult<VerifyResult, string> => {
-  const { services } = useRemoteConfig();
-  const sessionConfig = useSessionConfig();
+  const { verifyCode } = useSessionContext();
   return useMutation({
-    mutationFn: (code: string) =>
-      verifyCode(resolveServicePath(services, WebService.verify), sessionConfig, code),
+    mutationFn: (code: string) => verifyCode(code),
     mutationKey: [MutationName.verifyCode],
   });
 };

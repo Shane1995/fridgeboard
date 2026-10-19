@@ -1,16 +1,9 @@
-import type { IAuthErrorReason, IVerifyNextResponse } from '@fridgeboard/contract/auth';
-import type { REFRESH_KEY, SESSION_KEY, SessionStatus, UNKNOWN_REASON } from './constants';
-
-export type SessionSnapshot = {
-  accessToken: string | undefined;
-  status: SessionStatus;
-  lastRefreshAt: number | undefined;
-};
-
-export type SessionListener = (session: SessionSnapshot) => void;
-
-export type SessionKey = typeof SESSION_KEY;
-export type RefreshKey = typeof REFRESH_KEY;
+import type {
+  IAuthErrorReason,
+  ITokenResponse,
+  IVerifyNextResponse,
+} from '@fridgeboard/contract/auth';
+import type { RefreshResultKind, UNKNOWN_REASON } from './constants';
 
 export type FailureReason = IAuthErrorReason | typeof UNKNOWN_REASON;
 
@@ -21,13 +14,12 @@ export type VerifyResult =
   | ({ ok: false } & IVerifyNextResponse)
   | { ok: false; reason: FailureReason };
 
-export type SessionContext = {
-  getStatus: () => SessionStatus;
-  refresh: () => Promise<boolean>;
-};
+export type VerifyResponse =
+  | { ok: true; tokens: ITokenResponse }
+  | ({ ok: false } & IVerifyNextResponse)
+  | { ok: false; reason: FailureReason };
 
-export type SessionConfig = {
-  refreshPath: string;
-  refreshLeadMs: number;
-  refreshMinIntervalMs: number;
-};
+export type RefreshResult =
+  | { kind: RefreshResultKind.Tokens; tokens: ITokenResponse }
+  | { kind: RefreshResultKind.Rejected }
+  | { kind: RefreshResultKind.Unavailable };
