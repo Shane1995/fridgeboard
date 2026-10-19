@@ -6,6 +6,7 @@ export const INITIAL_RUNTIME: SessionRuntime = {
   status: SessionStatus.Loading,
   epoch: 0,
   lastRefreshAt: undefined,
+  noSession: false,
   flight: undefined,
   timer: undefined,
 };

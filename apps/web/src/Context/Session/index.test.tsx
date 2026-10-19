@@ -273,6 +273,44 @@ describe('SessionProvider', () => {
       expect(fetchMock).toHaveBeenCalledTimes(2);
     });
 
+    it('does not refresh on becoming visible once the server rejected the refresh cookie', async () => {
+      fetchMock.mockResolvedValue(respond(401));
+      await renderSession();
+      await advance(120_000);
+
+      setVisibility('visible');
+      await advance(0);
+
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not refresh on becoming visible after signing out', async () => {
+      const { result } = await renderSession();
+      fetchMock.mockResolvedValue(respond(204));
+      await act(() => result.current.signOut());
+      const callsAfterSignOut = fetchMock.mock.calls.length;
+      await advance(120_000);
+
+      setVisibility('visible');
+      await advance(0);
+
+      expect(fetchMock).toHaveBeenCalledTimes(callsAfterSignOut);
+    });
+
+    it('refreshes on becoming visible again after signing in', async () => {
+      fetchMock.mockResolvedValueOnce(respond(401));
+      const { result } = await renderSession();
+      fetchMock.mockResolvedValueOnce(respond(200, TOKENS));
+      await act(() => result.current.verifyCode('123456'));
+      await advance(61_000);
+      const callsBefore = fetchMock.mock.calls.length;
+
+      setVisibility('visible');
+      await advance(0);
+
+      expect(fetchMock).toHaveBeenCalledTimes(callsBefore + 1);
+    });
+
     it('stops listening once unmounted', async () => {
       const { unmount } = await renderSession();
       await advance(120_000);

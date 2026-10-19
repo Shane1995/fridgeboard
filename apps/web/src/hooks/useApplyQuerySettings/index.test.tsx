@@ -20,6 +20,13 @@ const setup = () => {
   return client;
 };
 
+const retriesOf = (retry: unknown): number =>
+  typeof retry === 'function'
+    ? Array.from({ length: 10 }, (_, attempt) => attempt).filter((attempt) =>
+        retry(attempt, new TypeError('offline')),
+      ).length
+    : Number(retry);
+
 describe('useApplyQuerySettings', () => {
   it('applies the entries once the configuration arrives', async () => {
     vi.mocked(getConfiguration).mockResolvedValue({
@@ -30,7 +37,7 @@ describe('useApplyQuerySettings', () => {
     const client = setup();
 
     await waitFor(() => expect(client.getQueryDefaults(['me']).staleTime).toBe(7_000));
-    expect(client.getDefaultOptions().queries?.retry).toBe(4);
+    expect(retriesOf(client.getDefaultOptions().queries?.retry)).toBe(4);
     expect(client.getMutationDefaults(['signOut'])).toEqual({ retry: 0 });
   });
 
@@ -47,6 +54,6 @@ describe('useApplyQuerySettings', () => {
 
     await waitFor(() => expect(getConfiguration).toHaveBeenCalled());
     expect(client.getDefaultOptions().queries).toEqual(BASE_DEFAULT_OPTIONS.queries);
-    expect(client.defaultQueryOptions({ queryKey: ['unnamed'] }).retry).toBe(1);
+    expect(retriesOf(client.defaultQueryOptions({ queryKey: ['unnamed'] }).retry)).toBe(1);
   });
 });
