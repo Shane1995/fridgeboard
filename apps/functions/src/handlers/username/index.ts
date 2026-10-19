@@ -45,7 +45,8 @@ export const handler = withVerifiedOrigin(
               Put: {
                 TableName,
                 Item: { ...usernameKey(username), sub },
-                ConditionExpression: 'attribute_not_exists(PK)',
+                ConditionExpression: 'attribute_not_exists(PK) OR sub = :sub',
+                ExpressionAttributeValues: { ':sub': sub },
               },
             },
             {
@@ -53,7 +54,8 @@ export const handler = withVerifiedOrigin(
                 TableName,
                 Key: profileKey(sub),
                 UpdateExpression: 'SET username = :username',
-                ConditionExpression: 'attribute_exists(PK) AND attribute_not_exists(username)',
+                ConditionExpression:
+                  'attribute_exists(PK) AND (attribute_not_exists(username) OR username = :username)',
                 ExpressionAttributeValues: { ':username': username },
               },
             },

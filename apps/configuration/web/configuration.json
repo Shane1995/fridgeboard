@@ -33,7 +33,7 @@
       }
     },
     "username": {
-      "url": "/api/{version}/username",
+      "url": "/api/{version}/me/username",
       "params": {
         "version": "v1"
       }

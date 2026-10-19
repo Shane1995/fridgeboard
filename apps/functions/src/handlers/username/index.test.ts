@@ -8,8 +8,8 @@ const ddbMock = mockClient(DynamoDBDocumentClient);
 
 const buildEvent = (body: unknown, sub = 'sub-1'): APIGatewayProxyEventV2WithJWTAuthorizer => ({
   version: '2.0',
-  routeKey: 'PUT /api/v1/username',
-  rawPath: '/api/v1/username',
+  routeKey: 'PUT /api/v1/me/username',
+  rawPath: '/api/v1/me/username',
   rawQueryString: '',
   headers: { 'x-api-origin-verify': 'origin-secret' },
   body: JSON.stringify(body),
@@ -21,13 +21,13 @@ const buildEvent = (body: unknown, sub = 'sub-1'): APIGatewayProxyEventV2WithJWT
     domainPrefix: 'app',
     http: {
       method: 'PUT',
-      path: '/api/v1/username',
+      path: '/api/v1/me/username',
       protocol: 'HTTP/1.1',
       sourceIp: '127.0.0.1',
       userAgent: 'test',
     },
     requestId: 'req-1',
-    routeKey: 'PUT /api/v1/username',
+    routeKey: 'PUT /api/v1/me/username',
     stage: '$default',
     time: '',
     timeEpoch: 0,
@@ -77,13 +77,23 @@ describe('username handler', () => {
     expect(items?.[0]?.Put).toMatchObject({
       TableName: 'fridgeboard',
       Item: { PK: 'USERNAME#jess_99', SK: 'USERNAME', sub: 'sub-1' },
-      ConditionExpression: 'attribute_not_exists(PK)',
+      ConditionExpression: 'attribute_not_exists(PK) OR sub = :sub',
+      ExpressionAttributeValues: { ':sub': 'sub-1' },
     });
     expect(items?.[1]?.Update).toMatchObject({
       Key: { PK: 'USER#sub-1', SK: 'PROFILE' },
-      ConditionExpression: 'attribute_exists(PK) AND attribute_not_exists(username)',
+      ConditionExpression:
+        'attribute_exists(PK) AND (attribute_not_exists(username) OR username = :username)',
       ExpressionAttributeValues: { ':username': 'Jess_99' },
     });
+  });
+
+  it('lets the same user retry the same username', async () => {
+    await handler(buildEvent({ username: 'Jess_99' }));
+    const result = await handler(buildEvent({ username: 'Jess_99' }));
+
+    expect(result.statusCode).toBe(200);
+    expect(ddbMock.commandCalls(TransactWriteCommand)).toHaveLength(2);
   });
 
   it('returns 409 username-taken when the claim already exists', async () => {

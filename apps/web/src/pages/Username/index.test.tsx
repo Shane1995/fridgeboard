@@ -69,7 +69,7 @@ describe('Username', () => {
     await submit('  jess ');
 
     expect(await screen.findByText('home')).toBeInTheDocument();
-    expect(apiFetch).toHaveBeenCalledWith('/api/v1/username', {
+    expect(apiFetch).toHaveBeenCalledWith('/api/v1/me/username', {
       method: 'PUT',
       body: JSON.stringify({ username: 'jess' }),
     });
