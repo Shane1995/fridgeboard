@@ -120,9 +120,9 @@ jobs:
             aws lambda update-alias --function-name "$fn" --name live --function-version "$prev" --description "prev=$prev" > /dev/null
           done < "$RUNNER_TEMP/flipped"
       - name: Upload hashed assets (cached for a year)
-        run: aws s3 sync dist/assets "s3://$BUCKET/assets" --cache-control "public,max-age=31536000,immutable"
+        run: aws s3 sync dist/assets "s3://$BUCKET/webapp/assets" --cache-control "public,max-age=31536000,immutable"
       - name: Upload everything else (always revalidated)
-        run: aws s3 sync dist "s3://$BUCKET" --exclude "assets/*" --cache-control "no-cache" --delete
+        run: aws s3 sync dist "s3://$BUCKET/webapp" --exclude "assets/*" --cache-control "no-cache" --delete
       - name: Invalidate CloudFront
         run: aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths "/*" > /dev/null
 
