@@ -7,6 +7,8 @@ export type SessionSnapshot = {
   lastRefreshAt: number | undefined;
 };
 
+export type SessionListener = (session: SessionSnapshot) => void;
+
 export type SessionKey = typeof SESSION_KEY;
 export type RefreshKey = typeof REFRESH_KEY;
 

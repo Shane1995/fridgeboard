@@ -86,6 +86,18 @@ describe('apiFetch', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
+  it('does not refresh after sign-out', async () => {
+    fetchMock.mockResolvedValueOnce(respond(401));
+    const { apiFetch } = await loadApi();
+    const { clearSession } = await import('../../session/clearSession');
+    clearSession();
+
+    const response = await apiFetch(API_PATHS.me);
+
+    expect(response.status).toBe(401);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
   it('refuses paths outside the same-origin api', async () => {
     const { apiFetch } = await loadApi();
 
