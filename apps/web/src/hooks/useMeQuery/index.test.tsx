@@ -12,6 +12,7 @@ import { useMeQuery } from './index';
 const ME: IMeResponse = {
   sub: 'sub-1',
   email: 'jess@example.com',
+  username: null,
   isAdmin: false,
   canCreateHousehold: true,
   households: [],

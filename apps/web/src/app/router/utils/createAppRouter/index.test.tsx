@@ -12,6 +12,7 @@ const TOKENS = { accessToken: 'token-1', expiresIn: 900 };
 const ME = {
   sub: 's',
   email: 'a@b.com',
+  username: 'jess',
   isAdmin: false,
   canCreateHousehold: false,
   households: [],
@@ -75,7 +76,7 @@ describe('router', () => {
   it('renders the signed-in home at / with the account email', async () => {
     serve(async () => json(TOKENS));
     renderAt('/');
-    expect(await screen.findByText(`${HOME_COPY.signedInAs} a@b.com`)).toBeInTheDocument();
+    expect(await screen.findByText(`${HOME_COPY.signedInAs} jess`)).toBeInTheDocument();
   });
 
   it('renders the not-found component for an unknown path', async () => {
@@ -86,7 +87,7 @@ describe('router', () => {
   it('redirects / to /sign-in when signed out and back to / after sign-in', async () => {
     const router = renderAt('/');
     await signIn();
-    expect(await screen.findByText(`${HOME_COPY.signedInAs} a@b.com`)).toBeInTheDocument();
+    expect(await screen.findByText(`${HOME_COPY.signedInAs} jess`)).toBeInTheDocument();
     expect(router.state.location.pathname).toBe('/');
     expect(router.history.location.pathname).toBe('/');
   });
@@ -103,7 +104,7 @@ describe('router', () => {
     expect(await screen.findByLabelText(SIGN_IN_COPY.emailLabel)).toBeInTheDocument();
     expect(router.state.location.search).toEqual({ redirect: '/' });
     await signIn();
-    expect(await screen.findByText(`${HOME_COPY.signedInAs} a@b.com`)).toBeInTheDocument();
+    expect(await screen.findByText(`${HOME_COPY.signedInAs} jess`)).toBeInTheDocument();
     expect(router.state.location.pathname).toBe('/');
   });
 
@@ -113,7 +114,7 @@ describe('router', () => {
     renderAt('/');
     expect(await screen.findByRole('status', { name: APP_LOADER_COPY.label })).toBeInTheDocument();
     release[0]?.(json(TOKENS));
-    expect(await screen.findByText(`${HOME_COPY.signedInAs} a@b.com`)).toBeInTheDocument();
+    expect(await screen.findByText(`${HOME_COPY.signedInAs} jess`)).toBeInTheDocument();
     expect(screen.queryByRole('status', { name: APP_LOADER_COPY.label })).not.toBeInTheDocument();
   });
 });

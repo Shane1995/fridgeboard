@@ -14,6 +14,7 @@ import { Route as JoinRouteImport } from './../../routes/join'
 import { Route as PrivacyRouteImport } from './../../routes/privacy'
 import { Route as SignInRouteImport } from './../../routes/sign-in'
 import { Route as AuthenticatedIndexRouteImport } from './../../routes/_authenticated/index'
+import { Route as AuthenticatedUsernameRouteImport } from './../../routes/_authenticated/username'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
@@ -39,17 +40,24 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedUsernameRoute = AuthenticatedUsernameRouteImport.update({
+  id: '/username',
+  path: '/username',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/join': typeof JoinRoute
   '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
+  '/username': typeof AuthenticatedUsernameRoute
 }
 export interface FileRoutesByTo {
   '/join': typeof JoinRoute
   '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
+  '/username': typeof AuthenticatedUsernameRoute
   '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesById {
@@ -58,19 +66,21 @@ export interface FileRoutesById {
   '/join': typeof JoinRoute
   '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
+  '/_authenticated/username': typeof AuthenticatedUsernameRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/join' | '/privacy' | '/sign-in'
+  fullPaths: '/' | '/join' | '/privacy' | '/sign-in' | '/username'
   fileRoutesByTo: FileRoutesByTo
-  to: '/join' | '/privacy' | '/sign-in' | '/'
+  to: '/join' | '/privacy' | '/sign-in' | '/username' | '/'
   id:
     | '__root__'
     | '/_authenticated'
     | '/join'
     | '/privacy'
     | '/sign-in'
+    | '/_authenticated/username'
     | '/_authenticated/'
   fileRoutesById: FileRoutesById
 }
@@ -118,14 +128,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/username': {
+      id: '/_authenticated/username'
+      path: '/username'
+      fullPath: '/username'
+      preLoaderRoute: typeof AuthenticatedUsernameRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedUsernameRoute: typeof AuthenticatedUsernameRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedUsernameRoute: AuthenticatedUsernameRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
 }
 

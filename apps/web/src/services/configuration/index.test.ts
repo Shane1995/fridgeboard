@@ -95,7 +95,7 @@ describe('getConfiguration', () => {
 
     await expect(getConfiguration()).resolves.toEqual({
       ...DEFAULT_WEB_CONFIGURATION,
-      settings: { refreshLeadMs: 10_000, refreshMinIntervalMs: 60_000 },
+      settings: { ...DEFAULT_WEB_CONFIGURATION.settings, refreshLeadMs: 10_000 },
     });
   });
 

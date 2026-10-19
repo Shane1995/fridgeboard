@@ -32,7 +32,12 @@
     "unused-exports": "error"
   },
   "health": {
-    "ignore": ["apps/web/index.html", "apps/web/src/main.tsx"]
+    "ignore": [
+      "apps/web/index.html",
+      "apps/web/src/main.tsx",
+      "apps/web/src/app/router/types.ts",
+      "apps/configuration/scripts/validate/index.ts"
+    ]
   },
   "ignoreUnresolvedImports": ["/react-aria-pressable.css"]
 }

@@ -3,6 +3,8 @@
   "featureFlags": {},
   "services": {},
   "settings": {
-    "flowTtlMs": 180000
+    "flowTtlMs": 180000,
+    "usernameMinLength": 3,
+    "usernameMaxLength": 20
   }
 }

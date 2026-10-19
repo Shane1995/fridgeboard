@@ -31,11 +31,19 @@
       "params": {
         "version": "v1"
       }
+    },
+    "username": {
+      "url": "/api/{version}/me/username",
+      "params": {
+        "version": "v1"
+      }
     }
   },
   "settings": {
     "refreshLeadMs": 60000,
-    "refreshMinIntervalMs": 60000
+    "refreshMinIntervalMs": 60000,
+    "usernameMinLength": 3,
+    "usernameMaxLength": 20
   },
   "queries": {
     "default": {
