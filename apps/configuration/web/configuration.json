@@ -1,6 +1,8 @@
 {
   "version": 1,
-  "featureFlags": {},
+  "featureFlags": {
+    "ENABLE_PASSKEYS": true
+  },
   "services": {
     "start": {
       "url": "/api/{version}/auth/start",
