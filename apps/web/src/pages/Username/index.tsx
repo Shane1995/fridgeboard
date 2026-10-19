@@ -1,7 +1,7 @@
-import { USERNAME_MAX_LENGTH } from '@fridgeboard/contract/username/constants';
 import { Alert, Button, Description, Input, Label, TextField } from '@heroui/react';
 import { useNavigate } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
+import { useRemoteConfigContext } from '../../hooks/useRemoteConfigContext';
 import { useSetUsernameMutation } from '../../hooks/useSetUsernameMutation';
 import { USERNAME_COPY } from './constants';
 
@@ -10,6 +10,7 @@ export const Username = () => {
   const [username, setUsername] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const save = useSetUsernameMutation();
+  const { usernameMinLength, usernameMaxLength } = useRemoteConfigContext().settings;
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -32,13 +33,13 @@ export const Username = () => {
           name="username"
           autoComplete="username"
           isRequired
-          maxLength={USERNAME_MAX_LENGTH}
+          maxLength={usernameMaxLength}
           value={username}
           onChange={setUsername}
         >
           <Label>{USERNAME_COPY.label}</Label>
           <Input autoCapitalize="none" />
-          <Description>{USERNAME_COPY.hint}</Description>
+          <Description>{USERNAME_COPY.hint(usernameMinLength, usernameMaxLength)}</Description>
         </TextField>
         {errorMessage && (
           <Alert status="danger">

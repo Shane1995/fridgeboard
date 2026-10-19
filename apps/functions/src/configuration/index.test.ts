@@ -1,4 +1,5 @@
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { DEFAULT_LAMBDA_SETTINGS } from '@fridgeboard/contract/configuration/settings/constants';
 import { sdkStreamMixin } from '@smithy/util-stream';
 import { mockClient } from 'aws-sdk-client-mock';
 import { Readable } from 'node:stream';
@@ -10,7 +11,7 @@ const body = (value: unknown) => ({
 });
 
 const VALID = { version: 1, featureFlags: {}, services: {} };
-const WITH_DEFAULTS = { ...VALID, settings: { flowTtlMs: 180_000 } };
+const WITH_DEFAULTS = { ...VALID, settings: DEFAULT_LAMBDA_SETTINGS };
 
 const load = async () => {
   vi.resetModules();
@@ -120,7 +121,7 @@ describe('getConfiguration', () => {
 
     await expect(getConfiguration()).resolves.toEqual({
       ...VALID,
-      settings: { flowTtlMs: 90_000 },
+      settings: { ...DEFAULT_LAMBDA_SETTINGS, flowTtlMs: 90_000 },
     });
   });
 

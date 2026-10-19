@@ -1,14 +1,11 @@
 import { DynamoDBClient, TransactionCanceledException } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
-import {
-  USERNAME_MAX_LENGTH,
-  USERNAME_MIN_LENGTH,
-  USERNAME_PATTERN,
-} from '@fridgeboard/contract/username/constants';
+import { isValidUsername } from '@fridgeboard/contract/username/isValidUsername';
 import type {
   APIGatewayProxyEventV2WithJWTAuthorizer,
   APIGatewayProxyStructuredResultV2,
 } from 'aws-lambda';
+import { getConfiguration } from '../../configuration/index.ts';
 import { jsonResponse } from '../../utils/jsonResponse/index.ts';
 import { profileKey } from '../../utils/keys/profileKey/index.ts';
 import { usernameKey } from '../../utils/keys/usernameKey/index.ts';
@@ -27,11 +24,13 @@ export const handler = withVerifiedOrigin(
       return { statusCode: 401 };
     }
 
+    const { settings } = await getConfiguration();
     const username = readUsername(event);
     if (
-      username.length < USERNAME_MIN_LENGTH ||
-      username.length > USERNAME_MAX_LENGTH ||
-      !USERNAME_PATTERN.test(username)
+      !isValidUsername(username, {
+        min: settings.usernameMinLength,
+        max: settings.usernameMaxLength,
+      })
     ) {
       return jsonResponse(400, { reason: 'invalid-username' });
     }

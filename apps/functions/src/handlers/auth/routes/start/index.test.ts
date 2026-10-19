@@ -232,7 +232,7 @@ describe('start route', () => {
   it('sets the flow cookie lifetime from the configured ttl', async () => {
     vi.mocked(getConfiguration).mockResolvedValue({
       ...DEFAULT_LAMBDA_CONFIGURATION,
-      settings: { flowTtlMs: 90_000 },
+      settings: { ...DEFAULT_LAMBDA_CONFIGURATION.settings, flowTtlMs: 90_000 },
     });
     cognitoMock.on(AdminGetUserCommand).resolves({ Username: 'u', UserStatus: 'CONFIRMED' });
     cognitoMock.on(InitiateAuthCommand).resolves({ ChallengeName: 'EMAIL_OTP', Session: 's2' });

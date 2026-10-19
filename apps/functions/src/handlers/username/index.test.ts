@@ -2,7 +2,11 @@ import { DynamoDBDocumentClient, TransactWriteCommand } from '@aws-sdk/lib-dynam
 import { TransactionCanceledException } from '@aws-sdk/client-dynamodb';
 import type { APIGatewayProxyEventV2WithJWTAuthorizer } from 'aws-lambda';
 import { mockClient } from 'aws-sdk-client-mock';
+import { DEFAULT_LAMBDA_CONFIGURATION } from '@fridgeboard/contract/configuration/lambda/constants';
+import { getConfiguration } from '../../configuration/index.ts';
 import { handler } from './index.ts';
+
+vi.mock('../../configuration/index.ts', () => ({ getConfiguration: vi.fn() }));
 
 const ddbMock = mockClient(DynamoDBDocumentClient);
 
@@ -48,6 +52,7 @@ describe('username handler', () => {
     vi.stubEnv('TABLE_NAME', 'fridgeboard');
     vi.stubEnv('API_ORIGIN_SECRET', 'origin-secret');
     ddbMock.on(TransactWriteCommand).resolves({});
+    vi.mocked(getConfiguration).mockResolvedValue(DEFAULT_LAMBDA_CONFIGURATION);
   });
 
   it('returns 403 without the origin secret', async () => {
@@ -67,6 +72,18 @@ describe('username handler', () => {
       expect(ddbMock.commandCalls(TransactWriteCommand)).toHaveLength(0);
     },
   );
+
+  it('applies the username limits from configuration', async () => {
+    vi.mocked(getConfiguration).mockResolvedValue({
+      ...DEFAULT_LAMBDA_CONFIGURATION,
+      settings: { ...DEFAULT_LAMBDA_CONFIGURATION.settings, usernameMinLength: 5 },
+    });
+
+    const result = await handler(buildEvent({ username: 'jess' }));
+
+    expect(result.statusCode).toBe(400);
+    expect(ddbMock.commandCalls(TransactWriteCommand)).toHaveLength(0);
+  });
 
   it('claims the lowercase username and sets it on the profile atomically', async () => {
     const result = await handler(buildEvent({ username: 'Jess_99' }));

@@ -41,7 +41,9 @@
   },
   "settings": {
     "refreshLeadMs": 60000,
-    "refreshMinIntervalMs": 60000
+    "refreshMinIntervalMs": 60000,
+    "usernameMinLength": 3,
+    "usernameMaxLength": 20
   },
   "queries": {
     "default": {

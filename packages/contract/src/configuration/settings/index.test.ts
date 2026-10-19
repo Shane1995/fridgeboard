@@ -26,4 +26,24 @@ describe('settings schemas', () => {
   ])('bounds refreshMinIntervalMs: %s -> %s', (value, ok) => {
     expect(WebSettingsSchema.safeParse({ refreshMinIntervalMs: value }).success).toBe(ok);
   });
+
+  it.each([
+    [2, true],
+    [1, false],
+    [8, true],
+    [9, false],
+  ])('bounds usernameMinLength: %s -> %s', (value, ok) => {
+    expect(WebSettingsSchema.safeParse({ usernameMinLength: value }).success).toBe(ok);
+    expect(LambdaSettingsSchema.safeParse({ usernameMinLength: value }).success).toBe(ok);
+  });
+
+  it.each([
+    [8, true],
+    [7, false],
+    [32, true],
+    [33, false],
+  ])('bounds usernameMaxLength: %s -> %s', (value, ok) => {
+    expect(WebSettingsSchema.safeParse({ usernameMaxLength: value }).success).toBe(ok);
+    expect(LambdaSettingsSchema.safeParse({ usernameMaxLength: value }).success).toBe(ok);
+  });
 });
