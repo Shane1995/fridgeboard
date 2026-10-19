@@ -7,6 +7,8 @@
     "./auth": "./src/auth/types.ts",
     "./auth/constants": "./src/auth/constants.ts",
     "./me": "./src/me/types.ts",
+    "./households": "./src/households/types.ts",
+    "./households/constants": "./src/households/constants.ts",
     "./username": "./src/username/types.ts",
     "./username/constants": "./src/username/constants.ts",
     "./username/isValidUsername": "./src/username/isValidUsername/index.ts",

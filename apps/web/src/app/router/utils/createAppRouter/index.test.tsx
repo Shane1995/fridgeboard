@@ -15,7 +15,8 @@ const ME = {
   username: 'jess',
   isAdmin: false,
   canCreateHousehold: false,
-  households: [],
+  households: [{ id: 'hh-1', name: 'Home', role: 'member' }],
+  onboarding: [{ id: 'username', done: true }],
 };
 
 const json = (body: unknown, status = 200): Response =>

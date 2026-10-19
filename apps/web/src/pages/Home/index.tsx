@@ -1,6 +1,7 @@
 import { Button } from '@heroui/react';
 import { useNavigate } from '@tanstack/react-router';
 import { Plus } from 'lucide-react';
+import { BuildInfo } from '../../components/BuildInfo';
 import { useMeQuery } from '../../hooks/useMeQuery';
 import { useSignOutMutation } from '../../hooks/useSignOutMutation';
 import { HOME_COPY } from './constants';
@@ -31,6 +32,7 @@ export const Home = () => {
       <Button variant="secondary" onPress={handleSignOut} isPending={signOut.isPending}>
         {HOME_COPY.signOut}
       </Button>
+      <BuildInfo />
     </main>
   );
 };

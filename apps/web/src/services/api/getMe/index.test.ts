@@ -9,6 +9,10 @@ const ME: IMeResponse = {
   isAdmin: false,
   canCreateHousehold: true,
   households: [],
+  onboarding: [
+    { id: 'username', done: false },
+    { id: 'household', done: false },
+  ],
 };
 
 describe('getMe', () => {

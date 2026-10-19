@@ -1,6 +1,9 @@
 import { Card } from '@heroui/react';
 import { Link, useRouter } from '@tanstack/react-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { AppLoader } from '../../components/AppLoader';
+import { useSessionContext } from '../../hooks/useSessionContext';
+import { SessionStatus } from '../../services/session/constants';
 import { CodeStep } from './components/CodeStep';
 import { EmailStep } from './components/EmailStep';
 import { SIGN_IN_COPY } from './constants';
@@ -9,6 +12,18 @@ import type { SignInProps } from './types';
 export const SignIn = ({ initialEmail, redirectTo, children }: SignInProps) => {
   const router = useRouter();
   const [email, setEmail] = useState<string | undefined>();
+  const { status } = useSessionContext();
+  const signedIn = status === SessionStatus.SignedIn;
+
+  useEffect(() => {
+    if (signedIn) {
+      router.history.replace(redirectTo);
+    }
+  }, [signedIn, router, redirectTo]);
+
+  if (status === SessionStatus.Loading || signedIn) {
+    return <AppLoader />;
+  }
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center gap-6 p-6">

@@ -1,37 +1,21 @@
-import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/web/constants';
-import { RemoteConfigContext } from '../../../../Context/RemoteConfig';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { SIGN_IN_COPY } from '../../constants';
 import { EmailStep } from './index';
-import { SessionContext } from '../../../../Context/Session';
-import type { SessionContextValue } from '../../../../Context/Session/types';
+import { createSession } from '../../../../testUtils/createSession';
+import { TestProviders } from '../../../../testUtils/TestProviders';
 import { SessionStatus } from '../../../../services/session/constants';
 
-const startSignIn = vi.fn();
-const verifyCode = vi.fn();
-const signOut = vi.fn();
-const apiFetch = vi.fn();
-const session: SessionContextValue = {
-  status: SessionStatus.SignedIn,
-  startSignIn,
-  verifyCode,
-  signOut,
-  refresh: vi.fn(),
-  apiFetch,
-};
+const fixture = createSession(SessionStatus.SignedIn);
+const { startSignIn } = fixture;
+const session = fixture.session;
 
 const onCodeSent = vi.fn();
 
 const renderStep = (initialEmail?: string) =>
   render(
-    <RemoteConfigContext.Provider value={DEFAULT_WEB_CONFIGURATION}>
-      <SessionContext.Provider value={session}>
-        <QueryClientProvider client={new QueryClient()}>
-          <EmailStep initialEmail={initialEmail} onCodeSent={onCodeSent} />
-        </QueryClientProvider>
-      </SessionContext.Provider>
-    </RemoteConfigContext.Provider>,
+    <TestProviders session={session}>
+      <EmailStep initialEmail={initialEmail} onCodeSent={onCodeSent} />
+    </TestProviders>,
   );
 
 const submitEmail = (email: string) => {

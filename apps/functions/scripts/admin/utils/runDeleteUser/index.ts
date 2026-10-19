@@ -7,7 +7,7 @@ import { fetchMemberships } from '../../../../src/handlers/me/utils/fetchMembers
 import { HOUSEHOLD_PK_PREFIX, USER_PK_PREFIX } from '../../../../src/utils/keys/constants.ts';
 import { householdIdFromKey } from '../../../../src/utils/keys/householdIdFromKey/index.ts';
 import { buildDeletePlan } from '../buildDeletePlan/index.ts';
-import { MEMBER_SK_PREFIX } from '../buildDeletePlan/constants.ts';
+import { MEMBER_SK_PREFIX } from '../../../../src/utils/keys/constants.ts';
 import { TABLE_NAME } from '../clients/constants.ts';
 import { cognito, doc, ses } from '../clients/index.ts';
 import { queryAll } from '../queryAll/index.ts';

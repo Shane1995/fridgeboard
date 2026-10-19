@@ -6,3 +6,5 @@ export const HOUSEHOLD_PK_PREFIX = 'HH#';
 export const HOUSEHOLD_META_SK = 'META';
 export const USERNAME_PK_PREFIX = 'USERNAME#';
 export const USERNAME_SK = 'USERNAME';
+export const MEMBER_SK_PREFIX = 'MEMBER#';
+export const OWNED_HOUSEHOLD_SK = 'OWNED_HOUSEHOLD';

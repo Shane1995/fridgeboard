@@ -2,6 +2,7 @@ import { MutationName } from '@fridgeboard/contract/configuration/mutations/cons
 import { WebService } from '@fridgeboard/contract/configuration/services/constants';
 import type { IMeResponse } from '@fridgeboard/contract/me';
 import { useQueryClient } from '@tanstack/react-query';
+import { completeOnboardingSection } from '../../utils/completeOnboardingSection';
 import { putUsername } from '../../services/api/putUsername';
 import type { PutUsernameResult } from '../../services/api/putUsername/types';
 import { resolveServicePath } from '../../services/configuration/resolveServicePath';
@@ -24,7 +25,9 @@ export const useSetUsernameMutation = (): MutationResult<PutUsernameResult, stri
       );
       if (result.ok) {
         queryClient.setQueryData<IMeResponse>(ME_QUERY_KEY, (me) =>
-          me === undefined ? me : { ...me, username: result.username },
+          me === undefined
+            ? me
+            : completeOnboardingSection({ ...me, username: result.username }, 'username'),
         );
       }
       return result;

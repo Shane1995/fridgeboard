@@ -9,3 +9,4 @@ export type Invite = {
   ttl: number;
 };
 export type GsiKey = { GSI1PK: string };
+export type MembershipKey = TableKey & { GSI1PK: string; GSI1SK: string };

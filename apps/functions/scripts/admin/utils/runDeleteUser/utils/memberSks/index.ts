@@ -1,5 +1,5 @@
 import { HOUSEHOLD_PK_PREFIX } from '../../../../../../src/utils/keys/constants.ts';
-import { MEMBER_SK_PREFIX } from '../../../buildDeletePlan/constants.ts';
+import { MEMBER_SK_PREFIX } from '../../../../../../src/utils/keys/constants.ts';
 import { queryAll } from '../../../queryAll/index.ts';
 import { PK_SK_PREFIX_CONDITION } from '../../constants.ts';
 

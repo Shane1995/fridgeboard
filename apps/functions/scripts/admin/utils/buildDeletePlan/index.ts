@@ -1,6 +1,6 @@
 import { householdIdFromKey } from '../../../../src/utils/keys/householdIdFromKey/index.ts';
 import { inviteKey } from '../../../../src/utils/keys/inviteKey/index.ts';
-import { MEMBER_SK_PREFIX } from './constants.ts';
+import { MEMBER_SK_PREFIX } from '../../../../src/utils/keys/constants.ts';
 import type { DeletePlan, DeletePlanInput } from './types.ts';
 import { hasKeys } from './utils/hasKeys/index.ts';
 import { pickKey } from './utils/pickKey/index.ts';

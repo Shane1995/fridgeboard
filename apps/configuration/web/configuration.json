@@ -37,6 +37,12 @@
       "params": {
         "version": "v1"
       }
+    },
+    "households": {
+      "url": "/api/{version}/households",
+      "params": {
+        "version": "v1"
+      }
     }
   },
   "settings": {
