@@ -15,6 +15,7 @@ export type SessionRuntime = {
   status: SessionStatus;
   epoch: number;
   lastRefreshAt: number | undefined;
+  noSession: boolean;
   flight: Promise<boolean> | undefined;
   timer: ReturnType<typeof setTimeout> | undefined;
 };

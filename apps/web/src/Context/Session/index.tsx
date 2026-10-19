@@ -53,6 +53,7 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
     clearTimeout(state.timer);
     state.timer = undefined;
     state.token = undefined;
+    state.noSession = true;
     changeStatus(SessionStatus.SignedOut);
   }, [changeStatus]);
 
@@ -62,6 +63,7 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
       state.epoch += 1;
       state.token = accessToken;
       state.lastRefreshAt = Date.now();
+      state.noSession = false;
       changeStatus(SessionStatus.SignedIn);
       clearTimeout(state.timer);
       const { refreshLeadMs, refreshMinIntervalMs } = config.current.settings;
@@ -115,6 +117,9 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     const state = runtime.current;
     const onVisibilityChange = (): void => {
+      if (state.noSession) {
+        return;
+      }
       const stale =
         state.lastRefreshAt === undefined ||
         Date.now() - state.lastRefreshAt > config.current.settings.refreshMinIntervalMs;
