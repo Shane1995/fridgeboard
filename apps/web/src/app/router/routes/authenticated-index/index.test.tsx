@@ -1,3 +1,4 @@
+import { RemoteConfigProvider } from '../../../../Context/RemoteConfig';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { createMemoryHistory, RouterProvider } from '@tanstack/react-router';
 import { render, screen } from '@testing-library/react';
@@ -33,7 +34,9 @@ describe('authenticated index route', () => {
     const router = createAppRouter(createMemoryHistory({ initialEntries: ['/'] }));
     render(
       <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
+        <RemoteConfigProvider>
+          <RouterProvider router={router} />
+        </RemoteConfigProvider>
       </QueryClientProvider>,
     );
     expect(await screen.findByRole('heading', { name: HOME_COPY.title })).toBeInTheDocument();

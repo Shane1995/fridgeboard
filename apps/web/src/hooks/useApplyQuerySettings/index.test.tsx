@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { getConfiguration } from '../../services/configuration';
+import { RemoteConfigProvider } from '../../Context/RemoteConfig';
 import { useApplyQuerySettings } from './index';
 
 vi.mock('../../services/configuration', () => ({ getConfiguration: vi.fn() }));
@@ -10,7 +11,9 @@ vi.mock('../../services/configuration', () => ({ getConfiguration: vi.fn() }));
 const setup = () => {
   const client = new QueryClient({ defaultOptions: { queries: { retry: 1 } } });
   const wrapper = ({ children }: { children: ReactNode }) => (
-    <QueryClientProvider client={client}>{children}</QueryClientProvider>
+    <QueryClientProvider client={client}>
+      <RemoteConfigProvider>{children}</RemoteConfigProvider>
+    </QueryClientProvider>
   );
   renderHook(() => useApplyQuerySettings(client), { wrapper });
   return client;

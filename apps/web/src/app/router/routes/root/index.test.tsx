@@ -1,3 +1,4 @@
+import { RemoteConfigProvider } from '../../../../Context/RemoteConfig';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   createMemoryHistory,
@@ -33,7 +34,9 @@ const renderAt = (path: string) => {
   });
   render(
     <QueryClientProvider client={new QueryClient()}>
-      <RouterProvider router={router} />
+      <RemoteConfigProvider>
+        <RouterProvider router={router} />
+      </RemoteConfigProvider>
     </QueryClientProvider>,
   );
 };

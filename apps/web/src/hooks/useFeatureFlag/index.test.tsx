@@ -4,12 +4,15 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { getConfiguration } from '../../services/configuration';
+import { RemoteConfigProvider } from '../../Context/RemoteConfig';
 import { useFeatureFlag } from './index';
 
 vi.mock('../../services/configuration', () => ({ getConfiguration: vi.fn() }));
 
 const wrapper = ({ children }: { children: ReactNode }) => (
-  <QueryClientProvider client={new QueryClient()}>{children}</QueryClientProvider>
+  <QueryClientProvider client={new QueryClient()}>
+    <RemoteConfigProvider>{children}</RemoteConfigProvider>
+  </QueryClientProvider>
 );
 
 describe('useFeatureFlag', () => {
