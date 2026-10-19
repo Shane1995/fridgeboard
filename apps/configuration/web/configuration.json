@@ -37,6 +37,17 @@
     "refreshLeadMs": 60000,
     "refreshMinIntervalMs": 60000
   },
-  "queries": {},
-  "mutations": {}
+  "queries": {
+    "default": {
+      "staleTimeMs": 30000,
+      "gcTimeMs": 300000,
+      "retry": 1,
+      "refetchOnWindowFocus": true
+    }
+  },
+  "mutations": {
+    "default": {
+      "retry": 0
+    }
+  }
 }
