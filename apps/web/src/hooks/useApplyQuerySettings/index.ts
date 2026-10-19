@@ -1,6 +1,6 @@
 import type { QueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
-import { useRemoteConfig } from '../../Context/RemoteConfig';
+import { useRemoteConfig } from '../useRemoteConfig';
 import { applyQuerySettings } from './utils/applyQuerySettings';
 
 export const useApplyQuerySettings = (queryClient: QueryClient): void => {

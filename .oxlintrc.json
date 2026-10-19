@@ -71,7 +71,7 @@
             "patterns": [
               {
                 "group": [
-                  "@tanstack/react-*",
+                  "@tanstack/*",
                   "@heroui/*"
                 ],
                 "message": "services/ must stay framework-agnostic; put framework bindings in app/, hooks/ or components/.",

@@ -1,11 +1,11 @@
 import { WebFeatureFlag } from '@fridgeboard/contract/configuration/flags/constants';
 import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/web/constants';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, renderHook, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { getConfiguration } from '../../services/configuration';
 import { configurationStore } from '../../services/configuration/store';
-import { MISSING_PROVIDER_MESSAGE } from './constants';
-import { RemoteConfigProvider, useRemoteConfig } from '.';
+import { useRemoteConfig } from '../../hooks/useRemoteConfig';
+import { RemoteConfigProvider } from '.';
 
 vi.mock('../../services/configuration', () => ({ getConfiguration: vi.fn() }));
 
@@ -55,13 +55,5 @@ describe('RemoteConfigProvider', () => {
     renderProvider();
 
     await waitFor(() => expect(configurationStore.current).toEqual(served));
-  });
-});
-
-describe('useRemoteConfig', () => {
-  it('throws outside the provider', () => {
-    vi.spyOn(console, 'error').mockImplementation(() => {});
-
-    expect(() => renderHook(() => useRemoteConfig())).toThrow(MISSING_PROVIDER_MESSAGE);
   });
 });

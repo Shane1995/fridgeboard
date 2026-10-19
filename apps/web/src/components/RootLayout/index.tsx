@@ -2,7 +2,7 @@ import { Outlet } from '@tanstack/react-router';
 import { lazy, Suspense } from 'react';
 import { useApplyQuerySettings } from '../../hooks/useApplyQuerySettings';
 import { useResetCacheOnSignOut } from '../../hooks/useResetCacheOnSignOut';
-import { queryClient } from '../../services/queryClient';
+import { queryClient } from '../../app/queryClient';
 
 const Devtools = import.meta.env.DEV
   ? lazy(() => import('../../app/devtools').then((m) => ({ default: m.Devtools })))

@@ -2,10 +2,7 @@ import type { WebConfiguration } from '@fridgeboard/contract/configuration/web/t
 import { getConfiguration } from '../../services/configuration';
 import { useQuery } from '../useQuery';
 import type { QueryResult } from '../useQuery/types';
-import {
-  CONFIGURATION_QUERY_KEY,
-  CONFIGURATION_STALE_TIME_MS,
-} from '../../services/configuration/constants';
+import { CONFIGURATION_QUERY_KEY, CONFIGURATION_STALE_TIME_MS } from './constants';
 
 export const useConfigurationQuery = (): QueryResult<WebConfiguration> =>
   useQuery({

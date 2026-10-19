@@ -3,7 +3,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { createMemoryHistory, RouterProvider } from '@tanstack/react-router';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { getMe } from '../../../../services/api/getMe';
-import { queryClient } from '../../../../services/queryClient';
+import { queryClient } from '../../../queryClient';
 import { SessionStatus } from '../../../../services/session/constants';
 import { getSessionStatus } from '../../../../services/session/getSessionStatus';
 import { refreshSession } from '../../../../services/session/refreshSession';

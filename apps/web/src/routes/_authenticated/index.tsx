@@ -5,6 +5,6 @@ import { getMe } from '../../services/api/getMe';
 
 export const Route = createFileRoute('/_authenticated/')({
   loader: ({ context }) =>
-    context.queryClient.ensureQueryData({ queryKey: ME_QUERY_KEY, queryFn: getMe }),
+    context.queryClient.query({ queryKey: ME_QUERY_KEY, queryFn: getMe, staleTime: 'static' }),
   component: Home,
 });

@@ -8,7 +8,7 @@ import {
 } from '@tanstack/react-router';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { getMe } from '../../services/api/getMe';
-import { queryClient } from '../../services/queryClient';
+import { queryClient } from '../../app/queryClient';
 import { SessionStatus } from '../../services/session/constants';
 import { getSessionStatus } from '../../services/session/getSessionStatus';
 import { signOut } from '../../services/session/signOut';
