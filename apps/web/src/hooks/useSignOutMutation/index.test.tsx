@@ -2,19 +2,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { SessionContext } from '../../Context/Session';
-import type { SessionContextValue } from '../../Context/Session/types';
+import { createSession } from '../../testUtils/createSession';
 import { SessionStatus } from '../../services/session/constants';
 import { useSignOutMutation } from './index';
-
-const signOut = vi.fn();
-const session: SessionContextValue = {
-  status: SessionStatus.SignedIn,
-  startSignIn: vi.fn(),
-  verifyCode: vi.fn(),
-  signOut,
-  refresh: vi.fn(),
-  apiFetch: vi.fn(),
-};
+const { session, signOut } = createSession(SessionStatus.SignedIn);
 
 const client = new QueryClient();
 const wrapper = ({ children }: { children: ReactNode }) => (

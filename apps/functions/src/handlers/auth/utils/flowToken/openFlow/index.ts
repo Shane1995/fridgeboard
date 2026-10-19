@@ -22,7 +22,7 @@ export const openFlow = (token: string, key: string, now: number): AuthFlow | un
     if (
       typeof email !== 'string' ||
       typeof session !== 'string' ||
-      (kind !== 'sign-up' && kind !== 'sign-in') ||
+      (kind !== 'sign-up' && kind !== 'sign-in' && kind !== 'passkey') ||
       typeof exp !== 'number' ||
       now > exp
     ) {

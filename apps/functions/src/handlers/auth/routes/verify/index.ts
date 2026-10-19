@@ -35,6 +35,10 @@ export const verify: Route = async (request, { clientId, clientSecret, flowKey }
     return expired;
   }
 
+  if (flow.kind === 'passkey') {
+    return expired;
+  }
+
   const code = readBodyField(request, 'code');
   if (!code) {
     return badCode;

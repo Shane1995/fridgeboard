@@ -2,19 +2,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { SessionContext } from '../../Context/Session';
-import type { SessionContextValue } from '../../Context/Session/types';
+import { createSession } from '../../testUtils/createSession';
 import { SessionStatus } from '../../services/session/constants';
 import { useVerifyCodeMutation } from './index';
-
-const verifyCode = vi.fn();
-const session: SessionContextValue = {
-  status: SessionStatus.SignedOut,
-  startSignIn: vi.fn(),
-  verifyCode,
-  signOut: vi.fn(),
-  refresh: vi.fn(),
-  apiFetch: vi.fn(),
-};
+const { session, verifyCode } = createSession(SessionStatus.SignedOut);
 
 const client = new QueryClient();
 const wrapper = ({ children }: { children: ReactNode }) => (

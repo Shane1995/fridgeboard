@@ -1,5 +1,6 @@
 export enum WebFeatureFlag {
   ENABLE_ADMIN_INVITES = 'ENABLE_ADMIN_INVITES',
+  ENABLE_PASSKEYS = 'ENABLE_PASSKEYS',
 }
 
 export enum LambdaFeatureFlag {}
@@ -10,6 +11,7 @@ export const LAMBDA_FEATURE_FLAGS: readonly string[] = Object.values(LambdaFeatu
 
 export const DEFAULT_WEB_FLAGS: Record<WebFeatureFlag, boolean> = {
   [WebFeatureFlag.ENABLE_ADMIN_INVITES]: false,
+  [WebFeatureFlag.ENABLE_PASSKEYS]: false,
 };
 
 export const DEFAULT_LAMBDA_FLAGS: Record<LambdaFeatureFlag, boolean> = {};

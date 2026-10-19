@@ -5,6 +5,9 @@ import {
   createRouter,
   RouterProvider,
 } from '@tanstack/react-router';
+import { WebFeatureFlag } from '@fridgeboard/contract/configuration/flags/constants';
+import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/web/constants';
+import { browserSupportsWebAuthn } from '@simplewebauthn/browser';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { APP_LOADER_COPY } from '../../components/AppLoader/constants';
 import { SIGN_IN_COPY } from './constants';
@@ -13,11 +16,24 @@ import { createSession } from '../../testUtils/createSession';
 import { TestProviders } from '../../testUtils/TestProviders';
 import { SessionStatus } from '../../services/session/constants';
 
+vi.mock('@simplewebauthn/browser', () => ({
+  browserSupportsWebAuthn: vi.fn(),
+  startAuthentication: vi.fn(),
+}));
+
+const PASSKEYS_ON = {
+  ...DEFAULT_WEB_CONFIGURATION,
+  featureFlags: {
+    ...DEFAULT_WEB_CONFIGURATION.featureFlags,
+    [WebFeatureFlag.ENABLE_PASSKEYS]: true,
+  },
+};
+
 const fixture = createSession(SessionStatus.SignedOut);
 const { startSignIn } = fixture;
 let session = fixture.session;
 
-const renderSignIn = async () => {
+const renderSignIn = async (config = DEFAULT_WEB_CONFIGURATION) => {
   const rootRoute = createRootRoute();
   const signInRoute = createRoute({
     getParentRoute: () => rootRoute,
@@ -34,7 +50,7 @@ const renderSignIn = async () => {
     history: createMemoryHistory({ initialEntries: ['/sign-in'] }),
   });
   render(
-    <TestProviders session={session}>
+    <TestProviders session={session} config={config}>
       <RouterProvider router={router} />
     </TestProviders>,
   );
@@ -54,8 +70,11 @@ const submitEmail = (input: HTMLElement) => {
 describe('SignIn', () => {
   beforeEach(() => {
     vi.resetAllMocks();
+    vi.mocked(browserSupportsWebAuthn).mockReturnValue(true);
     session = { ...session, status: SessionStatus.SignedOut };
   });
+
+  afterEach(() => window.localStorage.clear());
 
   it('sends a signed-in user straight to where they were going', async () => {
     session = { ...session, status: SessionStatus.SignedIn };
@@ -103,5 +122,55 @@ describe('SignIn', () => {
       'href',
       '/privacy',
     );
+  });
+
+  describe('with a remembered passkey', () => {
+    const remember = () => window.localStorage.setItem('fb:passkey-email', 'jess@example.com');
+
+    it('offers Face ID first when the flag is on', async () => {
+      remember();
+
+      await renderSignIn(PASSKEYS_ON);
+
+      expect(
+        await screen.findByRole('button', { name: SIGN_IN_COPY.passkey.submit }),
+      ).toBeInTheDocument();
+      expect(screen.queryByLabelText(SIGN_IN_COPY.emailLabel)).not.toBeInTheDocument();
+    });
+
+    it('shows the email form with the remembered address after choosing the email code', async () => {
+      remember();
+      await renderSignIn(PASSKEYS_ON);
+
+      fireEvent.click(await screen.findByRole('button', { name: SIGN_IN_COPY.passkey.useCode }));
+
+      expect(await screen.findByLabelText(SIGN_IN_COPY.emailLabel)).toHaveValue('jess@example.com');
+    });
+
+    it('ignores the remembered passkey when the flag is off', async () => {
+      remember();
+
+      await renderSignIn();
+
+      expect(await screen.findByLabelText(SIGN_IN_COPY.emailLabel)).toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: SIGN_IN_COPY.passkey.submit }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('ignores the remembered passkey when the browser cannot do passkeys', async () => {
+      remember();
+      vi.mocked(browserSupportsWebAuthn).mockReturnValue(false);
+
+      await renderSignIn(PASSKEYS_ON);
+
+      expect(await screen.findByLabelText(SIGN_IN_COPY.emailLabel)).toBeInTheDocument();
+    });
+
+    it('shows the plain email form on a new device even with the flag on', async () => {
+      await renderSignIn(PASSKEYS_ON);
+
+      expect(await screen.findByLabelText(SIGN_IN_COPY.emailLabel)).toHaveValue('');
+    });
   });
 });
