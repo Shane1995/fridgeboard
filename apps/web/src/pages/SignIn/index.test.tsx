@@ -1,6 +1,3 @@
-import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/web/constants';
-import { RemoteConfigContext } from '../../Context/RemoteConfig';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   createMemoryHistory,
   createRootRoute,
@@ -12,22 +9,13 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { APP_LOADER_COPY } from '../../components/AppLoader/constants';
 import { SIGN_IN_COPY } from './constants';
 import { SignIn } from '.';
-import { SessionContext } from '../../Context/Session';
-import type { SessionContextValue } from '../../Context/Session/types';
+import { createSession } from '../../testUtils/createSession';
+import { TestProviders } from '../../testUtils/TestProviders';
 import { SessionStatus } from '../../services/session/constants';
 
-const startSignIn = vi.fn();
-const verifyCode = vi.fn();
-const signOut = vi.fn();
-const apiFetch = vi.fn();
-let session: SessionContextValue = {
-  status: SessionStatus.SignedOut,
-  startSignIn,
-  verifyCode,
-  signOut,
-  refresh: vi.fn(),
-  apiFetch,
-};
+const fixture = createSession(SessionStatus.SignedOut);
+const { startSignIn } = fixture;
+let session = fixture.session;
 
 const renderSignIn = async () => {
   const rootRoute = createRootRoute();
@@ -46,13 +34,9 @@ const renderSignIn = async () => {
     history: createMemoryHistory({ initialEntries: ['/sign-in'] }),
   });
   render(
-    <RemoteConfigContext.Provider value={DEFAULT_WEB_CONFIGURATION}>
-      <SessionContext.Provider value={session}>
-        <QueryClientProvider client={new QueryClient()}>
-          <RouterProvider router={router} />
-        </QueryClientProvider>
-      </SessionContext.Provider>
-    </RemoteConfigContext.Provider>,
+    <TestProviders session={session}>
+      <RouterProvider router={router} />
+    </TestProviders>,
   );
   return router;
 };

@@ -1,6 +1,3 @@
-import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/web/constants';
-import { RemoteConfigContext } from '../../Context/RemoteConfig';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   createMemoryHistory,
   createRootRoute,
@@ -12,22 +9,11 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { SIGN_IN_COPY } from '../SignIn/constants';
 import { JOIN_COPY } from './constants';
 import { Join } from '.';
-import { SessionContext } from '../../Context/Session';
-import type { SessionContextValue } from '../../Context/Session/types';
+import { createSession } from '../../testUtils/createSession';
+import { TestProviders } from '../../testUtils/TestProviders';
 import { SessionStatus } from '../../services/session/constants';
 
-const startSignIn = vi.fn();
-const verifyCode = vi.fn();
-const signOut = vi.fn();
-const apiFetch = vi.fn();
-const session: SessionContextValue = {
-  status: SessionStatus.SignedOut,
-  startSignIn,
-  verifyCode,
-  signOut,
-  refresh: vi.fn(),
-  apiFetch,
-};
+const { session } = createSession(SessionStatus.SignedOut);
 
 const stubDisplayMode = (standalone: boolean) =>
   vi.stubGlobal('matchMedia', (query: string) => ({
@@ -46,13 +32,9 @@ const renderJoin = () => {
     history: createMemoryHistory({ initialEntries: ['/join'] }),
   });
   render(
-    <RemoteConfigContext.Provider value={DEFAULT_WEB_CONFIGURATION}>
-      <SessionContext.Provider value={session}>
-        <QueryClientProvider client={new QueryClient()}>
-          <RouterProvider router={router} />
-        </QueryClientProvider>
-      </SessionContext.Provider>
-    </RemoteConfigContext.Provider>,
+    <TestProviders session={session}>
+      <RouterProvider router={router} />
+    </TestProviders>,
   );
 };
 

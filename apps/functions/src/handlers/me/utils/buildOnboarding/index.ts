@@ -9,9 +9,10 @@ export const buildOnboarding = ({
   hasHousehold,
 }: OnboardingInput): IOnboardingSection[] => {
   const mayCreate = canCreateHousehold || isAdmin;
-  return [
-    { id: 'username', done: username !== null },
-    ...(mayCreate ? [{ id: 'household' as const, done: hasHousehold }] : []),
-    ...(!mayCreate && !hasHousehold ? [{ id: 'needs-invite' as const, done: false }] : []),
-  ];
+  const householdSections: IOnboardingSection[] = mayCreate
+    ? [{ id: 'household', done: hasHousehold }]
+    : [];
+  const inviteSections: IOnboardingSection[] =
+    !mayCreate && !hasHousehold ? [{ id: 'needs-invite', done: false }] : [];
+  return [{ id: 'username', done: username !== null }, ...householdSections, ...inviteSections];
 };

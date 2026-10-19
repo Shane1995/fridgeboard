@@ -1,8 +1,7 @@
 import type { IOnboardingSection, OnboardingSectionId } from '@fridgeboard/contract/me';
 import { KNOWN_SECTIONS } from '../../../../utils/getPendingSection/constants';
 import { ONBOARDING_COPY } from '../../constants';
-
-const NON_STEP_SECTIONS: readonly OnboardingSectionId[] = ['needs-invite'];
+import { NON_STEP_SECTIONS } from './constants';
 
 export const getProgress = (
   sections: IOnboardingSection[],

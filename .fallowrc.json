@@ -4,6 +4,7 @@
     "apps/web/src/main.tsx",
     "apps/web/src/app/router/types.ts",
     "apps/web/src/routes/**/*.tsx",
+    "apps/web/src/testUtils/**/*.{ts,tsx}",
     "apps/web/scripts/thirdPartyLicenses/index.ts",
     "apps/web/src/hooks/useFeatureFlag/index.ts",
     "apps/functions/src/handlers/*/index.ts",

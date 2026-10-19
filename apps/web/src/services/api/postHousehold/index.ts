@@ -2,13 +2,8 @@ import type {
   ICreateHouseholdErrorResponse,
   ICreateHouseholdResponse,
 } from '@fridgeboard/contract/households';
+import { REASONS } from './constants';
 import type { PostHouseholdResult } from './types';
-
-const REASONS: readonly ICreateHouseholdErrorResponse['reason'][] = [
-  'invalid-name',
-  'not-allowed',
-  'household-exists',
-];
 
 export const postHousehold = async (
   householdsPath: string,

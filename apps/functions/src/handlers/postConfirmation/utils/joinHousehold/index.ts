@@ -8,9 +8,11 @@ import { householdMetaKey } from '../../../../utils/keys/householdMetaKey/index.
 import { membershipKey } from '../../../../utils/keys/membershipKey/index.ts';
 import { CONDITION_FAILED } from '../../constants.ts';
 import {
+  HOUSEHOLD_EXISTS_CONDITION,
   HOUSEHOLD_NOT_FOUND_ERROR,
   HOUSEHOLD_REASON_INDEX,
   MEMBER_ROLE,
+  MEMBERSHIP_NOT_EXISTS_CONDITION,
   MEMBERSHIP_REASON_INDEX,
 } from './constants.ts';
 import type { JoinHouseholdParams } from './types.ts';
@@ -28,7 +30,7 @@ export const joinHousehold = async (
             ConditionCheck: {
               TableName,
               Key: householdMetaKey(hhId),
-              ConditionExpression: 'attribute_exists(PK)',
+              ConditionExpression: HOUSEHOLD_EXISTS_CONDITION,
             },
           },
           {
@@ -39,7 +41,7 @@ export const joinHousehold = async (
                 role: MEMBER_ROLE,
                 joinedAt: new Date().toISOString(),
               },
-              ConditionExpression: 'attribute_not_exists(PK)',
+              ConditionExpression: MEMBERSHIP_NOT_EXISTS_CONDITION,
             },
           },
           { Delete: { TableName, Key: invite } },
