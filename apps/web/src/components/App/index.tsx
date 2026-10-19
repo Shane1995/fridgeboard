@@ -1,9 +1,12 @@
 import { QueryClientProvider } from '@tanstack/react-query';
+import { RouterProvider } from '@tanstack/react-router';
 import { queryClient } from '../../services/queryClient';
-import { AppShell } from './components/AppShell';
+import { router } from '../../app/router';
 
-export const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AppShell />
-  </QueryClientProvider>
-);
+export const App = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
+  );
+};
