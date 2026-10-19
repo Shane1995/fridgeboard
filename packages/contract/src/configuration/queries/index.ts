@@ -14,7 +14,11 @@ export const QueryEntrySchema = z.strictObject({
   refetchOnWindowFocus: z.optional(z.boolean()),
 });
 
-export const QueryEntriesSchema = z.partialRecord(
-  z.enum([...QUERY_NAMES, DEFAULT_ENTRY]),
-  QueryEntrySchema,
-);
+export const QueryEntriesSchema = z
+  .partialRecord(z.enum([...QUERY_NAMES, DEFAULT_ENTRY]), QueryEntrySchema)
+  .check(
+    z.refine(
+      (entries) => (entries.me?.staleTimeMs ?? 0) <= QUERY_BOUNDS.meStaleTimeMs.max,
+      'me staleTimeMs exceeds the allowed maximum',
+    ),
+  );

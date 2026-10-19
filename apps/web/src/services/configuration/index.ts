@@ -12,7 +12,10 @@ import {
   WEB_SERVICES,
   WebService,
 } from '@fridgeboard/contract/configuration/services/constants';
-import { MUTATION_NAMES } from '@fridgeboard/contract/configuration/mutations/constants';
+import { CONFIGURABLE_MUTATION_NAMES } from '@fridgeboard/contract/configuration/mutations/constants';
+import { MutationEntrySchema } from '@fridgeboard/contract/configuration/mutations';
+import { QueryEntrySchema } from '@fridgeboard/contract/configuration/queries';
+import { stripUnknownEntryKeys } from '@fridgeboard/contract/configuration/stripUnknownEntryKeys';
 import { DEFAULT_ENTRY, QUERY_NAMES } from '@fridgeboard/contract/configuration/queries/constants';
 import {
   DEFAULT_WEB_SETTINGS,
@@ -32,7 +35,12 @@ const stripUnknown = (raw: unknown): unknown =>
     (value: unknown) => stripUnknownServices(value, WEB_SERVICES),
     (value: unknown) => stripUnknownKeys(value, 'settings', WEB_SETTINGS),
     (value: unknown) => stripUnknownKeys(value, 'queries', [...QUERY_NAMES, DEFAULT_ENTRY]),
-    (value: unknown) => stripUnknownKeys(value, 'mutations', [...MUTATION_NAMES, DEFAULT_ENTRY]),
+    (value: unknown) =>
+      stripUnknownKeys(value, 'mutations', [...CONFIGURABLE_MUTATION_NAMES, DEFAULT_ENTRY]),
+    (value: unknown) =>
+      stripUnknownEntryKeys(value, 'queries', Object.keys(QueryEntrySchema.shape)),
+    (value: unknown) =>
+      stripUnknownEntryKeys(value, 'mutations', Object.keys(MutationEntrySchema.shape)),
   ].reduce((value, strip) => strip(value), raw);
 
 export const getConfiguration = async (): Promise<WebConfiguration> => {

@@ -16,7 +16,7 @@ export const LAMBDA_SETTINGS = Object.values(LAMBDA_SETTING);
 export const SETTING_BOUNDS = {
   refreshLeadMs: { min: 5_000, max: 300_000 },
   refreshMinIntervalMs: { min: 10_000, max: 600_000 },
-  flowTtlMs: { min: 60_000, max: 600_000 },
+  flowTtlMs: { min: 60_000, max: 300_000 },
 } as const;
 
 export const DEFAULT_WEB_SETTINGS: WebSettings = {

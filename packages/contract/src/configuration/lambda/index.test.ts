@@ -34,8 +34,8 @@ describe('LambdaConfigurationSchema', () => {
       { version: 1, featureFlags: {}, services: {}, settings: { flowTtlMs: 59_999 } },
     ],
     [
-      'a flow ttl above 600s',
-      { version: 1, featureFlags: {}, services: {}, settings: { flowTtlMs: 600_001 } },
+      'a flow ttl above 300s',
+      { version: 1, featureFlags: {}, services: {}, settings: { flowTtlMs: 300_001 } },
     ],
     ['an unknown setting', { version: 1, featureFlags: {}, services: {}, settings: { other: 1 } }],
     ['any flag', { version: 1, featureFlags: { ENABLE_ADMIN_INVITES: true }, services: {} }],

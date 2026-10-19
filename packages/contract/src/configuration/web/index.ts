@@ -5,7 +5,7 @@ import { WEB_SERVICES } from '../services/constants.ts';
 import { MutationEntriesSchema } from '../mutations/index.ts';
 import { QueryEntriesSchema } from '../queries/index.ts';
 import { WebSettingsSchema } from '../settings/index.ts';
-import { API_URL_PATTERN, SAME_ORIGIN_PATH_PATTERN } from './constants.ts';
+import { API_URL_PATTERN, SAFE_URL_PATTERN, SAME_ORIGIN_PATH_PATTERN } from './constants.ts';
 
 export const WebConfigurationSchema = z.strictObject({
   ...baseConfigurationShape,
@@ -15,6 +15,14 @@ export const WebConfigurationSchema = z.strictObject({
   featureFlags: z.partialRecord(z.enum(WEB_FEATURE_FLAGS), z.boolean()),
   services: z.partialRecord(
     z.enum(WEB_SERVICES),
-    serviceSchemaFor(z.string().check(z.regex(SAME_ORIGIN_PATH_PATTERN), z.regex(API_URL_PATTERN))),
+    serviceSchemaFor(
+      z
+        .string()
+        .check(
+          z.regex(SAME_ORIGIN_PATH_PATTERN),
+          z.regex(API_URL_PATTERN),
+          z.regex(SAFE_URL_PATTERN),
+        ),
+    ),
   ),
 });

@@ -4,4 +4,4 @@ import type { MutationName } from './constants.ts';
 
 export type MutationEntry = z.infer<typeof MutationEntrySchema>;
 
-export type MutationEntries = Partial<Record<MutationName | 'default', MutationEntry>>;
+export type MutationEntries = Partial<Record<MutationName.signOut | 'default', MutationEntry>>;

@@ -106,6 +106,33 @@ describe('getConfiguration', () => {
     await expect(getConfiguration()).resolves.toEqual(DEFAULT_WEB_CONFIGURATION);
   });
 
+  it('ignores unknown keys inside query and mutation entries', async () => {
+    respond({
+      version: 1,
+      featureFlags: {},
+      services: {},
+      queries: { me: { retry: 1, removed: true } },
+      mutations: { signOut: { retry: 1, removed: true } },
+    });
+
+    await expect(getConfiguration()).resolves.toEqual({
+      ...DEFAULT_WEB_CONFIGURATION,
+      queries: { me: { retry: 1 } },
+      mutations: { signOut: { retry: 1 } },
+    });
+  });
+
+  it('rejects a configurable mutation name for sign-in mutations', async () => {
+    respond({
+      version: 1,
+      featureFlags: {},
+      services: {},
+      mutations: { verifyCode: { retry: 1 } },
+    });
+
+    await expect(getConfiguration()).resolves.toEqual(DEFAULT_WEB_CONFIGURATION);
+  });
+
   it('rejects a setting outside its bounds', async () => {
     respond({ version: 1, featureFlags: {}, services: {}, settings: { refreshLeadMs: 1 } });
 

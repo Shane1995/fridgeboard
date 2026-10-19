@@ -13,7 +13,10 @@ export const applyTokens = (
   bumpEpoch();
   updateSession({ accessToken, status: SessionStatus.SignedIn, lastRefreshAt: Date.now() });
   scheduleRefresh(
-    Math.max(0, expiresIn * MS_PER_SECOND - getSetting(WEB_SETTING.refreshLeadMs)),
+    Math.max(
+      getSetting(WEB_SETTING.refreshMinIntervalMs),
+      expiresIn * MS_PER_SECOND - getSetting(WEB_SETTING.refreshLeadMs),
+    ),
     onExpiring,
   );
 };

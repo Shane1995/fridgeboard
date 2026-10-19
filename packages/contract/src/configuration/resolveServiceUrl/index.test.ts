@@ -16,7 +16,15 @@ describe('resolveServiceUrl', () => {
   });
 
   it('percent-encodes substituted values', () => {
-    expect(resolveServiceUrl({ url: '/api/{id}' }, { id: '../x y' })).toBe('/api/..%2Fx%20y');
+    expect(resolveServiceUrl({ url: '/api/{id}' }, { id: 'x y/z' })).toBe('/api/x%20y%2Fz');
+  });
+
+  it.each(['..', '../x', 'a..b'])('throws when a value resolves to a traversal: %s', (id) => {
+    expect(() => resolveServiceUrl({ url: '/api/{id}' }, { id })).toThrow('safe api path');
+  });
+
+  it('throws when the resolved path leaves /api/', () => {
+    expect(() => resolveServiceUrl({ url: '/x/{id}' }, { id: 'api' })).toThrow('safe api path');
   });
 
   it('throws on an unresolved placeholder', () => {

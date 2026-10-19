@@ -2,6 +2,7 @@ import type { MutationEntry } from '@fridgeboard/contract/configuration/mutation
 import type { QueryEntry } from '@fridgeboard/contract/configuration/queries/types';
 import type { WebConfiguration } from '@fridgeboard/contract/configuration/web/types';
 import type { QueryClient } from '@tanstack/react-query';
+import { NON_RETRYABLE_MUTATION_NAMES } from '@fridgeboard/contract/configuration/mutations/constants';
 import { toMutationOptions } from '../toMutationOptions';
 import { toQueryOptions } from '../toQueryOptions';
 
@@ -23,6 +24,9 @@ export const applyQuerySettings = (
     });
   }
 
+  NON_RETRYABLE_MUTATION_NAMES.forEach((name) => {
+    queryClient.setMutationDefaults([name], { retry: 0 });
+  });
   Object.entries(namedQueries).forEach(([name, entry]: [string, QueryEntry]) => {
     queryClient.setQueryDefaults([name], toQueryOptions(entry));
   });

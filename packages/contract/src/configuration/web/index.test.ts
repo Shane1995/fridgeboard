@@ -33,6 +33,14 @@ describe('WebConfigurationSchema', () => {
     expect(result.success).toBe(true);
   });
 
+  it('accepts the maximum me stale time and other queries up to an hour', () => {
+    const result = WebConfigurationSchema.safeParse({
+      ...BASE,
+      queries: { me: { staleTimeMs: 300_000 }, default: { staleTimeMs: 3_600_000 } },
+    });
+    expect(result.success).toBe(true);
+  });
+
   it.each([
     ['unknown flag', { version: 1, featureFlags: { NOPE: true }, services: {} }],
     ['unknown top-level key', { version: 1, featureFlags: {}, services: {}, extra: 1 }],
@@ -73,7 +81,47 @@ describe('WebConfigurationSchema', () => {
     ['non-boolean refetchOnWindowFocus', { ...BASE, queries: { me: { refetchOnWindowFocus: 1 } } }],
     ['unknown mutation name', { ...BASE, mutations: { other: { retry: 1 } } }],
     ['unknown mutation field', { ...BASE, mutations: { signOut: { staleTimeMs: 1 } } }],
-    ['mutation retry above 5', { ...BASE, mutations: { default: { retry: 6 } } }],
+    ['mutation retry above 2', { ...BASE, mutations: { default: { retry: 3 } } }],
+    ['service url with traversal', { ...BASE, services: { me: { url: '/api/../x' } } }],
+    ['service url with percent', { ...BASE, services: { me: { url: '/api/%2e/x' } } }],
+    ['service url with query', { ...BASE, services: { me: { url: '/api/x?a=1' } } }],
+    ['service url with fragment', { ...BASE, services: { me: { url: '/api/x#a' } } }],
+    ['service url with double slash', { ...BASE, services: { me: { url: '/api//x' } } }],
+    ['service url with backslash', { ...BASE, services: { me: { url: '/api/x\\y' } } }],
+    ['service url with whitespace', { ...BASE, services: { me: { url: '/api/x y' } } }],
+    ['shared param empty value', { ...BASE, params: { version: '' } }],
+    [
+      'service param empty value',
+      { ...BASE, services: { me: { url: '/api/x', params: { version: '' } } } },
+    ],
+    ['shared param long value', { ...BASE, params: { version: 'a'.repeat(17) } }],
+    [
+      'service param long value',
+      { ...BASE, services: { me: { url: '/api/x', params: { version: 'a'.repeat(17) } } } },
+    ],
+    ['shared param dotted value', { ...BASE, params: { version: '..' } }],
+    [
+      'service param dotted value',
+      { ...BASE, services: { me: { url: '/api/x', params: { version: '..' } } } },
+    ],
+    ['shared param slash value', { ...BASE, params: { version: 'a/b' } }],
+    [
+      'service param slash value',
+      { ...BASE, services: { me: { url: '/api/x', params: { version: 'a/b' } } } },
+    ],
+    ['shared param digit-leading name', { ...BASE, params: { '1v': 'x' } }],
+    [
+      'service param digit-leading name',
+      { ...BASE, services: { me: { url: '/api/x', params: { '1v': 'x' } } } },
+    ],
+    ['shared param long name', { ...BASE, params: { ['a'.repeat(33)]: 'x' } }],
+    [
+      'service param long name',
+      { ...BASE, services: { me: { url: '/api/x', params: { ['a'.repeat(33)]: 'x' } } } },
+    ],
+    ['me stale time above 5 minutes', { ...BASE, queries: { me: { staleTimeMs: 300_001 } } }],
+    ['startSignIn mutation entry', { ...BASE, mutations: { startSignIn: { retry: 0 } } }],
+    ['verifyCode mutation entry', { ...BASE, mutations: { verifyCode: { retry: 0 } } }],
     ['non-string param', { version: 1, featureFlags: {}, params: { version: 2 }, services: {} }],
   ])('rejects %s', (_name, input) => {
     expect(WebConfigurationSchema.safeParse(input).success).toBe(false);
