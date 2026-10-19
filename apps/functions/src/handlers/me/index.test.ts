@@ -68,6 +68,7 @@ describe('me handler', () => {
     expect(JSON.parse(result.body ?? '')).toEqual({
       sub: 'sub-1',
       email: 'jess@example.com',
+      username: null,
       isAdmin: false,
       canCreateHousehold: true,
       households: [],

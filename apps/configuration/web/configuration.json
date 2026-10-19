@@ -31,6 +31,12 @@
       "params": {
         "version": "v1"
       }
+    },
+    "username": {
+      "url": "/api/{version}/username",
+      "params": {
+        "version": "v1"
+      }
     }
   },
   "settings": {

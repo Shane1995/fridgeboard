@@ -115,7 +115,7 @@ jobs:
         run: |
           set -euo pipefail
           : > "$RUNNER_TEMP/flipped"
-          for spec in auth:auth:wrapped me:me:wrapped preSignUp:pre-sign-up:pre-sign-up postConfirmation:post-confirmation:post-confirmation; do
+          for spec in auth:auth:wrapped me:me:wrapped username:username:wrapped preSignUp:pre-sign-up:pre-sign-up postConfirmation:post-confirmation:post-confirmation; do
             IFS=: read -r dir name kind <<< "$spec"
             fn="fridgeboard-$name"
             zip -j "$RUNNER_TEMP/$dir.zip" "api-dist/$dir/index.mjs"

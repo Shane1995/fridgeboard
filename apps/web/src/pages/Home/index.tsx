@@ -21,7 +21,7 @@ export const Home = () => {
       <p className="text-lg">{HOME_COPY.tagline}</p>
       {data && (
         <p>
-          {HOME_COPY.signedInAs} {data.email}
+          {HOME_COPY.signedInAs} {data.username ?? data.email}
         </p>
       )}
       <Button isDisabled>

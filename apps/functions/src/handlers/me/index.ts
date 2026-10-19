@@ -44,6 +44,7 @@ export const handler = withVerifiedOrigin(
     const body: IMeResponse = {
       sub,
       email: String(profile.email),
+      username: typeof profile.username === 'string' ? profile.username : null,
       isAdmin: parseGroups(claims[GROUPS_CLAIM]).includes(ADMIN_GROUP),
       canCreateHousehold: profile.canCreateHousehold === true,
       households,

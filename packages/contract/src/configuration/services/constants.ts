@@ -6,6 +6,7 @@ export enum WebService {
   refresh = 'refresh',
   signOut = 'signOut',
   me = 'me',
+  username = 'username',
 }
 
 export const WEB_SERVICES = Object.values(WebService);
@@ -30,4 +31,5 @@ export const DEFAULT_WEB_SERVICES: Record<WebService, ServiceDefinition> = {
     params: DEFAULT_SERVICE_PARAMS,
   },
   [WebService.me]: { url: '/api/{version}/me', params: DEFAULT_SERVICE_PARAMS },
+  [WebService.username]: { url: '/api/{version}/username', params: DEFAULT_SERVICE_PARAMS },
 };

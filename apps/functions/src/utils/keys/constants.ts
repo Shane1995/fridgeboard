@@ -4,3 +4,5 @@ export const USER_PK_PREFIX = 'USER#';
 export const PROFILE_SK = 'PROFILE';
 export const HOUSEHOLD_PK_PREFIX = 'HH#';
 export const HOUSEHOLD_META_SK = 'META';
+export const USERNAME_PK_PREFIX = 'USERNAME#';
+export const USERNAME_SK = 'USERNAME';
