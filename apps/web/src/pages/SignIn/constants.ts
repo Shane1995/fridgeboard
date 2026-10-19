@@ -20,10 +20,12 @@ export const SIGN_IN_COPY = {
   passkey: {
     title: 'Welcome back',
     intro: 'Sign in as',
-    submit: 'Sign in with Face ID',
+    submit: 'Sign in with a passkey',
     signingIn: 'Checking…',
     useCode: 'Use an email code instead',
-    cancelled: 'Face ID was cancelled. Try again or use an email code.',
+    cancelled: 'Passkey sign-in was cancelled. Try again or use an email code.',
+    noPasskey: 'No passkey found for this email. Use "Email me a code" instead.',
+    emailRequired: 'Enter your email first.',
   },
   reasons: {
     'no-invite': 'No invite found for this email. Ask whoever invited you to send one.',
@@ -34,9 +36,10 @@ export const SIGN_IN_COPY = {
     forbidden: "This account can't use Fridgeboard.",
     unauthorised: 'Please sign in again.',
     'recent-code-required': 'For safety, sign in with an email code first, then try again.',
-    'passkey-failed': "Face ID didn't work. Use an email code instead.",
+    'passkey-failed': "That passkey didn't work. Use an email code instead.",
     unknown: 'Something went wrong. Please try again.',
   } satisfies Record<FailureReason, string>,
 } as const;
 
 export const CODE_PATTERN = '\\d{6,8}';
+export const EMAIL_MARKER = '@';
