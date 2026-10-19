@@ -15,8 +15,11 @@
     "./configuration/lambda/types": "./src/configuration/lambda/types.ts",
     "./configuration/flags/constants": "./src/configuration/flags/constants.ts",
     "./configuration/flags/types": "./src/configuration/flags/types.ts",
+    "./configuration/services/constants": "./src/configuration/services/constants.ts",
+    "./configuration/services/types": "./src/configuration/services/types.ts",
     "./configuration/resolveServiceUrl": "./src/configuration/resolveServiceUrl/index.ts",
-    "./configuration/stripUnknownFlags": "./src/configuration/stripUnknownFlags/index.ts"
+    "./configuration/stripUnknownFlags": "./src/configuration/stripUnknownFlags/index.ts",
+    "./configuration/stripUnknownServices": "./src/configuration/stripUnknownServices/index.ts"
   },
   "scripts": {
     "typecheck": "tsc -b",

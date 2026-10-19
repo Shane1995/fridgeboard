@@ -5,6 +5,7 @@ const ServiceParamsSchema = z.record(z.string(), z.string());
 
 export const baseConfigurationShape = {
   version: z.literal(CONFIGURATION_VERSION),
+  params: z.optional(ServiceParamsSchema),
 };
 
 export const serviceSchemaFor = (urlSchema: z.ZodMiniString) =>

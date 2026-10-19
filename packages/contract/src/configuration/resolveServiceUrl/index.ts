@@ -4,8 +4,9 @@ import type { ServiceDefinition } from './types.ts';
 export const resolveServiceUrl = (
   service: ServiceDefinition,
   values: Record<string, string> = {},
+  sharedParams: Record<string, string> = {},
 ): string => {
-  const merged = { ...service.params, ...values };
+  const merged = { ...sharedParams, ...service.params, ...values };
 
   return service.url.replace(PLACEHOLDER_PATTERN, (_match, name: string) => {
     const value = merged[name];

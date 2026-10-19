@@ -22,4 +22,12 @@ describe('resolveServiceUrl', () => {
   it('throws on an unresolved placeholder', () => {
     expect(() => resolveServiceUrl({ url: '/api/{id}' })).toThrow('Unresolved placeholder {id}');
   });
+
+  it('layers shared params under service params under call values', () => {
+    const service = { url: '/api/{a}/{b}/{c}', params: { b: 'service', c: 'service' } };
+
+    expect(
+      resolveServiceUrl(service, { c: 'call' }, { a: 'shared', b: 'shared', c: 'shared' }),
+    ).toBe('/api/shared/service/call');
+  });
 });

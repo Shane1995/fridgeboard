@@ -1,4 +1,4 @@
-import { API_PATHS } from '@fridgeboard/contract/auth/constants';
+import { WEB_SERVICE } from '@fridgeboard/contract/configuration/services/constants';
 import { UNAUTHORISED_STATUS } from '../../../../constants';
 import { applyTokens } from '../../../applyTokens';
 import { clearSession } from '../../../clearSession';
@@ -8,12 +8,13 @@ import { getSession } from '../../../getSession';
 import { updateSession } from '../../../updateSession';
 import { isTokenResponse } from '../../../utils/isTokenResponse';
 import { postAuth } from '../../../utils/postAuth';
+import { getServicePath } from '../../../../configuration';
 
 export const exchangeRefreshCookie = async (
   onExpiring: () => Promise<boolean>,
 ): Promise<boolean> => {
   const epoch = getEpoch();
-  const response = await postAuth(API_PATHS.refresh).catch(() => undefined);
+  const response = await postAuth(await getServicePath(WEB_SERVICE.refresh)).catch(() => undefined);
   const body: unknown = response?.ok ? await response.json().catch(() => undefined) : undefined;
 
   if (getEpoch() !== epoch) {

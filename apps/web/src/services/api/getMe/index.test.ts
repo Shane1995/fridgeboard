@@ -3,6 +3,11 @@ import type { IMeResponse } from '@fridgeboard/contract/me';
 import { apiFetch } from '../apiFetch';
 import { getMe } from './index';
 
+vi.mock('../../configuration', async () => {
+  const { API_PATHS } = await import('@fridgeboard/contract/auth/constants');
+  return { getServicePath: async (service: keyof typeof API_PATHS) => API_PATHS[service] };
+});
+
 vi.mock('../apiFetch', () => ({ apiFetch: vi.fn() }));
 
 const ME: IMeResponse = {

@@ -7,5 +7,6 @@ export type LambdaConfigurationInput = z.infer<typeof LambdaConfigurationSchema>
 export type LambdaConfiguration = {
   version: 1;
   featureFlags: Record<LambdaFeatureFlag, boolean>;
+  params?: LambdaConfigurationInput['params'];
   services: LambdaConfigurationInput['services'];
 };

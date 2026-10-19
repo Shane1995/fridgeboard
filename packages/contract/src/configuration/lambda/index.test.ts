@@ -6,6 +6,17 @@ describe('LambdaConfigurationSchema', () => {
     expect(LambdaConfigurationSchema.safeParse(DEFAULT_LAMBDA_CONFIGURATION).success).toBe(true);
   });
 
+  it('accepts top-level params', () => {
+    expect(
+      LambdaConfigurationSchema.safeParse({
+        version: 1,
+        featureFlags: {},
+        params: { version: 'v1' },
+        services: {},
+      }).success,
+    ).toBe(true);
+  });
+
   it.each([
     ['any flag', { version: 1, featureFlags: { ENABLE_ADMIN_INVITES: true }, services: {} }],
     ['unknown top-level key', { version: 1, featureFlags: {}, services: {}, secret: 'x' }],

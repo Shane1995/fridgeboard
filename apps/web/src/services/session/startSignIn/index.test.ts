@@ -1,6 +1,11 @@
 import { API_PATHS } from '@fridgeboard/contract/auth/constants';
 import { startSignIn } from './index';
 
+vi.mock('../../configuration', async () => {
+  const { API_PATHS } = await import('@fridgeboard/contract/auth/constants');
+  return { getServicePath: async (service: keyof typeof API_PATHS) => API_PATHS[service] };
+});
+
 const fetchMock = vi.fn<typeof fetch>();
 
 describe('startSignIn', () => {
