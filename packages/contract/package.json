@@ -6,15 +6,30 @@
   "exports": {
     "./auth": "./src/auth/types.ts",
     "./auth/constants": "./src/auth/constants.ts",
-    "./me": "./src/me/types.ts"
+    "./me": "./src/me/types.ts",
+    "./configuration/web": "./src/configuration/web/index.ts",
+    "./configuration/web/constants": "./src/configuration/web/constants.ts",
+    "./configuration/web/types": "./src/configuration/web/types.ts",
+    "./configuration/lambda": "./src/configuration/lambda/index.ts",
+    "./configuration/lambda/constants": "./src/configuration/lambda/constants.ts",
+    "./configuration/lambda/types": "./src/configuration/lambda/types.ts",
+    "./configuration/flags/constants": "./src/configuration/flags/constants.ts",
+    "./configuration/flags/types": "./src/configuration/flags/types.ts",
+    "./configuration/resolveServiceUrl": "./src/configuration/resolveServiceUrl/index.ts",
+    "./configuration/stripUnknownFlags": "./src/configuration/stripUnknownFlags/index.ts"
   },
   "scripts": {
     "typecheck": "tsc -b",
     "lint": "oxlint --config ../../.oxlintrc.json src/",
     "format": "oxfmt src/",
-    "format:check": "oxfmt --check src/"
+    "format:check": "oxfmt --check src/",
+    "test": "vitest run"
   },
   "devDependencies": {
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  },
+  "dependencies": {
+    "zod": "4.6.7"
   }
 }
