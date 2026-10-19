@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { getMe } from '../../services/api/getMe';
+import { clearSession } from '../../services/session/clearSession';
 import { useMeQuery } from './index';
 
 vi.mock('../../services/api/getMe', () => ({ getMe: vi.fn() }));
@@ -25,5 +26,14 @@ describe('useMeQuery', () => {
     const { result } = renderHook(() => useMeQuery(), { wrapper });
 
     await waitFor(() => expect(result.current.data).toEqual(ME));
+  });
+
+  it('does not request /me once signed out', async () => {
+    clearSession();
+    renderHook(() => useMeQuery(), { wrapper });
+
+    await Promise.resolve();
+
+    expect(getMe).not.toHaveBeenCalled();
   });
 });
