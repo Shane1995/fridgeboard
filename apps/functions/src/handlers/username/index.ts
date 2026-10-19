@@ -44,7 +44,8 @@ export const handler = withVerifiedOrigin(
               Put: {
                 TableName,
                 Item: { ...usernameKey(username), sub },
-                ConditionExpression: 'attribute_not_exists(PK) OR sub = :sub',
+                ConditionExpression: 'attribute_not_exists(PK) OR #sub = :sub',
+                ExpressionAttributeNames: { '#sub': 'sub' },
                 ExpressionAttributeValues: { ':sub': sub },
               },
             },

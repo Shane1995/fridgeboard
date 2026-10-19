@@ -94,7 +94,8 @@ describe('username handler', () => {
     expect(items?.[0]?.Put).toMatchObject({
       TableName: 'fridgeboard',
       Item: { PK: 'USERNAME#jess_99', SK: 'USERNAME', sub: 'sub-1' },
-      ConditionExpression: 'attribute_not_exists(PK) OR sub = :sub',
+      ConditionExpression: 'attribute_not_exists(PK) OR #sub = :sub',
+      ExpressionAttributeNames: { '#sub': 'sub' },
       ExpressionAttributeValues: { ':sub': 'sub-1' },
     });
     expect(items?.[1]?.Update).toMatchObject({
