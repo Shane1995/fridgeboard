@@ -1,6 +1,8 @@
 import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/web/constants';
-import { WEB_SERVICE } from '@fridgeboard/contract/configuration/services/constants';
-import { queryClient } from '../queryClient';
+import { WebService } from '@fridgeboard/contract/configuration/services/constants';
+import { setConfiguration } from './setConfiguration';
+import { WEB_SETTING } from '@fridgeboard/contract/configuration/settings/constants';
+import { getSetting } from './getSetting';
 import { getConfiguration, getServicePath } from './index';
 
 const respond = (body: unknown, status = 200) =>
@@ -8,7 +10,7 @@ const respond = (body: unknown, status = 200) =>
 
 afterEach(() => {
   vi.restoreAllMocks();
-  queryClient.clear();
+  setConfiguration(DEFAULT_WEB_CONFIGURATION);
 });
 
 describe('getConfiguration', () => {
@@ -70,6 +72,64 @@ describe('getConfiguration', () => {
     await expect(getConfiguration()).resolves.toEqual(DEFAULT_WEB_CONFIGURATION);
   });
 
+  it('merges served settings over the defaults', async () => {
+    respond({ version: 1, featureFlags: {}, services: {}, settings: { refreshLeadMs: 10_000 } });
+
+    await expect(getConfiguration()).resolves.toEqual({
+      ...DEFAULT_WEB_CONFIGURATION,
+      settings: { refreshLeadMs: 10_000, refreshMinIntervalMs: 60_000 },
+    });
+  });
+
+  it('returns served query and mutation entries', async () => {
+    const queries = { default: { retry: 2 }, me: { staleTimeMs: 5_000 } };
+    const mutations = { signOut: { retry: 0 } };
+    respond({ version: 1, featureFlags: {}, services: {}, queries, mutations });
+
+    await expect(getConfiguration()).resolves.toEqual({
+      ...DEFAULT_WEB_CONFIGURATION,
+      queries,
+      mutations,
+    });
+  });
+
+  it('ignores setting, query and mutation names the app does not know', async () => {
+    respond({
+      version: 1,
+      featureFlags: {},
+      services: {},
+      settings: { removed: 1 },
+      queries: { removed: { retry: 1 } },
+      mutations: { removed: { retry: 1 } },
+    });
+
+    await expect(getConfiguration()).resolves.toEqual(DEFAULT_WEB_CONFIGURATION);
+  });
+
+  it('rejects a setting outside its bounds', async () => {
+    respond({ version: 1, featureFlags: {}, services: {}, settings: { refreshLeadMs: 1 } });
+
+    await expect(getConfiguration()).resolves.toEqual(DEFAULT_WEB_CONFIGURATION);
+  });
+
+  it('stores the loaded configuration for getSetting', async () => {
+    respond({ version: 1, featureFlags: {}, services: {}, settings: { refreshLeadMs: 10_000 } });
+
+    await getConfiguration();
+
+    expect(getSetting(WEB_SETTING.refreshLeadMs)).toBe(10_000);
+  });
+
+  it('leaves the store untouched when the fetch fails', async () => {
+    respond({ version: 1, featureFlags: {}, services: {}, settings: { refreshLeadMs: 10_000 } });
+    await getConfiguration();
+    respond({}, 500);
+
+    await getConfiguration();
+
+    expect(getSetting(WEB_SETTING.refreshLeadMs)).toBe(10_000);
+  });
+
   it('falls back to defaults on a non-ok response', async () => {
     respond({}, 500);
 
@@ -90,40 +150,53 @@ describe('getConfiguration', () => {
 });
 
 describe('getServicePath', () => {
-  it('resolves the default path when the configuration is the defaults', async () => {
-    respond(DEFAULT_WEB_CONFIGURATION);
-
-    await expect(getServicePath(WEB_SERVICE.signOut)).resolves.toBe('/api/v1/auth/sign-out');
+  it('resolves the default path before any configuration has loaded', () => {
+    expect(getServicePath(WebService.signOut)).toBe('/api/v1/auth/sign-out');
   });
 
-  it('follows a served version bump', async () => {
-    respond({ version: 1, featureFlags: {}, params: { version: 'v2' }, services: {} });
-
-    await expect(getServicePath(WEB_SERVICE.me)).resolves.toBe('/api/v2/me');
-  });
-
-  it('reuses the cached configuration', async () => {
+  it('does not touch the network', () => {
     const spy = respond(DEFAULT_WEB_CONFIGURATION);
 
-    await getServicePath(WEB_SERVICE.me);
-    await getServicePath(WEB_SERVICE.start);
+    getServicePath(WebService.me);
 
-    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).not.toHaveBeenCalled();
   });
 
-  it('falls back to the default path when the request fails', async () => {
+  it('follows a served version bump once the configuration has loaded', async () => {
+    respond({ version: 1, featureFlags: {}, params: { version: 'v2' }, services: {} });
+
+    await getConfiguration();
+
+    expect(getServicePath(WebService.me)).toBe('/api/v2/me');
+  });
+
+  it('keeps the defaults when the fetch fails', async () => {
     vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('offline'));
 
-    await expect(getServicePath(WEB_SERVICE.verify)).resolves.toBe('/api/v1/auth/verify');
+    await getConfiguration();
+
+    expect(getServicePath(WebService.verify)).toBe('/api/v1/auth/verify');
   });
 
-  it('falls back to the default path when a served url has an unresolved placeholder', async () => {
+  it('keeps the last loaded configuration when a later fetch fails', async () => {
+    respond({ version: 1, featureFlags: {}, params: { version: 'v2' }, services: {} });
+    await getConfiguration();
+    vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('offline'));
+
+    await getConfiguration();
+
+    expect(getServicePath(WebService.me)).toBe('/api/v2/me');
+  });
+
+  it('falls back to the default path when a loaded url has an unresolved placeholder', async () => {
     respond({
       version: 1,
       featureFlags: {},
       services: { refresh: { url: '/api/{missing}/auth/refresh' } },
     });
 
-    await expect(getServicePath(WEB_SERVICE.refresh)).resolves.toBe('/api/v1/auth/refresh');
+    await getConfiguration();
+
+    expect(getServicePath(WebService.refresh)).toBe('/api/v1/auth/refresh');
   });
 });

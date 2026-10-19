@@ -1,5 +1,5 @@
 import { DEFAULT_WEB_FLAGS } from '@fridgeboard/contract/configuration/flags/constants';
-import type { WebFeatureFlag } from '@fridgeboard/contract/configuration/flags/types';
+import { WebFeatureFlag } from '@fridgeboard/contract/configuration/flags/constants';
 import { useConfigurationQuery } from '../useConfigurationQuery';
 
 export const useFeatureFlag = (flag: WebFeatureFlag): boolean => {

@@ -1,5 +1,5 @@
 import type { IVerifyRequest } from '@fridgeboard/contract/auth';
-import { WEB_SERVICE } from '@fridgeboard/contract/configuration/services/constants';
+import { WebService } from '@fridgeboard/contract/configuration/services/constants';
 import { applyTokens } from '../applyTokens';
 import { NEXT_STEP_STATUS, UNKNOWN_REASON } from '../constants';
 import { refreshSession } from '../refreshSession';
@@ -12,7 +12,7 @@ import { getServicePath } from '../../configuration';
 
 export const verifyCode = async (code: string): Promise<VerifyResult> => {
   const request: IVerifyRequest = { code };
-  const response = await postAuth(await getServicePath(WEB_SERVICE.verify), request);
+  const response = await postAuth(getServicePath(WebService.verify), request);
 
   if (!response.ok) {
     return { ok: false, reason: await readFailureReason(response) };

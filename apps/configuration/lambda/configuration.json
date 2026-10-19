@@ -1,5 +1,8 @@
 {
   "version": 1,
   "featureFlags": {},
-  "services": {}
+  "services": {},
+  "settings": {
+    "flowTtlMs": 180000
+  }
 }

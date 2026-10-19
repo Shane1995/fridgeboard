@@ -14,7 +14,11 @@ import { openFlow } from '../../utils/flowToken/openFlow/index.ts';
 import { sealFlow } from '../../utils/flowToken/sealFlow/index.ts';
 import { readCookie } from '../../utils/cookies/readCookie/index.ts';
 import type { AuthFlow } from '../../utils/flowToken/types.ts';
+import { DEFAULT_LAMBDA_CONFIGURATION } from '@fridgeboard/contract/configuration/lambda/constants';
+import { getConfiguration } from '../../../../configuration/index.ts';
 import { verify } from './index.ts';
+
+vi.mock('../../../../configuration/index.ts', () => ({ getConfiguration: vi.fn() }));
 
 const cognitoMock = mockClient(CognitoIdentityProviderClient);
 
@@ -36,12 +40,13 @@ const CLEARED_FLOW_COOKIE =
 const buildRequest = (flow: AuthFlow, issuedAt = Date.now()) => ({
   body: JSON.stringify({ code: '123456' }),
   isBase64Encoded: false,
-  cookies: [`fb_auth_flow=${sealFlow(flow, SECRETS.flowKey, issuedAt)}`],
+  cookies: [`fb_auth_flow=${sealFlow(flow, SECRETS.flowKey, issuedAt, 180_000)}`],
 });
 
 describe('verify route', () => {
   beforeEach(() => {
     cognitoMock.reset();
+    vi.mocked(getConfiguration).mockResolvedValue(DEFAULT_LAMBDA_CONFIGURATION);
   });
 
   it('confirms sign-up and signs in with the returned session', async () => {
@@ -125,6 +130,19 @@ describe('verify route', () => {
     const result = await verify(buildRequest(SIGN_IN), SECRETS);
 
     expect(JSON.parse(result.body ?? '')).toEqual({ reason: 'expired' });
+  });
+
+  it('sets the next flow cookie lifetime from the configured ttl', async () => {
+    vi.mocked(getConfiguration).mockResolvedValue({
+      ...DEFAULT_LAMBDA_CONFIGURATION,
+      settings: { flowTtlMs: 90_000 },
+    });
+    cognitoMock.on(ConfirmSignUpCommand).resolves({});
+    cognitoMock.on(InitiateAuthCommand).resolves({ ChallengeName: 'EMAIL_OTP', Session: 's4' });
+
+    const result = await verify(buildRequest(SIGN_UP), SECRETS);
+
+    expect(result.cookies?.[0]).toMatch(/Max-Age=90$/);
   });
 
   it('starts an EMAIL_OTP sign-in when confirmation gives no session', async () => {

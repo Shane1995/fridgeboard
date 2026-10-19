@@ -6,7 +6,13 @@ import {
 import { LambdaConfigurationSchema } from '@fridgeboard/contract/configuration/lambda';
 import { DEFAULT_LAMBDA_CONFIGURATION } from '@fridgeboard/contract/configuration/lambda/constants';
 import type { LambdaConfiguration } from '@fridgeboard/contract/configuration/lambda/types';
+import {
+  DEFAULT_LAMBDA_SETTINGS,
+  LAMBDA_SETTINGS,
+} from '@fridgeboard/contract/configuration/settings/constants';
+import { mergeSettings } from '@fridgeboard/contract/configuration/settings/mergeSettings';
 import { stripUnknownFlags } from '@fridgeboard/contract/configuration/stripUnknownFlags';
+import { stripUnknownKeys } from '@fridgeboard/contract/configuration/stripUnknownKeys';
 import { CONFIGURATION_TTL_MS, DEFAULT_CONFIG_KEY } from './constants.ts';
 import type { ConfigurationCache } from './types.ts';
 
@@ -22,8 +28,14 @@ const fetchConfiguration = async (): Promise<LambdaConfiguration> => {
     }),
   );
   const raw: unknown = JSON.parse((await Body?.transformToString()) ?? '');
-  const parsed = LambdaConfigurationSchema.parse(stripUnknownFlags(raw, LAMBDA_FEATURE_FLAGS));
-  return { ...parsed, featureFlags: { ...DEFAULT_LAMBDA_FLAGS, ...parsed.featureFlags } };
+  const parsed = LambdaConfigurationSchema.parse(
+    stripUnknownKeys(stripUnknownFlags(raw, LAMBDA_FEATURE_FLAGS), 'settings', LAMBDA_SETTINGS),
+  );
+  return {
+    ...parsed,
+    featureFlags: { ...DEFAULT_LAMBDA_FLAGS, ...parsed.featureFlags },
+    settings: mergeSettings(DEFAULT_LAMBDA_SETTINGS, parsed.settings),
+  };
 };
 
 export const getConfiguration = async (): Promise<LambdaConfiguration> => {

@@ -15,4 +15,14 @@ describe('isFeatureEnabled', () => {
 
     await expect(isFeatureEnabled(FLAG)).resolves.toBe(true);
   });
+
+  it('is false for a flag the configuration does not carry', async () => {
+    vi.mocked(getConfiguration).mockResolvedValue({
+      version: 1,
+      featureFlags: {},
+      services: {},
+    } as never);
+
+    await expect(isFeatureEnabled(FLAG)).resolves.toBe(false);
+  });
 });

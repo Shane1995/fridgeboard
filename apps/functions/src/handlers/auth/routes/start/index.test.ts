@@ -12,7 +12,11 @@ import { mockClient } from 'aws-sdk-client-mock';
 import { openFlow } from '../../utils/flowToken/openFlow/index.ts';
 import { sealFlow } from '../../utils/flowToken/sealFlow/index.ts';
 import { readCookie } from '../../utils/cookies/readCookie/index.ts';
+import { DEFAULT_LAMBDA_CONFIGURATION } from '@fridgeboard/contract/configuration/lambda/constants';
+import { getConfiguration } from '../../../../configuration/index.ts';
 import { start } from './index.ts';
+
+vi.mock('../../../../configuration/index.ts', () => ({ getConfiguration: vi.fn() }));
 
 const cognitoMock = mockClient(CognitoIdentityProviderClient);
 const sesMock = mockClient(SESv2Client);
@@ -36,6 +40,7 @@ describe('start route', () => {
   beforeEach(() => {
     cognitoMock.reset();
     sesMock.reset();
+    vi.mocked(getConfiguration).mockResolvedValue(DEFAULT_LAMBDA_CONFIGURATION);
     sesMock.on(GetEmailIdentityCommand).resolves({ VerifiedForSendingStatus: true });
   });
 
@@ -149,6 +154,7 @@ describe('start route', () => {
       { email: 'jess@example.com', session: 's1', kind: 'sign-up' },
       SECRETS.flowKey,
       Date.now(),
+      180_000,
     );
 
     const result = await start({ ...request, cookies: [`fb_auth_flow=${previous}`] }, SECRETS);
@@ -168,6 +174,7 @@ describe('start route', () => {
       { email: 'eve@example.com', session: 's1', kind: 'sign-up' },
       SECRETS.flowKey,
       Date.now(),
+      180_000,
     );
 
     const result = await start({ ...request, cookies: [`fb_auth_flow=${previous}`] }, SECRETS);
@@ -220,5 +227,19 @@ describe('start route', () => {
     expect(result.statusCode).toBe(400);
     expect(sesMock.calls()).toHaveLength(0);
     expect(cognitoMock.calls()).toHaveLength(0);
+  });
+
+  it('sets the flow cookie lifetime from the configured ttl', async () => {
+    vi.mocked(getConfiguration).mockResolvedValue({
+      ...DEFAULT_LAMBDA_CONFIGURATION,
+      settings: { flowTtlMs: 90_000 },
+    });
+    cognitoMock.on(AdminGetUserCommand).resolves({ Username: 'u', UserStatus: 'CONFIRMED' });
+    cognitoMock.on(InitiateAuthCommand).resolves({ ChallengeName: 'EMAIL_OTP', Session: 's2' });
+
+    const result = await start(request, SECRETS);
+
+    expect(result.cookies?.[0]).toMatch(/Max-Age=90$/);
+    expect(flowFrom(result.cookies)).toBeDefined();
   });
 });

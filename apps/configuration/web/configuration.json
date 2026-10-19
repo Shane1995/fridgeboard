@@ -1,12 +1,30 @@
 {
   "version": 1,
   "featureFlags": {},
-  "params": { "version": "v1" },
+  "params": {
+    "version": "v1"
+  },
   "services": {
-    "start": { "url": "/api/{version}/auth/start" },
-    "verify": { "url": "/api/{version}/auth/verify" },
-    "refresh": { "url": "/api/{version}/auth/refresh" },
-    "signOut": { "url": "/api/{version}/auth/sign-out" },
-    "me": { "url": "/api/{version}/me" }
-  }
+    "start": {
+      "url": "/api/{version}/auth/start"
+    },
+    "verify": {
+      "url": "/api/{version}/auth/verify"
+    },
+    "refresh": {
+      "url": "/api/{version}/auth/refresh"
+    },
+    "signOut": {
+      "url": "/api/{version}/auth/sign-out"
+    },
+    "me": {
+      "url": "/api/{version}/me"
+    }
+  },
+  "settings": {
+    "refreshLeadMs": 60000,
+    "refreshMinIntervalMs": 60000
+  },
+  "queries": {},
+  "mutations": {}
 }

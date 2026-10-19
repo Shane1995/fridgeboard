@@ -16,8 +16,9 @@ const ME: IMeResponse = {
   households: [],
 };
 
+const client = new QueryClient();
 const wrapper = ({ children }: { children: ReactNode }) => (
-  <QueryClientProvider client={new QueryClient()}>{children}</QueryClientProvider>
+  <QueryClientProvider client={client}>{children}</QueryClientProvider>
 );
 
 describe('useMeQuery', () => {
@@ -35,5 +36,13 @@ describe('useMeQuery', () => {
     await Promise.resolve();
 
     expect(getMe).not.toHaveBeenCalled();
+  });
+
+  it('caches under the me query name', async () => {
+    vi.mocked(getMe).mockResolvedValue(ME);
+    const { result } = renderHook(() => useMeQuery(), { wrapper });
+
+    await waitFor(() => expect(result.current.data).toEqual(ME));
+    expect(client.getQueryData(['me'])).toEqual(ME);
   });
 });

@@ -9,11 +9,13 @@ import {
   TooManyFailedAttemptsException,
   UserNotFoundException,
 } from '@aws-sdk/client-cognito-identity-provider';
+import { getConfiguration } from '../../../../configuration/index.ts';
 import type { Route } from '../../types.ts';
-import { FLOW_COOKIE, FLOW_MAX_AGE } from '../../utils/cookies/constants.ts';
+import { FLOW_COOKIE } from '../../utils/cookies/constants.ts';
 import { clearCookie } from '../../utils/cookies/clearCookie/index.ts';
 import { readCookie } from '../../utils/cookies/readCookie/index.ts';
 import { serialiseCookie } from '../../utils/cookies/serialiseCookie/index.ts';
+import { flowMaxAge } from '../../utils/flowMaxAge/index.ts';
 import { emailOtpSignIn } from '../../utils/emailOtpSignIn/index.ts';
 import { openFlow } from '../../utils/flowToken/openFlow/index.ts';
 import { sealFlow } from '../../utils/flowToken/sealFlow/index.ts';
@@ -59,13 +61,15 @@ export const verify: Route = async (request, { clientId, clientSecret, flowKey }
           username: Username,
           secretHash: SecretHash,
         });
+        const { flowTtlMs } = (await getConfiguration()).settings;
         const next = sealFlow(
           { email: Username, session: signInSession, kind: 'sign-in' },
           flowKey,
           Date.now(),
+          flowTtlMs,
         );
         return jsonResponse(202, { next: 'enter-code' }, [
-          serialiseCookie(FLOW_COOKIE, next, FLOW_MAX_AGE),
+          serialiseCookie(FLOW_COOKIE, next, flowMaxAge(flowTtlMs)),
         ]);
       }
 

@@ -6,8 +6,9 @@ import { useSignOutMutation } from './index';
 
 vi.mock('../../services/session/signOut', () => ({ signOut: vi.fn() }));
 
+const client = new QueryClient();
 const wrapper = ({ children }: { children: ReactNode }) => (
-  <QueryClientProvider client={new QueryClient()}>{children}</QueryClientProvider>
+  <QueryClientProvider client={client}>{children}</QueryClientProvider>
 );
 
 describe('useSignOutMutation', () => {
@@ -19,5 +20,16 @@ describe('useSignOutMutation', () => {
       await expect(result.current.mutateAsync()).resolves.toEqual(undefined);
     });
     expect(signOut).toHaveBeenCalledTimes(1);
+  });
+
+  it('registers under its mutation name', async () => {
+    vi.mocked(signOut).mockResolvedValue(undefined);
+    const { result } = renderHook(() => useSignOutMutation(), { wrapper });
+
+    await act(async () => {
+      await result.current.mutateAsync();
+    });
+
+    expect(client.getMutationCache().getAll().at(-1)?.options.mutationKey).toEqual(['signOut']);
   });
 });

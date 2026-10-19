@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "validate": "node scripts/validate/index.ts",
+    "validate": "node --experimental-transform-types scripts/validate/index.ts",
     "typecheck": "tsc -b",
     "test": "vitest run",
     "lint": "oxlint --config ../../.oxlintrc.json scripts/",

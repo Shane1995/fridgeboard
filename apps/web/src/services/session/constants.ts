@@ -18,8 +18,6 @@ export const INITIAL_SESSION: SessionSnapshot = {
 export const INITIAL_EPOCH = 0;
 
 export const REFRESH_LOCK_NAME = 'fb-refresh';
-export const REFRESH_LEAD_MS = 60_000;
-export const REFRESH_MIN_INTERVAL_MS = 60_000;
 export const MS_PER_SECOND = 1000;
 
 export const POST = 'POST';

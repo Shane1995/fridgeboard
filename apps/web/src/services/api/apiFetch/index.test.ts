@@ -3,7 +3,7 @@ import { API_PATHS } from '@fridgeboard/contract/auth/constants';
 
 vi.mock('../../configuration', async () => {
   const { API_PATHS } = await import('@fridgeboard/contract/auth/constants');
-  return { getServicePath: async (service: keyof typeof API_PATHS) => API_PATHS[service] };
+  return { getServicePath: (service: keyof typeof API_PATHS) => API_PATHS[service] };
 });
 
 const respond = (status: number, body?: unknown): Response =>

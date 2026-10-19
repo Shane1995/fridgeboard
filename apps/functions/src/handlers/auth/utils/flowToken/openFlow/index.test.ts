@@ -14,32 +14,32 @@ const flipByte = (token: string, index: number): string => {
 
 describe('openFlow', () => {
   it('round-trips a flow within 180 seconds', () => {
-    const token = sealFlow(FLOW, KEY, NOW);
+    const token = sealFlow(FLOW, KEY, NOW, 180_000);
 
     expect(openFlow(token, KEY, NOW + 180_000)).toEqual(FLOW);
   });
 
   it('returns undefined after 181 seconds', () => {
-    const token = sealFlow(FLOW, KEY, NOW);
+    const token = sealFlow(FLOW, KEY, NOW, 180_000);
 
     expect(openFlow(token, KEY, NOW + 181_000)).toBeUndefined();
   });
 
   it('returns undefined for a tampered ciphertext', () => {
-    const token = sealFlow(FLOW, KEY, NOW);
+    const token = sealFlow(FLOW, KEY, NOW, 180_000);
 
     expect(openFlow(flipByte(token, 14), KEY, NOW)).toBeUndefined();
   });
 
   it('returns undefined for a tampered tag', () => {
-    const token = sealFlow(FLOW, KEY, NOW);
+    const token = sealFlow(FLOW, KEY, NOW, 180_000);
     const last = Buffer.from(token, 'base64url').length - 1;
 
     expect(openFlow(flipByte(token, last), KEY, NOW)).toBeUndefined();
   });
 
   it('returns undefined for a token sealed with another key', () => {
-    expect(openFlow(sealFlow(FLOW, 'other-key', NOW), KEY, NOW)).toBeUndefined();
+    expect(openFlow(sealFlow(FLOW, 'other-key', NOW, 180_000), KEY, NOW)).toBeUndefined();
   });
 
   it('returns undefined for malformed tokens', () => {

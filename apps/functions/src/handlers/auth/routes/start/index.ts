@@ -8,6 +8,7 @@ import {
 } from '@aws-sdk/client-cognito-identity-provider';
 import { GetEmailIdentityCommand, NotFoundException, SESv2Client } from '@aws-sdk/client-sesv2';
 import { normaliseEmail } from '../../../../utils/normaliseEmail/index.ts';
+import { getConfiguration } from '../../../../configuration/index.ts';
 import { NO_INVITE_ERROR } from '../../../preSignUp/constants.ts';
 import type { Route } from '../../types.ts';
 import { FLOW_COOKIE } from '../../utils/cookies/constants.ts';
@@ -53,6 +54,7 @@ export const start: Route = async (request, { userPoolId, clientId, clientSecret
     });
 
   const SecretHash = secretHash(email, clientId, clientSecret);
+  const { flowTtlMs } = (await getConfiguration()).settings;
 
   if (status === USER_NOT_FOUND) {
     const signUp = await cognito
@@ -76,7 +78,11 @@ export const start: Route = async (request, { userPoolId, clientId, clientSecret
     if (!signUp) {
       return jsonResponse(403, { reason: 'no-invite' });
     }
-    return flowResponse({ email, session: signUp.Session ?? '', kind: 'sign-up' }, flowKey);
+    return flowResponse(
+      { email, session: signUp.Session ?? '', kind: 'sign-up' },
+      flowKey,
+      flowTtlMs,
+    );
   }
 
   if (status === UNCONFIRMED_STATUS) {
@@ -86,9 +92,9 @@ export const start: Route = async (request, { userPoolId, clientId, clientSecret
     const previous = openFlow(readCookie(request.cookies, FLOW_COOKIE) ?? '', flowKey, Date.now());
     const session =
       previous?.email === email && previous.kind === 'sign-up' ? previous.session : '';
-    return flowResponse({ email, session, kind: 'sign-up' }, flowKey);
+    return flowResponse({ email, session, kind: 'sign-up' }, flowKey, flowTtlMs);
   }
 
   const session = await emailOtpSignIn({ clientId, username: email, secretHash: SecretHash });
-  return flowResponse({ email, session, kind: 'sign-in' }, flowKey);
+  return flowResponse({ email, session, kind: 'sign-in' }, flowKey, flowTtlMs);
 };
