@@ -11,3 +11,4 @@ coverage
 .fallow/
 .idea
 export-*.json
+.tanstack/
