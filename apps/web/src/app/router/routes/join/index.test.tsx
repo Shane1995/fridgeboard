@@ -7,8 +7,8 @@ import {
   RouterProvider,
 } from '@tanstack/react-router';
 import { render, screen } from '@testing-library/react';
-import { SIGN_IN_COPY } from '../pages/SignIn/constants';
-import { Route } from './join';
+import { SIGN_IN_COPY } from '../../../../pages/SignIn/constants';
+import { Route } from '../../../../routes/join';
 
 describe('join route', () => {
   it('renders the join screen with the email from the link', async () => {

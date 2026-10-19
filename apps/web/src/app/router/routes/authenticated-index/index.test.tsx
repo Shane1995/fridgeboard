@@ -1,17 +1,17 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { createMemoryHistory, RouterProvider } from '@tanstack/react-router';
 import { render, screen } from '@testing-library/react';
-import { createAppRouter } from '../../app/router/utils/createAppRouter';
-import { ME_QUERY_KEY } from '../../hooks/useMeQuery/constants';
-import { HOME_COPY } from '../../pages/Home/constants';
-import { getMe } from '../../services/api/getMe';
-import { queryClient } from '../../services/queryClient';
-import { SessionStatus } from '../../services/session/constants';
-import { getSessionStatus } from '../../services/session/getSessionStatus';
-import { Route } from './index';
+import { createAppRouter } from '../../../../app/router/utils/createAppRouter';
+import { ME_QUERY_KEY } from '../../../../hooks/useMeQuery/constants';
+import { HOME_COPY } from '../../../../pages/Home/constants';
+import { getMe } from '../../../../services/api/getMe';
+import { queryClient } from '../../../../services/queryClient';
+import { SessionStatus } from '../../../../services/session/constants';
+import { getSessionStatus } from '../../../../services/session/getSessionStatus';
+import { Route } from '../../../../routes/_authenticated/index';
 
-vi.mock('../../services/api/getMe', () => ({ getMe: vi.fn() }));
-vi.mock('../../services/session/getSessionStatus', () => ({ getSessionStatus: vi.fn() }));
+vi.mock('../../../../services/api/getMe', () => ({ getMe: vi.fn() }));
+vi.mock('../../../../services/session/getSessionStatus', () => ({ getSessionStatus: vi.fn() }));
 
 const me = {
   sub: 's',

@@ -6,9 +6,9 @@ import {
   RouterProvider,
 } from '@tanstack/react-router';
 import { render, screen } from '@testing-library/react';
-import type { RouterContext } from '../app/router/types';
-import { SessionStatus } from '../services/session/constants';
-import { Route as authenticatedRoute } from './_authenticated';
+import type { RouterContext } from '../../../../app/router/types';
+import { SessionStatus } from '../../../../services/session/constants';
+import { Route as authenticatedRoute } from '../../../../routes/_authenticated';
 
 const { beforeLoad, component } = authenticatedRoute.options;
 
