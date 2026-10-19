@@ -9,6 +9,7 @@ import { refreshSession } from '../../../../services/session/refreshSession';
 import { startSignIn } from '../../../../services/session/startSignIn';
 import { verifyCode } from '../../../../services/session/verifyCode';
 import { HOME_COPY } from '../../../../pages/Home/constants';
+import { APP_LOADER_COPY } from '../../../../components/AppLoader/constants';
 import { SIGN_IN_COPY } from '../../../../pages/SignIn/constants';
 import { createAppRouter } from './index';
 
@@ -103,5 +104,21 @@ describe('router', () => {
     await signIn();
     expect(await screen.findByText(`${HOME_COPY.signedInAs} a@b.com`)).toBeInTheDocument();
     expect(router.state.location.pathname).toBe('/');
+  });
+
+  it('shows the app loader while the session refresh is pending', async () => {
+    let finishRefresh: (signedIn: boolean) => void = () => {};
+    vi.mocked(getSessionStatus).mockReturnValue(SessionStatus.Loading);
+    vi.mocked(refreshSession).mockReturnValue(
+      new Promise<boolean>((resolve) => {
+        finishRefresh = resolve;
+      }),
+    );
+    renderAt('/');
+    expect(await screen.findByRole('status', { name: APP_LOADER_COPY.label })).toBeInTheDocument();
+    vi.mocked(getSessionStatus).mockReturnValue(SessionStatus.SignedIn);
+    finishRefresh(true);
+    expect(await screen.findByText(`${HOME_COPY.signedInAs} a@b.com`)).toBeInTheDocument();
+    expect(screen.queryByRole('status', { name: APP_LOADER_COPY.label })).not.toBeInTheDocument();
   });
 });
