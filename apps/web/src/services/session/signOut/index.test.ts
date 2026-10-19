@@ -1,6 +1,11 @@
 import type { ITokenResponse } from '@fridgeboard/contract/auth';
 import { API_PATHS } from '@fridgeboard/contract/auth/constants';
 
+vi.mock('../../configuration', async () => {
+  const { API_PATHS } = await import('@fridgeboard/contract/auth/constants');
+  return { getServicePath: (service: keyof typeof API_PATHS) => API_PATHS[service] };
+});
+
 const TOKENS: ITokenResponse = { accessToken: 'token-1', expiresIn: 900 };
 
 const fetchMock = vi.fn<typeof fetch>();
@@ -11,9 +16,8 @@ const loadSession = async () => {
   const { verifyCode } = await import('../verifyCode');
   const { getAccessToken } = await import('../getAccessToken');
   const { getSessionStatus } = await import('../getSessionStatus');
-  const { queryClient } = await import('../../queryClient');
   const { refreshSession } = await import('../refreshSession');
-  return { signOut, verifyCode, refreshSession, getAccessToken, getSessionStatus, queryClient };
+  return { signOut, verifyCode, refreshSession, getAccessToken, getSessionStatus };
 };
 
 describe('signOut', () => {
@@ -26,14 +30,12 @@ describe('signOut', () => {
     vi.unstubAllGlobals();
   });
 
-  it('revokes the session server-side and forgets the token and cached data', async () => {
+  it('revokes the session server-side and forgets the token', async () => {
     fetchMock
       .mockResolvedValueOnce(new Response(JSON.stringify(TOKENS), { status: 200 }))
       .mockResolvedValueOnce(new Response(null, { status: 204 }));
-    const { signOut, verifyCode, getAccessToken, getSessionStatus, queryClient } =
-      await loadSession();
+    const { signOut, verifyCode, getAccessToken, getSessionStatus } = await loadSession();
     await verifyCode('123456');
-    queryClient.setQueryData(['me'], { email: 'jess@example.com' });
 
     await signOut();
 
@@ -43,7 +45,6 @@ describe('signOut', () => {
     );
     expect(getAccessToken()).toBeUndefined();
     expect(getSessionStatus()).toBe('signed-out');
-    expect(queryClient.getQueryData(['me'])).toBeUndefined();
   });
 
   it('signs out locally when the network fails', async () => {

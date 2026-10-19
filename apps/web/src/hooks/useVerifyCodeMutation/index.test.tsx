@@ -6,8 +6,9 @@ import { useVerifyCodeMutation } from './index';
 
 vi.mock('../../services/session/verifyCode', () => ({ verifyCode: vi.fn() }));
 
+const client = new QueryClient();
 const wrapper = ({ children }: { children: ReactNode }) => (
-  <QueryClientProvider client={new QueryClient()}>{children}</QueryClientProvider>
+  <QueryClientProvider client={client}>{children}</QueryClientProvider>
 );
 
 describe('useVerifyCodeMutation', () => {
@@ -22,5 +23,16 @@ describe('useVerifyCodeMutation', () => {
       });
     });
     expect(verifyCode).toHaveBeenCalledWith('123456', expect.anything());
+  });
+
+  it('registers under its mutation name', async () => {
+    vi.mocked(verifyCode).mockResolvedValue({ ok: false, next: 'enter-code' });
+    const { result } = renderHook(() => useVerifyCodeMutation(), { wrapper });
+
+    await act(async () => {
+      await result.current.mutateAsync('123456');
+    });
+
+    expect(client.getMutationCache().getAll().at(-1)?.options.mutationKey).toEqual(['verifyCode']);
   });
 });

@@ -1,6 +1,11 @@
 import type { ITokenResponse } from '@fridgeboard/contract/auth';
 import { API_PATHS } from '@fridgeboard/contract/auth/constants';
 
+vi.mock('../../configuration', async () => {
+  const { API_PATHS } = await import('@fridgeboard/contract/auth/constants');
+  return { getServicePath: (service: keyof typeof API_PATHS) => API_PATHS[service] };
+});
+
 const respond = (status: number, body?: unknown): Response =>
   new Response(body === undefined ? null : JSON.stringify(body), { status });
 

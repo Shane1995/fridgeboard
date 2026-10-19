@@ -1,5 +1,10 @@
 import type { ITokenResponse } from '@fridgeboard/contract/auth';
 
+vi.mock('../../configuration', async () => {
+  const { API_PATHS } = await import('@fridgeboard/contract/auth/constants');
+  return { getServicePath: (service: keyof typeof API_PATHS) => API_PATHS[service] };
+});
+
 const TOKENS: ITokenResponse = { accessToken: 'token-1', expiresIn: 900 };
 
 const fetchMock = vi.fn<typeof fetch>();
@@ -72,5 +77,28 @@ describe('watchSession', () => {
     await vi.advanceTimersByTimeAsync(0);
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('uses the configured minimum refresh interval', async () => {
+    const watch = await loadWatch();
+    const { setConfiguration } = await import('../../configuration/setConfiguration');
+    const { DEFAULT_WEB_CONFIGURATION } =
+      await import('@fridgeboard/contract/configuration/web/constants');
+    setConfiguration({
+      ...DEFAULT_WEB_CONFIGURATION,
+      settings: { ...DEFAULT_WEB_CONFIGURATION.settings, refreshMinIntervalMs: 120_000 },
+    });
+    const stop = watch();
+    await vi.advanceTimersByTimeAsync(90_000);
+
+    setVisibility('visible');
+    await vi.advanceTimersByTimeAsync(0);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    await vi.advanceTimersByTimeAsync(31_000);
+    setVisibility('visible');
+    await vi.advanceTimersByTimeAsync(0);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    stop();
   });
 });

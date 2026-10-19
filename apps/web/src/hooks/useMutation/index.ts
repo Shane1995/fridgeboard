@@ -3,5 +3,9 @@ import type { MutationOptions, MutationResult } from './types';
 
 export const useMutation = <TData, TVariables = void>({
   mutationFn,
+  mutationKey,
 }: MutationOptions<TData, TVariables>): MutationResult<TData, TVariables> =>
-  useTanStackMutation({ mutationFn });
+  useTanStackMutation({
+    mutationFn,
+    ...(mutationKey === undefined ? {} : { mutationKey }),
+  });

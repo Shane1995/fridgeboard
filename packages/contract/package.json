@@ -14,9 +14,21 @@
     "./configuration/lambda/constants": "./src/configuration/lambda/constants.ts",
     "./configuration/lambda/types": "./src/configuration/lambda/types.ts",
     "./configuration/flags/constants": "./src/configuration/flags/constants.ts",
-    "./configuration/flags/types": "./src/configuration/flags/types.ts",
+    "./configuration/services/constants": "./src/configuration/services/constants.ts",
+    "./configuration/settings/constants": "./src/configuration/settings/constants.ts",
+    "./configuration/settings/types": "./src/configuration/settings/types.ts",
+    "./configuration/settings/mergeSettings": "./src/configuration/settings/mergeSettings/index.ts",
+    "./configuration/queries/constants": "./src/configuration/queries/constants.ts",
+    "./configuration/queries/types": "./src/configuration/queries/types.ts",
+    "./configuration/mutations/constants": "./src/configuration/mutations/constants.ts",
+    "./configuration/mutations/types": "./src/configuration/mutations/types.ts",
+    "./configuration/queries": "./src/configuration/queries/index.ts",
+    "./configuration/mutations": "./src/configuration/mutations/index.ts",
+    "./configuration/stripUnknownEntryKeys": "./src/configuration/stripUnknownEntryKeys/index.ts",
+    "./configuration/stripUnknownKeys": "./src/configuration/stripUnknownKeys/index.ts",
     "./configuration/resolveServiceUrl": "./src/configuration/resolveServiceUrl/index.ts",
-    "./configuration/stripUnknownFlags": "./src/configuration/stripUnknownFlags/index.ts"
+    "./configuration/stripUnknownFlags": "./src/configuration/stripUnknownFlags/index.ts",
+    "./configuration/stripUnknownServices": "./src/configuration/stripUnknownServices/index.ts"
   },
   "scripts": {
     "typecheck": "tsc -b",
@@ -25,11 +37,11 @@
     "format:check": "oxfmt --check src/",
     "test": "vitest run"
   },
+  "dependencies": {
+    "zod": "4.6.7"
+  },
   "devDependencies": {
     "typescript": "^7.0.2",
     "vitest": "^5.0.5"
-  },
-  "dependencies": {
-    "zod": "4.6.7"
   }
 }

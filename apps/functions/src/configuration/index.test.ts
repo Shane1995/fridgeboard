@@ -10,6 +10,7 @@ const body = (value: unknown) => ({
 });
 
 const VALID = { version: 1, featureFlags: {}, services: {} };
+const WITH_DEFAULTS = { ...VALID, settings: { flowTtlMs: 180_000 } };
 
 const load = async () => {
   vi.resetModules();
@@ -35,7 +36,7 @@ describe('getConfiguration', () => {
     s3Mock.on(GetObjectCommand).resolves(body(VALID));
     const { getConfiguration } = await load();
 
-    await expect(getConfiguration()).resolves.toEqual(VALID);
+    await expect(getConfiguration()).resolves.toEqual(WITH_DEFAULTS);
     expect(s3Mock.commandCalls(GetObjectCommand)[0]?.args[0].input).toEqual({
       Bucket: 'bucket-1',
       Key: 'configuration/lambda/configuration.json',
@@ -70,21 +71,21 @@ describe('getConfiguration', () => {
     s3Mock.on(GetObjectCommand).resolves(body({ ...VALID, featureFlags: { REMOVED: true } }));
     const { getConfiguration } = await load();
 
-    await expect(getConfiguration()).resolves.toEqual(VALID);
+    await expect(getConfiguration()).resolves.toEqual(WITH_DEFAULTS);
   });
 
   it('returns defaults when the first fetch fails', async () => {
     s3Mock.on(GetObjectCommand).rejects(new Error('denied'));
     const { getConfiguration } = await load();
 
-    await expect(getConfiguration()).resolves.toEqual(VALID);
+    await expect(getConfiguration()).resolves.toEqual(WITH_DEFAULTS);
   });
 
   it('returns defaults when the object has no body', async () => {
     s3Mock.on(GetObjectCommand).resolves({});
     const { getConfiguration } = await load();
 
-    await expect(getConfiguration()).resolves.toEqual(VALID);
+    await expect(getConfiguration()).resolves.toEqual(WITH_DEFAULTS);
   });
 
   it('keeps the last good copy when a refresh fails or is invalid', async () => {
@@ -109,7 +110,32 @@ describe('getConfiguration', () => {
       .resolves(body({ version: 1, featureFlags: {}, services: {}, x: 1 }));
     const { getConfiguration } = await load();
 
-    await expect(getConfiguration()).resolves.toEqual(VALID);
+    await expect(getConfiguration()).resolves.toEqual(WITH_DEFAULTS);
+    expect(console.error).toHaveBeenCalled();
+  });
+
+  it('merges served settings over the defaults', async () => {
+    s3Mock.on(GetObjectCommand).resolves(body({ ...VALID, settings: { flowTtlMs: 90_000 } }));
+    const { getConfiguration } = await load();
+
+    await expect(getConfiguration()).resolves.toEqual({
+      ...VALID,
+      settings: { flowTtlMs: 90_000 },
+    });
+  });
+
+  it('strips unknown settings instead of failing', async () => {
+    s3Mock.on(GetObjectCommand).resolves(body({ ...VALID, settings: { removed: 1 } }));
+    const { getConfiguration } = await load();
+
+    await expect(getConfiguration()).resolves.toEqual(WITH_DEFAULTS);
+  });
+
+  it('rejects a flow ttl outside its bounds', async () => {
+    s3Mock.on(GetObjectCommand).resolves(body({ ...VALID, settings: { flowTtlMs: 1_000 } }));
+    const { getConfiguration } = await load();
+
+    await expect(getConfiguration()).resolves.toEqual(WITH_DEFAULTS);
     expect(console.error).toHaveBeenCalled();
   });
 });

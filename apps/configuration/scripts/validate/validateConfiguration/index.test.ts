@@ -26,8 +26,8 @@ describe('validateConfiguration', () => {
   it('reports secrets even when the schema passes', () => {
     const errors = validateConfiguration(
       target,
-      '{"version":1,"featureFlags":{},"services":{"a":{"url":"/x","params":{"token":"t"}}}}',
+      '{"version":1,"featureFlags":{},"services":{"me":{"url":"/api/x","params":{"token":"t"}}}}',
     );
-    expect(errors).toEqual(['web: $.services.a.params.token: key name suggests a secret']);
+    expect(errors).toEqual(['web: $.services.me.params.token: key name suggests a secret']);
   });
 });

@@ -36,12 +36,52 @@ describe('applyTokens', () => {
     expect(onExpiring).toHaveBeenCalledTimes(1);
   });
 
-  it('refreshes immediately when the token expires within the lead time', async () => {
+  it('floors the delay at the minimum refresh interval when the token expires within the lead time', async () => {
     const { applyTokens } = await load();
     const onExpiring = vi.fn(async () => true);
 
     applyTokens({ accessToken: 'token-1', expiresIn: 30 }, onExpiring);
-    vi.advanceTimersByTime(0);
+    vi.advanceTimersByTime(59_999);
+    expect(onExpiring).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(1);
+
+    expect(onExpiring).toHaveBeenCalledTimes(1);
+  });
+
+  it('never schedules a zero delay when the lead exceeds the lifetime', async () => {
+    const { applyTokens } = await load();
+    const { setConfiguration } = await import('../../configuration/setConfiguration');
+    const { DEFAULT_WEB_CONFIGURATION } =
+      await import('@fridgeboard/contract/configuration/web/constants');
+    setConfiguration({
+      ...DEFAULT_WEB_CONFIGURATION,
+      settings: { refreshLeadMs: 300_000, refreshMinIntervalMs: 120_000 },
+    });
+    const onExpiring = vi.fn(async () => true);
+
+    applyTokens({ accessToken: 'token-1', expiresIn: 0 }, onExpiring);
+    vi.advanceTimersByTime(119_999);
+    expect(onExpiring).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(1);
+
+    expect(onExpiring).toHaveBeenCalledTimes(1);
+  });
+
+  it('uses the configured refresh lead', async () => {
+    const { applyTokens } = await load();
+    const { setConfiguration } = await import('../../configuration/setConfiguration');
+    const { DEFAULT_WEB_CONFIGURATION } =
+      await import('@fridgeboard/contract/configuration/web/constants');
+    setConfiguration({
+      ...DEFAULT_WEB_CONFIGURATION,
+      settings: { ...DEFAULT_WEB_CONFIGURATION.settings, refreshLeadMs: 300_000 },
+    });
+    const onExpiring = vi.fn(async () => true);
+
+    applyTokens({ accessToken: 'token-1', expiresIn: 900 }, onExpiring);
+    vi.advanceTimersByTime(599_999);
+    expect(onExpiring).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(1);
 
     expect(onExpiring).toHaveBeenCalledTimes(1);
   });
