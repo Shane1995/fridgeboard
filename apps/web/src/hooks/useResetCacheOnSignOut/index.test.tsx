@@ -1,6 +1,5 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query';
 import { renderHook } from '@testing-library/react';
-import type { ReactNode } from 'react';
 import { SessionStatus } from '../../services/session/constants';
 import { updateSession } from '../../services/session/updateSession';
 import { useResetCacheOnSignOut } from './index';
@@ -8,10 +7,7 @@ import { useResetCacheOnSignOut } from './index';
 const setup = () => {
   const client = new QueryClient();
   client.setQueryData(['me'], { email: 'jess@example.com' });
-  const wrapper = ({ children }: { children: ReactNode }) => (
-    <QueryClientProvider client={client}>{children}</QueryClientProvider>
-  );
-  const view = renderHook(() => useResetCacheOnSignOut(), { wrapper });
+  const view = renderHook(() => useResetCacheOnSignOut(client));
   return { client, ...view };
 };
 

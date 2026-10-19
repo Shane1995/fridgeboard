@@ -1,11 +1,9 @@
-import { useQueryClient } from '@tanstack/react-query';
+import type { QueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { SessionStatus } from '../../services/session/constants';
 import { subscribeSession } from '../../services/session/subscribeSession';
 
-export const useResetCacheOnSignOut = (): void => {
-  const queryClient = useQueryClient();
-
+export const useResetCacheOnSignOut = (queryClient: QueryClient): void => {
   useEffect(
     () =>
       subscribeSession(({ status }) => {
