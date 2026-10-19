@@ -1,18 +1,14 @@
 import type { IVerifyRequest } from '@fridgeboard/contract/auth';
-import { WebService } from '@fridgeboard/contract/configuration/services/constants';
-import { applyTokens } from '../applyTokens';
-import { NEXT_STEP_STATUS, UNKNOWN_REASON } from '../constants';
-import { refreshSession } from '../refreshSession';
-import type { VerifyResult } from '../types';
+import { NEXT_STEP_STATUS, POST, UNKNOWN_REASON } from '../constants';
+import type { VerifyResponse } from '../types';
 import { isTokenResponse } from '../utils/isTokenResponse';
 import { isVerifyNextResponse } from '../utils/isVerifyNextResponse';
-import { postAuth } from '../utils/postAuth';
+import { request } from '../../api/request';
 import { readFailureReason } from '../utils/readFailureReason';
-import { getServicePath } from '../../configuration';
 
-export const verifyCode = async (code: string): Promise<VerifyResult> => {
-  const request: IVerifyRequest = { code };
-  const response = await postAuth(getServicePath(WebService.verify), request);
+export const verifyCode = async (verifyPath: string, code: string): Promise<VerifyResponse> => {
+  const payload: IVerifyRequest = { code };
+  const response = await request(verifyPath, { method: POST, body: JSON.stringify(payload) });
 
   if (!response.ok) {
     return { ok: false, reason: await readFailureReason(response) };
@@ -29,6 +25,5 @@ export const verifyCode = async (code: string): Promise<VerifyResult> => {
   if (!isTokenResponse(body)) {
     return { ok: false, reason: UNKNOWN_REASON };
   }
-  applyTokens(body, refreshSession);
-  return { ok: true };
+  return { ok: true, tokens: body };
 };

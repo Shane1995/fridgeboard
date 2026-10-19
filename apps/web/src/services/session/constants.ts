@@ -1,5 +1,4 @@
 import type { IVerifyNextResponse } from '@fridgeboard/contract/auth';
-import type { SessionSnapshot } from './types';
 
 export enum SessionStatus {
   Loading = 'loading',
@@ -7,15 +6,11 @@ export enum SessionStatus {
   SignedOut = 'signed-out',
 }
 
-export const SESSION_KEY = 'current';
-export const REFRESH_KEY = 'refresh';
-
-export const INITIAL_SESSION: SessionSnapshot = {
-  accessToken: undefined,
-  status: SessionStatus.Loading,
-  lastRefreshAt: undefined,
-};
-export const INITIAL_EPOCH = 0;
+export enum RefreshResultKind {
+  Tokens = 'tokens',
+  Rejected = 'rejected',
+  Unavailable = 'unavailable',
+}
 
 export const REFRESH_LOCK_NAME = 'fb-refresh';
 export const MS_PER_SECOND = 1000;

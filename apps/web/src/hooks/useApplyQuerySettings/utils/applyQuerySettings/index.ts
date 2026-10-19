@@ -1,29 +1,38 @@
+import {
+  CONFIGURABLE_MUTATION_NAMES,
+  NON_RETRYABLE_MUTATION_NAMES,
+} from '@fridgeboard/contract/configuration/mutations/constants';
 import type { MutationEntry } from '@fridgeboard/contract/configuration/mutations/types';
+import { QUERY_NAMES } from '@fridgeboard/contract/configuration/queries/constants';
 import type { QueryEntry } from '@fridgeboard/contract/configuration/queries/types';
 import type { WebConfiguration } from '@fridgeboard/contract/configuration/web/types';
-import type { QueryClient } from '@tanstack/react-query';
-import { NON_RETRYABLE_MUTATION_NAMES } from '@fridgeboard/contract/configuration/mutations/constants';
+import type { DefaultOptions, QueryClient } from '@tanstack/react-query';
 import { toMutationOptions } from '../toMutationOptions';
 import { toQueryOptions } from '../toQueryOptions';
 
 export const applyQuerySettings = (
   queryClient: QueryClient,
   { queries, mutations }: Pick<WebConfiguration, 'queries' | 'mutations'>,
+  baseline: DefaultOptions,
 ): void => {
   const { default: defaultQuery, ...namedQueries } = queries;
   const { default: defaultMutation, ...namedMutations } = mutations;
-  const current = queryClient.getDefaultOptions();
 
-  if (defaultQuery || defaultMutation) {
-    queryClient.setDefaultOptions({
-      ...current,
-      ...(defaultQuery ? { queries: { ...current.queries, ...toQueryOptions(defaultQuery) } } : {}),
-      ...(defaultMutation
-        ? { mutations: { ...current.mutations, ...toMutationOptions(defaultMutation) } }
-        : {}),
-    });
-  }
+  queryClient.setDefaultOptions({
+    ...baseline,
+    queries: { ...baseline.queries, ...(defaultQuery ? toQueryOptions(defaultQuery) : {}) },
+    mutations: {
+      ...baseline.mutations,
+      ...(defaultMutation ? toMutationOptions(defaultMutation) : {}),
+    },
+  });
 
+  QUERY_NAMES.forEach((name) => {
+    queryClient.setQueryDefaults([name], {});
+  });
+  CONFIGURABLE_MUTATION_NAMES.forEach((name) => {
+    queryClient.setMutationDefaults([name], {});
+  });
   NON_RETRYABLE_MUTATION_NAMES.forEach((name) => {
     queryClient.setMutationDefaults([name], { retry: 0 });
   });

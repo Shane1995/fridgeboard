@@ -1,5 +1,5 @@
 import { WebFeatureFlag } from '@fridgeboard/contract/configuration/flags/constants';
-import { useRemoteConfig } from '../useRemoteConfig';
+import { useRemoteConfigContext } from '../useRemoteConfigContext';
 
 export const useFeatureFlag = (flag: WebFeatureFlag): boolean =>
-  useRemoteConfig().featureFlags[flag];
+  useRemoteConfigContext().featureFlags[flag];

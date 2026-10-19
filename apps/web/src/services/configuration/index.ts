@@ -5,11 +5,9 @@ import {
   WEB_FEATURE_FLAGS,
   DEFAULT_WEB_FLAGS,
 } from '@fridgeboard/contract/configuration/flags/constants';
-import { resolveServiceUrl } from '@fridgeboard/contract/configuration/resolveServiceUrl';
 import {
   DEFAULT_WEB_SERVICES,
   WEB_SERVICES,
-  WebService,
 } from '@fridgeboard/contract/configuration/services/constants';
 import { CONFIGURABLE_MUTATION_NAMES } from '@fridgeboard/contract/configuration/mutations/constants';
 import { MutationEntrySchema } from '@fridgeboard/contract/configuration/mutations';
@@ -25,8 +23,6 @@ import { stripUnknownKeys } from '@fridgeboard/contract/configuration/stripUnkno
 import { stripTopLevelParams } from '@fridgeboard/contract/configuration/stripTopLevelParams';
 import { stripUnknownFlags } from '@fridgeboard/contract/configuration/stripUnknownFlags';
 import { stripUnknownServices } from '@fridgeboard/contract/configuration/stripUnknownServices';
-import { setConfiguration } from './setConfiguration';
-import { configurationStore } from './store';
 import { CONFIGURATION_PATH, CONFIGURATION_TIMEOUT_MS } from './constants';
 
 const stripUnknown = (raw: unknown): unknown =>
@@ -64,18 +60,8 @@ export const getConfiguration = async (): Promise<WebConfiguration> => {
       queries: { ...parsed.data.queries },
       mutations: { ...parsed.data.mutations },
     };
-    setConfiguration(configuration);
     return configuration;
   } catch {
     return DEFAULT_WEB_CONFIGURATION;
-  }
-};
-
-export const getServicePath = (service: WebService): string => {
-  const { services } = configurationStore.current;
-  try {
-    return resolveServiceUrl(services[service], {});
-  } catch {
-    return resolveServiceUrl(DEFAULT_WEB_SERVICES[service], {});
   }
 };

@@ -1,3 +1,5 @@
+import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/web/constants';
+import { RemoteConfigContext } from '../../Context/RemoteConfig';
 import { QueryClientProvider } from '@tanstack/react-query';
 import {
   createMemoryHistory,
@@ -7,19 +9,27 @@ import {
   RouterProvider,
 } from '@tanstack/react-router';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { getMe } from '../../services/api/getMe';
 import { queryClient } from '../../app/queryClient';
-import { SessionStatus } from '../../services/session/constants';
-import { getSessionStatus } from '../../services/session/getSessionStatus';
-import { signOut } from '../../services/session/signOut';
 import { SignIn } from '../SignIn';
 import { SIGN_IN_COPY } from '../SignIn/constants';
 import { HOME_COPY } from './constants';
 import { Home } from '.';
+import { SessionContext } from '../../Context/Session';
+import type { SessionContextValue } from '../../Context/Session/types';
+import { SessionStatus } from '../../services/session/constants';
 
-vi.mock('../../services/api/getMe', () => ({ getMe: vi.fn() }));
-vi.mock('../../services/session/getSessionStatus', () => ({ getSessionStatus: vi.fn() }));
-vi.mock('../../services/session/signOut', () => ({ signOut: vi.fn() }));
+const startSignIn = vi.fn();
+const verifyCode = vi.fn();
+const signOut = vi.fn();
+const apiFetch = vi.fn();
+const session: SessionContextValue = {
+  status: SessionStatus.SignedIn,
+  startSignIn,
+  verifyCode,
+  signOut,
+  refresh: vi.fn(),
+  apiFetch,
+};
 
 const renderHome = () => {
   const rootRoute = createRootRoute();
@@ -34,9 +44,13 @@ const renderHome = () => {
     history: createMemoryHistory({ initialEntries: ['/'] }),
   });
   render(
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>,
+    <RemoteConfigContext.Provider value={DEFAULT_WEB_CONFIGURATION}>
+      <SessionContext.Provider value={session}>
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} />
+        </QueryClientProvider>
+      </SessionContext.Provider>
+    </RemoteConfigContext.Provider>,
   );
 };
 
@@ -44,14 +58,18 @@ describe('Home', () => {
   beforeEach(() => {
     queryClient.clear();
     vi.resetAllMocks();
-    vi.mocked(getSessionStatus).mockReturnValue(SessionStatus.SignedIn);
-    vi.mocked(getMe).mockResolvedValue({
-      sub: 's',
-      email: 'a@b.com',
-      isAdmin: false,
-      canCreateHousehold: false,
-      households: [],
-    });
+    apiFetch.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          sub: 's',
+          email: 'a@b.com',
+          isAdmin: false,
+          canCreateHousehold: false,
+          households: [],
+        }),
+        { status: 200 },
+      ),
+    );
   });
 
   it('shows the app name as the heading', async () => {
@@ -70,9 +88,7 @@ describe('Home', () => {
   });
 
   it('signs out and returns to the sign-in screen', async () => {
-    vi.mocked(signOut).mockImplementation(async () => {
-      vi.mocked(getSessionStatus).mockReturnValue(SessionStatus.SignedOut);
-    });
+    signOut.mockResolvedValue(undefined);
     renderHome();
     fireEvent.click(await screen.findByRole('button', { name: HOME_COPY.signOut }));
     await waitFor(() => expect(signOut).toHaveBeenCalledTimes(1));

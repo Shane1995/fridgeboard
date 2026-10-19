@@ -7,7 +7,6 @@ import {
   RouterProvider,
 } from '@tanstack/react-router';
 import { render, screen } from '@testing-library/react';
-import { SessionStatus } from '../../../../services/session/constants';
 import { ROUTER_COPY } from '../../../../app/router/constants';
 import { Route as rootRoute } from '../../../../routes/__root';
 
@@ -27,10 +26,6 @@ const renderAt = (path: string) => {
   const router = createRouter({
     routeTree: rootRoute.addChildren([okRoute, brokenRoute]),
     history: createMemoryHistory({ initialEntries: [path] }),
-    context: {
-      queryClient: new QueryClient(),
-      session: { getStatus: () => SessionStatus.SignedOut, refresh: async () => false },
-    },
   });
   render(
     <QueryClientProvider client={new QueryClient()}>

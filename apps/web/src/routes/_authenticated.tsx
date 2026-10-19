@@ -1,7 +1,10 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router';
-import { requireSession } from '../app/router/utils/requireSession';
+import { RequireSession } from '../components/RequireSession';
 
 export const Route = createFileRoute('/_authenticated')({
-  beforeLoad: requireSession,
-  component: Outlet,
+  component: () => (
+    <RequireSession>
+      <Outlet />
+    </RequireSession>
+  ),
 });

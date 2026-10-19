@@ -2,6 +2,7 @@ import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/w
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
+import { BASE_DEFAULT_OPTIONS } from '../../app/queryClient/constants';
 import { getConfiguration } from '../../services/configuration';
 import { RemoteConfigProvider } from '../../Context/RemoteConfig';
 import { useApplyQuerySettings } from './index';
@@ -9,7 +10,7 @@ import { useApplyQuerySettings } from './index';
 vi.mock('../../services/configuration', () => ({ getConfiguration: vi.fn() }));
 
 const setup = () => {
-  const client = new QueryClient({ defaultOptions: { queries: { retry: 1 } } });
+  const client = new QueryClient({ defaultOptions: BASE_DEFAULT_OPTIONS });
   const wrapper = ({ children }: { children: ReactNode }) => (
     <QueryClientProvider client={client}>
       <RemoteConfigProvider>{children}</RemoteConfigProvider>
@@ -37,6 +38,15 @@ describe('useApplyQuerySettings', () => {
     vi.mocked(getConfiguration).mockReturnValue(new Promise(() => {}));
     const client = setup();
 
-    expect(client.getDefaultOptions()).toEqual({ queries: { retry: 1 } });
+    expect(client.getDefaultOptions().queries).toEqual(BASE_DEFAULT_OPTIONS.queries);
+  });
+
+  it('keeps the built-in defaults when the configuration is absent or failed', async () => {
+    vi.mocked(getConfiguration).mockResolvedValue(DEFAULT_WEB_CONFIGURATION);
+    const client = setup();
+
+    await waitFor(() => expect(getConfiguration).toHaveBeenCalled());
+    expect(client.getDefaultOptions().queries).toEqual(BASE_DEFAULT_OPTIONS.queries);
+    expect(client.defaultQueryOptions({ queryKey: ['unnamed'] }).retry).toBe(1);
   });
 });
