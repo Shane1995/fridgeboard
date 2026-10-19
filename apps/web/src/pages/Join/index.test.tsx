@@ -21,7 +21,7 @@ const verifyCode = vi.fn();
 const signOut = vi.fn();
 const apiFetch = vi.fn();
 const session: SessionContextValue = {
-  status: SessionStatus.SignedIn,
+  status: SessionStatus.SignedOut,
   startSignIn,
   verifyCode,
   signOut,

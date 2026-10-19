@@ -1,3 +1,7 @@
+export type OnboardingSectionId = 'username' | 'household' | 'needs-invite';
+
+export type IOnboardingSection = { id: OnboardingSectionId; done: boolean };
+
 export type IMeResponse = {
   sub: string;
   email: string;
@@ -5,4 +9,5 @@ export type IMeResponse = {
   isAdmin: boolean;
   canCreateHousehold: boolean;
   households: { id: string; name: string; role: string }[];
+  onboarding: IOnboardingSection[];
 };

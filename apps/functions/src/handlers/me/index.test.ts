@@ -72,6 +72,10 @@ describe('me handler', () => {
       isAdmin: false,
       canCreateHousehold: true,
       households: [],
+      onboarding: [
+        { id: 'username', done: false },
+        { id: 'household', done: false },
+      ],
     });
     expect(ddbMock.commandCalls(BatchGetCommand)).toHaveLength(0);
     expect(ddbMock.commandCalls(GetCommand)[0]?.args[0].input).toMatchObject({

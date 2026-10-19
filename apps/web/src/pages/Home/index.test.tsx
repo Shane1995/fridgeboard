@@ -10,8 +10,6 @@ import {
 } from '@tanstack/react-router';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { queryClient } from '../../app/queryClient';
-import { SignIn } from '../SignIn';
-import { SIGN_IN_COPY } from '../SignIn/constants';
 import { HOME_COPY } from './constants';
 import { Home } from '.';
 import { SessionContext } from '../../Context/Session';
@@ -37,7 +35,7 @@ const renderHome = () => {
   const signInRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: '/sign-in',
-    component: () => <SignIn redirectTo="/" />,
+    component: () => <p>sign in page</p>,
   });
   const router = createRouter({
     routeTree: rootRoute.addChildren([homeRoute, signInRoute]),
@@ -92,6 +90,6 @@ describe('Home', () => {
     renderHome();
     fireEvent.click(await screen.findByRole('button', { name: HOME_COPY.signOut }));
     await waitFor(() => expect(signOut).toHaveBeenCalledTimes(1));
-    expect(await screen.findByLabelText(SIGN_IN_COPY.emailLabel)).toBeInTheDocument();
+    expect(await screen.findByText('sign in page')).toBeInTheDocument();
   });
 });

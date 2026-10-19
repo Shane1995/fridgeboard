@@ -8,6 +8,7 @@ const ENAMEL = '#F4F6F3';
 const TOMATO = '#E2462F';
 
 export default defineConfig({
+  define: { __BUILD_SHA__: JSON.stringify(process.env.GITHUB_SHA?.slice(0, 7) ?? 'dev') },
   plugins: [
     tanstackRouter({
       target: 'react',
@@ -18,6 +19,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
+      injectRegister: false,
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       workbox: { navigateFallbackDenylist: [/^\/api\//, /^\/configuration\.json$/] },
       manifest: {

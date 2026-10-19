@@ -9,6 +9,7 @@ import {
   RouterProvider,
 } from '@tanstack/react-router';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { APP_LOADER_COPY } from '../../components/AppLoader/constants';
 import { SIGN_IN_COPY } from './constants';
 import { SignIn } from '.';
 import { SessionContext } from '../../Context/Session';
@@ -19,8 +20,8 @@ const startSignIn = vi.fn();
 const verifyCode = vi.fn();
 const signOut = vi.fn();
 const apiFetch = vi.fn();
-const session: SessionContextValue = {
-  status: SessionStatus.SignedIn,
+let session: SessionContextValue = {
+  status: SessionStatus.SignedOut,
   startSignIn,
   verifyCode,
   signOut,
@@ -35,8 +36,13 @@ const renderSignIn = async () => {
     path: '/sign-in',
     component: () => <SignIn redirectTo="/" />,
   });
+  const homeRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/',
+    component: () => <p>home</p>,
+  });
   const router = createRouter({
-    routeTree: rootRoute.addChildren([signInRoute]),
+    routeTree: rootRoute.addChildren([signInRoute, homeRoute]),
     history: createMemoryHistory({ initialEntries: ['/sign-in'] }),
   });
   render(
@@ -48,6 +54,11 @@ const renderSignIn = async () => {
       </SessionContext.Provider>
     </RemoteConfigContext.Provider>,
   );
+  return router;
+};
+
+const renderForm = async () => {
+  await renderSignIn();
   return screen.findByLabelText(SIGN_IN_COPY.emailLabel);
 };
 
@@ -57,11 +68,32 @@ const submitEmail = (input: HTMLElement) => {
 };
 
 describe('SignIn', () => {
-  beforeEach(() => vi.resetAllMocks());
+  beforeEach(() => {
+    vi.resetAllMocks();
+    session = { ...session, status: SessionStatus.SignedOut };
+  });
+
+  it('sends a signed-in user straight to where they were going', async () => {
+    session = { ...session, status: SessionStatus.SignedIn };
+
+    const router = await renderSignIn();
+
+    await vi.waitFor(() => expect(router.state.location.pathname).toBe('/'));
+    expect(screen.queryByLabelText(SIGN_IN_COPY.emailLabel)).not.toBeInTheDocument();
+  });
+
+  it('shows the loader instead of the form while the session is resolving', async () => {
+    session = { ...session, status: SessionStatus.Loading };
+
+    await renderSignIn();
+
+    expect(await screen.findByLabelText(APP_LOADER_COPY.label)).toBeInTheDocument();
+    expect(screen.queryByLabelText(SIGN_IN_COPY.emailLabel)).not.toBeInTheDocument();
+  });
 
   it('shows the no-invite copy when startSignIn returns no-invite', async () => {
     startSignIn.mockResolvedValue({ ok: false, reason: 'no-invite' });
-    submitEmail(await renderSignIn());
+    submitEmail(await renderForm());
     expect(
       await screen.findByText(
         'No invite found for this email. Ask whoever invited you to send one.',
@@ -71,18 +103,18 @@ describe('SignIn', () => {
 
   it('shows the verify-email copy', async () => {
     startSignIn.mockResolvedValue({ ok: false, reason: 'verify-email' });
-    submitEmail(await renderSignIn());
+    submitEmail(await renderForm());
     expect(await screen.findByText(/Open the email from Amazon Web Services/)).toBeInTheDocument();
   });
 
   it('moves to the code step once the code is sent', async () => {
     startSignIn.mockResolvedValue({ ok: true });
-    submitEmail(await renderSignIn());
+    submitEmail(await renderForm());
     expect(await screen.findByLabelText(SIGN_IN_COPY.codeLabel)).toBeInTheDocument();
   });
 
   it('links to /privacy', async () => {
-    await renderSignIn();
+    await renderForm();
     expect(screen.getByRole('link', { name: SIGN_IN_COPY.privacy })).toHaveAttribute(
       'href',
       '/privacy',

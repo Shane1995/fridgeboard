@@ -8,6 +8,7 @@ import {
   DynamoDBDocumentClient,
   GetCommand,
   PutCommand,
+  TransactWriteCommand,
 } from '@aws-sdk/lib-dynamodb';
 import type { PostConfirmationTriggerEvent } from 'aws-lambda';
 import { mockClient } from 'aws-sdk-client-mock';
@@ -130,5 +131,27 @@ describe('postConfirmation handler', () => {
       canCreateHousehold: false,
     });
     expect(ddbMock.commandCalls(DeleteCommand)).toHaveLength(0);
+  });
+
+  it('joins the invited household and creates no household permission for a household invite', async () => {
+    ddbMock.on(GetCommand).resolves({ Item: { type: 'household', hhId: 'hh-1' } });
+
+    await handler(buildEvent());
+
+    expect(ddbMock.commandCalls(PutCommand)[0]?.args[0].input.Item).toMatchObject({
+      canCreateHousehold: false,
+    });
+    const items = ddbMock.commandCalls(TransactWriteCommand)[0]?.args[0].input.TransactItems;
+    expect(items?.[1]?.Put?.Item).toMatchObject({ PK: 'HH#hh-1', SK: 'MEMBER#sub-1' });
+    expect(items?.[2]?.Delete?.Key).toEqual({ PK: 'INVITE#jess@example.com', SK: 'INVITE' });
+    expect(ddbMock.commandCalls(DeleteCommand)).toHaveLength(0);
+  });
+
+  it('does not join a household for an app invite', async () => {
+    ddbMock.on(GetCommand).resolves({ Item: { type: 'app' } });
+
+    await handler(buildEvent());
+
+    expect(ddbMock.commandCalls(TransactWriteCommand)).toHaveLength(0);
   });
 });

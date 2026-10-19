@@ -1,0 +1,52 @@
+import { Alert, Button, Input, Label, TextField } from '@heroui/react';
+import {
+  DEFAULT_HOUSEHOLD_NAME,
+  HOUSEHOLD_NAME_MAX_LENGTH,
+} from '@fridgeboard/contract/households/constants';
+import { useState, type FormEvent } from 'react';
+import { useCreateHouseholdMutation } from '../../../../hooks/useCreateHouseholdMutation';
+import { ONBOARDING_COPY } from '../../constants';
+
+const COPY = ONBOARDING_COPY.household;
+
+export const HouseholdStep = () => {
+  const [name, setName] = useState(DEFAULT_HOUSEHOLD_NAME);
+  const [errorMessage, setErrorMessage] = useState<string | undefined>();
+  const create = useCreateHouseholdMutation();
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setErrorMessage(undefined);
+    create.mutate(name.trim(), {
+      onSuccess: (result) => !result.ok && setErrorMessage(COPY.reasons[result.reason]),
+      onError: () => setErrorMessage(COPY.reasons.unknown),
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <h2 className="text-2xl font-semibold">{COPY.title}</h2>
+      <p>{COPY.intro}</p>
+      <TextField
+        name="household"
+        isRequired
+        maxLength={HOUSEHOLD_NAME_MAX_LENGTH}
+        value={name}
+        onChange={setName}
+      >
+        <Label>{COPY.label}</Label>
+        <Input />
+      </TextField>
+      {errorMessage && (
+        <Alert status="danger">
+          <Alert.Content>
+            <Alert.Description>{errorMessage}</Alert.Description>
+          </Alert.Content>
+        </Alert>
+      )}
+      <Button type="submit" isPending={create.isPending}>
+        {create.isPending ? COPY.saving : COPY.submit}
+      </Button>
+    </form>
+  );
+};

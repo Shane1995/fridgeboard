@@ -14,7 +14,7 @@ import { Route as JoinRouteImport } from './../../routes/join'
 import { Route as PrivacyRouteImport } from './../../routes/privacy'
 import { Route as SignInRouteImport } from './../../routes/sign-in'
 import { Route as AuthenticatedIndexRouteImport } from './../../routes/_authenticated/index'
-import { Route as AuthenticatedUsernameRouteImport } from './../../routes/_authenticated/username'
+import { Route as AuthenticatedOnboardingRouteImport } from './../../routes/_authenticated/onboarding'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
@@ -40,9 +40,9 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedUsernameRoute = AuthenticatedUsernameRouteImport.update({
-  id: '/username',
-  path: '/username',
+const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 
@@ -51,13 +51,13 @@ export interface FileRoutesByFullPath {
   '/join': typeof JoinRoute
   '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
-  '/username': typeof AuthenticatedUsernameRoute
+  '/onboarding': typeof AuthenticatedOnboardingRoute
 }
 export interface FileRoutesByTo {
   '/join': typeof JoinRoute
   '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
-  '/username': typeof AuthenticatedUsernameRoute
+  '/onboarding': typeof AuthenticatedOnboardingRoute
   '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesById {
@@ -66,21 +66,21 @@ export interface FileRoutesById {
   '/join': typeof JoinRoute
   '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
-  '/_authenticated/username': typeof AuthenticatedUsernameRoute
+  '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/join' | '/privacy' | '/sign-in' | '/username'
+  fullPaths: '/' | '/join' | '/privacy' | '/sign-in' | '/onboarding'
   fileRoutesByTo: FileRoutesByTo
-  to: '/join' | '/privacy' | '/sign-in' | '/username' | '/'
+  to: '/join' | '/privacy' | '/sign-in' | '/onboarding' | '/'
   id:
     | '__root__'
     | '/_authenticated'
     | '/join'
     | '/privacy'
     | '/sign-in'
-    | '/_authenticated/username'
+    | '/_authenticated/onboarding'
     | '/_authenticated/'
   fileRoutesById: FileRoutesById
 }
@@ -128,23 +128,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/username': {
-      id: '/_authenticated/username'
-      path: '/username'
-      fullPath: '/username'
-      preLoaderRoute: typeof AuthenticatedUsernameRouteImport
+    '/_authenticated/onboarding': {
+      id: '/_authenticated/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
   }
 }
 
 interface AuthenticatedRouteChildren {
-  AuthenticatedUsernameRoute: typeof AuthenticatedUsernameRoute
+  AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedUsernameRoute: AuthenticatedUsernameRoute,
+  AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
 }
 
