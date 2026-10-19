@@ -31,11 +31,7 @@ export const verify: Route = async (request, { clientId, clientSecret, flowKey }
   const badCode = jsonResponse(400, { reason: 'bad-code' });
 
   const flow = openFlow(readCookie(request.cookies, FLOW_COOKIE) ?? '', flowKey, Date.now());
-  if (!flow) {
-    return expired;
-  }
-
-  if (flow.kind === 'passkey') {
+  if (!flow || flow.kind === 'passkey') {
     return expired;
   }
 

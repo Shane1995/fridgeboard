@@ -90,24 +90,21 @@ describe('PasskeyPrompt', () => {
     expect(screen.queryByText(COPY.title)).not.toBeInTheDocument();
   });
 
-  it('stays hidden when the browser cannot do passkeys', async () => {
-    vi.mocked(browserSupportsWebAuthn).mockReturnValue(false);
-    const { apiFetch } = renderPrompt();
-
-    await waitFor(() => expect(apiFetch).toHaveBeenCalled());
-    expect(screen.queryByText(COPY.title)).not.toBeInTheDocument();
-  });
-
-  it('stays hidden once dismissed for good', async () => {
-    window.localStorage.setItem('fb:passkey-prompt-dismissed', '1');
-    const { apiFetch } = renderPrompt();
-
-    await waitFor(() => expect(apiFetch).toHaveBeenCalled());
-    expect(screen.queryByText(COPY.title)).not.toBeInTheDocument();
-  });
-
-  it('stays hidden when this device already has a passkey for the account', async () => {
-    window.localStorage.setItem('fb:passkey-email', 'jess@example.com');
+  it.each([
+    [
+      'the browser cannot do passkeys',
+      () => vi.mocked(browserSupportsWebAuthn).mockReturnValue(false),
+    ],
+    [
+      'it was dismissed for good',
+      () => window.localStorage.setItem('fb:passkey-prompt-dismissed', '1'),
+    ],
+    [
+      'this device already has a passkey for the account',
+      () => window.localStorage.setItem('fb:passkey-email', 'jess@example.com'),
+    ],
+  ])('stays hidden when %s', async (_label, arrange) => {
+    arrange();
     const { apiFetch } = renderPrompt();
 
     await waitFor(() => expect(apiFetch).toHaveBeenCalled());

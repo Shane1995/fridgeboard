@@ -1,11 +1,10 @@
 import { MutationName } from '@fridgeboard/contract/configuration/mutations/constants';
 import { startAuthentication, type AuthenticationResponseJSON } from '@simplewebauthn/browser';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query';
 import { act, renderHook } from '@testing-library/react';
-import type { ReactNode } from 'react';
-import { SessionContext } from '../../Context/Session';
 import { SessionStatus } from '../../services/session/constants';
 import { createSession } from '../../testUtils/createSession';
+import { createSessionWrapper } from '../../testUtils/createSessionWrapper';
 import { useSignInWithPasskeyMutation } from './index';
 
 vi.mock('@simplewebauthn/browser', () => ({ startAuthentication: vi.fn() }));
@@ -22,11 +21,7 @@ const CREDENTIAL: AuthenticationResponseJSON = {
 const { session, startPasskeySignIn, verifyPasskey } = createSession(SessionStatus.SignedOut);
 
 const client = new QueryClient();
-const wrapper = ({ children }: { children: ReactNode }) => (
-  <QueryClientProvider client={client}>
-    <SessionContext.Provider value={session}>{children}</SessionContext.Provider>
-  </QueryClientProvider>
-);
+const wrapper = createSessionWrapper(session, client);
 
 const signIn = async (email = 'jess@example.com') => {
   const { result } = renderHook(() => useSignInWithPasskeyMutation(), { wrapper });

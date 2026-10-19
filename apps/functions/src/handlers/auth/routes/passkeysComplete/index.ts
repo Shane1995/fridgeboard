@@ -10,17 +10,13 @@ import {
   WebAuthnRelyingPartyMismatchException,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { jsonResponse } from '../../../../utils/jsonResponse/index.ts';
+import { CREDENTIAL_FIELD, UNKNOWN_ERROR } from '../../constants.ts';
 import type { AuthorizedRoute } from '../../types.ts';
 import { bearerToken } from '../../utils/bearerToken/index.ts';
 import { isRecentAuth } from '../../utils/recentAuth/index.ts';
 import { readBodyObject } from '../../utils/readBodyObject/index.ts';
 import { sendPasskeyNotice } from '../../utils/sendPasskeyNotice/index.ts';
-import {
-  CREDENTIAL_FIELD,
-  EMAIL_ATTRIBUTE,
-  NOTICE_FAILED_LOG,
-  UNKNOWN_ERROR,
-} from './constants.ts';
+import { EMAIL_ATTRIBUTE, NOTICE_FAILED_LOG } from './constants.ts';
 
 const cognito = new CognitoIdentityProviderClient({});
 

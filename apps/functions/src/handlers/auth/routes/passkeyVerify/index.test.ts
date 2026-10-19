@@ -41,9 +41,11 @@ describe('passkeyVerify route', () => {
   ])('rejects %s as expired and never calls Cognito', async (_label, flow) => {
     const result = await passkeyVerify(buildRequest(flow), SECRETS);
 
-    expect(result.statusCode).toBe(400);
-    expect(JSON.parse(result.body ?? '')).toEqual({ reason: 'expired' });
-    expect(result.cookies).toContain(CLEARED_FLOW_COOKIE);
+    expect(result).toMatchObject({
+      statusCode: 400,
+      body: JSON.stringify({ reason: 'expired' }),
+      cookies: [CLEARED_FLOW_COOKIE],
+    });
     expect(cognitoMock.calls()).toHaveLength(0);
   });
 

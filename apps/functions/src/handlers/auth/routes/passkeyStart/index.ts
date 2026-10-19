@@ -4,15 +4,15 @@ import {
   NotAuthorizedException,
   UserNotFoundException,
 } from '@aws-sdk/client-cognito-identity-provider';
-import type { WebAuthnOptions } from '@fridgeboard/contract/auth';
 import { getConfiguration } from '../../../../configuration/index.ts';
 import { jsonResponse } from '../../../../utils/jsonResponse/index.ts';
 import { normaliseEmail } from '../../../../utils/normaliseEmail/index.ts';
+import { WEB_AUTHN_CHALLENGE } from '../../constants.ts';
 import type { Route } from '../../types.ts';
 import { flowCookie } from '../../utils/flowCookie/index.ts';
 import { readBodyField } from '../../utils/readBodyField/index.ts';
 import { secretHash } from '../../utils/secretHash/index.ts';
-import { EMAIL_MARKER, REQUEST_OPTIONS_PARAMETER, WEB_AUTHN_CHALLENGE } from './constants.ts';
+import { EMAIL_MARKER, REQUEST_OPTIONS_PARAMETER } from './constants.ts';
 import { parseOptions } from './utils/parseOptions/index.ts';
 
 const cognito = new CognitoIdentityProviderClient({});
@@ -44,9 +44,7 @@ export const passkeyStart: Route = async (request, { clientId, clientSecret, flo
       throw error;
     });
 
-  const options: WebAuthnOptions | undefined = parseOptions(
-    response?.ChallengeParameters?.[REQUEST_OPTIONS_PARAMETER],
-  );
+  const options = parseOptions(response?.ChallengeParameters?.[REQUEST_OPTIONS_PARAMETER]);
   if (response?.ChallengeName !== WEB_AUTHN_CHALLENGE || !response.Session || !options) {
     return emailCode;
   }

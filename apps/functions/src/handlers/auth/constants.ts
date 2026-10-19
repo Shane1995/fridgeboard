@@ -8,5 +8,7 @@ export const PASSKEY_START_ROUTE = `POST ${API_PATHS.passkeyStart}`;
 export const PASSKEY_VERIFY_ROUTE = `POST ${API_PATHS.passkeyVerify}`;
 export const PASSKEYS_START_ROUTE = `POST ${API_PATHS.passkeysStart}`;
 export const PASSKEYS_COMPLETE_ROUTE = `POST ${API_PATHS.passkeysComplete}`;
+export const WEB_AUTHN_CHALLENGE = 'WEB_AUTHN';
+export const CREDENTIAL_FIELD = 'credential';
 export const ROUTE_FAILED_LOG = 'auth route failed';
 export const UNKNOWN_ERROR = 'UnknownError';

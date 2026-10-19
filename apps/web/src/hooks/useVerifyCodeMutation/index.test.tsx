@@ -1,18 +1,13 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query';
 import { act, renderHook } from '@testing-library/react';
-import type { ReactNode } from 'react';
-import { SessionContext } from '../../Context/Session';
 import { createSession } from '../../testUtils/createSession';
+import { createSessionWrapper } from '../../testUtils/createSessionWrapper';
 import { SessionStatus } from '../../services/session/constants';
 import { useVerifyCodeMutation } from './index';
 const { session, verifyCode } = createSession(SessionStatus.SignedOut);
 
 const client = new QueryClient();
-const wrapper = ({ children }: { children: ReactNode }) => (
-  <QueryClientProvider client={client}>
-    <SessionContext.Provider value={session}>{children}</SessionContext.Provider>
-  </QueryClientProvider>
-);
+const wrapper = createSessionWrapper(session, client);
 
 describe('useVerifyCodeMutation', () => {
   it('calls verifyCode and returns its result', async () => {

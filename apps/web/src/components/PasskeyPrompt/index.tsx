@@ -53,48 +53,43 @@ export const PasskeyPrompt = () => {
     });
   };
 
-  if (done) {
-    return (
-      <aside className="fixed inset-x-0 bottom-0 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+  const handleDontAsk = () => {
+    device.dismissPrompt();
+    setHidden(true);
+  };
+
+  return (
+    <aside className="fixed inset-x-0 bottom-0 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+      {done ? (
         <Alert status="success">
           <Alert.Content>
             <Alert.Description>{COPY.done}</Alert.Description>
           </Alert.Content>
         </Alert>
-      </aside>
-    );
-  }
-
-  return (
-    <aside className="fixed inset-x-0 bottom-0 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-      <Card>
-        <Card.Content className="flex flex-col gap-3">
-          <h2 className="text-lg font-semibold">{COPY.title}</h2>
-          <p>{COPY.body}</p>
-          {message && (
-            <Alert status="danger">
-              <Alert.Content>
-                <Alert.Description>{message}</Alert.Description>
-              </Alert.Content>
-            </Alert>
-          )}
-          <Button onPress={handleSetUp} isPending={register.isPending}>
-            {register.isPending ? COPY.settingUp : COPY.setUp}
-          </Button>
-          <Button variant="secondary" onPress={() => setHidden(true)}>
-            {COPY.notNow}
-          </Button>
-          <Button
-            variant="ghost"
-            onPress={() => {
-              device.dismissPrompt();
-              setHidden(true);
-            }}
-          >
-            {COPY.dontAsk}
-          </Button>
-        </Card.Content>
-      </Card>
+      ) : (
+        <Card>
+          <Card.Content className="flex flex-col gap-3">
+            <h2 className="text-lg font-semibold">{COPY.title}</h2>
+            <p>{COPY.body}</p>
+            {message && (
+              <Alert status="danger">
+                <Alert.Content>
+                  <Alert.Description>{message}</Alert.Description>
+                </Alert.Content>
+              </Alert>
+            )}
+            <Button onPress={handleSetUp} isPending={register.isPending}>
+              {register.isPending ? COPY.settingUp : COPY.setUp}
+            </Button>
+            <Button variant="secondary" onPress={() => setHidden(true)}>
+              {COPY.notNow}
+            </Button>
+            <Button variant="ghost" onPress={handleDontAsk}>
+              {COPY.dontAsk}
+            </Button>
+          </Card.Content>
+        </Card>
+      )}
     </aside>
   );
 };

@@ -31,6 +31,11 @@ const request = (email: unknown) => ({
   cookies: [],
 });
 
+const expectEmailCode = (result: Awaited<ReturnType<typeof passkeyStart>>) => {
+  expect(result.statusCode).toBe(200);
+  expect(JSON.parse(result.body ?? '')).toEqual({ next: 'email-code' });
+};
+
 describe('passkeyStart route', () => {
   beforeEach(() => {
     cognitoMock.reset();
@@ -111,8 +116,7 @@ describe('passkeyStart route', () => {
 
     const result = await passkeyStart(request('jess@example.com'), SECRETS);
 
-    expect(result.statusCode).toBe(200);
-    expect(JSON.parse(result.body ?? '')).toEqual({ next: 'email-code' });
+    expectEmailCode(result);
     expect(result.cookies ?? []).toHaveLength(0);
   });
 
@@ -124,8 +128,7 @@ describe('passkeyStart route', () => {
 
     const result = await passkeyStart(request('jess@example.com'), SECRETS);
 
-    expect(result.statusCode).toBe(200);
-    expect(JSON.parse(result.body ?? '')).toEqual({ next: 'email-code' });
+    expectEmailCode(result);
   });
 
   it('rethrows unexpected Cognito errors', async () => {

@@ -6,6 +6,7 @@ import {
   TooManyFailedAttemptsException,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { jsonResponse } from '../../../../utils/jsonResponse/index.ts';
+import { CREDENTIAL_FIELD, WEB_AUTHN_CHALLENGE } from '../../constants.ts';
 import type { Route } from '../../types.ts';
 import { FLOW_COOKIE } from '../../utils/cookies/constants.ts';
 import { clearCookie } from '../../utils/cookies/clearCookie/index.ts';
@@ -14,7 +15,7 @@ import { openFlow } from '../../utils/flowToken/openFlow/index.ts';
 import { readBodyObject } from '../../utils/readBodyObject/index.ts';
 import { secretHash } from '../../utils/secretHash/index.ts';
 import { sessionResponse } from '../../utils/sessionResponse/index.ts';
-import { CREDENTIAL_FIELD, PASSKEY_FLOW, WEB_AUTHN_CHALLENGE } from './constants.ts';
+import { PASSKEY_FLOW } from './constants.ts';
 
 const cognito = new CognitoIdentityProviderClient({});
 
