@@ -7,6 +7,13 @@ const BASELINE = { queries: { retry: 1, staleTime: 30_000, refetchOnWindowFocus:
 
 const setup = () => new QueryClient({ defaultOptions: BASELINE });
 
+const retriesOf = (retry: unknown): number =>
+  typeof retry === 'function'
+    ? Array.from({ length: 10 }, (_, attempt) => attempt).filter((attempt) =>
+        retry(attempt, new TypeError('offline')),
+      ).length
+    : Number(retry);
+
 describe('applyQuerySettings', () => {
   it('keeps the built-in baseline when there are no entries', () => {
     const client = setup();
@@ -25,7 +32,7 @@ describe('applyQuerySettings', () => {
     applyQuerySettings(client, { queries: { default: { retry: 3 } }, mutations: {} }, BASELINE);
 
     const options = client.defaultQueryOptions({ queryKey: ['unnamed'] });
-    expect(options.retry).toBe(3);
+    expect(retriesOf(options.retry)).toBe(3);
     expect(options.staleTime).toBe(30_000);
     expect(options.refetchOnWindowFocus).toBe(true);
   });
@@ -66,9 +73,13 @@ describe('applyQuerySettings', () => {
       BASELINE,
     );
 
-    expect(client.getQueryDefaults([QueryName.me])).toEqual({ retry: 4, staleTime: 5_000 });
-    expect(client.defaultQueryOptions({ queryKey: ['other'] }).retry).toBe(2);
-    expect(client.defaultQueryOptions({ queryKey: [QueryName.me] }).retry).toBe(4);
+    expect(client.getQueryDefaults([QueryName.me])).toEqual({
+      retry: expect.any(Function),
+      staleTime: 5_000,
+    });
+    expect(retriesOf(client.getQueryDefaults([QueryName.me]).retry)).toBe(4);
+    expect(retriesOf(client.defaultQueryOptions({ queryKey: ['other'] }).retry)).toBe(2);
+    expect(retriesOf(client.defaultQueryOptions({ queryKey: [QueryName.me] }).retry)).toBe(4);
   });
 
   it('applies named mutation entries', () => {
@@ -107,9 +118,9 @@ describe('applyQuerySettings', () => {
 
     applyQuerySettings(client, { queries: {}, mutations: {} }, BASELINE);
 
-    expect(client.defaultQueryOptions({ queryKey: ['unnamed'] }).retry).toBe(1);
+    expect(retriesOf(client.defaultQueryOptions({ queryKey: ['unnamed'] }).retry)).toBe(1);
     expect(client.defaultQueryOptions({ queryKey: ['unnamed'] }).staleTime).toBe(30_000);
-    expect(client.defaultQueryOptions({ queryKey: [QueryName.me] }).retry).toBe(1);
+    expect(retriesOf(client.defaultQueryOptions({ queryKey: [QueryName.me] }).retry)).toBe(1);
     expect(client.getDefaultOptions().mutations).toEqual({});
     expect(client.getMutationDefaults([MutationName.signOut])).toEqual({});
   });
