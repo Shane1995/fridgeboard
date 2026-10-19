@@ -26,7 +26,7 @@ import { stripTopLevelParams } from '@fridgeboard/contract/configuration/stripTo
 import { stripUnknownFlags } from '@fridgeboard/contract/configuration/stripUnknownFlags';
 import { stripUnknownServices } from '@fridgeboard/contract/configuration/stripUnknownServices';
 import { setConfiguration } from './setConfiguration';
-import { configurationStore } from './store';
+import { getStoredConfiguration } from './getStoredConfiguration';
 import { CONFIGURATION_PATH, CONFIGURATION_TIMEOUT_MS } from './constants';
 
 const stripUnknown = (raw: unknown): unknown =>
@@ -72,7 +72,7 @@ export const getConfiguration = async (): Promise<WebConfiguration> => {
 };
 
 export const getServicePath = (service: WebService): string => {
-  const { services } = configurationStore.current;
+  const { services } = getStoredConfiguration();
   try {
     return resolveServiceUrl(services[service], {});
   } catch {

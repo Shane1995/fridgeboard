@@ -1,5 +1,5 @@
 import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/web/constants';
-import { configurationStore } from '../store';
+import { getStoredConfiguration } from '../getStoredConfiguration';
 import { setConfiguration } from './index';
 
 afterEach(() => {
@@ -15,6 +15,6 @@ describe('setConfiguration', () => {
 
     setConfiguration(next);
 
-    expect(configurationStore.current).toBe(next);
+    expect(getStoredConfiguration()).toBe(next);
   });
 });

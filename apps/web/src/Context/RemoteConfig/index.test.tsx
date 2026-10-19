@@ -3,7 +3,8 @@ import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/w
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import { getConfiguration } from '../../services/configuration';
-import { configurationStore } from '../../services/configuration/store';
+import { getStoredConfiguration } from '../../services/configuration/getStoredConfiguration';
+import { setConfiguration } from '../../services/configuration/setConfiguration';
 import { useRemoteConfig } from '../../hooks/useRemoteConfig';
 import { RemoteConfigProvider } from '.';
 
@@ -33,7 +34,7 @@ const served = {
 
 describe('RemoteConfigProvider', () => {
   afterEach(() => {
-    configurationStore.current = DEFAULT_WEB_CONFIGURATION;
+    setConfiguration(DEFAULT_WEB_CONFIGURATION);
   });
 
   it('renders children with the defaults while the configuration loads', () => {
@@ -54,6 +55,6 @@ describe('RemoteConfigProvider', () => {
     vi.mocked(getConfiguration).mockResolvedValue(served);
     renderProvider();
 
-    await waitFor(() => expect(configurationStore.current).toEqual(served));
+    await waitFor(() => expect(getStoredConfiguration()).toEqual(served));
   });
 });
