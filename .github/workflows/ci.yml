@@ -115,9 +115,26 @@ jobs:
         run: |
           set -euo pipefail
           : > "$RUNNER_TEMP/flipped"
-          for spec in auth:auth:wrapped me:me:wrapped preSignUp:pre-sign-up:pre-sign-up postConfirmation:post-confirmation:post-confirmation; do
-            IFS=: read -r dir name kind <<< "$spec"
-            fn="fridgeboard-$name"
+          specs=()
+          for bundle in api-dist/*/index.mjs; do
+            dir=$(basename "$(dirname "$bundle")")
+            name=$(sed -E 's/([a-z0-9])([A-Z])/\1-\2/g' <<< "$dir" | tr '[:upper:]' '[:lower:]')
+            case "$dir" in
+              preSignUp) kind=pre-sign-up ;;
+              postConfirmation) kind=post-confirmation ;;
+              *) kind=wrapped ;;
+            esac
+            specs+=("$dir:fridgeboard-$name:$kind")
+          done
+          for spec in "${specs[@]}"; do
+            IFS=: read -r dir fn kind <<< "$spec"
+            aws lambda get-function-configuration --function-name "$fn" > /dev/null || {
+              echo "built $dir has no deployed function $fn: add it in Terraform first"
+              exit 1
+            }
+          done
+          for spec in "${specs[@]}"; do
+            IFS=: read -r dir fn kind <<< "$spec"
             zip -j "$RUNNER_TEMP/$dir.zip" "api-dist/$dir/index.mjs"
             aws lambda update-function-code --function-name "$fn" --zip-file "fileb://$RUNNER_TEMP/$dir.zip" > /dev/null
             aws lambda wait function-updated --function-name "$fn"
