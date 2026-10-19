@@ -15,7 +15,6 @@ export const useMeQuery = (): QueryResult<IMeResponse> => {
   return useQuery({
     queryKey: ME_QUERY_KEY,
     queryFn: () => getMe(resolveServicePath(services, WebService.me), (path) => apiFetch(path)),
-    staleTime: Number.POSITIVE_INFINITY,
     enabled: status === SessionStatus.SignedIn,
   });
 };
