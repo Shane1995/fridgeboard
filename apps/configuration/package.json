@@ -1,0 +1,20 @@
+{
+  "name": "@fridgeboard/configuration",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "node scripts/validate/index.ts",
+    "typecheck": "tsc -b",
+    "test": "vitest run",
+    "lint": "oxlint --config ../../.oxlintrc.json scripts/",
+    "format": "oxfmt scripts/ web/ lambda/",
+    "format:check": "oxfmt --check scripts/ web/ lambda/"
+  },
+  "devDependencies": {
+    "@fridgeboard/contract": "workspace:*",
+    "@types/node": "^26.6.5",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  }
+}
