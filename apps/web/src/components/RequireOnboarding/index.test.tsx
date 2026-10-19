@@ -11,19 +11,10 @@ import {
 import { render, screen } from '@testing-library/react';
 import { RemoteConfigContext } from '../../Context/RemoteConfig';
 import { SessionContext } from '../../Context/Session';
-import type { SessionContextValue } from '../../Context/Session/types';
+import { createSession } from '../../testUtils/createSession';
 import { SessionStatus } from '../../services/session/constants';
 import { RequireOnboarding } from '.';
-
-const apiFetch = vi.fn();
-const session: SessionContextValue = {
-  status: SessionStatus.SignedIn,
-  startSignIn: vi.fn(),
-  verifyCode: vi.fn(),
-  signOut: vi.fn(),
-  refresh: vi.fn(),
-  apiFetch,
-};
+const { session, apiFetch } = createSession(SessionStatus.SignedIn);
 
 const me = (onboarding: IMeResponse['onboarding']): IMeResponse => ({
   sub: 'sub-1',

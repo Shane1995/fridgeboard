@@ -19,6 +19,12 @@ describe('openFlow', () => {
     expect(openFlow(token, KEY, NOW + 180_000)).toEqual(FLOW);
   });
 
+  it('round-trips a passkey flow', () => {
+    const flow: AuthFlow = { ...FLOW, kind: 'passkey' };
+
+    expect(openFlow(sealFlow(flow, KEY, NOW, 180_000), KEY, NOW)).toEqual(flow);
+  });
+
   it('returns undefined after 181 seconds', () => {
     const token = sealFlow(FLOW, KEY, NOW, 180_000);
 

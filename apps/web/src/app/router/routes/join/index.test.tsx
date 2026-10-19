@@ -1,5 +1,5 @@
 import { SessionContext } from '../../../../Context/Session';
-import type { SessionContextValue } from '../../../../Context/Session/types';
+import { createSession } from '../../../../testUtils/createSession';
 import { SessionStatus } from '../../../../services/session/constants';
 import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/web/constants';
 import { RemoteConfigContext } from '../../../../Context/RemoteConfig';
@@ -15,14 +15,7 @@ import { render, screen } from '@testing-library/react';
 import { SIGN_IN_COPY } from '../../../../pages/SignIn/constants';
 import { Route } from '../../../../routes/join';
 
-const session: SessionContextValue = {
-  status: SessionStatus.SignedOut,
-  startSignIn: vi.fn(),
-  verifyCode: vi.fn(),
-  signOut: vi.fn(),
-  refresh: vi.fn(),
-  apiFetch: vi.fn(),
-};
+const { session } = createSession(SessionStatus.SignedOut);
 
 describe('join route', () => {
   it('renders the join screen with the email from the link', async () => {

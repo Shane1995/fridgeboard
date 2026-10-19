@@ -408,6 +408,97 @@ describe('SessionProvider', () => {
     });
   });
 
+  describe('recentCodeSignIn', () => {
+    it('is true for a few minutes after an email-code sign-in, then expires', async () => {
+      fetchMock.mockResolvedValueOnce(respond(401));
+      const { result } = await renderSession();
+      expect(result.current.recentCodeSignIn).toBe(false);
+      fetchMock.mockResolvedValueOnce(respond(200, TOKENS));
+
+      await act(() => result.current.verifyCode('123456'));
+      expect(result.current.recentCodeSignIn).toBe(true);
+
+      await advance(239_000);
+      expect(result.current.recentCodeSignIn).toBe(true);
+      await advance(2_000);
+      expect(result.current.recentCodeSignIn).toBe(false);
+    });
+
+    it('is not set by a passkey sign-in or a refresh', async () => {
+      const { result } = await renderSession();
+
+      expect(result.current.recentCodeSignIn).toBe(false);
+    });
+
+    it('is cleared on sign-out', async () => {
+      fetchMock.mockResolvedValueOnce(respond(401));
+      const { result } = await renderSession();
+      fetchMock.mockResolvedValueOnce(respond(200, TOKENS));
+      await act(() => result.current.verifyCode('123456'));
+      fetchMock.mockResolvedValueOnce(respond(204));
+
+      await act(() => result.current.signOut());
+
+      expect(result.current.recentCodeSignIn).toBe(false);
+    });
+  });
+
+  describe('startPasskeySignIn', () => {
+    it('posts the email to the passkey start path', async () => {
+      const { result } = await renderSession();
+      fetchMock.mockResolvedValueOnce(respond(200, { options: { challenge: 'abc' } }));
+
+      await expect(
+        act(() => result.current.startPasskeySignIn('jess@example.com')),
+      ).resolves.toEqual({ ok: true, options: { challenge: 'abc' } });
+
+      expect(fetchMock).toHaveBeenLastCalledWith(
+        API_PATHS.passkeyStart,
+        expect.objectContaining({ body: JSON.stringify({ email: 'jess@example.com' }) }),
+      );
+    });
+  });
+
+  describe('verifyPasskey', () => {
+    const CREDENTIAL = {
+      id: 'c',
+      rawId: 'c',
+      type: 'public-key' as const,
+      response: { clientDataJSON: 'cd', authenticatorData: 'ad', signature: 's' },
+      clientExtensionResults: {},
+    };
+
+    it('signs in without marking the sign-in as an email code', async () => {
+      fetchMock.mockResolvedValueOnce(respond(401));
+      const { result } = await renderSession();
+      fetchMock.mockResolvedValueOnce(respond(200, TOKENS));
+
+      await expect(act(() => result.current.verifyPasskey(CREDENTIAL))).resolves.toEqual({
+        ok: true,
+      });
+
+      expect(result.current.status).toBe('signed-in');
+      expect(result.current.recentCodeSignIn).toBe(false);
+      expect(fetchMock).toHaveBeenLastCalledWith(
+        API_PATHS.passkeyVerify,
+        expect.objectContaining({ body: JSON.stringify({ credential: CREDENTIAL }) }),
+      );
+    });
+
+    it('returns the failure reason and stays signed out', async () => {
+      fetchMock.mockResolvedValueOnce(respond(401));
+      const { result } = await renderSession();
+      fetchMock.mockResolvedValueOnce(respond(400, { reason: 'passkey-failed' }));
+
+      await expect(act(() => result.current.verifyPasskey(CREDENTIAL))).resolves.toEqual({
+        ok: false,
+        reason: 'passkey-failed',
+      });
+
+      expect(result.current.status).toBe('signed-out');
+    });
+  });
+
   describe('signOut', () => {
     it('revokes the session server-side and forgets the token', async () => {
       const { result } = await renderSession();

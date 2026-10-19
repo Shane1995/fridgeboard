@@ -7,20 +7,13 @@ import {
 } from '@tanstack/react-router';
 import { render, screen } from '@testing-library/react';
 import { SessionContext } from '../../Context/Session';
-import type { SessionContextValue } from '../../Context/Session/types';
+import { createSession } from '../../testUtils/createSession';
 import { SessionStatus } from '../../services/session/constants';
 import { APP_LOADER_COPY } from '../AppLoader/constants';
 import { RequireSession } from '.';
 
 const renderAt = async (status: SessionStatus) => {
-  const session: SessionContextValue = {
-    status,
-    startSignIn: vi.fn(),
-    verifyCode: vi.fn(),
-    signOut: vi.fn(),
-    refresh: vi.fn(),
-    apiFetch: vi.fn(),
-  };
+  const { session } = createSession(status);
   const rootRoute = createRootRoute();
   const privateRoute = createRoute({
     getParentRoute: () => rootRoute,

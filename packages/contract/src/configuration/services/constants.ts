@@ -8,6 +8,10 @@ export enum WebService {
   me = 'me',
   username = 'username',
   households = 'households',
+  passkeyStart = 'passkeyStart',
+  passkeyVerify = 'passkeyVerify',
+  passkeysStart = 'passkeysStart',
+  passkeysComplete = 'passkeysComplete',
 }
 
 export const WEB_SERVICES = Object.values(WebService);
@@ -34,4 +38,20 @@ export const DEFAULT_WEB_SERVICES: Record<WebService, ServiceDefinition> = {
   [WebService.me]: { url: '/api/{version}/me', params: DEFAULT_SERVICE_PARAMS },
   [WebService.username]: { url: '/api/{version}/me/username', params: DEFAULT_SERVICE_PARAMS },
   [WebService.households]: { url: '/api/{version}/households', params: DEFAULT_SERVICE_PARAMS },
+  [WebService.passkeyStart]: {
+    url: '/api/{version}/auth/passkey/start',
+    params: DEFAULT_SERVICE_PARAMS,
+  },
+  [WebService.passkeyVerify]: {
+    url: '/api/{version}/auth/passkey/verify',
+    params: DEFAULT_SERVICE_PARAMS,
+  },
+  [WebService.passkeysStart]: {
+    url: '/api/{version}/auth/passkeys/start',
+    params: DEFAULT_SERVICE_PARAMS,
+  },
+  [WebService.passkeysComplete]: {
+    url: '/api/{version}/auth/passkeys/complete',
+    params: DEFAULT_SERVICE_PARAMS,
+  },
 };

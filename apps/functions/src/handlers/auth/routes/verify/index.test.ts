@@ -49,6 +49,16 @@ describe('verify route', () => {
     vi.mocked(getConfiguration).mockResolvedValue(DEFAULT_LAMBDA_CONFIGURATION);
   });
 
+  it('refuses a passkey flow cookie on the email-code route', async () => {
+    const passkey: AuthFlow = { email: 'jess@example.com', session: 's9', kind: 'passkey' };
+
+    const result = await verify(buildRequest(passkey), SECRETS);
+
+    expect(result.statusCode).toBe(400);
+    expect(JSON.parse(result.body ?? '')).toEqual({ reason: 'expired' });
+    expect(cognitoMock.calls()).toHaveLength(0);
+  });
+
   it('confirms sign-up and signs in with the returned session', async () => {
     cognitoMock.on(ConfirmSignUpCommand).resolves({ Session: 's3' });
     cognitoMock.on(InitiateAuthCommand).resolves({ AuthenticationResult: TOKENS });

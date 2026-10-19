@@ -1,3 +1,4 @@
+import type { PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/browser';
 import type {
   IAuthErrorReason,
   ITokenResponse,
@@ -23,3 +24,8 @@ export type RefreshResult =
   | { kind: RefreshResultKind.Tokens; tokens: ITokenResponse }
   | { kind: RefreshResultKind.Rejected }
   | { kind: RefreshResultKind.Unavailable };
+
+export type PasskeyStartResult =
+  | { ok: true; options: PublicKeyCredentialRequestOptionsJSON }
+  | { ok: false; fallback: true }
+  | { ok: false; reason: FailureReason };

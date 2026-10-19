@@ -4,6 +4,8 @@ export enum MutationName {
   signOut = 'signOut',
   setUsername = 'setUsername',
   createHousehold = 'createHousehold',
+  signInWithPasskey = 'signInWithPasskey',
+  registerPasskey = 'registerPasskey',
 }
 
 export const CONFIGURABLE_MUTATION_NAMES = [MutationName.signOut] as const;
@@ -13,6 +15,8 @@ export const NON_RETRYABLE_MUTATION_NAMES = [
   MutationName.verifyCode,
   MutationName.setUsername,
   MutationName.createHousehold,
+  MutationName.signInWithPasskey,
+  MutationName.registerPasskey,
 ];
 
 export const MUTATION_BOUNDS = {

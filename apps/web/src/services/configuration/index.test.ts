@@ -28,7 +28,7 @@ describe('getConfiguration', () => {
 
     await expect(getConfiguration()).resolves.toEqual({
       ...DEFAULT_WEB_CONFIGURATION,
-      featureFlags: { ENABLE_ADMIN_INVITES: true },
+      featureFlags: { ENABLE_ADMIN_INVITES: true, ENABLE_PASSKEYS: false },
     });
   });
 

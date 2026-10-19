@@ -1,6 +1,8 @@
 {
   "version": 1,
-  "featureFlags": {},
+  "featureFlags": {
+    "ENABLE_PASSKEYS": true
+  },
   "services": {
     "start": {
       "url": "/api/{version}/auth/start",
@@ -40,6 +42,30 @@
     },
     "households": {
       "url": "/api/{version}/households",
+      "params": {
+        "version": "v1"
+      }
+    },
+    "passkeyStart": {
+      "url": "/api/{version}/auth/passkey/start",
+      "params": {
+        "version": "v1"
+      }
+    },
+    "passkeyVerify": {
+      "url": "/api/{version}/auth/passkey/verify",
+      "params": {
+        "version": "v1"
+      }
+    },
+    "passkeysStart": {
+      "url": "/api/{version}/auth/passkeys/start",
+      "params": {
+        "version": "v1"
+      }
+    },
+    "passkeysComplete": {
+      "url": "/api/{version}/auth/passkeys/complete",
       "params": {
         "version": "v1"
       }

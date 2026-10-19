@@ -5,10 +5,15 @@ import { RemoteConfigContext } from '../../Context/RemoteConfig';
 import { SessionContext } from '../../Context/Session';
 import type { TestProvidersProps } from './types';
 
-export const TestProviders = ({ session, client, children }: TestProvidersProps) => {
+export const TestProviders = ({
+  session,
+  client,
+  config = DEFAULT_WEB_CONFIGURATION,
+  children,
+}: TestProvidersProps) => {
   const [ownClient] = useState(() => new QueryClient());
   return (
-    <RemoteConfigContext.Provider value={DEFAULT_WEB_CONFIGURATION}>
+    <RemoteConfigContext.Provider value={config}>
       <SessionContext.Provider value={session}>
         <QueryClientProvider client={client ?? ownClient}>{children}</QueryClientProvider>
       </SessionContext.Provider>

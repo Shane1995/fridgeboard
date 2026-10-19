@@ -3,6 +3,7 @@ import { WebService } from '@fridgeboard/contract/configuration/services/constan
 import { useQueryClient } from '@tanstack/react-query';
 import { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { PropsWithChildren } from 'react';
+import type { AuthenticationResponseJSON } from '@simplewebauthn/browser';
 import { useRemoteConfigContext } from '../../hooks/useRemoteConfigContext';
 import { request } from '../../services/api/request';
 import { UNAUTHORISED_STATUS } from '../../services/constants';
@@ -15,12 +16,14 @@ import {
   VISIBLE,
 } from '../../services/session/constants';
 import { signOut as sendSignOut } from '../../services/session/signOut';
+import { startPasskey as sendStartPasskey } from '../../services/session/startPasskey';
 import { startSignIn as sendStartSignIn } from '../../services/session/startSignIn';
 import type { VerifyResult } from '../../services/session/types';
 import { nextRefreshDelay } from '../../services/session/utils/nextRefreshDelay';
 import { withRefreshLock } from '../../services/session/utils/withRefreshLock';
 import { verifyCode as sendVerifyCode } from '../../services/session/verifyCode';
-import { INITIAL_RUNTIME } from './constants';
+import { verifyPasskey as sendVerifyPasskey } from '../../services/session/verifyPasskey';
+import { INITIAL_RUNTIME, RECENT_CODE_WINDOW_MS } from './constants';
 import type { SessionContextValue, SessionRuntime } from './types';
 
 export const SessionContext = createContext<SessionContextValue | null>(null);
@@ -29,6 +32,8 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
   const { services, settings } = useRemoteConfigContext();
   const queryClient = useQueryClient();
   const [status, setStatus] = useState<SessionStatus>(SessionStatus.Loading);
+  const [recentCodeSignIn, setRecentCodeSignIn] = useState(false);
+  const recentCodeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const runtime = useRef<SessionRuntime>({ ...INITIAL_RUNTIME });
   const config = useRef({ services, settings });
   useEffect(() => {
@@ -54,6 +59,8 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
     state.timer = undefined;
     state.token = undefined;
     state.noSession = true;
+    clearTimeout(recentCodeTimer.current);
+    setRecentCodeSignIn(false);
     changeStatus(SessionStatus.SignedOut);
   }, [changeStatus]);
 
@@ -110,6 +117,8 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
     return flight;
   }, [applyTokens, changeStatus, clear]);
 
+  useEffect(() => () => clearTimeout(recentCodeTimer.current), []);
+
   useEffect(() => {
     refreshRef.current = refresh;
   }, [refresh]);
@@ -152,6 +161,30 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
         return response;
       }
       applyTokens(response.tokens);
+      clearTimeout(recentCodeTimer.current);
+      setRecentCodeSignIn(true);
+      recentCodeTimer.current = setTimeout(() => setRecentCodeSignIn(false), RECENT_CODE_WINDOW_MS);
+      return { ok: true };
+    },
+    [applyTokens],
+  );
+
+  const startPasskeySignIn = useCallback(
+    (email: string) =>
+      sendStartPasskey(resolveServicePath(config.current.services, WebService.passkeyStart), email),
+    [],
+  );
+
+  const verifyPasskey = useCallback(
+    async (credential: AuthenticationResponseJSON): Promise<VerifyResult> => {
+      const response = await sendVerifyPasskey(
+        resolveServicePath(config.current.services, WebService.passkeyVerify),
+        credential,
+      );
+      if (!response.ok) {
+        return response;
+      }
+      applyTokens(response.tokens);
       return { ok: true };
     },
     [applyTokens],
@@ -183,8 +216,28 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
   );
 
   const value = useMemo<SessionContextValue>(
-    () => ({ status, startSignIn, verifyCode, signOut, refresh, apiFetch }),
-    [status, startSignIn, verifyCode, signOut, refresh, apiFetch],
+    () => ({
+      status,
+      startSignIn,
+      verifyCode,
+      startPasskeySignIn,
+      verifyPasskey,
+      recentCodeSignIn,
+      signOut,
+      refresh,
+      apiFetch,
+    }),
+    [
+      status,
+      startSignIn,
+      verifyCode,
+      startPasskeySignIn,
+      verifyPasskey,
+      recentCodeSignIn,
+      signOut,
+      refresh,
+      apiFetch,
+    ],
   );
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;

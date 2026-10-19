@@ -17,6 +17,14 @@ export const SIGN_IN_COPY = {
   confirmed: "You're confirmed. We've emailed you a fresh code.",
   useAnotherEmail: 'Use a different email',
   privacy: 'Privacy notice',
+  passkey: {
+    title: 'Welcome back',
+    intro: 'Sign in as',
+    submit: 'Sign in with Face ID',
+    signingIn: 'Checking…',
+    useCode: 'Use an email code instead',
+    cancelled: 'Face ID was cancelled. Try again or use an email code.',
+  },
   reasons: {
     'no-invite': 'No invite found for this email. Ask whoever invited you to send one.',
     'verify-email':
@@ -25,6 +33,8 @@ export const SIGN_IN_COPY = {
     expired: 'That code has expired.',
     forbidden: "This account can't use Fridgeboard.",
     unauthorised: 'Please sign in again.',
+    'recent-code-required': 'For safety, sign in with an email code first, then try again.',
+    'passkey-failed': "Face ID didn't work. Use an email code instead.",
     unknown: 'Something went wrong. Please try again.',
   } satisfies Record<FailureReason, string>,
 } as const;

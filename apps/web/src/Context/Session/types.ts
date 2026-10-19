@@ -1,10 +1,14 @@
+import type { AuthenticationResponseJSON } from '@simplewebauthn/browser';
 import type { SessionStatus } from '../../services/session/constants';
-import type { StartResult, VerifyResult } from '../../services/session/types';
+import type { PasskeyStartResult, StartResult, VerifyResult } from '../../services/session/types';
 
 export type SessionContextValue = {
   status: SessionStatus;
   startSignIn: (email: string) => Promise<StartResult>;
   verifyCode: (code: string) => Promise<VerifyResult>;
+  startPasskeySignIn: (email: string) => Promise<PasskeyStartResult>;
+  verifyPasskey: (credential: AuthenticationResponseJSON) => Promise<VerifyResult>;
+  recentCodeSignIn: boolean;
   signOut: () => Promise<void>;
   refresh: () => Promise<boolean>;
   apiFetch: (path: string, init?: RequestInit) => Promise<Response>;

@@ -1,10 +1,12 @@
 import {
   CognitoIdentityProviderClient,
+  InitiateAuthCommand,
   RevokeTokenCommand,
+  StartWebAuthnRegistrationCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { SESv2Client } from '@aws-sdk/client-sesv2';
 import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm';
-import type { APIGatewayProxyEventV2 } from 'aws-lambda';
+import type { APIGatewayProxyEventV2, APIGatewayProxyEventV2WithJWTAuthorizer } from 'aws-lambda';
 import { mockClient } from 'aws-sdk-client-mock';
 import { handler } from './index.ts';
 
@@ -139,6 +141,67 @@ describe('auth handler', () => {
     expect(result.statusCode).toBe(500);
     expect(result.body).toBeUndefined();
     expect(log.mock.calls).toEqual([['auth route failed', 'InternalErrorException']]);
+    log.mockRestore();
+  });
+
+  it('answers the public passkey start route without a session', async () => {
+    cognitoMock
+      .on(InitiateAuthCommand)
+      .resolves({ ChallengeName: 'SELECT_CHALLENGE', Session: 's' });
+
+    const result = await handler(buildEvent('POST /api/v1/auth/passkey/start'));
+
+    expect(result.statusCode).toBe(200);
+    expect(JSON.parse(result.body ?? '')).toEqual({ next: 'email-code' });
+  });
+
+  it.each(['POST /api/v1/auth/passkeys/start', 'POST /api/v1/auth/passkeys/complete'])(
+    'returns 401 for %s when the JWT authorizer did not attach claims',
+    async (routeKey) => {
+      const result = await handler(buildEvent(routeKey));
+
+      expect(result.statusCode).toBe(401);
+      expect(JSON.parse(result.body ?? '')).toEqual({ reason: 'unauthorised' });
+      expect(cognitoMock.calls()).toHaveLength(0);
+    },
+  );
+
+  it('runs the registration start route once the JWT claims are present', async () => {
+    cognitoMock
+      .on(StartWebAuthnRegistrationCommand)
+      .resolves({ CredentialCreationOptions: { challenge: 'abc' } });
+    const event = buildEvent('POST /api/v1/auth/passkeys/start', {
+      origin: ORIGIN,
+      'content-type': 'application/json',
+      'x-api-origin-verify': ORIGIN_SECRET,
+      authorization: 'Bearer access-1',
+    });
+    const authorised: APIGatewayProxyEventV2WithJWTAuthorizer = {
+      ...event,
+      requestContext: {
+        ...event.requestContext,
+        authorizer: {
+          principalId: 'p',
+          integrationLatency: 0,
+          jwt: { claims: { sub: 'sub-1', auth_time: Math.floor(Date.now() / 1000) }, scopes: [] },
+        },
+      },
+    };
+
+    const result = await handler(authorised);
+
+    expect(result.statusCode).toBe(200);
+    expect(JSON.parse(result.body ?? '')).toEqual({ options: { challenge: 'abc' } });
+  });
+
+  it('returns 500 and logs only the error name when a route throws', async () => {
+    const log = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    cognitoMock.on(InitiateAuthCommand).rejects(new Error('secret detail'));
+
+    const result = await handler(buildEvent('POST /api/v1/auth/passkey/start'));
+
+    expect(result.statusCode).toBe(500);
+    expect(log).toHaveBeenCalledWith('auth route failed', 'Error');
     log.mockRestore();
   });
 });
