@@ -5,9 +5,10 @@ import { createContext, useCallback, useEffect, useMemo, useRef, useState } from
 import type { PropsWithChildren } from 'react';
 import type { AuthenticationResponseJSON } from '@simplewebauthn/browser';
 import { useRemoteConfigContext } from '../../hooks/useRemoteConfigContext';
+import type { Endpoint } from '../../services/configuration/types';
 import { request } from '../../services/api/request';
 import { UNAUTHORISED_STATUS } from '../../services/constants';
-import { resolveServicePath } from '../../services/configuration/resolveServicePath';
+import { resolveMutationEndpoint } from '../../services/configuration/resolveEndpoint';
 import { exchangeRefreshCookie } from '../../services/session/exchangeRefreshCookie';
 import {
   RefreshResultKind,
@@ -29,16 +30,16 @@ import type { SessionContextValue, SessionRuntime } from './types';
 export const SessionContext = createContext<SessionContextValue | null>(null);
 
 export const SessionProvider = ({ children }: PropsWithChildren) => {
-  const { services, settings } = useRemoteConfigContext();
+  const configuration = useRemoteConfigContext();
   const queryClient = useQueryClient();
   const [status, setStatus] = useState<SessionStatus>(SessionStatus.Loading);
   const [recentCodeSignIn, setRecentCodeSignIn] = useState(false);
   const recentCodeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const runtime = useRef<SessionRuntime>({ ...INITIAL_RUNTIME });
-  const config = useRef({ services, settings });
+  const config = useRef(configuration);
   useEffect(() => {
-    config.current = { services, settings };
-  }, [services, settings]);
+    config.current = configuration;
+  }, [configuration]);
   const refreshRef = useRef<() => Promise<boolean>>(async () => false);
 
   const changeStatus = useCallback(
@@ -93,7 +94,7 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
     const flight = withRefreshLock(async () => {
       const epoch = state.epoch;
       const result = await exchangeRefreshCookie(
-        resolveServicePath(config.current.services, WebService.refresh),
+        resolveMutationEndpoint(config.current, WebService.refresh),
       );
       if (state.epoch !== epoch) {
         return false;
@@ -147,14 +148,14 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
 
   const startSignIn = useCallback(
     (email: string) =>
-      sendStartSignIn(resolveServicePath(config.current.services, WebService.start), email),
+      sendStartSignIn(resolveMutationEndpoint(config.current, WebService.requestCode), email),
     [],
   );
 
   const verifyCode = useCallback(
     async (code: string): Promise<VerifyResult> => {
       const response = await sendVerifyCode(
-        resolveServicePath(config.current.services, WebService.verify),
+        resolveMutationEndpoint(config.current, WebService.verify),
         code,
       );
       if (!response.ok) {
@@ -171,14 +172,14 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
 
   const startPasskeySignIn = useCallback(
     (email: string) =>
-      sendStartPasskey(resolveServicePath(config.current.services, WebService.passkeyStart), email),
+      sendStartPasskey(resolveMutationEndpoint(config.current, WebService.passkeyStart), email),
     [],
   );
 
   const verifyPasskey = useCallback(
     async (credential: AuthenticationResponseJSON): Promise<VerifyResult> => {
       const response = await sendVerifyPasskey(
-        resolveServicePath(config.current.services, WebService.passkeyVerify),
+        resolveMutationEndpoint(config.current, WebService.passkeyVerify),
         credential,
       );
       if (!response.ok) {
@@ -194,15 +195,15 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
     const state = runtime.current;
     state.epoch += 1;
     await Promise.resolve(state.flight).catch(() => undefined);
-    await sendSignOut(resolveServicePath(config.current.services, WebService.signOut)).finally(
-      clear,
-    );
+    await sendSignOut(
+      resolveMutationEndpoint(config.current, WebService.signOut, config.current.mutations.signOut),
+    ).finally(clear);
   }, [clear]);
 
   const apiFetch = useCallback(
-    async (path: string, init: RequestInit = {}): Promise<Response> => {
+    async (endpoint: Endpoint, init: RequestInit = {}): Promise<Response> => {
       const state = runtime.current;
-      const response = await request(path, init, state.token);
+      const response = await request(endpoint, init, state.token);
       if (
         response.status !== UNAUTHORISED_STATUS ||
         state.status === SessionStatus.SignedOut ||
@@ -210,7 +211,7 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
       ) {
         return response;
       }
-      return request(path, init, state.token);
+      return request(endpoint, init, state.token);
     },
     [refresh],
   );

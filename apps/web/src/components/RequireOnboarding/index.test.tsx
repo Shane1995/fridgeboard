@@ -1,4 +1,3 @@
-import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/web/constants';
 import type { IMeResponse } from '@fridgeboard/contract/me';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
@@ -14,6 +13,7 @@ import { SessionContext } from '../../Context/Session';
 import { createSession } from '../../testUtils/createSession';
 import { SessionStatus } from '../../services/session/constants';
 import { RequireOnboarding } from '.';
+import { TEST_WEB_CONFIGURATION } from '../../testUtils/webConfiguration';
 const { session, apiFetch } = createSession(SessionStatus.SignedIn);
 
 const me = (onboarding: IMeResponse['onboarding']): IMeResponse => ({
@@ -51,7 +51,7 @@ const renderAt = (path: string) => {
     history: createMemoryHistory({ initialEntries: [path] }),
   });
   render(
-    <RemoteConfigContext.Provider value={DEFAULT_WEB_CONFIGURATION}>
+    <RemoteConfigContext.Provider value={TEST_WEB_CONFIGURATION}>
       <SessionContext.Provider value={session}>
         <QueryClientProvider client={new QueryClient()}>
           <RouterProvider router={router} />

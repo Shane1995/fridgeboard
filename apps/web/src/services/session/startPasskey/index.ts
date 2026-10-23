@@ -1,3 +1,4 @@
+import type { Endpoint } from '../../configuration/types';
 import type { IStartRequest } from '@fridgeboard/contract/auth';
 import { request } from '../../api/request';
 import { POST } from '../constants';
@@ -6,11 +7,11 @@ import { isRequestOptions } from '../utils/isRequestOptions';
 import { readFailureReason } from '../utils/readFailureReason';
 
 export const startPasskey = async (
-  startPath: string,
+  endpoint: Endpoint,
   email: string,
 ): Promise<PasskeyStartResult> => {
   const body: IStartRequest = { email };
-  const response = await request(startPath, { method: POST, body: JSON.stringify(body) });
+  const response = await request(endpoint, { method: POST, body: JSON.stringify(body) });
   if (!response.ok) {
     return { ok: false, reason: await readFailureReason(response) };
   }

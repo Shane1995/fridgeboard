@@ -1,5 +1,5 @@
+import type { Endpoint } from '../../services/configuration/types';
 import { WebFeatureFlag } from '@fridgeboard/contract/configuration/flags/constants';
-import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/web/constants';
 import { browserSupportsWebAuthn, startRegistration } from '@simplewebauthn/browser';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { SessionStatus } from '../../services/session/constants';
@@ -8,6 +8,7 @@ import { TestProviders } from '../../testUtils/TestProviders';
 import { SIGN_IN_COPY } from '../../pages/SignIn/constants';
 import { PASSKEY_PROMPT_COPY as COPY } from './constants';
 import { PasskeyPrompt } from '.';
+import { TEST_WEB_CONFIGURATION } from '../../testUtils/webConfiguration';
 
 vi.mock('@simplewebauthn/browser', () => ({
   browserSupportsWebAuthn: vi.fn(),
@@ -15,9 +16,9 @@ vi.mock('@simplewebauthn/browser', () => ({
 }));
 
 const PASSKEYS_ON = {
-  ...DEFAULT_WEB_CONFIGURATION,
+  ...TEST_WEB_CONFIGURATION,
   featureFlags: {
-    ...DEFAULT_WEB_CONFIGURATION.featureFlags,
+    ...TEST_WEB_CONFIGURATION.featureFlags,
     [WebFeatureFlag.ENABLE_PASSKEYS]: true,
   },
 };
@@ -40,11 +41,11 @@ const renderPrompt = ({
   recentCodeSignIn = true,
 }: { config?: typeof PASSKEYS_ON; recentCodeSignIn?: boolean } = {}) => {
   const fixture = createSession(SessionStatus.SignedIn, recentCodeSignIn);
-  fixture.apiFetch.mockImplementation(async (path: string, init?: RequestInit) => {
-    if (path === '/api/v1/me') {
+  fixture.apiFetch.mockImplementation(async (target: Endpoint, init?: RequestInit) => {
+    if (target.path === '/api/v1/me') {
       return json(200, ME);
     }
-    return path.endsWith('/start')
+    return target.path.endsWith('/start')
       ? json(200, { options: { challenge: 'abc', user: { id: 'u' } } })
       : json(init ? 204 : 500);
   });
@@ -81,7 +82,7 @@ describe('PasskeyPrompt', () => {
   });
 
   it.each([
-    ['the flag is off', { config: DEFAULT_WEB_CONFIGURATION as typeof PASSKEYS_ON }],
+    ['the flag is off', { config: TEST_WEB_CONFIGURATION as typeof PASSKEYS_ON }],
     ['the sign-in was not a recent email code', { recentCodeSignIn: false }],
   ])('stays hidden when %s', async (_label, options) => {
     const { apiFetch } = renderPrompt(options);

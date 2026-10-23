@@ -1,7 +1,8 @@
 import type * as z from 'zod/mini';
-import type { QueryEntrySchema } from './index.ts';
-import type { QueryName } from './constants.ts';
+import type { QueryDefaultSchema, QueryEntriesSchema, QueryEntrySchema } from './index.ts';
+
+export type QueryDefault = z.infer<typeof QueryDefaultSchema>;
 
 export type QueryEntry = z.infer<typeof QueryEntrySchema>;
 
-export type QueryEntries = Partial<Record<QueryName | 'default', QueryEntry>>;
+export type QueryEntries = z.infer<typeof QueryEntriesSchema>;

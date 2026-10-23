@@ -1,4 +1,3 @@
-import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/web/constants';
 import { useQueryClient } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import { queryClient } from '../../app/queryClient';
@@ -6,6 +5,7 @@ import { useRemoteConfigContext } from '../../hooks/useRemoteConfigContext';
 import { useSessionContext } from '../../hooks/useSessionContext';
 import { getConfiguration } from '../../services/configuration';
 import { GlobalContextProvider } from '.';
+import { TEST_WEB_CONFIGURATION } from '../../testUtils/webConfiguration';
 
 vi.mock('../../services/configuration', () => ({ getConfiguration: vi.fn() }));
 
@@ -22,7 +22,7 @@ const Probe = () => {
 
 describe('GlobalContextProvider', () => {
   it('provides the query client, remote configuration and session', async () => {
-    vi.mocked(getConfiguration).mockReturnValue(new Promise(() => {}));
+    vi.mocked(getConfiguration).mockResolvedValue(TEST_WEB_CONFIGURATION);
     vi.stubGlobal(
       'fetch',
       vi.fn(() => new Promise(() => {})),
@@ -35,7 +35,7 @@ describe('GlobalContextProvider', () => {
     );
 
     expect(
-      await screen.findByText(`true ${DEFAULT_WEB_CONFIGURATION.version} loading`),
+      await screen.findByText(`true ${TEST_WEB_CONFIGURATION.version} loading`),
     ).toBeInTheDocument();
     vi.unstubAllGlobals();
   });

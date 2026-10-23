@@ -1,6 +1,5 @@
 import type { ITokenResponse } from '@fridgeboard/contract/auth';
 import { API_PATHS } from '@fridgeboard/contract/auth/constants';
-import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/web/constants';
 import type { WebConfiguration } from '@fridgeboard/contract/configuration/web/types';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook } from '@testing-library/react';
@@ -8,6 +7,8 @@ import type { ReactNode } from 'react';
 import { useSessionContext } from '../../hooks/useSessionContext';
 import { RemoteConfigContext } from '../RemoteConfig';
 import { SessionProvider } from '.';
+import { endpoint } from '../../testUtils/endpoint';
+import { TEST_WEB_CONFIGURATION } from '../../testUtils/webConfiguration';
 
 const TOKENS: ITokenResponse = { accessToken: 'token-1', expiresIn: 900 };
 
@@ -27,7 +28,7 @@ const advance = (ms: number) =>
   });
 
 const renderSession = async (
-  configuration: WebConfiguration = DEFAULT_WEB_CONFIGURATION,
+  configuration: WebConfiguration = TEST_WEB_CONFIGURATION,
   client = new QueryClient(),
 ) => {
   const wrapper = ({ children }: { children: ReactNode }) => (
@@ -43,8 +44,8 @@ const renderSession = async (
 };
 
 const withSettings = (settings: Partial<WebConfiguration['settings']>): WebConfiguration => ({
-  ...DEFAULT_WEB_CONFIGURATION,
-  settings: { ...DEFAULT_WEB_CONFIGURATION.settings, ...settings },
+  ...TEST_WEB_CONFIGURATION,
+  settings: { ...TEST_WEB_CONFIGURATION.settings, ...settings },
 });
 
 const headersOf = (call: number): Headers => new Headers(fetchMock.mock.calls[call]?.[1]?.headers);
@@ -71,7 +72,7 @@ describe('SessionProvider', () => {
       const { result } = renderHook(() => useSessionContext(), {
         wrapper: ({ children }: { children: ReactNode }) => (
           <QueryClientProvider client={new QueryClient()}>
-            <RemoteConfigContext.Provider value={DEFAULT_WEB_CONFIGURATION}>
+            <RemoteConfigContext.Provider value={TEST_WEB_CONFIGURATION}>
               <SessionProvider>{children}</SessionProvider>
             </RemoteConfigContext.Provider>
           </QueryClientProvider>
@@ -94,7 +95,7 @@ describe('SessionProvider', () => {
       const client = new QueryClient();
       client.setQueryData(['me'], { email: 'a@b.com' });
 
-      const { result } = await renderSession(DEFAULT_WEB_CONFIGURATION, client);
+      const { result } = await renderSession(TEST_WEB_CONFIGURATION, client);
 
       expect(result.current.status).toBe('signed-out');
       expect(client.getQueryData(['me'])).toBeUndefined();
@@ -354,8 +355,10 @@ describe('SessionProvider', () => {
 
     it('follows a served service path', async () => {
       const { result } = await renderSession({
-        ...DEFAULT_WEB_CONFIGURATION,
-        services: { ...DEFAULT_WEB_CONFIGURATION.services, start: { url: '/api/v2/auth/start' } },
+        ...TEST_WEB_CONFIGURATION,
+        services: {
+          api: { ...TEST_WEB_CONFIGURATION.services.api, params: { version: 'v2' } },
+        },
       });
       fetchMock.mockResolvedValueOnce(respond(204));
 
@@ -558,7 +561,7 @@ describe('SessionProvider', () => {
       const { result } = await renderSession();
       fetchMock.mockResolvedValueOnce(respond(200, {}));
 
-      await act(() => result.current.apiFetch(API_PATHS.me));
+      await act(() => result.current.apiFetch(endpoint(API_PATHS.me)));
 
       expect(headersOf(1).get('Authorization')).toBe('Bearer token-1');
       expect(headersOf(1).get('Content-Type')).toBe('application/json');
@@ -571,7 +574,7 @@ describe('SessionProvider', () => {
         .mockResolvedValueOnce(respond(200, { ...TOKENS, accessToken: 'token-2' }))
         .mockResolvedValueOnce(respond(200, { ok: true }));
 
-      const response = await act(() => result.current.apiFetch(API_PATHS.me));
+      const response = await act(() => result.current.apiFetch(endpoint(API_PATHS.me)));
 
       expect(response.status).toBe(200);
       expect(fetchMock).toHaveBeenCalledTimes(4);
@@ -586,7 +589,7 @@ describe('SessionProvider', () => {
         .mockResolvedValueOnce(respond(200, TOKENS))
         .mockResolvedValueOnce(respond(401));
 
-      const response = await act(() => result.current.apiFetch(API_PATHS.me));
+      const response = await act(() => result.current.apiFetch(endpoint(API_PATHS.me)));
 
       expect(response.status).toBe(401);
       expect(fetchMock).toHaveBeenCalledTimes(4);
@@ -596,7 +599,7 @@ describe('SessionProvider', () => {
       const { result } = await renderSession();
       fetchMock.mockResolvedValueOnce(respond(401)).mockResolvedValueOnce(respond(401));
 
-      const response = await act(() => result.current.apiFetch(API_PATHS.me));
+      const response = await act(() => result.current.apiFetch(endpoint(API_PATHS.me)));
 
       expect(response.status).toBe(401);
       expect(fetchMock).toHaveBeenCalledTimes(3);
@@ -607,7 +610,7 @@ describe('SessionProvider', () => {
       const { result } = await renderSession();
       fetchMock.mockResolvedValueOnce(respond(401));
 
-      const response = await act(() => result.current.apiFetch(API_PATHS.me));
+      const response = await act(() => result.current.apiFetch(endpoint(API_PATHS.me)));
 
       expect(response.status).toBe(401);
       expect(fetchMock).toHaveBeenCalledTimes(2);
@@ -617,8 +620,10 @@ describe('SessionProvider', () => {
       const { result } = await renderSession();
       fetchMock.mockClear();
 
-      await expect(result.current.apiFetch('https://evil.example/api/v1/me')).rejects.toThrow();
-      await expect(result.current.apiFetch('//evil.example/api/v1/me')).rejects.toThrow();
+      await expect(
+        result.current.apiFetch(endpoint('https://evil.example/api/v1/me')),
+      ).rejects.toThrow();
+      await expect(result.current.apiFetch(endpoint('//evil.example/api/v1/me'))).rejects.toThrow();
       expect(fetchMock).not.toHaveBeenCalled();
     });
   });

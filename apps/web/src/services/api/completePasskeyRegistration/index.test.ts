@@ -1,4 +1,5 @@
 import type { RegistrationResponseJSON } from '@simplewebauthn/browser';
+import { endpoint } from '../../../testUtils/endpoint';
 import { completePasskeyRegistration } from '.';
 
 const CREDENTIAL: RegistrationResponseJSON = {
@@ -14,9 +15,9 @@ describe('completePasskeyRegistration', () => {
     const fetcher = vi.fn(async () => new Response(null, { status: 204 }));
 
     await expect(
-      completePasskeyRegistration('/api/v1/auth/passkeys/complete', CREDENTIAL, fetcher),
+      completePasskeyRegistration(endpoint('/api/v1/auth/passkeys/complete'), CREDENTIAL, fetcher),
     ).resolves.toEqual({ ok: true });
-    expect(fetcher).toHaveBeenCalledWith('/api/v1/auth/passkeys/complete', {
+    expect(fetcher).toHaveBeenCalledWith(endpoint('/api/v1/auth/passkeys/complete'), {
       method: 'POST',
       body: JSON.stringify({ credential: CREDENTIAL }),
     });
@@ -27,18 +28,22 @@ describe('completePasskeyRegistration', () => {
       async () => new Response(JSON.stringify({ reason: 'passkey-failed' }), { status: 400 }),
     );
 
-    await expect(completePasskeyRegistration('/x', CREDENTIAL, fetcher)).resolves.toEqual({
-      ok: false,
-      reason: 'passkey-failed',
-    });
+    await expect(completePasskeyRegistration(endpoint('/x'), CREDENTIAL, fetcher)).resolves.toEqual(
+      {
+        ok: false,
+        reason: 'passkey-failed',
+      },
+    );
   });
 
   it('reports unknown for an unreadable error', async () => {
     const fetcher = vi.fn(async () => new Response('nope', { status: 502 }));
 
-    await expect(completePasskeyRegistration('/x', CREDENTIAL, fetcher)).resolves.toEqual({
-      ok: false,
-      reason: 'unknown',
-    });
+    await expect(completePasskeyRegistration(endpoint('/x'), CREDENTIAL, fetcher)).resolves.toEqual(
+      {
+        ok: false,
+        reason: 'unknown',
+      },
+    );
   });
 });

@@ -1,3 +1,4 @@
+import type { Endpoint } from '../../configuration/types';
 import type { IUsernameErrorResponse, IUsernameResponse } from '@fridgeboard/contract/username';
 import type { PutUsernameResult } from './types';
 
@@ -8,11 +9,11 @@ const REASONS: readonly IUsernameErrorResponse['reason'][] = [
 ];
 
 export const putUsername = async (
-  usernamePath: string,
+  endpoint: Endpoint,
   username: string,
-  fetcher: (path: string, init: RequestInit) => Promise<Response>,
+  fetcher: (endpoint: Endpoint, init: RequestInit) => Promise<Response>,
 ): Promise<PutUsernameResult> => {
-  const response = await fetcher(usernamePath, {
+  const response = await fetcher(endpoint, {
     method: 'PUT',
     body: JSON.stringify({ username }),
   });

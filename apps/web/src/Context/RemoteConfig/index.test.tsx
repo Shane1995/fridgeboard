@@ -1,9 +1,11 @@
 import { WebFeatureFlag } from '@fridgeboard/contract/configuration/flags/constants';
-import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/web/constants';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
-import { getConfiguration } from '../../services/configuration';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { CONFIGURATION_ERROR_COPY } from '../../components/ConfigurationError/constants';
+import { APP_LOADER_COPY } from '../../components/AppLoader/constants';
 import { useRemoteConfigContext } from '../../hooks/useRemoteConfigContext';
+import { getConfiguration } from '../../services/configuration';
+import { TEST_WEB_CONFIGURATION } from '../../testUtils/webConfiguration';
 import { RemoteConfigProvider } from '.';
 
 vi.mock('../../services/configuration', () => ({ getConfiguration: vi.fn() }));
@@ -13,29 +15,39 @@ const Probe = () => {
   return <p>{String(featureFlags[WebFeatureFlag.ENABLE_ADMIN_INVITES])}</p>;
 };
 
-const renderProvider = () =>
+const renderProvider = (
+  client = new QueryClient({ defaultOptions: { queries: { retryDelay: 0 } } }),
+) => {
   render(
-    <QueryClientProvider client={new QueryClient()}>
+    <QueryClientProvider client={client}>
       <RemoteConfigProvider>
         <Probe />
       </RemoteConfigProvider>
     </QueryClientProvider>,
   );
+  return client;
+};
 
 const served = {
-  ...DEFAULT_WEB_CONFIGURATION,
+  ...TEST_WEB_CONFIGURATION,
   featureFlags: {
-    ...DEFAULT_WEB_CONFIGURATION.featureFlags,
+    ...TEST_WEB_CONFIGURATION.featureFlags,
     [WebFeatureFlag.ENABLE_ADMIN_INVITES]: true,
   },
+  queries: { ...TEST_WEB_CONFIGURATION.queries, me: { staleTimeMs: 7_000 } },
 };
 
 describe('RemoteConfigProvider', () => {
-  it('renders children with the defaults while the configuration loads', () => {
+  beforeEach(() => {
+    vi.mocked(getConfiguration).mockReset();
+  });
+
+  it('shows the loader and no children while the configuration loads', () => {
     vi.mocked(getConfiguration).mockReturnValue(new Promise(() => {}));
     renderProvider();
 
-    expect(screen.getByText('false')).toBeInTheDocument();
+    expect(screen.getByRole('status', { name: APP_LOADER_COPY.label })).toBeInTheDocument();
+    expect(screen.queryByText('true')).not.toBeInTheDocument();
   });
 
   it('exposes the served configuration once loaded', async () => {
@@ -43,5 +55,26 @@ describe('RemoteConfigProvider', () => {
     renderProvider();
 
     expect(await screen.findByText('true')).toBeInTheDocument();
+  });
+
+  it('applies the served query settings before the children render', async () => {
+    vi.mocked(getConfiguration).mockResolvedValue(served);
+    const client = renderProvider();
+
+    await screen.findByText('true');
+
+    expect(client.getQueryDefaults(['me']).staleTime).toBe(7_000);
+    expect(client.getDefaultOptions().queries?.staleTime).toBe(30_000);
+  });
+
+  it('shows the error screen on failure and retries from it', async () => {
+    vi.mocked(getConfiguration).mockRejectedValue(new Error('down'));
+    renderProvider();
+
+    const retry = await screen.findByRole('button', { name: CONFIGURATION_ERROR_COPY.retry });
+    vi.mocked(getConfiguration).mockResolvedValue(served);
+    fireEvent.click(retry);
+
+    await waitFor(() => expect(screen.getByText('true')).toBeInTheDocument());
   });
 });

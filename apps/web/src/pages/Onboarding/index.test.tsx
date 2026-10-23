@@ -1,4 +1,3 @@
-import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/web/constants';
 import type { IMeResponse } from '@fridgeboard/contract/me';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
@@ -15,6 +14,8 @@ import { createSession } from '../../testUtils/createSession';
 import { SessionStatus } from '../../services/session/constants';
 import { ONBOARDING_COPY } from './constants';
 import { Onboarding } from '.';
+import { TEST_WEB_CONFIGURATION } from '../../testUtils/webConfiguration';
+import { endpoint } from '../../testUtils/endpoint';
 const { session, signOut, apiFetch } = createSession(SessionStatus.SignedIn);
 
 const me = (overrides: Partial<IMeResponse>): IMeResponse => ({
@@ -56,7 +57,7 @@ const renderPage = () => {
     history: createMemoryHistory({ initialEntries: ['/onboarding'] }),
   });
   render(
-    <RemoteConfigContext.Provider value={DEFAULT_WEB_CONFIGURATION}>
+    <RemoteConfigContext.Provider value={TEST_WEB_CONFIGURATION}>
       <SessionContext.Provider value={session}>
         <QueryClientProvider client={new QueryClient()}>
           <RouterProvider router={router} />
@@ -107,7 +108,7 @@ describe('Onboarding', () => {
 
     expect(await screen.findByRole('heading', { name: HOUSEHOLD.title })).toBeInTheDocument();
     expect(screen.getByText('Step 2 of 2')).toBeInTheDocument();
-    expect(apiFetch).toHaveBeenCalledWith('/api/v1/me/username', {
+    expect(apiFetch).toHaveBeenCalledWith(endpoint('/api/v1/me/username'), {
       method: 'PUT',
       body: JSON.stringify({ username: 'jess' }),
     });
@@ -149,7 +150,7 @@ describe('Onboarding', () => {
     fireEvent.click(await screen.findByRole('button', { name: HOUSEHOLD.submit }));
 
     await waitFor(() =>
-      expect(apiFetch).toHaveBeenCalledWith('/api/v1/households', {
+      expect(apiFetch).toHaveBeenCalledWith(endpoint('/api/v1/households'), {
         method: 'POST',
         body: JSON.stringify({ name: 'Home' }),
       }),

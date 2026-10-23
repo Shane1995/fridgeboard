@@ -3,7 +3,7 @@ import { WebService } from '@fridgeboard/contract/configuration/services/constan
 import { startRegistration } from '@simplewebauthn/browser';
 import { completePasskeyRegistration } from '../../services/api/completePasskeyRegistration';
 import { startPasskeyRegistration } from '../../services/api/startPasskeyRegistration';
-import { resolveServicePath } from '../../services/configuration/resolveServicePath';
+import { resolveMutationEndpoint } from '../../services/configuration/resolveEndpoint';
 import { useMutation } from '../useMutation';
 import type { MutationResult } from '../useMutation/types';
 import { useRemoteConfigContext } from '../useRemoteConfigContext';
@@ -11,12 +11,12 @@ import { useSessionContext } from '../useSessionContext';
 import type { RegisterPasskeyResult } from './types';
 
 export const useRegisterPasskeyMutation = (): MutationResult<RegisterPasskeyResult, void> => {
-  const { services } = useRemoteConfigContext();
+  const configuration = useRemoteConfigContext();
   const { apiFetch } = useSessionContext();
   return useMutation({
     mutationFn: async (): Promise<RegisterPasskeyResult> => {
       const started = await startPasskeyRegistration(
-        resolveServicePath(services, WebService.passkeysStart),
+        resolveMutationEndpoint(configuration, WebService.passkeysStart),
         apiFetch,
       );
       if (!started.ok) {
@@ -31,7 +31,7 @@ export const useRegisterPasskeyMutation = (): MutationResult<RegisterPasskeyResu
       }
 
       return completePasskeyRegistration(
-        resolveServicePath(services, WebService.passkeysComplete),
+        resolveMutationEndpoint(configuration, WebService.passkeysComplete),
         credential,
         apiFetch,
       );

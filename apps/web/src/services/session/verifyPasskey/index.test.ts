@@ -1,4 +1,5 @@
 import type { AuthenticationResponseJSON } from '@simplewebauthn/browser';
+import { endpoint } from '../../../testUtils/endpoint';
 import { verifyPasskey } from '.';
 
 const json = (status: number, body: unknown) =>
@@ -24,7 +25,9 @@ describe('verifyPasskey', () => {
   it('posts the credential and returns the tokens', async () => {
     const fetchMock = respond(json(200, { accessToken: 'access-1', expiresIn: 900 }));
 
-    await expect(verifyPasskey('/api/v1/auth/passkey/verify', CREDENTIAL)).resolves.toEqual({
+    await expect(
+      verifyPasskey(endpoint('/api/v1/auth/passkey/verify'), CREDENTIAL),
+    ).resolves.toEqual({
       ok: true,
       tokens: { accessToken: 'access-1', expiresIn: 900 },
     });
@@ -40,7 +43,9 @@ describe('verifyPasskey', () => {
   it('maps a failure to its reason', async () => {
     respond(json(400, { reason: 'passkey-failed' }));
 
-    await expect(verifyPasskey('/api/v1/auth/passkey/verify', CREDENTIAL)).resolves.toEqual({
+    await expect(
+      verifyPasskey(endpoint('/api/v1/auth/passkey/verify'), CREDENTIAL),
+    ).resolves.toEqual({
       ok: false,
       reason: 'passkey-failed',
     });
@@ -49,7 +54,9 @@ describe('verifyPasskey', () => {
   it('rejects a success body without tokens', async () => {
     respond(json(200, { nope: true }));
 
-    await expect(verifyPasskey('/api/v1/auth/passkey/verify', CREDENTIAL)).resolves.toEqual({
+    await expect(
+      verifyPasskey(endpoint('/api/v1/auth/passkey/verify'), CREDENTIAL),
+    ).resolves.toEqual({
       ok: false,
       reason: 'unknown',
     });

@@ -5,6 +5,7 @@ export type QueryOptions<TData> = {
   queryFn: () => Promise<TData>;
   staleTime?: number;
   enabled?: boolean;
+  retry?: number;
 };
 
 export type QueryResult<TData> = UseQueryResult<TData, Error>;

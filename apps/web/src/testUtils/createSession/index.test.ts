@@ -1,4 +1,5 @@
 import { SessionStatus } from '../../services/session/constants';
+import { endpoint } from '../endpoint';
 import { createSession } from '.';
 
 describe('createSession', () => {
@@ -7,7 +8,7 @@ describe('createSession', () => {
     apiFetch.mockResolvedValue('ok');
 
     expect(session.status).toBe(SessionStatus.SignedIn);
-    await expect(session.apiFetch('/x')).resolves.toBe('ok');
+    await expect(session.apiFetch(endpoint('/x'))).resolves.toBe('ok');
   });
 
   it('takes the status', () => {

@@ -1,3 +1,4 @@
+import type { Endpoint } from '../../configuration/types';
 import type {
   ICreateHouseholdErrorResponse,
   ICreateHouseholdResponse,
@@ -6,11 +7,11 @@ import { REASONS } from './constants';
 import type { PostHouseholdResult } from './types';
 
 export const postHousehold = async (
-  householdsPath: string,
+  endpoint: Endpoint,
   name: string,
-  fetcher: (path: string, init: RequestInit) => Promise<Response>,
+  fetcher: (endpoint: Endpoint, init: RequestInit) => Promise<Response>,
 ): Promise<PostHouseholdResult> => {
-  const response = await fetcher(householdsPath, {
+  const response = await fetcher(endpoint, {
     method: 'POST',
     body: JSON.stringify({ name }),
   });

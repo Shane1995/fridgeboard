@@ -1,3 +1,4 @@
+import type { Endpoint } from '../../services/configuration/types';
 import { MutationName } from '@fridgeboard/contract/configuration/mutations/constants';
 import { startRegistration, type RegistrationResponseJSON } from '@simplewebauthn/browser';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -5,10 +6,11 @@ import { act, renderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { RemoteConfigContext } from '../../Context/RemoteConfig';
 import { SessionContext } from '../../Context/Session';
-import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/web/constants';
 import { SessionStatus } from '../../services/session/constants';
 import { createSession } from '../../testUtils/createSession';
 import { useRegisterPasskeyMutation } from './index';
+import { TEST_WEB_CONFIGURATION } from '../../testUtils/webConfiguration';
+import { endpoint } from '../../testUtils/endpoint';
 
 vi.mock('@simplewebauthn/browser', () => ({ startRegistration: vi.fn() }));
 
@@ -26,7 +28,7 @@ const { session, apiFetch } = createSession(SessionStatus.SignedIn);
 const client = new QueryClient();
 const wrapper = ({ children }: { children: ReactNode }) => (
   <QueryClientProvider client={client}>
-    <RemoteConfigContext.Provider value={DEFAULT_WEB_CONFIGURATION}>
+    <RemoteConfigContext.Provider value={TEST_WEB_CONFIGURATION}>
       <SessionContext.Provider value={session}>{children}</SessionContext.Provider>
     </RemoteConfigContext.Provider>
   </QueryClientProvider>
@@ -47,8 +49,8 @@ const respond = (status: number, body?: unknown) =>
 describe('useRegisterPasskeyMutation', () => {
   beforeEach(() => {
     vi.resetAllMocks();
-    apiFetch.mockImplementation(async (path: string) =>
-      path.endsWith('/start') ? respond(200, { options: OPTIONS }) : respond(204),
+    apiFetch.mockImplementation(async (target: Endpoint) =>
+      target.path.endsWith('/start') ? respond(200, { options: OPTIONS }) : respond(204),
     );
     vi.mocked(startRegistration).mockResolvedValue(CREDENTIAL);
   });
@@ -56,9 +58,11 @@ describe('useRegisterPasskeyMutation', () => {
   it('starts registration, prompts Face ID and completes with the credential', async () => {
     await expect(register()).resolves.toEqual({ ok: true });
 
-    expect(apiFetch).toHaveBeenNthCalledWith(1, '/api/v1/auth/passkeys/start', { method: 'POST' });
+    expect(apiFetch).toHaveBeenNthCalledWith(1, endpoint('/api/v1/auth/passkeys/start'), {
+      method: 'POST',
+    });
     expect(startRegistration).toHaveBeenCalledWith({ optionsJSON: OPTIONS });
-    expect(apiFetch).toHaveBeenNthCalledWith(2, '/api/v1/auth/passkeys/complete', {
+    expect(apiFetch).toHaveBeenNthCalledWith(2, endpoint('/api/v1/auth/passkeys/complete'), {
       method: 'POST',
       body: JSON.stringify({ credential: CREDENTIAL }),
     });
@@ -79,8 +83,8 @@ describe('useRegisterPasskeyMutation', () => {
   });
 
   it('passes a completion failure reason through', async () => {
-    apiFetch.mockImplementation(async (path: string) =>
-      path.endsWith('/start')
+    apiFetch.mockImplementation(async (target: Endpoint) =>
+      target.path.endsWith('/start')
         ? respond(200, { options: OPTIONS })
         : respond(400, { reason: 'passkey-failed' }),
     );

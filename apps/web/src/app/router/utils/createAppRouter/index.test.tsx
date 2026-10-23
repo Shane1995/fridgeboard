@@ -1,11 +1,12 @@
 import { API_PATHS } from '@fridgeboard/contract/auth/constants';
 import { createMemoryHistory, RouterProvider } from '@tanstack/react-router';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { APP_LOADER_COPY } from '../../../../components/AppLoader/constants';
 import { GlobalContextProvider } from '../../../../Context/Global';
 import { HOME_COPY } from '../../../../pages/Home/constants';
 import { SIGN_IN_COPY } from '../../../../pages/SignIn/constants';
 import { queryClient } from '../../../queryClient';
+import { TEST_WEB_CONFIGURATION } from '../../../../testUtils/webConfiguration';
 import { createAppRouter } from './index';
 
 const TOKENS = { accessToken: 'token-1', expiresIn: 900 };
@@ -27,6 +28,8 @@ const fetchMock = vi.fn<typeof fetch>();
 const serve = (refresh: () => Promise<Response>) => {
   fetchMock.mockImplementation(async (input) => {
     switch (input) {
+      case '/configuration.json':
+        return json(TEST_WEB_CONFIGURATION);
       case API_PATHS.refresh:
         return refresh();
       case API_PATHS.start:
@@ -114,6 +117,7 @@ describe('router', () => {
     serve(() => new Promise<Response>((resolve) => release.push(resolve)));
     renderAt('/');
     expect(await screen.findByRole('status', { name: APP_LOADER_COPY.label })).toBeInTheDocument();
+    await waitFor(() => expect(release).toHaveLength(1));
     release[0]?.(json(TOKENS));
     expect(await screen.findByText(`${HOME_COPY.signedInAs} jess`)).toBeInTheDocument();
     expect(screen.queryByRole('status', { name: APP_LOADER_COPY.label })).not.toBeInTheDocument();

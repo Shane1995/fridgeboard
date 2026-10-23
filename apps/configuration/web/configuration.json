@@ -1,71 +1,39 @@
 {
-  "version": 1,
   "featureFlags": {
+    "ENABLE_ADMIN_INVITES": false,
     "ENABLE_PASSKEYS": true
   },
+  "mutations": {
+    "default": {
+      "retry": 0,
+      "timeoutMs": 10000
+    }
+  },
+  "queries": {
+    "default": {
+      "gcTimeMs": 300000,
+      "refetchOnWindowFocus": true,
+      "retry": 1,
+      "staleTimeMs": 30000,
+      "timeoutMs": 10000
+    }
+  },
   "services": {
-    "start": {
-      "url": "/api/{version}/auth/start",
-      "params": {
-        "version": "v1"
-      }
-    },
-    "verify": {
-      "url": "/api/{version}/auth/verify",
-      "params": {
-        "version": "v1"
-      }
-    },
-    "refresh": {
-      "url": "/api/{version}/auth/refresh",
-      "params": {
-        "version": "v1"
-      }
-    },
-    "signOut": {
-      "url": "/api/{version}/auth/sign-out",
-      "params": {
-        "version": "v1"
-      }
-    },
-    "me": {
-      "url": "/api/{version}/me",
-      "params": {
-        "version": "v1"
-      }
-    },
-    "username": {
-      "url": "/api/{version}/me/username",
-      "params": {
-        "version": "v1"
-      }
-    },
-    "households": {
-      "url": "/api/{version}/households",
-      "params": {
-        "version": "v1"
-      }
-    },
-    "passkeyStart": {
-      "url": "/api/{version}/auth/passkey/start",
-      "params": {
-        "version": "v1"
-      }
-    },
-    "passkeyVerify": {
-      "url": "/api/{version}/auth/passkey/verify",
-      "params": {
-        "version": "v1"
-      }
-    },
-    "passkeysStart": {
-      "url": "/api/{version}/auth/passkeys/start",
-      "params": {
-        "version": "v1"
-      }
-    },
-    "passkeysComplete": {
-      "url": "/api/{version}/auth/passkeys/complete",
+    "api": {
+      "basePath": "/api/{version}",
+      "endpoints": {
+        "households": "/households",
+        "me": "/me",
+        "passkeyStart": "/auth/passkey/start",
+        "passkeyVerify": "/auth/passkey/verify",
+        "passkeysComplete": "/auth/passkeys/complete",
+        "passkeysStart": "/auth/passkeys/start",
+        "refresh": "/auth/refresh",
+        "requestCode": "/auth/start",
+        "signOut": "/auth/sign-out",
+        "username": "/me/username",
+        "verify": "/auth/verify"
+      },
       "params": {
         "version": "v1"
       }
@@ -74,20 +42,8 @@
   "settings": {
     "refreshLeadMs": 60000,
     "refreshMinIntervalMs": 60000,
-    "usernameMinLength": 3,
-    "usernameMaxLength": 20
+    "usernameMaxLength": 20,
+    "usernameMinLength": 3
   },
-  "queries": {
-    "default": {
-      "staleTimeMs": 30000,
-      "gcTimeMs": 300000,
-      "retry": 1,
-      "refetchOnWindowFocus": true
-    }
-  },
-  "mutations": {
-    "default": {
-      "retry": 0
-    }
-  }
+  "version": 2
 }

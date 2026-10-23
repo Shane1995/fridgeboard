@@ -1,4 +1,5 @@
 import { findSecrets } from '../findSecrets/index.ts';
+import { findUnsortedKeys } from '../findUnsortedKeys/index.ts';
 import type { ConfigurationTarget } from '../types.ts';
 
 export const validateConfiguration = (
@@ -24,5 +25,9 @@ export const validateConfiguration = (
         (issue) => `${target.name}: ${issue.path.join('.')} ${issue.message}`,
       );
 
-  return [...schemaErrors, ...findSecrets(parsed.value).map((issue) => `${target.name}: ${issue}`)];
+  return [
+    ...schemaErrors,
+    ...findSecrets(parsed.value).map((issue) => `${target.name}: ${issue}`),
+    ...findUnsortedKeys(parsed.value).map((issue) => `${target.name}: ${issue}`),
+  ];
 };
