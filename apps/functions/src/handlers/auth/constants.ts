@@ -1,5 +1,10 @@
 import { API_PATHS } from '@fridgeboard/contract/auth/constants';
 
+export enum RouteAccess {
+  Public = 'public',
+  Jwt = 'jwt',
+}
+
 export const START_ROUTE = `POST ${API_PATHS.start}`;
 export const VERIFY_ROUTE = `POST ${API_PATHS.verify}`;
 export const REFRESH_ROUTE = `POST ${API_PATHS.refresh}`;

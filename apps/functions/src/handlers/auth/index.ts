@@ -1,57 +1,22 @@
 import type { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
-import {
-  PASSKEY_START_ROUTE,
-  PASSKEY_VERIFY_ROUTE,
-  PASSKEYS_COMPLETE_ROUTE,
-  PASSKEYS_START_ROUTE,
-  REFRESH_ROUTE,
-  ROUTE_FAILED_LOG,
-  SIGN_OUT_ROUTE,
-  START_ROUTE,
-  UNKNOWN_ERROR,
-  VERIFY_ROUTE,
-} from './constants.ts';
-import { passkeysComplete } from './routes/passkeysComplete/index.ts';
-import { passkeysStart } from './routes/passkeysStart/index.ts';
-import { passkeyStart } from './routes/passkeyStart/index.ts';
-import { passkeyVerify } from './routes/passkeyVerify/index.ts';
-import { refresh } from './routes/refresh/index.ts';
-import { signOut } from './routes/signOut/index.ts';
-import { start } from './routes/start/index.ts';
-import { verify } from './routes/verify/index.ts';
-import type { AuthorizedRoute, Route } from './types.ts';
+import { ROUTE_FAILED_LOG, RouteAccess, UNKNOWN_ERROR } from './constants.ts';
+import { ROUTE_TABLE } from './routeTable/index.ts';
 import { isTrustedRequest } from './utils/csrf/index.ts';
 import { hasJwtAuthorizer } from './utils/hasJwtAuthorizer/index.ts';
 import { jsonResponse } from '../../utils/jsonResponse/index.ts';
 import { withVerifiedOrigin } from '../../utils/originVerified/index.ts';
 import { loadSecrets } from './utils/loadSecrets/index.ts';
 
-const ROUTES = new Map<string, Route>([
-  [START_ROUTE, start],
-  [VERIFY_ROUTE, verify],
-  [REFRESH_ROUTE, refresh],
-  [SIGN_OUT_ROUTE, signOut],
-  [PASSKEY_START_ROUTE, passkeyStart],
-  [PASSKEY_VERIFY_ROUTE, passkeyVerify],
-]);
-
-const AUTHORIZED_ROUTES = new Map<string, AuthorizedRoute>([
-  [PASSKEYS_START_ROUTE, passkeysStart],
-  [PASSKEYS_COMPLETE_ROUTE, passkeysComplete],
-]);
-
 const run = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyStructuredResultV2> => {
-  const route = ROUTES.get(event.routeKey);
-  if (route) {
-    return route(event, await loadSecrets());
-  }
-
-  const authorizedRoute = AUTHORIZED_ROUTES.get(event.routeKey);
-  if (!authorizedRoute) {
+  const entry = ROUTE_TABLE.get(event.routeKey);
+  if (!entry) {
     return { statusCode: 404 };
   }
+  if (entry.access === RouteAccess.Public) {
+    return entry.handler(event, await loadSecrets());
+  }
   return hasJwtAuthorizer(event)
-    ? authorizedRoute(event, await loadSecrets())
+    ? entry.handler(event, await loadSecrets())
     : jsonResponse(401, { reason: 'unauthorised' });
 };
 
