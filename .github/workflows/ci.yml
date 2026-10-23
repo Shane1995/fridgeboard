@@ -60,8 +60,6 @@ jobs:
     timeout-minutes: 2
     outputs:
       app: ${{ steps.diff.outputs.app }}
-      config_lambda: ${{ steps.diff.outputs.config_lambda }}
-      config_web: ${{ steps.diff.outputs.config_web }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -71,9 +69,6 @@ jobs:
         run: |
           set -euo pipefail
           files=$(git diff --name-only HEAD^ HEAD || echo "force-app")
-          has() { grep -qE "$1" <<< "$files" && echo true || echo false; }
-          echo "config_lambda=$(has '^apps/configuration/lambda/')" >> "$GITHUB_OUTPUT"
-          echo "config_web=$(has '^apps/configuration/web/')" >> "$GITHUB_OUTPUT"
           if grep -vqE '^apps/configuration/(lambda|web)/' <<< "$files"; then app=true; else app=false; fi
           echo "app=$app" >> "$GITHUB_OUTPUT"
 
@@ -169,7 +164,7 @@ jobs:
 
   config-lambda:
     if: >-
-      always() && needs.checks.result == 'success' && needs.changes.outputs.config_lambda == 'true'
+      always() && needs.checks.result == 'success' && needs.changes.result == 'success'
       && needs.deploy.result != 'failure' && needs.deploy.result != 'cancelled'
     needs: [checks, changes, deploy]
     runs-on: ubuntu-latest
@@ -201,7 +196,7 @@ jobs:
 
   config-web:
     if: >-
-      always() && needs.checks.result == 'success' && needs.changes.outputs.config_web == 'true'
+      always() && needs.checks.result == 'success' && needs.changes.result == 'success'
       && needs.deploy.result != 'failure' && needs.deploy.result != 'cancelled'
       && needs.config-lambda.result != 'failure' && needs.config-lambda.result != 'cancelled'
     needs: [checks, changes, deploy, config-lambda]
