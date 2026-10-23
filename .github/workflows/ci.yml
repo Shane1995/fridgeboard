@@ -188,7 +188,17 @@ jobs:
         with:
           role-to-assume: ${{ vars.AWS_CONFIG_ROLE_ARN }}
           aws-region: eu-west-2
+      - name: Compare with the deployed lambda configuration
+        id: compare
+        run: |
+          if aws s3 cp "s3://$BUCKET/configuration/lambda/configuration.json" "$RUNNER_TEMP/live.json" --quiet 2>/dev/null \
+            && cmp -s "$RUNNER_TEMP/live.json" apps/configuration/lambda/configuration.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
       - name: Upload lambda configuration
+        if: steps.compare.outputs.changed == 'true'
         run: |
           aws s3 cp apps/configuration/lambda/configuration.json "s3://$BUCKET/configuration/lambda/configuration.json" \
             --content-type application/json --cache-control "private,max-age=60"
@@ -221,11 +231,22 @@ jobs:
         with:
           role-to-assume: ${{ vars.AWS_CONFIG_ROLE_ARN }}
           aws-region: eu-west-2
+      - name: Compare with the deployed web configuration
+        id: compare
+        run: |
+          if aws s3 cp "s3://$BUCKET/configuration/web/configuration.json" "$RUNNER_TEMP/live.json" --quiet 2>/dev/null \
+            && cmp -s "$RUNNER_TEMP/live.json" apps/configuration/web/configuration.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
       - name: Upload web configuration
+        if: steps.compare.outputs.changed == 'true'
         run: |
           aws s3 cp apps/configuration/web/configuration.json "s3://$BUCKET/configuration/web/configuration.json" \
             --content-type application/json --cache-control "public,max-age=60"
       - name: Invalidate CloudFront
+        if: steps.compare.outputs.changed == 'true'
         env:
           DISTRIBUTION_ID: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}
         run: aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths "/configuration.json" > /dev/null
