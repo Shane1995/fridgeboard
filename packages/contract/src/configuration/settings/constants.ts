@@ -13,8 +13,6 @@ export const LAMBDA_SETTING = {
   usernameMaxLength: 'usernameMaxLength',
 } as const;
 
-export const WEB_SETTINGS = Object.values(WEB_SETTING);
-
 export const LAMBDA_SETTINGS = Object.values(LAMBDA_SETTING);
 
 export const SETTING_BOUNDS = {
