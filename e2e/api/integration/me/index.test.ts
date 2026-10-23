@@ -1,12 +1,12 @@
 import { randomUUID } from 'node:crypto';
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
-import { buildEvent } from '../../../test/dynamodbLocal/buildEvent/index.ts';
-import { client } from '../../../test/dynamodbLocal/client/index.ts';
-import { TABLE_NAME } from '../../../test/dynamodbLocal/constants.ts';
-import { householdMetaKey } from '../../utils/keys/householdMetaKey/index.ts';
-import { membershipKey } from '../../utils/keys/membershipKey/index.ts';
-import { profileKey } from '../../utils/keys/profileKey/index.ts';
-import { handler } from './index.ts';
+import { buildEvent } from '../dynamodbLocal/buildEvent/index.ts';
+import { client } from '../dynamodbLocal/client/index.ts';
+import { TABLE_NAME } from '../dynamodbLocal/constants.ts';
+import { householdMetaKey } from '../../../../apps/functions/src/utils/keys/householdMetaKey/index.ts';
+import { membershipKey } from '../../../../apps/functions/src/utils/keys/membershipKey/index.ts';
+import { profileKey } from '../../../../apps/functions/src/utils/keys/profileKey/index.ts';
+import { handler } from '../../../../apps/functions/src/handlers/me/index.ts';
 
 const put = async (Item: Record<string, unknown>): Promise<void> => {
   await client.send(new PutCommand({ TableName: TABLE_NAME, Item }));

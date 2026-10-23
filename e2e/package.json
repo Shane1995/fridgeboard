@@ -1,0 +1,23 @@
+{
+  "name": "@fridgeboard/e2e",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -b",
+    "test": "vitest run --project contract",
+    "test:integration": "vitest run --project integration",
+    "lint": "oxlint --config ../.oxlintrc.json .",
+    "format": "oxfmt .",
+    "format:check": "oxfmt --check ."
+  },
+  "devDependencies": {
+    "@aws-sdk/client-dynamodb": "^3.1152.0",
+    "@aws-sdk/lib-dynamodb": "^3.1152.0",
+    "@fridgeboard/contract": "workspace:*",
+    "@types/aws-lambda": "^8.10.164",
+    "@types/node": "^26.6.5",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  }
+}

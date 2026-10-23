@@ -24,7 +24,7 @@ pnpm dev          # http://localhost:5173
 | `pnpm dev`                                              | Run the web app with hot reload                         |
 | `pnpm build`                                            | Typecheck and build every app                           |
 | `pnpm test`                                             | Run Vitest                                              |
-| `pnpm --filter @fridgeboard/functions test:integration` | Run handler tests against DynamoDB Local (needs Docker) |
+| `pnpm --filter @fridgeboard/e2e test:integration` | Run handler tests against DynamoDB Local (needs Docker) |
 | `pnpm lint`                                             | Run oxlint                                              |
 | `pnpm typecheck`                                        | Run `tsc -b`                                            |
 | `pnpm format`                                           | Format with oxfmt                                       |

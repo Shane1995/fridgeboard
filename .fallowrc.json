@@ -17,10 +17,11 @@
     "scripts/checkReexports/index.ts"
   ],
   "workspaces": {
-    "packages": ["apps/*", "packages/*"]
+    "packages": ["apps/*", "packages/*", "e2e"]
   },
   "ignorePatterns": [
     "dist/**",
+    "e2e/**",
     "**/node_modules/**",
     "apps/web/src/app/router/routeTree.gen.ts",
     "apps/web/public/react-aria-pressable.css"

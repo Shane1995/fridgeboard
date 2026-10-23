@@ -1,6 +1,6 @@
-import { WebService } from '../services/constants.ts';
-import type { ApiService } from '../services/types.ts';
-import { resolveEndpointUrl } from './index.ts';
+import { WebService } from '../../../../packages/contract/src/configuration/services/constants.ts';
+import type { ApiService } from '../../../../packages/contract/src/configuration/services/types.ts';
+import { resolveEndpointUrl } from '../../../../packages/contract/src/configuration/resolveEndpointUrl/index.ts';
 
 const API = {
   basePath: '/api/{version}',

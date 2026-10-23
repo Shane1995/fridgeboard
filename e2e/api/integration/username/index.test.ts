@@ -1,15 +1,15 @@
 import { randomUUID } from 'node:crypto';
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import { DEFAULT_LAMBDA_CONFIGURATION } from '@fridgeboard/contract/configuration/lambda/constants';
-import { buildEvent } from '../../../test/dynamodbLocal/buildEvent/index.ts';
-import { client } from '../../../test/dynamodbLocal/client/index.ts';
-import { getItem } from '../../../test/dynamodbLocal/getItem/index.ts';
-import { TABLE_NAME } from '../../../test/dynamodbLocal/constants.ts';
-import { profileKey } from '../../utils/keys/profileKey/index.ts';
-import { usernameKey } from '../../utils/keys/usernameKey/index.ts';
-import { handler } from './index.ts';
+import { buildEvent } from '../dynamodbLocal/buildEvent/index.ts';
+import { client } from '../dynamodbLocal/client/index.ts';
+import { getItem } from '../dynamodbLocal/getItem/index.ts';
+import { TABLE_NAME } from '../dynamodbLocal/constants.ts';
+import { profileKey } from '../../../../apps/functions/src/utils/keys/profileKey/index.ts';
+import { usernameKey } from '../../../../apps/functions/src/utils/keys/usernameKey/index.ts';
+import { handler } from '../../../../apps/functions/src/handlers/username/index.ts';
 
-vi.mock('../../configuration/index.ts', () => ({
+vi.mock('../../../../apps/functions/src/configuration/index.ts', () => ({
   getConfiguration: async () => DEFAULT_LAMBDA_CONFIGURATION,
 }));
 

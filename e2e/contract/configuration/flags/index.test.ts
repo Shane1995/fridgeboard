@@ -1,4 +1,7 @@
-import { WEB_FEATURE_FLAGS, WebFeatureFlag } from './constants.ts';
+import {
+  WEB_FEATURE_FLAGS,
+  WebFeatureFlag,
+} from '../../../../packages/contract/src/configuration/flags/constants.ts';
 
 describe('web feature flags', () => {
   it('lists every flag', () => {

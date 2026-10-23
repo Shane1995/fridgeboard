@@ -1,4 +1,8 @@
-import { QueryEntriesSchema, QueryEntrySchema, retryCount } from './index.ts';
+import {
+  QueryEntriesSchema,
+  QueryEntrySchema,
+  retryCount,
+} from '../../../../packages/contract/src/configuration/queries/index.ts';
 
 const DEFAULT = {
   gcTimeMs: 300_000,

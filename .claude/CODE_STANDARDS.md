@@ -59,7 +59,7 @@ TypeScript, Node and React standards for Fridgeboard. Apply every rule to any co
 
 ## Tests
 
-9. **Every hook and util has `index.test.ts` coverage.** Extracting one keeps or adds its tests.
+9. **Every hook and util has `index.test.ts` coverage.** Extracting one keeps or adds its tests. Exception: `packages/contract` tests live in `e2e/contract/` (mirroring `src/`), and handler integration tests live in `e2e/api/integration/`.
 
 ## Tooling baseline
 

@@ -3,7 +3,7 @@
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tsbuildinfo",
     "lib": ["es2023"],
-    "types": ["vitest/globals"]
+    "types": []
   },
-  "include": ["src", "vitest.config.ts"]
+  "include": ["src"]
 }

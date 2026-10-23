@@ -1,4 +1,4 @@
-import { WebConfigurationSchema } from './index.ts';
+import { WebConfigurationSchema } from '../../../../packages/contract/src/configuration/web/index.ts';
 
 const ENDPOINTS = {
   households: '/households',

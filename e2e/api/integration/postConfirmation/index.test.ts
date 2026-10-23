@@ -1,14 +1,14 @@
 import { randomUUID } from 'node:crypto';
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import type { PostConfirmationTriggerEvent } from 'aws-lambda';
-import { client } from '../../../test/dynamodbLocal/client/index.ts';
-import { getItem } from '../../../test/dynamodbLocal/getItem/index.ts';
-import { TABLE_NAME } from '../../../test/dynamodbLocal/constants.ts';
-import { householdMetaKey } from '../../utils/keys/householdMetaKey/index.ts';
-import { inviteKey } from '../../utils/keys/inviteKey/index.ts';
-import { membershipKey } from '../../utils/keys/membershipKey/index.ts';
-import { profileKey } from '../../utils/keys/profileKey/index.ts';
-import { handler } from './index.ts';
+import { client } from '../dynamodbLocal/client/index.ts';
+import { getItem } from '../dynamodbLocal/getItem/index.ts';
+import { TABLE_NAME } from '../dynamodbLocal/constants.ts';
+import { householdMetaKey } from '../../../../apps/functions/src/utils/keys/householdMetaKey/index.ts';
+import { inviteKey } from '../../../../apps/functions/src/utils/keys/inviteKey/index.ts';
+import { membershipKey } from '../../../../apps/functions/src/utils/keys/membershipKey/index.ts';
+import { profileKey } from '../../../../apps/functions/src/utils/keys/profileKey/index.ts';
+import { handler } from '../../../../apps/functions/src/handlers/postConfirmation/index.ts';
 
 const buildEvent = (sub: string, email: string): PostConfirmationTriggerEvent => ({
   version: '1',
