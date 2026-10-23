@@ -1,4 +1,3 @@
-import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/web/constants';
 import type { IMeResponse } from '@fridgeboard/contract/me';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
@@ -8,6 +7,8 @@ import { SessionContext } from '../../Context/Session';
 import { createSession } from '../../testUtils/createSession';
 import { SessionStatus } from '../../services/session/constants';
 import { useMeQuery } from './index';
+import { TEST_WEB_CONFIGURATION } from '../../testUtils/webConfiguration';
+import { endpoint } from '../../testUtils/endpoint';
 
 const ME: IMeResponse = {
   sub: 'sub-1',
@@ -28,7 +29,7 @@ const renderMe = (status: SessionStatus, client = new QueryClient()) => {
   const session = { ...createSession(status).session, apiFetch };
   const wrapper = ({ children }: { children: ReactNode }) => (
     <QueryClientProvider client={client}>
-      <RemoteConfigContext.Provider value={DEFAULT_WEB_CONFIGURATION}>
+      <RemoteConfigContext.Provider value={TEST_WEB_CONFIGURATION}>
         <SessionContext.Provider value={session}>{children}</SessionContext.Provider>
       </RemoteConfigContext.Provider>
     </QueryClientProvider>
@@ -46,7 +47,7 @@ describe('useMeQuery', () => {
     const { result } = renderMe(SessionStatus.SignedIn);
 
     await waitFor(() => expect(result.current.data).toEqual(ME));
-    expect(apiFetch).toHaveBeenCalledWith('/api/v1/me');
+    expect(apiFetch).toHaveBeenCalledWith(endpoint('/api/v1/me'));
   });
 
   it.each([SessionStatus.Loading, SessionStatus.SignedOut])(

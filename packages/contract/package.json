@@ -20,6 +20,8 @@
     "./configuration/lambda/types": "./src/configuration/lambda/types.ts",
     "./configuration/flags/constants": "./src/configuration/flags/constants.ts",
     "./configuration/services/constants": "./src/configuration/services/constants.ts",
+    "./configuration/services/types": "./src/configuration/services/types.ts",
+    "./configuration/resolveEndpointUrl": "./src/configuration/resolveEndpointUrl/index.ts",
     "./configuration/settings/constants": "./src/configuration/settings/constants.ts",
     "./configuration/settings/types": "./src/configuration/settings/types.ts",
     "./configuration/settings/mergeSettings": "./src/configuration/settings/mergeSettings/index.ts",
@@ -29,12 +31,10 @@
     "./configuration/mutations/types": "./src/configuration/mutations/types.ts",
     "./configuration/queries": "./src/configuration/queries/index.ts",
     "./configuration/mutations": "./src/configuration/mutations/index.ts",
-    "./configuration/stripUnknownEntryKeys": "./src/configuration/stripUnknownEntryKeys/index.ts",
     "./configuration/stripUnknownKeys": "./src/configuration/stripUnknownKeys/index.ts",
     "./configuration/resolveServiceUrl": "./src/configuration/resolveServiceUrl/index.ts",
     "./configuration/stripUnknownFlags": "./src/configuration/stripUnknownFlags/index.ts",
-    "./configuration/stripTopLevelParams": "./src/configuration/stripTopLevelParams/index.ts",
-    "./configuration/stripUnknownServices": "./src/configuration/stripUnknownServices/index.ts"
+    "./configuration/stripTopLevelParams": "./src/configuration/stripTopLevelParams/index.ts"
   },
   "scripts": {
     "typecheck": "tsc -b",

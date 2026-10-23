@@ -1,4 +1,4 @@
-import type { LambdaSettings, WebSettings } from './types.ts';
+import type { LambdaSettings } from './types.ts';
 
 export const WEB_SETTING = {
   refreshLeadMs: 'refreshLeadMs',
@@ -24,13 +24,6 @@ export const SETTING_BOUNDS = {
   usernameMinLength: { min: 2, max: 8 },
   usernameMaxLength: { min: 8, max: 32 },
 } as const;
-
-export const DEFAULT_WEB_SETTINGS: WebSettings = {
-  refreshLeadMs: 60_000,
-  refreshMinIntervalMs: 60_000,
-  usernameMinLength: 3,
-  usernameMaxLength: 20,
-};
 
 export const DEFAULT_LAMBDA_SETTINGS: LambdaSettings = {
   flowTtlMs: 180_000,

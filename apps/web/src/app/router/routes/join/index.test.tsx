@@ -1,7 +1,6 @@
 import { SessionContext } from '../../../../Context/Session';
 import { createSession } from '../../../../testUtils/createSession';
 import { SessionStatus } from '../../../../services/session/constants';
-import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/web/constants';
 import { RemoteConfigContext } from '../../../../Context/RemoteConfig';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
@@ -14,6 +13,7 @@ import {
 import { render, screen } from '@testing-library/react';
 import { SIGN_IN_COPY } from '../../../../pages/SignIn/constants';
 import { Route } from '../../../../routes/join';
+import { TEST_WEB_CONFIGURATION } from '../../../../testUtils/webConfiguration';
 
 const { session } = createSession(SessionStatus.SignedOut);
 
@@ -32,7 +32,7 @@ describe('join route', () => {
       history: createMemoryHistory({ initialEntries: ['/join'] }),
     });
     render(
-      <RemoteConfigContext.Provider value={DEFAULT_WEB_CONFIGURATION}>
+      <RemoteConfigContext.Provider value={TEST_WEB_CONFIGURATION}>
         <SessionContext.Provider value={session}>
           <QueryClientProvider client={new QueryClient()}>
             <RouterProvider router={router} />

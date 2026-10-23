@@ -1,4 +1,5 @@
 import type { ITokenResponse } from '@fridgeboard/contract/auth';
+import { endpoint } from '../../../testUtils/endpoint';
 import { API_PATHS } from '@fridgeboard/contract/auth/constants';
 import { RefreshResultKind } from '../constants';
 import { exchangeRefreshCookie } from './index';
@@ -20,7 +21,7 @@ describe('exchangeRefreshCookie', () => {
   it('posts to the refresh path and returns the tokens', async () => {
     fetchMock.mockResolvedValue(new Response(JSON.stringify(TOKENS), { status: 200 }));
 
-    await expect(exchangeRefreshCookie(API_PATHS.refresh)).resolves.toEqual({
+    await expect(exchangeRefreshCookie(endpoint(API_PATHS.refresh))).resolves.toEqual({
       kind: RefreshResultKind.Tokens,
       tokens: TOKENS,
     });
@@ -33,7 +34,7 @@ describe('exchangeRefreshCookie', () => {
   it('is rejected on 401', async () => {
     fetchMock.mockResolvedValue(new Response(null, { status: 401 }));
 
-    await expect(exchangeRefreshCookie(API_PATHS.refresh)).resolves.toEqual({
+    await expect(exchangeRefreshCookie(endpoint(API_PATHS.refresh))).resolves.toEqual({
       kind: RefreshResultKind.Rejected,
     });
   });
@@ -43,7 +44,7 @@ describe('exchangeRefreshCookie', () => {
     async (body) => {
       fetchMock.mockResolvedValue(new Response(body, { status: 200 }));
 
-      await expect(exchangeRefreshCookie(API_PATHS.refresh)).resolves.toEqual({
+      await expect(exchangeRefreshCookie(endpoint(API_PATHS.refresh))).resolves.toEqual({
         kind: RefreshResultKind.Rejected,
       });
     },
@@ -52,7 +53,7 @@ describe('exchangeRefreshCookie', () => {
   it('is unavailable on a server error', async () => {
     fetchMock.mockResolvedValue(new Response(null, { status: 500 }));
 
-    await expect(exchangeRefreshCookie(API_PATHS.refresh)).resolves.toEqual({
+    await expect(exchangeRefreshCookie(endpoint(API_PATHS.refresh))).resolves.toEqual({
       kind: RefreshResultKind.Unavailable,
     });
   });
@@ -60,7 +61,7 @@ describe('exchangeRefreshCookie', () => {
   it('is unavailable when the network fails', async () => {
     fetchMock.mockRejectedValue(new TypeError('offline'));
 
-    await expect(exchangeRefreshCookie(API_PATHS.refresh)).resolves.toEqual({
+    await expect(exchangeRefreshCookie(endpoint(API_PATHS.refresh))).resolves.toEqual({
       kind: RefreshResultKind.Unavailable,
     });
   });

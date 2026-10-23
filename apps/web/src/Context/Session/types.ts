@@ -1,4 +1,5 @@
 import type { AuthenticationResponseJSON } from '@simplewebauthn/browser';
+import type { Endpoint } from '../../services/configuration/types';
 import type { SessionStatus } from '../../services/session/constants';
 import type { PasskeyStartResult, StartResult, VerifyResult } from '../../services/session/types';
 
@@ -11,7 +12,7 @@ export type SessionContextValue = {
   recentCodeSignIn: boolean;
   signOut: () => Promise<void>;
   refresh: () => Promise<boolean>;
-  apiFetch: (path: string, init?: RequestInit) => Promise<Response>;
+  apiFetch: (endpoint: Endpoint, init?: RequestInit) => Promise<Response>;
 };
 
 export type SessionRuntime = {

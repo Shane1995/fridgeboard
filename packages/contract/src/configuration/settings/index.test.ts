@@ -1,10 +1,17 @@
-import { DEFAULT_LAMBDA_SETTINGS, DEFAULT_WEB_SETTINGS } from './constants.ts';
+import { DEFAULT_LAMBDA_SETTINGS } from './constants.ts';
 import { LambdaSettingsSchema, WebSettingsSchema } from './index.ts';
 
+const WEB = {
+  refreshLeadMs: 60_000,
+  refreshMinIntervalMs: 60_000,
+  usernameMaxLength: 20,
+  usernameMinLength: 3,
+};
+
 describe('settings schemas', () => {
-  it('accept their defaults and an empty object', () => {
-    expect(WebSettingsSchema.safeParse(DEFAULT_WEB_SETTINGS).success).toBe(true);
-    expect(WebSettingsSchema.safeParse({}).success).toBe(true);
+  it('accept a complete web object and the lambda defaults or an empty lambda object', () => {
+    expect(WebSettingsSchema.safeParse(WEB).success).toBe(true);
+    expect(WebSettingsSchema.safeParse({}).success).toBe(false);
     expect(LambdaSettingsSchema.safeParse(DEFAULT_LAMBDA_SETTINGS).success).toBe(true);
     expect(LambdaSettingsSchema.safeParse({}).success).toBe(true);
   });
@@ -15,7 +22,7 @@ describe('settings schemas', () => {
     [300_000, true],
     [300_001, false],
   ])('bounds refreshLeadMs: %s -> %s', (value, ok) => {
-    expect(WebSettingsSchema.safeParse({ refreshLeadMs: value }).success).toBe(ok);
+    expect(WebSettingsSchema.safeParse({ ...WEB, refreshLeadMs: value }).success).toBe(ok);
   });
 
   it.each([
@@ -24,7 +31,7 @@ describe('settings schemas', () => {
     [600_000, true],
     [600_001, false],
   ])('bounds refreshMinIntervalMs: %s -> %s', (value, ok) => {
-    expect(WebSettingsSchema.safeParse({ refreshMinIntervalMs: value }).success).toBe(ok);
+    expect(WebSettingsSchema.safeParse({ ...WEB, refreshMinIntervalMs: value }).success).toBe(ok);
   });
 
   it.each([
@@ -33,7 +40,7 @@ describe('settings schemas', () => {
     [8, true],
     [9, false],
   ])('bounds usernameMinLength: %s -> %s', (value, ok) => {
-    expect(WebSettingsSchema.safeParse({ usernameMinLength: value }).success).toBe(ok);
+    expect(WebSettingsSchema.safeParse({ ...WEB, usernameMinLength: value }).success).toBe(ok);
     expect(LambdaSettingsSchema.safeParse({ usernameMinLength: value }).success).toBe(ok);
   });
 
@@ -43,7 +50,7 @@ describe('settings schemas', () => {
     [32, true],
     [33, false],
   ])('bounds usernameMaxLength: %s -> %s', (value, ok) => {
-    expect(WebSettingsSchema.safeParse({ usernameMaxLength: value }).success).toBe(ok);
+    expect(WebSettingsSchema.safeParse({ ...WEB, usernameMaxLength: value }).success).toBe(ok);
     expect(LambdaSettingsSchema.safeParse({ usernameMaxLength: value }).success).toBe(ok);
   });
 });

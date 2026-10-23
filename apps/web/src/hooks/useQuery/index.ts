@@ -6,10 +6,12 @@ export const useQuery = <TData>({
   queryFn,
   staleTime,
   enabled,
+  retry,
 }: QueryOptions<TData>): QueryResult<TData> =>
   useTanStackQuery({
     queryKey,
     queryFn,
     ...(staleTime === undefined ? {} : { staleTime }),
     ...(enabled === undefined ? {} : { enabled }),
+    ...(retry === undefined ? {} : { retry }),
   });

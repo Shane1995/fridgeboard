@@ -1,10 +1,10 @@
 {
-  "version": 1,
   "featureFlags": {},
   "services": {},
   "settings": {
     "flowTtlMs": 180000,
-    "usernameMinLength": 3,
-    "usernameMaxLength": 20
-  }
+    "usernameMaxLength": 20,
+    "usernameMinLength": 3
+  },
+  "version": 1
 }

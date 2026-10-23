@@ -5,13 +5,13 @@ import {
   createRouter,
   RouterProvider,
 } from '@tanstack/react-router';
-import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/web/constants';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import { getConfiguration } from '../../services/configuration';
 import { queryClient } from '../../app/queryClient';
 import { RemoteConfigProvider } from '../../Context/RemoteConfig';
 import { RootLayout } from '.';
+import { TEST_WEB_CONFIGURATION } from '../../testUtils/webConfiguration';
 
 vi.mock('../../services/configuration', () => ({ getConfiguration: vi.fn() }));
 vi.mock('../../app/devtools', () => ({ Devtools: () => <div data-testid="devtools" /> }));
@@ -27,7 +27,7 @@ const renderLayout = () => {
     routeTree: rootRoute.addChildren([pageRoute]),
     history: createMemoryHistory({ initialEntries: ['/'] }),
   });
-  vi.mocked(getConfiguration).mockResolvedValue(DEFAULT_WEB_CONFIGURATION);
+  vi.mocked(getConfiguration).mockResolvedValue(TEST_WEB_CONFIGURATION);
   render(
     <QueryClientProvider client={queryClient}>
       <RemoteConfigProvider>

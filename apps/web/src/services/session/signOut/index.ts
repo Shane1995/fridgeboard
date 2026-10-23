@@ -1,6 +1,7 @@
+import type { Endpoint } from '../../configuration/types';
 import { request } from '../../api/request';
 import { POST } from '../constants';
 
-export const signOut = async (signOutPath: string): Promise<void> => {
-  await request(signOutPath, { method: POST }).catch(() => undefined);
+export const signOut = async (endpoint: Endpoint): Promise<void> => {
+  await request(endpoint, { method: POST }).catch(() => undefined);
 };

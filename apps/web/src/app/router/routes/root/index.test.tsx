@@ -9,6 +9,10 @@ import {
 import { render, screen } from '@testing-library/react';
 import { ROUTER_COPY } from '../../../../app/router/constants';
 import { Route as rootRoute } from '../../../../routes/__root';
+import { getConfiguration } from '../../../../services/configuration';
+import { TEST_WEB_CONFIGURATION } from '../../../../testUtils/webConfiguration';
+
+vi.mock('../../../../services/configuration', () => ({ getConfiguration: vi.fn() }));
 
 const renderAt = (path: string) => {
   const okRoute = createRoute({
@@ -37,7 +41,10 @@ const renderAt = (path: string) => {
 };
 
 describe('root route', () => {
-  beforeEach(() => vi.spyOn(console, 'error').mockImplementation(() => {}));
+  beforeEach(() => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.mocked(getConfiguration).mockResolvedValue(TEST_WEB_CONFIGURATION);
+  });
   afterEach(() => vi.restoreAllMocks());
 
   it('renders matched routes inside the layout', async () => {

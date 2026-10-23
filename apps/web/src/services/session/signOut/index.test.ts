@@ -1,3 +1,4 @@
+import { endpoint } from '../../../testUtils/endpoint';
 import { API_PATHS } from '@fridgeboard/contract/auth/constants';
 import { signOut } from './index';
 
@@ -16,7 +17,7 @@ describe('signOut', () => {
   it('posts to the sign-out path with same-origin credentials', async () => {
     fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
 
-    await signOut(API_PATHS.signOut);
+    await signOut(endpoint(API_PATHS.signOut));
 
     expect(fetchMock).toHaveBeenCalledWith(
       API_PATHS.signOut,
@@ -27,6 +28,6 @@ describe('signOut', () => {
   it('resolves when the network fails', async () => {
     fetchMock.mockRejectedValue(new TypeError('offline'));
 
-    await expect(signOut(API_PATHS.signOut)).resolves.toBeUndefined();
+    await expect(signOut(endpoint(API_PATHS.signOut))).resolves.toBeUndefined();
   });
 });

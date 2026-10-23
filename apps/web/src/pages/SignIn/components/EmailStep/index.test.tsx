@@ -1,5 +1,4 @@
 import { WebFeatureFlag } from '@fridgeboard/contract/configuration/flags/constants';
-import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/web/constants';
 import { browserSupportsWebAuthn, startAuthentication } from '@simplewebauthn/browser';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { SIGN_IN_COPY } from '../../constants';
@@ -7,6 +6,7 @@ import { EmailStep } from './index';
 import { createSession } from '../../../../testUtils/createSession';
 import { TestProviders } from '../../../../testUtils/TestProviders';
 import { SessionStatus } from '../../../../services/session/constants';
+import { TEST_WEB_CONFIGURATION } from '../../../../testUtils/webConfiguration';
 
 vi.mock('@simplewebauthn/browser', () => ({
   browserSupportsWebAuthn: vi.fn(),
@@ -14,9 +14,9 @@ vi.mock('@simplewebauthn/browser', () => ({
 }));
 
 const PASSKEYS_ON = {
-  ...DEFAULT_WEB_CONFIGURATION,
+  ...TEST_WEB_CONFIGURATION,
   featureFlags: {
-    ...DEFAULT_WEB_CONFIGURATION.featureFlags,
+    ...TEST_WEB_CONFIGURATION.featureFlags,
     [WebFeatureFlag.ENABLE_PASSKEYS]: true,
   },
 };
@@ -27,7 +27,7 @@ const session = fixture.session;
 
 const onCodeSent = vi.fn();
 
-const renderStep = (initialEmail?: string, config = DEFAULT_WEB_CONFIGURATION) =>
+const renderStep = (initialEmail?: string, config = TEST_WEB_CONFIGURATION) =>
   render(
     <TestProviders session={session} config={config}>
       <EmailStep initialEmail={initialEmail} onCodeSent={onCodeSent} />

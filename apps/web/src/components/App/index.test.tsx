@@ -1,12 +1,17 @@
 import { render, screen } from '@testing-library/react';
 import { SIGN_IN_COPY } from '../../pages/SignIn/constants';
+import { TEST_WEB_CONFIGURATION } from '../../testUtils/webConfiguration';
 import { App } from '.';
 
 describe('App', () => {
   beforeEach(() => {
     vi.stubGlobal(
       'fetch',
-      vi.fn(async () => new Response(null, { status: 401 })),
+      vi.fn(async (input: RequestInfo | URL) =>
+        input === '/configuration.json'
+          ? new Response(JSON.stringify(TEST_WEB_CONFIGURATION))
+          : new Response(null, { status: 401 }),
+      ),
     );
   });
 

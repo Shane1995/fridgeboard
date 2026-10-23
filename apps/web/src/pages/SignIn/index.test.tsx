@@ -6,7 +6,6 @@ import {
   RouterProvider,
 } from '@tanstack/react-router';
 import { WebFeatureFlag } from '@fridgeboard/contract/configuration/flags/constants';
-import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/web/constants';
 import { browserSupportsWebAuthn } from '@simplewebauthn/browser';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { APP_LOADER_COPY } from '../../components/AppLoader/constants';
@@ -15,6 +14,7 @@ import { SignIn } from '.';
 import { createSession } from '../../testUtils/createSession';
 import { TestProviders } from '../../testUtils/TestProviders';
 import { SessionStatus } from '../../services/session/constants';
+import { TEST_WEB_CONFIGURATION } from '../../testUtils/webConfiguration';
 
 vi.mock('@simplewebauthn/browser', () => ({
   browserSupportsWebAuthn: vi.fn(),
@@ -22,9 +22,9 @@ vi.mock('@simplewebauthn/browser', () => ({
 }));
 
 const PASSKEYS_ON = {
-  ...DEFAULT_WEB_CONFIGURATION,
+  ...TEST_WEB_CONFIGURATION,
   featureFlags: {
-    ...DEFAULT_WEB_CONFIGURATION.featureFlags,
+    ...TEST_WEB_CONFIGURATION.featureFlags,
     [WebFeatureFlag.ENABLE_PASSKEYS]: true,
   },
 };
@@ -33,7 +33,7 @@ const fixture = createSession(SessionStatus.SignedOut);
 const { startSignIn } = fixture;
 let session = fixture.session;
 
-const renderSignIn = async (config = DEFAULT_WEB_CONFIGURATION) => {
+const renderSignIn = async (config = TEST_WEB_CONFIGURATION) => {
   const rootRoute = createRootRoute();
   const signInRoute = createRoute({
     getParentRoute: () => rootRoute,

@@ -1,14 +1,14 @@
-import { DEFAULT_WEB_CONFIGURATION } from '@fridgeboard/contract/configuration/web/constants';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { RemoteConfigContext } from '../../Context/RemoteConfig';
 import { SessionContext } from '../../Context/Session';
+import { TEST_WEB_CONFIGURATION } from '../webConfiguration';
 import type { TestProvidersProps } from './types';
 
 export const TestProviders = ({
   session,
   client,
-  config = DEFAULT_WEB_CONFIGURATION,
+  config = TEST_WEB_CONFIGURATION,
   children,
 }: TestProvidersProps) => {
   const [ownClient] = useState(() => new QueryClient());

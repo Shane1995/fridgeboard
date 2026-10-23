@@ -1,3 +1,4 @@
+import { endpoint } from '../../../testUtils/endpoint';
 import { startPasskey } from '.';
 
 const json = (status: number, body: unknown) =>
@@ -15,7 +16,9 @@ describe('startPasskey', () => {
   it('posts the email and returns the request options', async () => {
     const fetchMock = respond(json(200, { options: { challenge: 'abc', rpId: 'fridgeboard.uk' } }));
 
-    await expect(startPasskey('/api/v1/auth/passkey/start', 'jess@example.com')).resolves.toEqual({
+    await expect(
+      startPasskey(endpoint('/api/v1/auth/passkey/start'), 'jess@example.com'),
+    ).resolves.toEqual({
       ok: true,
       options: { challenge: 'abc', rpId: 'fridgeboard.uk' },
     });
@@ -31,7 +34,7 @@ describe('startPasskey', () => {
   it('falls back to the email code when the server says so', async () => {
     respond(json(200, { next: 'email-code' }));
 
-    await expect(startPasskey('/api/v1/auth/passkey/start', 'a@b.com')).resolves.toEqual({
+    await expect(startPasskey(endpoint('/api/v1/auth/passkey/start'), 'a@b.com')).resolves.toEqual({
       ok: false,
       fallback: true,
     });
@@ -40,7 +43,7 @@ describe('startPasskey', () => {
   it('falls back when the options are unusable', async () => {
     respond(json(200, { options: { nope: true } }));
 
-    await expect(startPasskey('/api/v1/auth/passkey/start', 'a@b.com')).resolves.toEqual({
+    await expect(startPasskey(endpoint('/api/v1/auth/passkey/start'), 'a@b.com')).resolves.toEqual({
       ok: false,
       fallback: true,
     });
@@ -49,7 +52,7 @@ describe('startPasskey', () => {
   it('maps an error response to its reason', async () => {
     respond(json(403, { reason: 'forbidden' }));
 
-    await expect(startPasskey('/api/v1/auth/passkey/start', 'a@b.com')).resolves.toEqual({
+    await expect(startPasskey(endpoint('/api/v1/auth/passkey/start'), 'a@b.com')).resolves.toEqual({
       ok: false,
       reason: 'forbidden',
     });
@@ -58,7 +61,7 @@ describe('startPasskey', () => {
   it('reports unknown for an unreadable error', async () => {
     respond(new Response('nope', { status: 502 }));
 
-    await expect(startPasskey('/api/v1/auth/passkey/start', 'a@b.com')).resolves.toEqual({
+    await expect(startPasskey(endpoint('/api/v1/auth/passkey/start'), 'a@b.com')).resolves.toEqual({
       ok: false,
       reason: 'unknown',
     });

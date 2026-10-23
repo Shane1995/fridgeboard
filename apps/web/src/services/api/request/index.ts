@@ -1,12 +1,13 @@
 import { CONTENT_TYPE_HEADER, JSON_CONTENT_TYPE, SAME_ORIGIN } from '../../constants';
+import type { Endpoint } from '../../configuration/types';
 import { API_PREFIX, AUTHORIZATION_HEADER, BEARER_PREFIX, OUTSIDE_API_ERROR } from '../constants';
 
 export const request = async (
-  path: string,
+  endpoint: Endpoint,
   init: RequestInit = {},
   token?: string,
 ): Promise<Response> => {
-  if (!path.startsWith(API_PREFIX)) {
+  if (!endpoint.path.startsWith(API_PREFIX)) {
     throw new Error(OUTSIDE_API_ERROR);
   }
 
@@ -17,5 +18,10 @@ export const request = async (
   if (token) {
     headers.set(AUTHORIZATION_HEADER, `${BEARER_PREFIX}${token}`);
   }
-  return fetch(path, { ...init, credentials: SAME_ORIGIN, headers });
+  return fetch(endpoint.path, {
+    ...init,
+    credentials: SAME_ORIGIN,
+    headers,
+    signal: AbortSignal.timeout(endpoint.timeoutMs),
+  });
 };

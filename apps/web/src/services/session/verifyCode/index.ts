@@ -1,3 +1,4 @@
+import type { Endpoint } from '../../configuration/types';
 import type { IVerifyRequest } from '@fridgeboard/contract/auth';
 import { NEXT_STEP_STATUS, POST, UNKNOWN_REASON } from '../constants';
 import type { VerifyResponse } from '../types';
@@ -6,9 +7,9 @@ import { isVerifyNextResponse } from '../utils/isVerifyNextResponse';
 import { request } from '../../api/request';
 import { readFailureReason } from '../utils/readFailureReason';
 
-export const verifyCode = async (verifyPath: string, code: string): Promise<VerifyResponse> => {
+export const verifyCode = async (endpoint: Endpoint, code: string): Promise<VerifyResponse> => {
   const payload: IVerifyRequest = { code };
-  const response = await request(verifyPath, { method: POST, body: JSON.stringify(payload) });
+  const response = await request(endpoint, { method: POST, body: JSON.stringify(payload) });
 
   if (!response.ok) {
     return { ok: false, reason: await readFailureReason(response) };
