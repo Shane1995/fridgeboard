@@ -1,5 +1,5 @@
-import { DEFAULT_LAMBDA_CONFIGURATION } from './constants.ts';
-import { LambdaConfigurationSchema } from './index.ts';
+import { DEFAULT_LAMBDA_CONFIGURATION } from '../../../../packages/contract/src/configuration/lambda/constants.ts';
+import { LambdaConfigurationSchema } from '../../../../packages/contract/src/configuration/lambda/index.ts';
 
 describe('LambdaConfigurationSchema', () => {
   it('accepts the default configuration', () => {

@@ -1,4 +1,4 @@
-import { stripTopLevelParams } from './index.ts';
+import { stripTopLevelParams } from '../../../../packages/contract/src/configuration/stripTopLevelParams/index.ts';
 
 describe('stripTopLevelParams', () => {
   it('drops the top-level params key', () => {

@@ -1,4 +1,4 @@
-import { mergeSettings } from './index.ts';
+import { mergeSettings } from '../../../../../packages/contract/src/configuration/settings/mergeSettings/index.ts';
 
 describe('mergeSettings', () => {
   const defaults = { a: 1, b: 2 };

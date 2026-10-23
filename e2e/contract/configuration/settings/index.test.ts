@@ -1,5 +1,8 @@
-import { DEFAULT_LAMBDA_SETTINGS } from './constants.ts';
-import { LambdaSettingsSchema, WebSettingsSchema } from './index.ts';
+import { DEFAULT_LAMBDA_SETTINGS } from '../../../../packages/contract/src/configuration/settings/constants.ts';
+import {
+  LambdaSettingsSchema,
+  WebSettingsSchema,
+} from '../../../../packages/contract/src/configuration/settings/index.ts';
 
 const WEB = {
   refreshLeadMs: 60_000,

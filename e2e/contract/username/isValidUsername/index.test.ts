@@ -1,4 +1,4 @@
-import { isValidUsername } from './index.ts';
+import { isValidUsername } from '../../../../packages/contract/src/username/isValidUsername/index.ts';
 
 const LIMITS = { min: 3, max: 20 };
 

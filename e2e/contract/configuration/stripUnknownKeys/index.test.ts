@@ -1,4 +1,4 @@
-import { stripUnknownKeys } from './index.ts';
+import { stripUnknownKeys } from '../../../../packages/contract/src/configuration/stripUnknownKeys/index.ts';
 
 describe('stripUnknownKeys', () => {
   it('drops keys of the section that are not known', () => {

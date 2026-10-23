@@ -1,4 +1,4 @@
-import { stripUnknownFlags } from './index.ts';
+import { stripUnknownFlags } from '../../../../packages/contract/src/configuration/stripUnknownFlags/index.ts';
 
 describe('stripUnknownFlags', () => {
   it('drops flag names that are not known', () => {

@@ -23,6 +23,16 @@ jobs:
     if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    services:
+      dynamodb:
+        image: amazon/dynamodb-local:3.3.2@sha256:6ada631ec7aa5fc83446855eb17233e3dad184fec47477e8140c6c569cfe0c86
+        ports:
+          - 8000:8000
+        options: >-
+          --health-cmd "curl -s -o /dev/null http://localhost:8000"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -37,6 +47,7 @@ jobs:
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
+      - run: pnpm --filter @fridgeboard/e2e test:integration
       - run: pnpm --filter @fridgeboard/configuration validate
       - run: pnpm build
       - run: pnpm --filter @fridgeboard/functions smoke

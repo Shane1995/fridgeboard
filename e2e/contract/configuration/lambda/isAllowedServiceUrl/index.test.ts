@@ -1,6 +1,8 @@
-import { isAllowedServiceUrl } from './index.ts';
+import { isAllowedServiceUrl } from '../../../../../packages/contract/src/configuration/lambda/isAllowedServiceUrl/index.ts';
 
-vi.mock('../constants.ts', () => ({ ALLOWED_SERVICE_HOSTS: ['api.example.com'] }));
+vi.mock('../../../../../packages/contract/src/configuration/lambda/constants.ts', () => ({
+  ALLOWED_SERVICE_HOSTS: ['api.example.com'],
+}));
 
 describe('isAllowedServiceUrl', () => {
   it.each([

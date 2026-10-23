@@ -29,7 +29,7 @@
     "vitest": "^5.0.5"
   },
   "lint-staged": {
-    "{apps,packages}/**/*.{ts,tsx,js,cjs,mjs}": [
+    "{apps,packages,e2e}/**/*.{ts,tsx,js,cjs,mjs}": [
       "oxfmt",
       "oxlint"
     ]

@@ -19,14 +19,15 @@ pnpm dev          # http://localhost:5173
 
 ## Scripts
 
-| Command          | What it does                    |
-| ---------------- | ------------------------------- |
-| `pnpm dev`       | Run the web app with hot reload |
-| `pnpm build`     | Typecheck and build every app   |
-| `pnpm test`      | Run Vitest                      |
-| `pnpm lint`      | Run oxlint                      |
-| `pnpm typecheck` | Run `tsc -b`                    |
-| `pnpm format`    | Format with oxfmt               |
+| Command                                                 | What it does                                            |
+| ------------------------------------------------------- | ------------------------------------------------------- |
+| `pnpm dev`                                              | Run the web app with hot reload                         |
+| `pnpm build`                                            | Typecheck and build every app                           |
+| `pnpm test`                                             | Run Vitest                                              |
+| `pnpm --filter @fridgeboard/e2e test:integration` | Run handler tests against DynamoDB Local (needs Docker) |
+| `pnpm lint`                                             | Run oxlint                                              |
+| `pnpm typecheck`                                        | Run `tsc -b`                                            |
+| `pnpm format`                                           | Format with oxfmt                                       |
 
 ## Layout
 

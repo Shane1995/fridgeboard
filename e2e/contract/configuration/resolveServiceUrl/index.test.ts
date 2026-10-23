@@ -1,4 +1,4 @@
-import { resolveServiceUrl } from './index.ts';
+import { resolveServiceUrl } from '../../../../packages/contract/src/configuration/resolveServiceUrl/index.ts';
 
 describe('resolveServiceUrl', () => {
   it('returns a url without placeholders unchanged', () => {
