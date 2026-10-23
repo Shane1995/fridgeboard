@@ -11,10 +11,11 @@
     "admin:sign-out-everywhere": "node scripts/admin/signOutEverywhere/index.ts",
     "smoke": "node scripts/smoke/index.ts",
     "typecheck": "tsc -b",
-    "test": "vitest run",
-    "lint": "oxlint --config ../../.oxlintrc.json src/ scripts/",
-    "format": "oxfmt src/ scripts/",
-    "format:check": "oxfmt --check src/ scripts/"
+    "test": "vitest run --project handlers --project admin",
+    "test:integration": "vitest run --project integration",
+    "lint": "oxlint --config ../../.oxlintrc.json src/ scripts/ test/",
+    "format": "oxfmt src/ scripts/ test/",
+    "format:check": "oxfmt --check src/ scripts/ test/"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1152.0"

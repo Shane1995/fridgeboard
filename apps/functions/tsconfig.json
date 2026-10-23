@@ -5,5 +5,5 @@
     "lib": ["es2023", "esnext.array"],
     "types": ["node", "vitest/globals"]
   },
-  "include": ["src", "scripts", "vitest.config.ts", "vitest.setup.ts"]
+  "include": ["src", "scripts", "test", "vitest.config.ts", "vitest.setup.ts"]
 }
