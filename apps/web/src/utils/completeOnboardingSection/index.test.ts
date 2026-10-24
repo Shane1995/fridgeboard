@@ -2,24 +2,24 @@ import type { IOnboardingResponse } from '@fridgeboard/contract/onboarding';
 import { OnboardingSectionId } from '../../services/onboarding/constants';
 import { completeOnboardingSection } from '.';
 
-const onboarding: IOnboardingResponse = {
-  sections: [
-    { id: 'username', done: false },
-    { id: 'household', done: false },
-  ],
-};
+const onboarding: IOnboardingResponse = { sections: [{ id: 'username' }, { id: 'household' }] };
 
 describe('completeOnboardingSection', () => {
-  it('marks only the named section done', () => {
+  it('removes only the named section', () => {
     expect(completeOnboardingSection(onboarding, OnboardingSectionId.Username).sections).toEqual([
-      { id: 'username', done: true },
-      { id: 'household', done: false },
+      { id: 'household' },
     ]);
+  });
+
+  it('leaves no sections once the last one is done', () => {
+    const last: IOnboardingResponse = { sections: [{ id: 'household' }] };
+
+    expect(completeOnboardingSection(last, OnboardingSectionId.Household).sections).toEqual([]);
   });
 
   it('does not change the input', () => {
     completeOnboardingSection(onboarding, OnboardingSectionId.Username);
 
-    expect(onboarding.sections[0]?.done).toBe(false);
+    expect(onboarding.sections).toHaveLength(2);
   });
 });

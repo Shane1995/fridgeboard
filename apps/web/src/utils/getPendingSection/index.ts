@@ -5,4 +5,4 @@ import { isKnownSection } from '../isKnownSection';
 export const getPendingSection = ({
   sections,
 }: IOnboardingResponse): OnboardingSectionId | undefined =>
-  sections.flatMap(({ id, done }) => (!done && isKnownSection(id) ? [id] : []))[0];
+  sections.flatMap(({ id }) => (isKnownSection(id) ? [id] : []))[0];

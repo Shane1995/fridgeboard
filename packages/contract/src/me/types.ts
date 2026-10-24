@@ -4,4 +4,5 @@ export type IMeResponse = {
   username: string | null;
   isAdmin: boolean;
   canCreateHousehold: boolean;
+  hasOnboarding: boolean;
 };

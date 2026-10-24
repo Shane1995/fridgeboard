@@ -8,7 +8,6 @@ import {
   CONFIGURATION_STALE_TIME_MS,
 } from './constants';
 
-// The one query that cannot read its settings from the configuration, because it loads it.
 export const useConfigurationQuery = (): QueryResult<WebConfiguration> =>
   useTanStackQuery({
     queryKey: CONFIGURATION_QUERY_KEY,

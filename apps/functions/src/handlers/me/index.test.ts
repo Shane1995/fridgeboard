@@ -1,4 +1,4 @@
-import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import type { APIGatewayProxyEventV2WithJWTAuthorizer } from 'aws-lambda';
 import { mockClient } from 'aws-sdk-client-mock';
 import { handler } from './index.ts';
@@ -43,6 +43,7 @@ describe('me handler', () => {
     vi.stubEnv('TABLE_NAME', 'fridgeboard');
     vi.stubEnv('API_ORIGIN_SECRET', 'origin-secret');
     ddbMock.on(GetCommand).resolves({ Item: profile });
+    ddbMock.on(QueryCommand).resolves({ Items: [] });
   });
 
   it('returns 403 when the origin secret header is missing', async () => {
@@ -65,11 +66,21 @@ describe('me handler', () => {
       username: null,
       isAdmin: false,
       canCreateHousehold: true,
+      hasOnboarding: true,
     });
     expect(ddbMock.commandCalls(GetCommand)[0]?.args[0].input).toMatchObject({
       TableName: 'fridgeboard',
       Key: { PK: 'USER#sub-1', SK: 'PROFILE' },
     });
+  });
+
+  it('has no onboarding left once the user has a username and a household', async () => {
+    ddbMock.on(GetCommand).resolves({ Item: { ...profile, username: 'jess' } });
+    ddbMock.on(QueryCommand).resolves({ Items: [{ GSI1SK: 'HH#h1', role: 'owner' }] });
+
+    const result = await handler(buildEvent());
+
+    expect(JSON.parse(result.body ?? '').hasOnboarding).toBe(false);
   });
 
   it('marks admins from cognito:groups', async () => {

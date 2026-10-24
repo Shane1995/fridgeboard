@@ -16,6 +16,7 @@ const ME: IMeResponse = {
   username: null,
   isAdmin: false,
   canCreateHousehold: true,
+  hasOnboarding: true,
 };
 
 const apiFetch = vi.fn();

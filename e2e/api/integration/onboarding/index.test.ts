@@ -3,7 +3,7 @@ import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import { buildEvent } from '../dynamodbLocal/buildEvent/index.ts';
 import { client } from '../dynamodbLocal/client/index.ts';
 import { TABLE_NAME } from '../dynamodbLocal/constants.ts';
-import { OnboardingSectionId } from '../../../../apps/functions/src/handlers/onboarding/constants.ts';
+import { OnboardingSectionId } from '../../../../apps/functions/src/utils/buildOnboarding/constants.ts';
 import { handler } from '../../../../apps/functions/src/handlers/onboarding/index.ts';
 import { HouseholdRole } from '../../../../apps/functions/src/utils/isHouseholdRole/constants.ts';
 import { householdMetaKey } from '../../../../apps/functions/src/utils/keys/householdMetaKey/index.ts';
@@ -27,32 +27,26 @@ describe('onboarding handler against DynamoDB Local', () => {
     await put({ ...profileKey(sub), email: 'a@x.com', canCreateHousehold: true });
 
     expect(await getSections(sub)).toEqual([
-      { id: OnboardingSectionId.Username, done: false },
-      { id: OnboardingSectionId.Household, done: false },
+      { id: OnboardingSectionId.Username },
+      { id: OnboardingSectionId.Household },
     ]);
   });
 
-  it('marks both done once the creator has a username and a household', async () => {
+  it('returns nothing once the creator has a username and a household', async () => {
     const sub = randomUUID();
     const hhId = randomUUID();
     await put({ ...profileKey(sub), email: 'a@x.com', username: 'jess', canCreateHousehold: true });
     await put({ ...householdMetaKey(hhId), name: 'Home' });
     await put({ ...membershipKey(hhId, sub), role: HouseholdRole.Owner });
 
-    expect(await getSections(sub)).toEqual([
-      { id: OnboardingSectionId.Username, done: true },
-      { id: OnboardingSectionId.Household, done: true },
-    ]);
+    expect(await getSections(sub)).toEqual([]);
   });
 
   it('tells an uninvited user with no household to ask for an invite', async () => {
     const sub = randomUUID();
     await put({ ...profileKey(sub), email: 'a@x.com', canCreateHousehold: false });
 
-    expect(await getSections(sub)).toContainEqual({
-      id: OnboardingSectionId.NeedsInvite,
-      done: false,
-    });
+    expect(await getSections(sub)).toContainEqual({ id: OnboardingSectionId.NeedsInvite });
   });
 
   it('returns 404 when the profile does not exist', async () => {

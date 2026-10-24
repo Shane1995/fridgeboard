@@ -4,6 +4,8 @@ import { buildEvent } from '../dynamodbLocal/buildEvent/index.ts';
 import { client } from '../dynamodbLocal/client/index.ts';
 import { TABLE_NAME } from '../dynamodbLocal/constants.ts';
 import { handler } from '../../../../apps/functions/src/handlers/me/index.ts';
+import { HouseholdRole } from '../../../../apps/functions/src/utils/isHouseholdRole/constants.ts';
+import { membershipKey } from '../../../../apps/functions/src/utils/keys/membershipKey/index.ts';
 import { profileKey } from '../../../../apps/functions/src/utils/keys/profileKey/index.ts';
 
 const getMe = (sub: string) =>
@@ -33,7 +35,27 @@ describe('me handler against DynamoDB Local', () => {
       username: 'jess',
       isAdmin: false,
       canCreateHousehold: true,
+      hasOnboarding: true,
     });
+  });
+
+  it('has no onboarding left once the user has a username and a household', async () => {
+    const sub = randomUUID();
+    const hhId = randomUUID();
+    await client.send(
+      new PutCommand({
+        TableName: TABLE_NAME,
+        Item: { ...profileKey(sub), email: 'a@x.com', username: 'jess', canCreateHousehold: true },
+      }),
+    );
+    await client.send(
+      new PutCommand({
+        TableName: TABLE_NAME,
+        Item: { ...membershipKey(hhId, sub), role: HouseholdRole.Owner },
+      }),
+    );
+
+    expect(JSON.parse(String((await getMe(sub)).body)).hasOnboarding).toBe(false);
   });
 
   it('returns 404 when the profile does not exist', async () => {

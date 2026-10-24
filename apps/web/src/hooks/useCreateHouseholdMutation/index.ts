@@ -1,22 +1,19 @@
-import { MutationName } from '../../services/configuration/mutations/constants';
-import { WebService } from '../../services/configuration/services/constants';
-import type { IOnboardingResponse } from '@fridgeboard/contract/onboarding';
-import { useQueryClient } from '@tanstack/react-query';
 import { postHousehold } from '../../services/api/postHousehold';
 import type { PostHouseholdResult } from '../../services/api/postHousehold/types';
+import { MutationName } from '../../services/configuration/mutations/constants';
 import { resolveMutationEndpoint } from '../../services/configuration/resolveEndpoint';
+import { WebService } from '../../services/configuration/services/constants';
 import { OnboardingSectionId } from '../../services/onboarding/constants';
-import { completeOnboardingSection } from '../../utils/completeOnboardingSection';
+import { useCompleteOnboardingSection } from '../useCompleteOnboardingSection';
 import { useMutation } from '../useMutation';
 import type { MutationResult } from '../useMutation/types';
-import { ONBOARDING_QUERY_KEY } from '../useOnboardingQuery/constants';
 import { useRemoteConfigContext } from '../useRemoteConfigContext';
 import { useSessionContext } from '../useSessionContext';
 
 export const useCreateHouseholdMutation = (): MutationResult<PostHouseholdResult, string> => {
   const configuration = useRemoteConfigContext();
   const { apiFetch } = useSessionContext();
-  const queryClient = useQueryClient();
+  const completeSection = useCompleteOnboardingSection();
   return useMutation({
     mutationFn: async (name: string) => {
       const result = await postHousehold(
@@ -25,11 +22,7 @@ export const useCreateHouseholdMutation = (): MutationResult<PostHouseholdResult
         apiFetch,
       );
       if (result.ok) {
-        queryClient.setQueryData<IOnboardingResponse>([ONBOARDING_QUERY_KEY], (onboarding) =>
-          onboarding === undefined
-            ? onboarding
-            : completeOnboardingSection(onboarding, OnboardingSectionId.Household),
-        );
+        completeSection(OnboardingSectionId.Household);
       }
       return result;
     },

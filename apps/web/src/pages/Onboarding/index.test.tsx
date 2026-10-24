@@ -18,15 +18,9 @@ import { TEST_WEB_CONFIGURATION } from '../../testUtils/webConfiguration';
 import { endpoint } from '../../testUtils/endpoint';
 const { session, signOut, apiFetch } = createSession(SessionStatus.SignedIn);
 
-const CREATOR: IOnboardingResponse['sections'] = [
-  { id: 'username', done: false },
-  { id: 'household', done: false },
-];
+const CREATOR: IOnboardingResponse['sections'] = [{ id: 'username' }, { id: 'household' }];
 
-const HOUSEHOLD_PENDING: IOnboardingResponse['sections'] = [
-  { id: 'username', done: true },
-  { id: 'household', done: false },
-];
+const HOUSEHOLD_PENDING: IOnboardingResponse['sections'] = [{ id: 'household' }];
 
 const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status });
 
@@ -74,20 +68,18 @@ const HOUSEHOLD = ONBOARDING_COPY.household;
 describe('Onboarding', () => {
   beforeEach(() => vi.resetAllMocks());
 
-  it('asks a creator for a username first, with step progress', async () => {
+  it('asks a creator for a username first', async () => {
     respond(CREATOR);
     renderPage();
 
     expect(await screen.findByRole('heading', { name: USERNAME.title })).toBeInTheDocument();
-    expect(screen.getByText('Step 1 of 2')).toBeInTheDocument();
   });
 
-  it('shows an invited joiner only the username step, without progress', async () => {
-    respond([{ id: 'username', done: false }]);
+  it('shows an invited joiner only the username step', async () => {
+    respond([{ id: 'username' }]);
     renderPage();
 
     expect(await screen.findByRole('heading', { name: USERNAME.title })).toBeInTheDocument();
-    expect(screen.queryByText(/^Step /)).not.toBeInTheDocument();
   });
 
   it('saves the trimmed username then moves on to the household step', async () => {
@@ -97,7 +89,6 @@ describe('Onboarding', () => {
     await fill(USERNAME.label, '  jess ', USERNAME.submit);
 
     expect(await screen.findByRole('heading', { name: HOUSEHOLD.title })).toBeInTheDocument();
-    expect(screen.getByText('Step 2 of 2')).toBeInTheDocument();
     expect(apiFetch).toHaveBeenCalledWith(endpoint('/api/v1/me/username'), {
       method: 'PUT',
       body: JSON.stringify({ username: 'jess' }),
@@ -160,16 +151,12 @@ describe('Onboarding', () => {
 
   it('asks for an invite when the user cannot create a household, and can sign out', async () => {
     signOut.mockResolvedValue(undefined);
-    respond([
-      { id: 'username', done: true },
-      { id: 'needs-invite', done: false },
-    ]);
+    respond([{ id: 'needs-invite' }]);
     renderPage();
 
     expect(
       await screen.findByRole('heading', { name: ONBOARDING_COPY.needsInvite.title }),
     ).toBeInTheDocument();
-    expect(screen.queryByText(/^Step /)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: ONBOARDING_COPY.needsInvite.signOut }));
 

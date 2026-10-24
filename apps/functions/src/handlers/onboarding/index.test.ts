@@ -1,13 +1,8 @@
-import {
-  BatchGetCommand,
-  DynamoDBDocumentClient,
-  GetCommand,
-  QueryCommand,
-} from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import type { APIGatewayProxyEventV2WithJWTAuthorizer } from 'aws-lambda';
 import { mockClient } from 'aws-sdk-client-mock';
 import { HouseholdRole } from '../../utils/isHouseholdRole/constants.ts';
-import { OnboardingSectionId } from './constants.ts';
+import { OnboardingSectionId } from '../../utils/buildOnboarding/constants.ts';
 import { handler } from './index.ts';
 
 const ddbMock = mockClient(DynamoDBDocumentClient);
@@ -77,28 +72,22 @@ describe('onboarding handler', () => {
 
     expect(result.statusCode).toBe(200);
     expect(sectionsOf(result.body)).toEqual([
-      { id: OnboardingSectionId.Username, done: false },
-      { id: OnboardingSectionId.Household, done: false },
+      { id: OnboardingSectionId.Username },
+      { id: OnboardingSectionId.Household },
     ]);
   });
 
-  it('marks the household section done once the user belongs to one', async () => {
+  it('returns no sections once the user has a username and a household', async () => {
     ddbMock
       .on(GetCommand)
       .resolves({ Item: { email: 'a@x.com', username: 'jess', canCreateHousehold: true } });
     ddbMock.on(QueryCommand).resolves({
       Items: [{ GSI1SK: 'HH#h1', role: HouseholdRole.Owner }],
     });
-    ddbMock.on(BatchGetCommand).resolves({
-      Responses: { fridgeboard: [{ PK: 'HH#h1', SK: 'META', name: 'Home' }] },
-    });
 
     const result = await handler(buildEvent());
 
-    expect(sectionsOf(result.body)).toEqual([
-      { id: OnboardingSectionId.Username, done: true },
-      { id: OnboardingSectionId.Household, done: true },
-    ]);
+    expect(sectionsOf(result.body)).toEqual([]);
   });
 
   it('offers admins the household section', async () => {
@@ -106,10 +95,7 @@ describe('onboarding handler', () => {
 
     const result = await handler(buildEvent({ sub: 'sub-1', 'cognito:groups': '[admin]' }));
 
-    expect(sectionsOf(result.body)).toContainEqual({
-      id: OnboardingSectionId.Household,
-      done: false,
-    });
+    expect(sectionsOf(result.body)).toContainEqual({ id: OnboardingSectionId.Household });
   });
 
   it('tells an uninvited user with no household to ask for an invite', async () => {
@@ -117,9 +103,6 @@ describe('onboarding handler', () => {
 
     const result = await handler(buildEvent());
 
-    expect(sectionsOf(result.body)).toContainEqual({
-      id: OnboardingSectionId.NeedsInvite,
-      done: false,
-    });
+    expect(sectionsOf(result.body)).toContainEqual({ id: OnboardingSectionId.NeedsInvite });
   });
 });

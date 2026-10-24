@@ -6,12 +6,11 @@ import type {
   APIGatewayProxyStructuredResultV2,
 } from 'aws-lambda';
 import { jsonResponse } from '../../utils/jsonResponse/index.ts';
-import { listHouseholds } from '../../utils/listHouseholds/index.ts';
 import { withVerifiedOrigin } from '../../utils/originVerified/index.ts';
+import { pendingOnboarding } from '../../utils/pendingOnboarding/index.ts';
 import { readProfile } from '../../utils/readProfile/index.ts';
 import { ADMIN_GROUP, GROUPS_CLAIM } from '../me/constants.ts';
 import { parseGroups } from '../me/utils/parseGroups/index.ts';
-import { buildOnboarding } from './utils/buildOnboarding/index.ts';
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 
@@ -31,13 +30,11 @@ export const handler = withVerifiedOrigin(
       return { statusCode: 404 };
     }
 
-    const households = await listHouseholds(client, String(TableName), sub);
     const body: IOnboardingResponse = {
-      sections: buildOnboarding({
-        username: profile.username,
-        canCreateHousehold: profile.canCreateHousehold,
+      sections: await pendingOnboarding(client, TableName, {
+        sub,
+        profile,
         isAdmin: parseGroups(claims[GROUPS_CLAIM]).includes(ADMIN_GROUP),
-        hasHousehold: households.length > 0,
       }),
     };
     return jsonResponse(200, body);

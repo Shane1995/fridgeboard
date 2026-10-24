@@ -4,5 +4,6 @@ import { useApiQuery } from '../useApiQuery';
 import type { QueryResult } from '../useQuery/types';
 import { ONBOARDING_QUERY_KEY } from './constants';
 
-export const useOnboardingQuery = (): QueryResult<IOnboardingResponse> =>
-  useApiQuery({ name: ONBOARDING_QUERY_KEY, service: WebService.onboarding });
+// Only worth asking while `/me` says there is onboarding left.
+export const useOnboardingQuery = (enabled: boolean): QueryResult<IOnboardingResponse> =>
+  useApiQuery({ name: ONBOARDING_QUERY_KEY, service: WebService.onboarding, enabled });

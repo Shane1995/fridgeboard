@@ -7,6 +7,7 @@ import type {
 } from 'aws-lambda';
 import { jsonResponse } from '../../utils/jsonResponse/index.ts';
 import { withVerifiedOrigin } from '../../utils/originVerified/index.ts';
+import { pendingOnboarding } from '../../utils/pendingOnboarding/index.ts';
 import { readProfile } from '../../utils/readProfile/index.ts';
 import { ADMIN_GROUP, GROUPS_CLAIM } from './constants.ts';
 import { parseGroups } from './utils/parseGroups/index.ts';
@@ -23,17 +24,21 @@ export const handler = withVerifiedOrigin(
       return { statusCode: 401 };
     }
 
-    const profile = await readProfile(client, process.env.TABLE_NAME, sub);
+    const TableName = process.env.TABLE_NAME;
+    const profile = await readProfile(client, TableName, sub);
     if (!profile) {
       return { statusCode: 404 };
     }
 
+    const isAdmin = parseGroups(claims[GROUPS_CLAIM]).includes(ADMIN_GROUP);
+    const pending = await pendingOnboarding(client, TableName, { sub, profile, isAdmin });
     const body: IMeResponse = {
       sub,
       email: profile.email,
       username: profile.username,
-      isAdmin: parseGroups(claims[GROUPS_CLAIM]).includes(ADMIN_GROUP),
+      isAdmin,
       canCreateHousehold: profile.canCreateHousehold,
+      hasOnboarding: pending.length > 0,
     };
     return jsonResponse(200, body);
   },

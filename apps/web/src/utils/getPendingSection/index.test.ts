@@ -7,26 +7,21 @@ const onboarding = (sections: IOnboardingResponse['sections']): IOnboardingRespo
 });
 
 describe('getPendingSection', () => {
-  it('returns the first section that is not done', () => {
-    expect(
-      getPendingSection(
-        onboarding([
-          { id: 'username', done: true },
-          { id: 'household', done: false },
-        ]),
-      ),
-    ).toBe(OnboardingSectionId.Household);
+  it('returns the first section', () => {
+    expect(getPendingSection(onboarding([{ id: 'username' }, { id: 'household' }]))).toBe(
+      OnboardingSectionId.Username,
+    );
   });
 
-  it('returns undefined once every section is done', () => {
-    expect(getPendingSection(onboarding([{ id: 'username', done: true }]))).toBeUndefined();
+  it('returns undefined when nothing is pending', () => {
+    expect(getPendingSection(onboarding([]))).toBeUndefined();
   });
 
   it('skips a section id this build does not know', () => {
-    const unknown = JSON.parse('{"id":"notifications","done":false}');
+    const unknown = JSON.parse('{"id":"notifications"}');
 
-    expect(getPendingSection(onboarding([unknown, { id: 'username', done: false }]))).toBe(
-      OnboardingSectionId.Username,
+    expect(getPendingSection(onboarding([unknown, { id: 'household' }]))).toBe(
+      OnboardingSectionId.Household,
     );
   });
 });

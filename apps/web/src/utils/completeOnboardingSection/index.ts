@@ -5,7 +5,5 @@ export const completeOnboardingSection = (
   onboarding: IOnboardingResponse,
   id: OnboardingSectionId,
 ): IOnboardingResponse => ({
-  sections: onboarding.sections.map((section) =>
-    section.id === id ? { ...section, done: true } : section,
-  ),
+  sections: onboarding.sections.filter((section) => section.id !== id),
 });
