@@ -1,4 +1,6 @@
-import { API_PATHS } from '@fridgeboard/contract/auth/constants';
+import { resolveEndpointUrl } from '@fridgeboard/contract/configuration/resolveEndpointUrl';
+import { WebService } from '@fridgeboard/contract/configuration/services/constants';
+import type { ApiService } from '@fridgeboard/contract/configuration/services/types';
 import { handler as households } from '../../../src/handlers/households/index.ts';
 import { handler as me } from '../../../src/handlers/me/index.ts';
 import { handler as username } from '../../../src/handlers/username/index.ts';
@@ -6,15 +8,24 @@ import { refresh } from '../authStubs/refresh/index.ts';
 import { signOut } from '../authStubs/signOut/index.ts';
 import { start } from '../authStubs/start/index.ts';
 import { verify } from '../authStubs/verify/index.ts';
-import type { RouteEntry } from './types.ts';
+import type { RouteDefinition, RouteEntry } from './types.ts';
 
-// Add a Lambda here to serve it locally. Passkey routes are deliberately absent: they 404.
-export const ROUTES: ReadonlyMap<string, RouteEntry> = new Map<string, RouteEntry>([
-  [`GET ${API_PATHS.me}`, { jwt: true, handler: me }],
-  ['PUT /api/v1/me/username', { jwt: true, handler: username }],
-  ['POST /api/v1/households', { jwt: true, handler: households }],
-  [`POST ${API_PATHS.start}`, { jwt: false, handler: start }],
-  [`POST ${API_PATHS.verify}`, { jwt: false, handler: verify }],
-  [`POST ${API_PATHS.refresh}`, { jwt: false, handler: refresh }],
-  [`POST ${API_PATHS.signOut}`, { jwt: false, handler: signOut }],
-]);
+// Add a Lambda here to serve it locally. The path comes from the served configuration, so it
+// cannot drift from what the web app calls. Passkey services are left out and 404.
+const DEFINITIONS: RouteDefinition[] = [
+  { method: 'GET', service: WebService.me, jwt: true, handler: me },
+  { method: 'PUT', service: WebService.username, jwt: true, handler: username },
+  { method: 'POST', service: WebService.households, jwt: true, handler: households },
+  { method: 'POST', service: WebService.requestCode, jwt: false, handler: start },
+  { method: 'POST', service: WebService.verify, jwt: false, handler: verify },
+  { method: 'POST', service: WebService.refresh, jwt: false, handler: refresh },
+  { method: 'POST', service: WebService.signOut, jwt: false, handler: signOut },
+];
+
+export const buildRoutes = (api: ApiService): ReadonlyMap<string, RouteEntry> =>
+  new Map(
+    DEFINITIONS.map(({ method, service, jwt, handler }): [string, RouteEntry] => [
+      `${method} ${resolveEndpointUrl(api, service)}`,
+      { jwt, handler },
+    ]),
+  );

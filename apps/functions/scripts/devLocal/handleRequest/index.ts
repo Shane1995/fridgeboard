@@ -1,12 +1,13 @@
 import { readFileSync } from 'node:fs';
 import type { ServerResponse } from 'node:http';
 import type { APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
+import { WebConfigurationSchema } from '@fridgeboard/contract/configuration/web';
 import { jsonResponse } from '../../../src/utils/jsonResponse/index.ts';
 import { CONFIGURATION_FILE } from '../constants.ts';
 import { decodeToken } from '../decodeToken/index.ts';
 import { readBody } from '../readBody/index.ts';
 import { matchRoute } from '../matchRoute/index.ts';
-import { ROUTES } from '../route/index.ts';
+import { buildRoutes } from '../route/index.ts';
 import { sendResult } from '../sendResult/index.ts';
 import { servedConfiguration } from '../servedConfiguration/index.ts';
 import { toEvent } from '../toEvent/index.ts';
@@ -17,10 +18,12 @@ const dispatch = async (
   routeKey: string,
   path: string,
 ): Promise<APIGatewayProxyStructuredResultV2> => {
+  const configuration = readFileSync(CONFIGURATION_FILE, 'utf8');
   if (routeKey === 'GET /configuration.json') {
-    return servedConfiguration(readFileSync(CONFIGURATION_FILE, 'utf8'));
+    return servedConfiguration(configuration);
   }
-  const match = matchRoute(ROUTES, request.method ?? '', path);
+  const { api } = WebConfigurationSchema.parse(JSON.parse(configuration)).services;
+  const match = matchRoute(buildRoutes(api), request.method ?? '', path);
   if (!match) {
     return { statusCode: 404 };
   }
