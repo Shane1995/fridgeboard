@@ -1,8 +1,7 @@
-import { act, renderHook, waitFor } from '@testing-library/react';
+import { act, waitFor } from '@testing-library/react';
 import { UNSORTED_BUCKET_ID } from '../../services/shoppingList/constants';
 import { testRepository } from '../../testUtils/testRepository';
-import { createShoppingListWrapper } from '../../testUtils/createShoppingListWrapper';
-import { useItemsQuery } from '../useItemsQuery';
+import { renderShoppingListMutation } from '../../testUtils/renderShoppingListMutation';
 import { useDeleteItemMutation } from './index';
 
 describe('useDeleteItemMutation', () => {
@@ -13,13 +12,9 @@ describe('useDeleteItemMutation', () => {
       name: 'Milk',
       bucketId: UNSORTED_BUCKET_ID,
     });
-    const { result } = renderHook(
-      () => ({ remove: useDeleteItemMutation(), items: useItemsQuery() }),
-      { wrapper: createShoppingListWrapper() },
-    );
-    await waitFor(() => expect(result.current.items.data).toHaveLength(1));
+    const result = await renderShoppingListMutation(() => useDeleteItemMutation(), 1);
 
-    await act(async () => result.current.remove.mutateAsync(id));
+    await act(async () => result.current.mutation.mutateAsync(id));
 
     await waitFor(() => expect(result.current.items.data).toEqual([]));
   });
