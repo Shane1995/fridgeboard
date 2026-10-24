@@ -19,8 +19,8 @@ const call = async ({ path, method, body }: { path: string; method?: string; bod
   ).json();
 
 export const fakeShoppingList = {
-  addItem: ({ name, shopId }: AddFakeItem): Promise<IListItem> =>
-    call({ path: '/items', method: 'POST', body: { name, shopId } }),
+  addItem: ({ name, shopIds }: AddFakeItem): Promise<IListItem> =>
+    call({ path: '/items', method: 'POST', body: { name, shopIds } }),
   updateItem: ({ id, changes }: UpdateFakeItem): Promise<IListItem> =>
     call({ path: `/items/${id}`, method: 'PATCH', body: changes }),
   listItems: async (): Promise<IListItem[]> => (await call({ path: '/items' })).items,

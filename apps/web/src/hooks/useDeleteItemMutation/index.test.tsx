@@ -1,5 +1,4 @@
 import { act, waitFor } from '@testing-library/react';
-import { UNSORTED_SHOP_ID } from '../../services/shoppingList/constants';
 import { fakeShoppingList } from '../../testUtils/fakeShoppingList';
 import { renderShoppingListMutation } from '../../testUtils/renderShoppingListMutation';
 import { useDeleteItemMutation } from './index';
@@ -10,7 +9,7 @@ describe('useDeleteItemMutation', () => {
   it('deletes an item and refreshes the items query', async () => {
     const { id } = await fakeShoppingList.addItem({
       name: 'Milk',
-      shopId: UNSORTED_SHOP_ID,
+      shopIds: [],
     });
     const result = await renderShoppingListMutation(() => useDeleteItemMutation(), 1);
 

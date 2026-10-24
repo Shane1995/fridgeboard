@@ -98,7 +98,7 @@ export const Home = () => {
           </header>
           <ul className="flex flex-col gap-2">
             {visibleChecked.map((item) => (
-              <ItemRow key={item.id} item={item} moveTargets={allShops} />
+              <ItemRow key={item.id} item={item} shops={allShops} />
             ))}
           </ul>
         </section>

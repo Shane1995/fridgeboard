@@ -18,7 +18,7 @@ export const useAddItemMutation = (): MutationResult<ApiResult<IListItem, never>
     name: MutationName.addItem,
     service: WebService.listItems,
     method: POST,
-    toBody: ({ name, shopId }: NewItem) => ({ name, shopId }),
+    toBody: ({ name, shopIds }: NewItem) => ({ name, shopIds }),
     toParams: () => paramsFor(),
     reasons: [],
     onSuccess: (added) => {

@@ -36,9 +36,10 @@ export const useAddItemForm = (focusedShopId?: string): AddItemFormState => {
     ({ name: known }) => known.toLowerCase() !== query.toLowerCase(),
   );
 
-  const pickSuggestion = ({ name: picked, shopId: pickedShop }: HistoryEntry) => {
+  const pickSuggestion = ({ name: picked, shopIds: pickedShops }: HistoryEntry) => {
     setName(picked);
-    if (shops.some(({ id }) => id === pickedShop)) {
+    const pickedShop = pickedShops.find((id) => shops.some((shop) => shop.id === id));
+    if (pickedShop !== undefined) {
       setLastShopId(pickedShop);
     }
   };
@@ -49,7 +50,10 @@ export const useAddItemForm = (focusedShopId?: string): AddItemFormState => {
     if (trimmed === '' || addItem.isPending) {
       return;
     }
-    addItem.mutate({ name: trimmed, shopId }, { onSuccess: (result) => result.ok && setName('') });
+    addItem.mutate(
+      { name: trimmed, shopIds: shopId === UNSORTED_SHOP_ID ? [] : [shopId] },
+      { onSuccess: (result) => result.ok && setName('') },
+    );
   };
 
   return {

@@ -1,15 +1,14 @@
 import { act, waitFor } from '@testing-library/react';
-import { UNSORTED_SHOP_ID } from '../../../../services/shoppingList/constants';
 import { fakeShoppingList } from '../../../../testUtils/fakeShoppingList';
 import type { ListItem } from '../../../../services/shoppingList/types';
 import { renderHookWithHousehold } from '../../../../testUtils/createShoppingListWrapper';
-import { DELETE_ACTION, INFO_ACTION, MOVE_ACTION_PREFIX } from '../../constants';
+import { DELETE_ACTION, INFO_ACTION } from '../../constants';
 import { useItemRow } from './index';
 
 const setup = async () => {
   const item: ListItem = await fakeShoppingList.addItem({
     name: 'Milk',
-    shopId: UNSORTED_SHOP_ID,
+    shopIds: [],
   });
   const { result } = await renderHookWithHousehold(() => useItemRow(item));
   return { item, result };
@@ -60,12 +59,22 @@ describe('useItemRow', () => {
     expect((await stored())?.name).toBe('Milk');
   });
 
-  it('moves the item to another shop from the menu', async () => {
+  it('puts the item in the chosen shops', async () => {
     const { result } = await setup();
 
-    act(() => result.current.handleMenuAction(`${MOVE_ACTION_PREFIX}b1`));
+    act(() => result.current.setShops({ shopIds: ['b1', 'b2'] }));
 
-    await waitFor(async () => expect((await stored())?.shopId).toBe('b1'));
+    await waitFor(async () => expect((await stored())?.shopIds).toEqual(['b1', 'b2']));
+  });
+
+  it('can take the item out of every shop', async () => {
+    const { result } = await setup();
+    act(() => result.current.setShops({ shopIds: ['b1'] }));
+    await waitFor(async () => expect((await stored())?.shopIds).toEqual(['b1']));
+
+    act(() => result.current.setShops({ shopIds: [] }));
+
+    await waitFor(async () => expect((await stored())?.shopIds).toEqual([]));
   });
 
   it('opens the item info from the menu', async () => {

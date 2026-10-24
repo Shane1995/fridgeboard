@@ -19,6 +19,7 @@ import {
   groupItemsByShop,
   UNSORTED_SHOP,
 } from '../../../../services/shoppingList/utils/groupItemsByShop';
+import { inShop } from '../../../../services/shoppingList/utils/inShop';
 import { HOME_COPY } from '../../constants';
 import type { HomeState } from './types';
 
@@ -48,11 +49,7 @@ export const useHome = (): HomeState => {
   const visibleChecked =
     focusedId === undefined
       ? grouped.checked
-      : grouped.checked.filter(({ shopId }) =>
-          focusedId === UNSORTED_SHOP_ID
-            ? !shopList.some(({ id }) => id === shopId)
-            : shopId === focusedId,
-        );
+      : grouped.checked.filter((item) => inShop({ item, shopId: focusedId, shops: shopList }));
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     if (over === null || active.id === over.id) {

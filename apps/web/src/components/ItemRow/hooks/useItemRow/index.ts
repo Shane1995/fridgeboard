@@ -4,7 +4,7 @@ import type { FormEvent } from 'react';
 import { useDeleteItemMutation } from '../../../../hooks/useDeleteItemMutation';
 import { useUpdateItemMutation } from '../../../../hooks/useUpdateItemMutation';
 import type { ListItem } from '../../../../services/shoppingList/types';
-import { DELETE_ACTION, INFO_ACTION, MOVE_ACTION_PREFIX } from '../../constants';
+import { DELETE_ACTION, INFO_ACTION } from '../../constants';
 import type { ItemRowState } from './types';
 
 export const useItemRow = (item: ListItem): ItemRowState => {
@@ -38,13 +38,11 @@ export const useItemRow = (item: ListItem): ItemRowState => {
       infoDialog.open();
     } else if (action === DELETE_ACTION) {
       remove.mutate(item.id);
-    } else if (action.startsWith(MOVE_ACTION_PREFIX)) {
-      update.mutate({
-        id: item.id,
-        changes: { shopId: action.slice(MOVE_ACTION_PREFIX.length) },
-      });
     }
   };
+
+  const setShops = ({ shopIds }: { shopIds: string[] }) =>
+    update.mutate({ id: item.id, changes: { shopIds } });
 
   return {
     infoDialog,
@@ -55,6 +53,7 @@ export const useItemRow = (item: ListItem): ItemRowState => {
     commit,
     cancel,
     toggle,
+    setShops,
     handleMenuAction,
   };
 };

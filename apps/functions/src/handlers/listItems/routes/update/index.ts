@@ -1,11 +1,11 @@
 import { LIST_ITEM_NAME_MAX_LENGTH } from '@fridgeboard/contract/lists/constants';
-import { shopExists } from '../../../../utils/shopExists/index.ts';
 import { HistoryItemSchema } from '../../../../utils/items/historyItem/index.ts';
 import { ListItemSchema } from '../../../../utils/items/listItem/index.ts';
 import { jsonResponse } from '../../../../utils/jsonResponse/index.ts';
 import { historyKey } from '../../../../utils/keys/historyKey/index.ts';
 import { itemKey } from '../../../../utils/keys/itemKey/index.ts';
 import { readJsonBody } from '../../../../utils/readJsonBody/index.ts';
+import { readShopIds } from '../../../../utils/readShopIds/index.ts';
 import { readText } from '../../../../utils/readText/index.ts';
 import type { ItemRouteOptions } from '../../../../utils/resolveList/types.ts';
 import { toListItem } from '../../utils/toListItem/index.ts';
@@ -25,14 +25,12 @@ export const updateListItem = async ({
     }
     set.name = name;
   }
-  if ('shopId' in fields) {
-    if (
-      typeof fields.shopId !== 'string' ||
-      !(await shopExists({ table, scope, shopId: fields.shopId }))
-    ) {
-      return jsonResponse(400, { reason: 'invalid-shop' });
-    }
-    set.shopId = fields.shopId;
+  const shops = await readShopIds({ fields, table, scope });
+  if (shops.status === 'invalid') {
+    return jsonResponse(400, { reason: 'invalid-shop' });
+  }
+  if (shops.status === 'ok') {
+    set.shopIds = shops.shopIds;
   }
   if ('checked' in fields) {
     if (typeof fields.checked !== 'boolean') {
@@ -52,10 +50,10 @@ export const updateListItem = async ({
   if (updated === undefined) {
     return jsonResponse(404, { reason: 'not-found' });
   }
-  if (typeof set.shopId === 'string') {
+  if (shops.status === 'ok') {
     await table.update({
       key: historyKey({ ...scope, name: updated.name }),
-      parts: { set: { shopId: set.shopId } },
+      parts: { set: { shopIds: shops.shopIds } },
       schema: HistoryItemSchema,
     });
   }

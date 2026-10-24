@@ -4,7 +4,7 @@ import type { ShopSectionData } from '../../services/shoppingList/types';
 import { SHOP_FILTER_COPY } from './constants';
 import { ShopFilter } from './index';
 
-const item = (id: string) => ({ id, name: id, shopId: 'b1', checked: false, createdAt: 0 });
+const item = (id: string) => ({ id, name: id, shopIds: ['b1'], checked: false, createdAt: 0 });
 const SECTIONS: ShopSectionData[] = [
   {
     shop: { id: 'b1', name: 'Express', color: ShopColor.Mint, order: 0 },

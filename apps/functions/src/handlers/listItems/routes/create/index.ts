@@ -1,40 +1,41 @@
-import { LIST_ITEM_NAME_MAX_LENGTH, UNSORTED_SHOP_ID } from '@fridgeboard/contract/lists/constants';
-import type { IListItem } from '@fridgeboard/contract/lists';
-import { shopExists } from '../../../../utils/shopExists/index.ts';
+import { LIST_ITEM_NAME_MAX_LENGTH } from '@fridgeboard/contract/lists/constants';
 import { jsonResponse } from '../../../../utils/jsonResponse/index.ts';
 import { historyKey } from '../../../../utils/keys/historyKey/index.ts';
 import { itemKey } from '../../../../utils/keys/itemKey/index.ts';
 import { newId } from '../../../../utils/newId/index.ts';
 import { readJsonBody } from '../../../../utils/readJsonBody/index.ts';
+import { readShopIds } from '../../../../utils/readShopIds/index.ts';
 import { readText } from '../../../../utils/readText/index.ts';
 import type { ListRouteContext } from '../../../../utils/resolveList/types.ts';
+import { toListItem } from '../../utils/toListItem/index.ts';
 
 export const createListItem = async ({ user, table, scope }: ListRouteContext) => {
   const body = readJsonBody(user.event);
-  const { name: rawName, shopId: rawShopId = UNSORTED_SHOP_ID } =
-    typeof body === 'object' && body !== null ? (body as Record<string, unknown>) : {};
-  const name = readText({ value: rawName, maxLength: LIST_ITEM_NAME_MAX_LENGTH });
+  const fields = typeof body === 'object' && body !== null ? (body as Record<string, unknown>) : {};
+  const name = readText({ value: fields.name, maxLength: LIST_ITEM_NAME_MAX_LENGTH });
   if (name === undefined) {
     return jsonResponse(400, { reason: 'invalid-name' });
   }
-  if (typeof rawShopId !== 'string' || !(await shopExists({ table, scope, shopId: rawShopId }))) {
+  const shops = await readShopIds({ fields, table, scope });
+  if (shops.status === 'invalid') {
     return jsonResponse(400, { reason: 'invalid-shop' });
   }
+  const shopIds = shops.status === 'ok' ? shops.shopIds : [];
 
-  const item: IListItem = {
+  const stored = {
     id: newId(),
     name,
-    shopId: rawShopId,
+    shopIds,
     checked: false,
     createdAt: Date.now(),
     addedBy: user.sub,
   };
   await table.transactWrite([
-    { put: { ...itemKey({ ...scope, itemId: item.id }), ...item } },
+    { put: { ...itemKey({ ...scope, itemId: stored.id }), ...stored } },
     {
       update: historyKey({ ...scope, name }),
-      parts: { set: { name, shopId: item.shopId }, add: { count: 1 } },
+      parts: { set: { name, shopIds }, add: { count: 1 } },
     },
   ]);
-  return jsonResponse(201, item);
+  return jsonResponse(201, toListItem(stored));
 };

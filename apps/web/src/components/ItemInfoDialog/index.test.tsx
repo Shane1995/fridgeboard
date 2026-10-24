@@ -8,7 +8,7 @@ import { ItemInfoDialog } from './index';
 const ITEM: ListItem = {
   id: 'i1',
   name: 'Milk',
-  shopId: 'b1',
+  shopIds: ['b1'],
   checked: false,
   createdAt: new Date(2026, 9, 24, 21, 31).getTime(),
   addedBy: 'sub-1',

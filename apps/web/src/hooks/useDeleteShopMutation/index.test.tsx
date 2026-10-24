@@ -1,5 +1,5 @@
 import { act, waitFor } from '@testing-library/react';
-import { ShopColor, UNSORTED_SHOP_ID } from '../../services/shoppingList/constants';
+import { ShopColor } from '../../services/shoppingList/constants';
 import { fakeShoppingList } from '../../testUtils/fakeShoppingList';
 import { renderShoppingListMutation } from '../../testUtils/renderShoppingListMutation';
 import { useDeleteShopMutation } from './index';
@@ -12,12 +12,12 @@ describe('useDeleteShopMutation', () => {
       name: 'Express',
       color: ShopColor.Mint,
     });
-    await fakeShoppingList.addItem({ name: 'Milk', shopId: shop.id });
+    await fakeShoppingList.addItem({ name: 'Milk', shopIds: [shop.id] });
     const result = await renderShoppingListMutation(() => useDeleteShopMutation(), 1);
 
     await act(async () => result.current.mutation.mutateAsync(shop.id));
 
     await waitFor(() => expect(result.current.shops.data).toEqual([]));
-    await waitFor(() => expect(result.current.items.data?.[0]?.shopId).toBe(UNSORTED_SHOP_ID));
+    await waitFor(() => expect(result.current.items.data?.[0]?.shopIds).toEqual([]));
   });
 });

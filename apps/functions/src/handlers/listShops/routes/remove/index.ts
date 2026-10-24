@@ -1,10 +1,10 @@
-import { UNSORTED_SHOP_ID } from '@fridgeboard/contract/lists/constants';
 import { ListItemSchema } from '../../../../utils/items/listItem/index.ts';
 import { jsonResponse } from '../../../../utils/jsonResponse/index.ts';
 import { shopKey } from '../../../../utils/keys/shopKey/index.ts';
 import { HOUSEHOLD_PK_PREFIX } from '../../../../utils/keys/constants.ts';
 import { itemKey } from '../../../../utils/keys/itemKey/index.ts';
 import { itemPrefix } from '../../../../utils/keys/itemPrefix/index.ts';
+import { shopIdsOf } from '../../../../utils/shopIdsOf/index.ts';
 import type { ShopRouteOptions } from '../../../../utils/resolveList/types.ts';
 
 export const removeListShop = async ({ context: { table, scope }, shopId }: ShopRouteOptions) => {
@@ -21,11 +21,11 @@ export const removeListShop = async ({ context: { table, scope }, shopId }: Shop
   );
   await Promise.all(
     items
-      .filter((item) => item.shopId === shopId)
+      .filter((item) => shopIdsOf(item).includes(shopId))
       .map((item) =>
         table.update({
           key: itemKey({ householdId, listId, itemId: item.id }),
-          parts: { set: { shopId: UNSORTED_SHOP_ID } },
+          parts: { set: { shopIds: shopIdsOf(item).filter((id) => id !== shopId) } },
           schema: ListItemSchema,
         }),
       ),
