@@ -1,38 +1,37 @@
 import type { IMeResponse } from '@fridgeboard/contract/me';
+import type {
+  IUsernameErrorResponse,
+  IUsernameRequest,
+  IUsernameResponse,
+} from '@fridgeboard/contract/username';
 import { useQueryClient } from '@tanstack/react-query';
-import { putUsername } from '../../services/api/putUsername';
-import type { PutUsernameResult } from '../../services/api/putUsername/types';
+import type { ApiResult } from '../../services/api/sendJson/types';
 import { MutationName } from '../../services/configuration/mutations/constants';
-import { resolveMutationEndpoint } from '../../services/configuration/resolveEndpoint';
 import { WebService } from '../../services/configuration/services/constants';
 import { OnboardingSectionId } from '../../services/onboarding/constants';
+import { useApiMutation } from '../useApiMutation';
 import { useCompleteOnboardingSection } from '../useCompleteOnboardingSection';
 import { ME_QUERY_KEY } from '../useMeQuery/constants';
-import { useMutation } from '../useMutation';
 import type { MutationResult } from '../useMutation/types';
-import { useRemoteConfigContext } from '../useRemoteConfigContext';
-import { useSessionContext } from '../useSessionContext';
+import { USERNAME_FAILURES } from './constants';
 
-export const useSetUsernameMutation = (): MutationResult<PutUsernameResult, string> => {
-  const configuration = useRemoteConfigContext();
-  const { apiFetch } = useSessionContext();
+export const useSetUsernameMutation = (): MutationResult<
+  ApiResult<IUsernameResponse, IUsernameErrorResponse['reason']>,
+  string
+> => {
   const queryClient = useQueryClient();
   const completeSection = useCompleteOnboardingSection();
-  return useMutation({
-    mutationFn: async (username: string) => {
-      const result = await putUsername(
-        resolveMutationEndpoint(configuration, WebService.username),
-        username,
-        apiFetch,
+  return useApiMutation({
+    name: MutationName.setUsername,
+    service: WebService.username,
+    method: 'PUT',
+    toBody: (username: string): IUsernameRequest => ({ username }),
+    reasons: USERNAME_FAILURES,
+    onSuccess: ({ username }: IUsernameResponse) => {
+      queryClient.setQueryData<IMeResponse>([ME_QUERY_KEY], (me) =>
+        me === undefined ? me : { ...me, username },
       );
-      if (result.ok) {
-        queryClient.setQueryData<IMeResponse>([ME_QUERY_KEY], (me) =>
-          me === undefined ? me : { ...me, username: result.username },
-        );
-        completeSection(OnboardingSectionId.Username);
-      }
-      return result;
+      completeSection(OnboardingSectionId.Username);
     },
-    mutationKey: [MutationName.setUsername],
   });
 };

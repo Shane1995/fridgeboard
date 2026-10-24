@@ -1,6 +1,6 @@
 import type { ICreateHouseholdErrorResponse } from '@fridgeboard/contract/households';
 
-export const REASONS: readonly ICreateHouseholdErrorResponse['reason'][] = [
+export const HOUSEHOLD_FAILURES: readonly ICreateHouseholdErrorResponse['reason'][] = [
   'invalid-name',
   'not-allowed',
   'household-exists',
