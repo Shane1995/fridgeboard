@@ -1,39 +1,28 @@
-import { WebFeatureFlag } from '../../services/configuration/schema/constants';
 import { Card } from '@heroui/react';
-import { browserSupportsWebAuthn } from '@simplewebauthn/browser';
-import { Link, useRouter } from '@tanstack/react-router';
-import { useEffect, useState } from 'react';
+import { Link } from '@tanstack/react-router';
 import { AppLoader } from '../../components/AppLoader';
-import { useFeatureFlag } from '../../hooks/useFeatureFlag';
-import { usePasskeyDevice } from '../../hooks/usePasskeyDevice';
-import { useSessionContext } from '../../hooks/useSessionContext';
-import { SessionStatus } from '../../services/session/constants';
+import { Typography } from '../../components/Typography';
+import { TypographyVariant } from '../../components/Typography/constants';
 import { CodeStep } from './components/CodeStep';
 import { EmailStep } from './components/EmailStep';
 import { PasskeyStep } from './components/PasskeyStep';
 import { SIGN_IN_COPY } from './constants';
+import { useSignIn } from './hooks/useSignIn';
 import type { SignInProps } from './types';
-import { Typography } from '../../components/Typography';
-import { TypographyVariant } from '../../components/Typography/constants';
 
 export const SignIn = ({ initialEmail, redirectTo, children }: SignInProps) => {
-  const router = useRouter();
-  const [email, setEmail] = useState<string | undefined>();
-  const { status } = useSessionContext();
-  const signedIn = status === SessionStatus.SignedIn;
-  const passkeysEnabled = useFeatureFlag(WebFeatureFlag.ENABLE_PASSKEYS);
-  const device = usePasskeyDevice();
-  const [preferCode, setPreferCode] = useState(false);
-  const passkeyEmail =
-    passkeysEnabled && !preferCode && browserSupportsWebAuthn() ? device.email : undefined;
+  const {
+    loading,
+    codeEmail,
+    passkeyEmail,
+    emailStepInitialEmail,
+    handleCodeSent,
+    handleBack,
+    handleSignedIn,
+    handlePasskeyFallback,
+  } = useSignIn({ initialEmail, redirectTo });
 
-  useEffect(() => {
-    if (signedIn) {
-      router.history.replace(redirectTo);
-    }
-  }, [signedIn, router, redirectTo]);
-
-  if (status === SessionStatus.Loading || signedIn) {
+  if (loading) {
     return <AppLoader />;
   }
 
@@ -45,18 +34,14 @@ export const SignIn = ({ initialEmail, redirectTo, children }: SignInProps) => {
       {children}
       <Card>
         <Card.Content>
-          {email === undefined && passkeyEmail !== undefined && (
-            <PasskeyStep email={passkeyEmail} onFallback={() => setPreferCode(true)} />
+          {codeEmail === undefined && passkeyEmail !== undefined && (
+            <PasskeyStep email={passkeyEmail} onFallback={handlePasskeyFallback} />
           )}
-          {email === undefined && passkeyEmail === undefined && (
-            <EmailStep initialEmail={initialEmail ?? device.email} onCodeSent={setEmail} />
+          {codeEmail === undefined && passkeyEmail === undefined && (
+            <EmailStep initialEmail={emailStepInitialEmail} onCodeSent={handleCodeSent} />
           )}
-          {email !== undefined && (
-            <CodeStep
-              email={email}
-              onSignedIn={() => router.history.push(redirectTo)}
-              onBack={() => setEmail(undefined)}
-            />
+          {codeEmail !== undefined && (
+            <CodeStep email={codeEmail} onSignedIn={handleSignedIn} onBack={handleBack} />
           )}
         </Card.Content>
       </Card>

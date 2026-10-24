@@ -1,65 +1,16 @@
-import { WebFeatureFlag } from '../../services/configuration/schema/constants';
 import { Alert, Button, Card } from '@heroui/react';
-import { browserSupportsWebAuthn } from '@simplewebauthn/browser';
-import { useState } from 'react';
-import { useFeatureFlag } from '../../hooks/useFeatureFlag';
-import { useMeQuery } from '../../hooks/useMeQuery';
-import { usePasskeyDevice } from '../../hooks/usePasskeyDevice';
-import { useRegisterPasskeyMutation } from '../../hooks/useRegisterPasskeyMutation';
-import { useSessionContext } from '../../hooks/useSessionContext';
-import { FailureReason } from '../../services/session/constants';
-import { SIGN_IN_COPY } from '../../pages/SignIn/constants';
-import { CONFIRMATION_MS, PASSKEY_PROMPT_COPY as COPY } from './constants';
 import { Typography } from '../Typography';
 import { TypographyVariant } from '../Typography/constants';
+import { PASSKEY_PROMPT_COPY as COPY } from './constants';
+import { usePasskeyPrompt } from './hooks/usePasskeyPrompt';
 
 export const PasskeyPrompt = () => {
-  const enabled = useFeatureFlag(WebFeatureFlag.ENABLE_PASSKEYS);
-  const { recentCodeSignIn } = useSessionContext();
-  const { data: me } = useMeQuery();
-  const device = usePasskeyDevice();
-  const register = useRegisterPasskeyMutation();
-  const [hidden, setHidden] = useState(false);
-  const [done, setDone] = useState(false);
-  const [message, setMessage] = useState<string | undefined>();
+  const { visible, done, message, isPending, handleSetUp, handleNotNow, handleDontAsk } =
+    usePasskeyPrompt();
 
-  const email = me?.email;
-  const eligible =
-    enabled &&
-    recentCodeSignIn &&
-    email !== undefined &&
-    !device.promptDismissed &&
-    device.email !== email &&
-    browserSupportsWebAuthn();
-
-  if (hidden || (!eligible && !done)) {
+  if (!visible) {
     return null;
   }
-
-  const handleSetUp = () => {
-    setMessage(undefined);
-    register.mutate(undefined, {
-      onSuccess: (result) => {
-        if (result.ok) {
-          if (email !== undefined) {
-            device.remember(email);
-          }
-          setDone(true);
-          setTimeout(() => setHidden(true), CONFIRMATION_MS);
-        } else if (result.reason === FailureReason.Cancelled) {
-          setMessage(COPY.cancelled);
-        } else {
-          setMessage(SIGN_IN_COPY.reasons[result.reason]);
-        }
-      },
-      onError: () => setMessage(SIGN_IN_COPY.reasons.unknown),
-    });
-  };
-
-  const handleDontAsk = () => {
-    device.dismissPrompt();
-    setHidden(true);
-  };
 
   return (
     <aside className="fixed inset-x-0 bottom-0 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
@@ -83,10 +34,10 @@ export const PasskeyPrompt = () => {
                 </Alert.Content>
               </Alert>
             )}
-            <Button onPress={handleSetUp} isPending={register.isPending}>
-              {register.isPending ? COPY.settingUp : COPY.setUp}
+            <Button onPress={handleSetUp} isPending={isPending}>
+              {isPending ? COPY.settingUp : COPY.setUp}
             </Button>
-            <Button variant="secondary" onPress={() => setHidden(true)}>
+            <Button variant="secondary" onPress={handleNotNow}>
               {COPY.notNow}
             </Button>
             <Button variant="ghost" onPress={handleDontAsk}>
