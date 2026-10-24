@@ -80,7 +80,7 @@ describe('router', () => {
   it('renders the signed-in home at / with the account email', async () => {
     serve(async () => json(TOKENS));
     renderAt('/');
-    expect(await screen.findByText(`${HOME_COPY.signedInAs} jess`)).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: HOME_COPY.title })).toBeInTheDocument();
   });
 
   it('renders the not-found component for an unknown path', async () => {
@@ -91,7 +91,7 @@ describe('router', () => {
   it('redirects / to /sign-in when signed out and back to / after sign-in', async () => {
     const router = renderAt('/');
     await signIn();
-    expect(await screen.findByText(`${HOME_COPY.signedInAs} jess`)).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: HOME_COPY.title })).toBeInTheDocument();
     expect(router.state.location.pathname).toBe('/');
     expect(router.history.location.pathname).toBe('/');
   });
@@ -108,7 +108,7 @@ describe('router', () => {
     expect(await screen.findByLabelText(SIGN_IN_COPY.emailLabel)).toBeInTheDocument();
     expect(router.state.location.search).toEqual({ redirect: '/' });
     await signIn();
-    expect(await screen.findByText(`${HOME_COPY.signedInAs} jess`)).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: HOME_COPY.title })).toBeInTheDocument();
     expect(router.state.location.pathname).toBe('/');
   });
 
@@ -119,7 +119,7 @@ describe('router', () => {
     expect(await screen.findByRole('status', { name: APP_LOADER_COPY.label })).toBeInTheDocument();
     await waitFor(() => expect(release).toHaveLength(1));
     release[0]?.(json(TOKENS));
-    expect(await screen.findByText(`${HOME_COPY.signedInAs} jess`)).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: HOME_COPY.title })).toBeInTheDocument();
     expect(screen.queryByRole('status', { name: APP_LOADER_COPY.label })).not.toBeInTheDocument();
   });
 });

@@ -44,6 +44,7 @@ export const QueryEntriesSchema = z
     default: QueryDefaultSchema,
     me: z.optional(QueryEntrySchema),
     onboarding: z.optional(QueryEntrySchema),
+    households: z.optional(QueryEntrySchema),
   })
   .check(
     z.refine(

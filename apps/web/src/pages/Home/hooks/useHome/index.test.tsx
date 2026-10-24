@@ -1,57 +1,66 @@
-import { useNavigate } from '@tanstack/react-router';
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { SessionStatus } from '../../../../services/session/constants';
-import { createProvidersWrapper } from '../../../../testUtils/createProvidersWrapper';
-import { createSession } from '../../../../testUtils/createSession';
+import { BucketColor, UNSORTED_BUCKET_ID } from '../../../../services/shoppingList/constants';
+import { testRepository } from '../../../../testUtils/testRepository';
+import { createShoppingListWrapper } from '../../../../testUtils/createShoppingListWrapper';
 import { useHome } from './index';
 
-vi.mock('@tanstack/react-router', () => ({ useNavigate: vi.fn() }));
-
-const ME = {
-  sub: 's',
-  email: 'jess@example.com',
-  username: 'jess',
-  isAdmin: false,
-  canCreateHousehold: true,
-  hasOnboarding: false,
-};
-
-const setup = () => {
-  const navigate = vi.fn();
-  vi.mocked(useNavigate).mockReturnValue(navigate);
-  const { session, apiFetch, signOut } = createSession(SessionStatus.SignedIn);
-  apiFetch.mockResolvedValue(new Response(JSON.stringify(ME), { status: 200 }));
-  const { result } = renderHook(() => useHome(), { wrapper: createProvidersWrapper(session) });
-  return { result, navigate, signOut };
-};
-
 describe('useHome', () => {
-  beforeEach(() => vi.resetAllMocks());
+  beforeEach(() => window.localStorage.clear());
 
-  it('loads the signed-in account', async () => {
-    const { result } = setup();
+  it('starts loading with nothing on the list', () => {
+    const { result } = renderHook(() => useHome(), { wrapper: createShoppingListWrapper() });
 
-    await waitFor(() => expect(result.current.me).toEqual(ME));
+    expect(result.current.isLoading).toBe(true);
+    expect(result.current.hasItems).toBe(false);
   });
 
-  it('signs out and then goes to the sign-in page', async () => {
-    const { result, navigate, signOut } = setup();
-    signOut.mockResolvedValue(undefined);
+  it('groups items by bucket and offers General as a move target', async () => {
+    const bucket = await testRepository.createBucket({
+      name: 'Express',
+      color: BucketColor.Mint,
+    });
+    const milk = await testRepository.addItem({ name: 'Milk', bucketId: bucket.id });
+    const eggs = await testRepository.addItem({ name: 'Eggs', bucketId: bucket.id });
+    await testRepository.updateItem(eggs.id, { checked: true });
+    const { result } = renderHook(() => useHome(), { wrapper: createShoppingListWrapper() });
 
-    await act(async () => result.current.handleSignOut());
+    await waitFor(() => expect(result.current.hasItems).toBe(true));
+    expect(result.current.grouped.sections[0]?.items).toEqual([milk]);
+    expect(result.current.grouped.checked.map(({ id }) => id)).toEqual([eggs.id]);
+    expect(result.current.allBuckets.map(({ id }) => id)).toEqual([UNSORTED_BUCKET_ID, bucket.id]);
+  });
 
-    expect(signOut).toHaveBeenCalled();
-    await waitFor(() =>
-      expect(navigate).toHaveBeenCalledWith({ to: '/sign-in', search: { redirect: '/' } }),
+  it('keeps General out of the reorderable buckets', async () => {
+    await testRepository.addItem({ name: 'Batteries', bucketId: UNSORTED_BUCKET_ID });
+    await testRepository.createBucket({ name: 'Express', color: BucketColor.Mint });
+    const { result } = renderHook(() => useHome(), { wrapper: createShoppingListWrapper() });
+
+    await waitFor(() => expect(result.current.unsorted?.items).toHaveLength(1));
+    expect(result.current.reorderable.map(({ bucket }) => bucket.name)).toEqual(['Express']);
+  });
+
+  it('reorders the buckets when one is dropped on another', async () => {
+    const a = await testRepository.createBucket({ name: 'A', color: BucketColor.Mint });
+    const b = await testRepository.createBucket({ name: 'B', color: BucketColor.Sky });
+    const { result } = renderHook(() => useHome(), { wrapper: createShoppingListWrapper() });
+    await waitFor(() => expect(result.current.reorderable).toHaveLength(2));
+
+    act(() => result.current.handleDragEnd({ active: { id: a.id }, over: { id: b.id } } as never));
+
+    await waitFor(async () =>
+      expect((await testRepository.listBuckets()).map(({ name }) => name)).toEqual(['B', 'A']),
     );
+    expect(result.current.reorderable.map(({ bucket }) => bucket.name)).toEqual(['B', 'A']);
   });
 
-  it('still goes to the sign-in page when signing out fails', async () => {
-    const { result, navigate, signOut } = setup();
-    signOut.mockRejectedValue(new Error('network'));
+  it('ignores a drop that goes nowhere', async () => {
+    const a = await testRepository.createBucket({ name: 'A', color: BucketColor.Mint });
+    await testRepository.createBucket({ name: 'B', color: BucketColor.Sky });
+    const { result } = renderHook(() => useHome(), { wrapper: createShoppingListWrapper() });
+    await waitFor(() => expect(result.current.reorderable).toHaveLength(2));
 
-    await act(async () => result.current.handleSignOut());
+    act(() => result.current.handleDragEnd({ active: { id: a.id }, over: null } as never));
 
-    await waitFor(() => expect(navigate).toHaveBeenCalled());
+    expect(result.current.reorderable.map(({ bucket }) => bucket.name)).toEqual(['A', 'B']);
   });
 });
