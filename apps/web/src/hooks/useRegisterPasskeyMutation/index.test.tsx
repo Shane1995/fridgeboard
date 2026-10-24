@@ -1,10 +1,10 @@
 import type { Endpoint } from '../../services/configuration/types';
-import { MutationName } from '@fridgeboard/contract/configuration/mutations/constants';
+import { MutationName } from '../../services/configuration/schema/constants';
 import { startRegistration, type RegistrationResponseJSON } from '@simplewebauthn/browser';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
-import { RemoteConfigContext } from '../../Context/RemoteConfig';
+import { RemoteConfigContext } from '../../Context/RemoteConfig/context';
 import { SessionContext } from '../../Context/Session';
 import { SessionStatus } from '../../services/session/constants';
 import { createSession } from '../../testUtils/createSession';

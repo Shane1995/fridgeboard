@@ -1,4 +1,4 @@
-import type { IMeResponse } from '@fridgeboard/contract/me';
+import type { IOnboardingResponse } from '@fridgeboard/contract/onboarding';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   createMemoryHistory,
@@ -8,7 +8,7 @@ import {
   RouterProvider,
 } from '@tanstack/react-router';
 import { render, screen } from '@testing-library/react';
-import { RemoteConfigContext } from '../../Context/RemoteConfig';
+import { RemoteConfigContext } from '../../Context/RemoteConfig/context';
 import { SessionContext } from '../../Context/Session';
 import { createSession } from '../../testUtils/createSession';
 import { SessionStatus } from '../../services/session/constants';
@@ -16,17 +16,15 @@ import { RequireOnboarding } from '.';
 import { TEST_WEB_CONFIGURATION } from '../../testUtils/webConfiguration';
 const { session, apiFetch } = createSession(SessionStatus.SignedIn);
 
-const me = (onboarding: IMeResponse['onboarding']): IMeResponse => ({
+const ME = {
   sub: 'sub-1',
   email: 'jess@example.com',
   username: 'jess',
   isAdmin: false,
   canCreateHousehold: false,
-  households: [],
-  onboarding,
-});
+};
 
-const DONE = [{ id: 'username' as const, done: true }];
+type Server = { hasOnboarding: boolean; sections?: IOnboardingResponse['sections'] };
 
 const renderAt = (path: string) => {
   const rootRoute = createRootRoute({
@@ -62,18 +60,22 @@ const renderAt = (path: string) => {
   return router;
 };
 
-const respondWith = (body: IMeResponse) =>
-  apiFetch.mockResolvedValue(new Response(JSON.stringify(body), { status: 200 }));
+const respondWith = ({ hasOnboarding, sections = [] }: Server) =>
+  apiFetch.mockImplementation(async ({ path }: { path: string }) =>
+    path.endsWith('/onboarding')
+      ? new Response(JSON.stringify({ sections }), { status: 200 })
+      : new Response(JSON.stringify({ ...ME, hasOnboarding }), { status: 200 }),
+  );
 
 describe('RequireOnboarding', () => {
   beforeEach(() => vi.resetAllMocks());
 
   it.each([
-    ['a section is pending', me([{ id: 'username', done: false }])],
-    ['a later section is pending', me([...DONE, { id: 'household', done: false }])],
-    ['the user needs an invite', me([...DONE, { id: 'needs-invite', done: false }])],
-  ])('redirects to onboarding when %s', async (_label, profile) => {
-    respondWith(profile);
+    ['the username is pending', [{ id: 'username' }]],
+    ['the household is pending', [{ id: 'household' }]],
+    ['the user needs an invite', [{ id: 'needs-invite' }]],
+  ] as const)('redirects to onboarding when %s', async (_label, sections) => {
+    respondWith({ hasOnboarding: true, sections: [...sections] });
 
     const router = renderAt('/');
 
@@ -81,7 +83,8 @@ describe('RequireOnboarding', () => {
   });
 
   it('does not trap the user on a section this build cannot show', async () => {
-    respondWith(me([...DONE, { id: 'profile-photo' as never, done: false }]));
+    const unknown = JSON.parse('{"id":"profile-photo"}');
+    respondWith({ hasOnboarding: true, sections: [unknown] });
 
     const router = renderAt('/');
 
@@ -90,19 +93,22 @@ describe('RequireOnboarding', () => {
   });
 
   it('sends onboarded users away from the onboarding page', async () => {
-    respondWith(me(DONE));
+    respondWith({ hasOnboarding: false });
 
     const router = renderAt('/onboarding');
 
     await vi.waitFor(() => expect(router.state.location.pathname).toBe('/'));
   });
 
-  it('leaves onboarded users where they are', async () => {
-    respondWith(me(DONE));
+  it('leaves onboarded users where they are and never asks for the sections', async () => {
+    respondWith({ hasOnboarding: false });
 
     const router = renderAt('/');
 
     await vi.waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument());
     expect(router.state.location.pathname).toBe('/');
+    expect(apiFetch).not.toHaveBeenCalledWith(
+      expect.objectContaining({ path: '/api/v1/me/onboarding' }),
+    );
   });
 });

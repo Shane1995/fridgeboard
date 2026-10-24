@@ -1,11 +1,9 @@
-import type { IMeResponse, OnboardingSectionId } from '@fridgeboard/contract/me';
+import type { IOnboardingResponse } from '@fridgeboard/contract/onboarding';
+import type { OnboardingSectionId } from '../../services/onboarding/constants';
 
 export const completeOnboardingSection = (
-  me: IMeResponse,
+  onboarding: IOnboardingResponse,
   id: OnboardingSectionId,
-): IMeResponse => ({
-  ...me,
-  onboarding: me.onboarding.map((section) =>
-    section.id === id ? { ...section, done: true } : section,
-  ),
+): IOnboardingResponse => ({
+  sections: onboarding.sections.filter((section) => section.id !== id),
 });

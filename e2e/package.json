@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "typecheck": "tsc -b",
-    "test": "vitest run --project contract",
     "test:integration": "vitest run --project integration",
     "lint": "oxlint --config ../.oxlintrc.json .",
     "format": "oxfmt .",

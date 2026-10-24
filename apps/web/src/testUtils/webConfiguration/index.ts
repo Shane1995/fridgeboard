@@ -1,6 +1,6 @@
-import { WebService } from '@fridgeboard/contract/configuration/services/constants';
-import type { WebConfiguration } from '@fridgeboard/contract/configuration/web/types';
-import { WebFeatureFlag } from '@fridgeboard/contract/configuration/flags/constants';
+import { WebService } from '../../services/configuration/schema/constants';
+import type { WebConfiguration } from '../../hooks/useRemoteConfigContext/types';
+import { WebFeatureFlag } from '../../services/configuration/schema/constants';
 
 export const TEST_WEB_CONFIGURATION: WebConfiguration = {
   featureFlags: {
@@ -19,21 +19,20 @@ export const TEST_WEB_CONFIGURATION: WebConfiguration = {
   },
   services: {
     api: {
-      basePath: '/api/{version}',
       endpoints: {
-        [WebService.households]: '/households',
-        [WebService.me]: '/me',
-        [WebService.passkeyStart]: '/auth/passkey/start',
-        [WebService.passkeyVerify]: '/auth/passkey/verify',
-        [WebService.passkeysComplete]: '/auth/passkeys/complete',
-        [WebService.passkeysStart]: '/auth/passkeys/start',
-        [WebService.refresh]: '/auth/refresh',
-        [WebService.requestCode]: '/auth/start',
-        [WebService.signOut]: '/auth/sign-out',
-        [WebService.username]: '/me/username',
-        [WebService.verify]: '/auth/verify',
+        [WebService.households]: '/api/v1/households',
+        [WebService.me]: '/api/v1/me',
+        [WebService.onboarding]: '/api/v1/me/onboarding',
+        [WebService.passkeyStart]: '/api/v1/auth/passkey/start',
+        [WebService.passkeyVerify]: '/api/v1/auth/passkey/verify',
+        [WebService.passkeysComplete]: '/api/v1/auth/passkeys/complete',
+        [WebService.passkeysStart]: '/api/v1/auth/passkeys/start',
+        [WebService.refresh]: '/api/v1/auth/refresh',
+        [WebService.requestCode]: '/api/v1/auth/start',
+        [WebService.signOut]: '/api/v1/auth/sign-out',
+        [WebService.username]: '/api/v1/me/username',
+        [WebService.verify]: '/api/v1/auth/verify',
       },
-      params: { version: 'v1' },
     },
   },
   settings: {

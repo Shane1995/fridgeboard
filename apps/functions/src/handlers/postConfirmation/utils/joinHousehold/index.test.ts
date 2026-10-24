@@ -2,6 +2,7 @@ import { DynamoDBClient, TransactionCanceledException } from '@aws-sdk/client-dy
 import { DeleteCommand, DynamoDBDocumentClient, TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
 import { mockClient } from 'aws-sdk-client-mock';
 import { joinHousehold } from './index.ts';
+import { HouseholdRole } from '../../../../utils/isHouseholdRole/constants.ts';
 
 const ddbMock = mockClient(DynamoDBDocumentClient);
 const client = DynamoDBDocumentClient.from(new DynamoDBClient({}));
@@ -36,7 +37,7 @@ describe('joinHousehold', () => {
         SK: 'MEMBER#sub-1',
         GSI1PK: 'USER#sub-1',
         GSI1SK: 'HH#hh-1',
-        role: 'member',
+        role: HouseholdRole.Member,
       },
       ConditionExpression: 'attribute_not_exists(PK)',
     });

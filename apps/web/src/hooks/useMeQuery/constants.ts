@@ -1,3 +1,3 @@
-import { QueryName } from '@fridgeboard/contract/configuration/queries/constants';
+import { QueryName } from '../../services/configuration/schema/constants';
 
-export const ME_QUERY_KEY: readonly string[] = [QueryName.me];
+export const ME_QUERY_KEY = QueryName.me;

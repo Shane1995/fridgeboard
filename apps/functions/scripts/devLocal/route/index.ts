@@ -1,8 +1,8 @@
-import { resolveEndpointUrl } from '@fridgeboard/contract/configuration/resolveEndpointUrl';
-import { WebService } from '@fridgeboard/contract/configuration/services/constants';
-import type { ApiService } from '@fridgeboard/contract/configuration/services/types';
+import { WebService } from '../../../../web/src/services/configuration/schema/constants.ts';
+import type { ApiService } from '../../../../web/src/services/configuration/schema/types.ts';
 import { handler as households } from '../../../src/handlers/households/index.ts';
 import { handler as me } from '../../../src/handlers/me/index.ts';
+import { handler as onboarding } from '../../../src/handlers/onboarding/index.ts';
 import { handler as username } from '../../../src/handlers/username/index.ts';
 import { refresh } from '../authStubs/refresh/index.ts';
 import { signOut } from '../authStubs/signOut/index.ts';
@@ -14,7 +14,9 @@ import type { RouteDefinition, RouteEntry } from './types.ts';
 // cannot drift from what the web app calls. Passkey services are left out and 404.
 const DEFINITIONS: RouteDefinition[] = [
   { method: 'GET', service: WebService.me, jwt: true, handler: me },
+  { method: 'GET', service: WebService.onboarding, jwt: true, handler: onboarding },
   { method: 'PUT', service: WebService.username, jwt: true, handler: username },
+  { method: 'GET', service: WebService.households, jwt: true, handler: households },
   { method: 'POST', service: WebService.households, jwt: true, handler: households },
   { method: 'POST', service: WebService.requestCode, jwt: false, handler: start },
   { method: 'POST', service: WebService.verify, jwt: false, handler: verify },
@@ -25,7 +27,7 @@ const DEFINITIONS: RouteDefinition[] = [
 export const buildRoutes = (api: ApiService): ReadonlyMap<string, RouteEntry> =>
   new Map(
     DEFINITIONS.map(({ method, service, jwt, handler }): [string, RouteEntry] => [
-      `${method} ${resolveEndpointUrl(api, service)}`,
+      `${method} ${api.endpoints[service]}`,
       { jwt, handler },
     ]),
   );

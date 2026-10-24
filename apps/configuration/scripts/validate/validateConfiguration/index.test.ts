@@ -1,4 +1,4 @@
-import { WebConfigurationSchema } from '@fridgeboard/contract/configuration/web';
+import { WebConfigurationSchema } from '../../../../web/src/services/configuration/schema/index.ts';
 import { validateConfiguration } from './index.ts';
 
 const target = { name: 'web', schema: WebConfigurationSchema };
@@ -17,21 +17,20 @@ const VALID = {
   },
   services: {
     api: {
-      basePath: '/api/{version}',
       endpoints: {
-        households: '/households',
-        me: '/me',
-        passkeyStart: '/auth/passkey/start',
-        passkeyVerify: '/auth/passkey/verify',
-        passkeysComplete: '/auth/passkeys/complete',
-        passkeysStart: '/auth/passkeys/start',
-        refresh: '/auth/refresh',
-        requestCode: '/auth/start',
-        signOut: '/auth/sign-out',
-        username: '/me/username',
-        verify: '/auth/verify',
+        households: '/api/v1/households',
+        me: '/api/v1/me',
+        onboarding: '/api/v1/me/onboarding',
+        passkeyStart: '/api/v1/auth/passkey/start',
+        passkeyVerify: '/api/v1/auth/passkey/verify',
+        passkeysComplete: '/api/v1/auth/passkeys/complete',
+        passkeysStart: '/api/v1/auth/passkeys/start',
+        refresh: '/api/v1/auth/refresh',
+        requestCode: '/api/v1/auth/start',
+        signOut: '/api/v1/auth/sign-out',
+        username: '/api/v1/me/username',
+        verify: '/api/v1/auth/verify',
       },
-      params: { version: 'v1' },
     },
   },
   settings: {
@@ -61,13 +60,13 @@ describe('validateConfiguration', () => {
     expect(errors[0]).toContain('web: featureFlags');
   });
 
-  it('reports secrets even when the schema passes', () => {
+  it('reports secrets alongside schema errors', () => {
     const errors = validateConfiguration(
       target,
       JSON.stringify({
         ...VALID,
         services: {
-          api: { ...VALID.services.api, params: { ...VALID.services.api.params, token: 't' } },
+          api: { ...VALID.services.api, params: { token: 't' } },
         },
       }),
     );

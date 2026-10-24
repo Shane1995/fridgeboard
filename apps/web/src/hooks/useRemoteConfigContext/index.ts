@@ -1,6 +1,6 @@
-import type { WebConfiguration } from '@fridgeboard/contract/configuration/web/types';
+import type { WebConfiguration } from './types';
 import { useContext } from 'react';
-import { RemoteConfigContext } from '../../Context/RemoteConfig';
+import { RemoteConfigContext } from '../../Context/RemoteConfig/context';
 import { MISSING_PROVIDER_MESSAGE } from './constants';
 
 export const useRemoteConfigContext = (): WebConfiguration => {

@@ -9,41 +9,14 @@
     "./me": "./src/me/types.ts",
     "./households": "./src/households/types.ts",
     "./households/constants": "./src/households/constants.ts",
-    "./username": "./src/username/types.ts",
-    "./username/constants": "./src/username/constants.ts",
-    "./username/isValidUsername": "./src/username/isValidUsername/index.ts",
-    "./configuration/web": "./src/configuration/web/index.ts",
-    "./configuration/web/constants": "./src/configuration/web/constants.ts",
-    "./configuration/web/types": "./src/configuration/web/types.ts",
-    "./configuration/lambda": "./src/configuration/lambda/index.ts",
-    "./configuration/lambda/constants": "./src/configuration/lambda/constants.ts",
-    "./configuration/lambda/types": "./src/configuration/lambda/types.ts",
-    "./configuration/flags/constants": "./src/configuration/flags/constants.ts",
-    "./configuration/services/constants": "./src/configuration/services/constants.ts",
-    "./configuration/services/types": "./src/configuration/services/types.ts",
-    "./configuration/resolveEndpointUrl": "./src/configuration/resolveEndpointUrl/index.ts",
-    "./configuration/settings/constants": "./src/configuration/settings/constants.ts",
-    "./configuration/settings/types": "./src/configuration/settings/types.ts",
-    "./configuration/settings/mergeSettings": "./src/configuration/settings/mergeSettings/index.ts",
-    "./configuration/queries/constants": "./src/configuration/queries/constants.ts",
-    "./configuration/queries/types": "./src/configuration/queries/types.ts",
-    "./configuration/mutations/constants": "./src/configuration/mutations/constants.ts",
-    "./configuration/mutations/types": "./src/configuration/mutations/types.ts",
-    "./configuration/queries": "./src/configuration/queries/index.ts",
-    "./configuration/mutations": "./src/configuration/mutations/index.ts",
-    "./configuration/stripUnknownKeys": "./src/configuration/stripUnknownKeys/index.ts",
-    "./configuration/resolveServiceUrl": "./src/configuration/resolveServiceUrl/index.ts",
-    "./configuration/stripUnknownFlags": "./src/configuration/stripUnknownFlags/index.ts",
-    "./configuration/stripTopLevelParams": "./src/configuration/stripTopLevelParams/index.ts"
+    "./onboarding": "./src/onboarding/types.ts",
+    "./username": "./src/username/types.ts"
   },
   "scripts": {
     "typecheck": "tsc -b",
     "lint": "oxlint --config ../../.oxlintrc.json src/",
     "format": "oxfmt src/",
     "format:check": "oxfmt --check src/"
-  },
-  "dependencies": {
-    "zod": "4.6.7"
   },
   "devDependencies": {
     "typescript": "^7.0.2"

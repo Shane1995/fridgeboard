@@ -1,4 +1,4 @@
-import type { IMeResponse } from '@fridgeboard/contract/me';
+import type { IOnboardingResponse } from '@fridgeboard/contract/onboarding';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   createMemoryHistory,
@@ -8,7 +8,7 @@ import {
   RouterProvider,
 } from '@tanstack/react-router';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { RemoteConfigContext } from '../../Context/RemoteConfig';
+import { RemoteConfigContext } from '../../Context/RemoteConfig/context';
 import { SessionContext } from '../../Context/Session';
 import { createSession } from '../../testUtils/createSession';
 import { SessionStatus } from '../../services/session/constants';
@@ -18,25 +18,15 @@ import { TEST_WEB_CONFIGURATION } from '../../testUtils/webConfiguration';
 import { endpoint } from '../../testUtils/endpoint';
 const { session, signOut, apiFetch } = createSession(SessionStatus.SignedIn);
 
-const me = (overrides: Partial<IMeResponse>): IMeResponse => ({
-  sub: 'sub-1',
-  email: 'jess@example.com',
-  username: null,
-  isAdmin: false,
-  canCreateHousehold: true,
-  households: [],
-  onboarding: [
-    { id: 'username', done: false },
-    { id: 'household', done: false },
-  ],
-  ...overrides,
-});
+const CREATOR: IOnboardingResponse['sections'] = [{ id: 'username' }, { id: 'household' }];
+
+const HOUSEHOLD_PENDING: IOnboardingResponse['sections'] = [{ id: 'household' }];
 
 const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status });
 
-const respond = (profile: IMeResponse, ...writes: Response[]) => {
+const respond = (sections: IOnboardingResponse['sections'], ...writes: Response[]) => {
   apiFetch.mockImplementation(async (_path: string, init?: RequestInit) =>
-    init?.method === undefined ? json(200, profile) : (writes.shift() ?? json(500, {})),
+    init?.method === undefined ? json(200, { sections }) : (writes.shift() ?? json(500, {})),
   );
 };
 
@@ -78,36 +68,27 @@ const HOUSEHOLD = ONBOARDING_COPY.household;
 describe('Onboarding', () => {
   beforeEach(() => vi.resetAllMocks());
 
-  it('asks a creator for a username first, with step progress', async () => {
-    respond(me({}));
+  it('asks a creator for a username first', async () => {
+    respond(CREATOR);
     renderPage();
 
     expect(await screen.findByRole('heading', { name: USERNAME.title })).toBeInTheDocument();
-    expect(screen.getByText('Step 1 of 2')).toBeInTheDocument();
   });
 
-  it('shows an invited joiner only the username step, without progress', async () => {
-    respond(
-      me({
-        canCreateHousehold: false,
-        households: [{ id: 'hh-1', name: 'Home', role: 'member' }],
-        onboarding: [{ id: 'username', done: false }],
-      }),
-    );
+  it('shows an invited joiner only the username step', async () => {
+    respond([{ id: 'username' }]);
     renderPage();
 
     expect(await screen.findByRole('heading', { name: USERNAME.title })).toBeInTheDocument();
-    expect(screen.queryByText(/^Step /)).not.toBeInTheDocument();
   });
 
   it('saves the trimmed username then moves on to the household step', async () => {
-    respond(me({}), json(200, { username: 'jess' }));
+    respond(CREATOR, json(200, { username: 'jess' }));
     renderPage();
 
     await fill(USERNAME.label, '  jess ', USERNAME.submit);
 
     expect(await screen.findByRole('heading', { name: HOUSEHOLD.title })).toBeInTheDocument();
-    expect(screen.getByText('Step 2 of 2')).toBeInTheDocument();
     expect(apiFetch).toHaveBeenCalledWith(endpoint('/api/v1/me/username'), {
       method: 'PUT',
       body: JSON.stringify({ username: 'jess' }),
@@ -115,7 +96,7 @@ describe('Onboarding', () => {
   });
 
   it('shows the taken message and stays on the username step', async () => {
-    respond(me({}), json(409, { reason: 'username-taken' }));
+    respond(CREATOR, json(409, { reason: 'username-taken' }));
     renderPage();
 
     await fill(USERNAME.label, 'jess', USERNAME.submit);
@@ -124,7 +105,7 @@ describe('Onboarding', () => {
   });
 
   it('shows the generic username message when the request throws', async () => {
-    respond(me({}));
+    respond(CREATOR);
     renderPage();
     await screen.findByLabelText(USERNAME.label);
     apiFetch.mockRejectedValue(new Error('network'));
@@ -135,16 +116,7 @@ describe('Onboarding', () => {
   });
 
   it('creates the household with the default name suggestion', async () => {
-    respond(
-      me({
-        username: 'jess',
-        onboarding: [
-          { id: 'username', done: true },
-          { id: 'household', done: false },
-        ],
-      }),
-      json(201, { id: 'hh-1', name: 'Home', role: 'owner' }),
-    );
+    respond(HOUSEHOLD_PENDING, json(201, { id: 'hh-1', name: 'Home', role: 'owner' }));
     renderPage();
 
     fireEvent.click(await screen.findByRole('button', { name: HOUSEHOLD.submit }));
@@ -158,16 +130,7 @@ describe('Onboarding', () => {
   });
 
   it('shows the not-allowed message when the server refuses', async () => {
-    respond(
-      me({
-        username: 'jess',
-        onboarding: [
-          { id: 'username', done: true },
-          { id: 'household', done: false },
-        ],
-      }),
-      json(403, { reason: 'not-allowed' }),
-    );
+    respond(HOUSEHOLD_PENDING, json(403, { reason: 'not-allowed' }));
     renderPage();
 
     await fill(HOUSEHOLD.label, 'Our home', HOUSEHOLD.submit);
@@ -176,15 +139,7 @@ describe('Onboarding', () => {
   });
 
   it('shows the generic household message when the request throws', async () => {
-    respond(
-      me({
-        username: 'jess',
-        onboarding: [
-          { id: 'username', done: true },
-          { id: 'household', done: false },
-        ],
-      }),
-    );
+    respond(HOUSEHOLD_PENDING);
     renderPage();
     await screen.findByLabelText(HOUSEHOLD.label);
     apiFetch.mockRejectedValue(new Error('network'));
@@ -196,22 +151,12 @@ describe('Onboarding', () => {
 
   it('asks for an invite when the user cannot create a household, and can sign out', async () => {
     signOut.mockResolvedValue(undefined);
-    respond(
-      me({
-        username: 'jess',
-        canCreateHousehold: false,
-        onboarding: [
-          { id: 'username', done: true },
-          { id: 'needs-invite', done: false },
-        ],
-      }),
-    );
+    respond([{ id: 'needs-invite' }]);
     renderPage();
 
     expect(
       await screen.findByRole('heading', { name: ONBOARDING_COPY.needsInvite.title }),
     ).toBeInTheDocument();
-    expect(screen.queryByText(/^Step /)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: ONBOARDING_COPY.needsInvite.signOut }));
 

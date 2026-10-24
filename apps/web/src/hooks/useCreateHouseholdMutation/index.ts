@@ -1,46 +1,28 @@
-import { MutationName } from '@fridgeboard/contract/configuration/mutations/constants';
-import { WebService } from '@fridgeboard/contract/configuration/services/constants';
-import type { IMeResponse } from '@fridgeboard/contract/me';
-import { useQueryClient } from '@tanstack/react-query';
-import { completeOnboardingSection } from '../../utils/completeOnboardingSection';
-import { postHousehold } from '../../services/api/postHousehold';
-import type { PostHouseholdResult } from '../../services/api/postHousehold/types';
-import { resolveMutationEndpoint } from '../../services/configuration/resolveEndpoint';
-import { ME_QUERY_KEY } from '../useMeQuery/constants';
-import { useMutation } from '../useMutation';
+import type {
+  ICreateHouseholdErrorResponse,
+  ICreateHouseholdRequest,
+  ICreateHouseholdResponse,
+} from '@fridgeboard/contract/households';
+import type { ApiResult } from '../../services/api/sendJson/types';
+import { MutationName } from '../../services/configuration/schema/constants';
+import { WebService } from '../../services/configuration/schema/constants';
+import { OnboardingSectionId } from '../../services/onboarding/constants';
+import { useApiMutation } from '../useApiMutation';
+import { useCompleteOnboardingSection } from '../useCompleteOnboardingSection';
 import type { MutationResult } from '../useMutation/types';
-import { useRemoteConfigContext } from '../useRemoteConfigContext';
-import { useSessionContext } from '../useSessionContext';
+import { HOUSEHOLD_FAILURES } from './constants';
 
-export const useCreateHouseholdMutation = (): MutationResult<PostHouseholdResult, string> => {
-  const configuration = useRemoteConfigContext();
-  const { apiFetch } = useSessionContext();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (name: string) => {
-      const result = await postHousehold(
-        resolveMutationEndpoint(configuration, WebService.households),
-        name,
-        apiFetch,
-      );
-      if (result.ok) {
-        queryClient.setQueryData<IMeResponse>(ME_QUERY_KEY, (me) =>
-          me === undefined
-            ? me
-            : completeOnboardingSection(
-                {
-                  ...me,
-                  households: [
-                    ...me.households,
-                    { id: result.id, name: result.name, role: 'owner' },
-                  ],
-                },
-                'household',
-              ),
-        );
-      }
-      return result;
-    },
-    mutationKey: [MutationName.createHousehold],
+export const useCreateHouseholdMutation = (): MutationResult<
+  ApiResult<ICreateHouseholdResponse, ICreateHouseholdErrorResponse['reason']>,
+  string
+> => {
+  const completeSection = useCompleteOnboardingSection();
+  return useApiMutation({
+    name: MutationName.createHousehold,
+    service: WebService.households,
+    method: 'POST',
+    toBody: (name: string): ICreateHouseholdRequest => ({ name }),
+    reasons: HOUSEHOLD_FAILURES,
+    onSuccess: () => completeSection(OnboardingSectionId.Household),
   });
 };

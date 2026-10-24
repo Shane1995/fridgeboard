@@ -1,6 +1,5 @@
 export const ONBOARDING_COPY = {
   logo: 'Fridgeboard',
-  progress: (step: number, total: number) => `Step ${step} of ${total}`,
   username: {
     title: 'Pick your username',
     intro: 'This is the name your household sees. You can only set it once for now.',

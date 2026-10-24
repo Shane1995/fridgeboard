@@ -1,5 +1,5 @@
-import { WebConfigurationSchema } from '@fridgeboard/contract/configuration/web';
-import type { WebConfiguration } from '@fridgeboard/contract/configuration/web/types';
+import { WebConfigurationSchema } from './schema';
+import type { WebConfiguration } from '../../hooks/useRemoteConfigContext/types';
 import {
   CONFIGURATION_LOAD_FAILED,
   CONFIGURATION_PATH,

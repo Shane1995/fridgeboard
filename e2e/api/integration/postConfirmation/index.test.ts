@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import type { PostConfirmationTriggerEvent } from 'aws-lambda';
+import { HouseholdRole } from '../../../../apps/functions/src/utils/isHouseholdRole/constants.ts';
 import { client } from '../dynamodbLocal/client/index.ts';
 import { getItem } from '../dynamodbLocal/getItem/index.ts';
 import { TABLE_NAME } from '../dynamodbLocal/constants.ts';
@@ -58,7 +59,7 @@ describe('postConfirmation handler against DynamoDB Local', () => {
     await handler(buildEvent(sub, email));
 
     expect(await getItem(profileKey(sub))).toMatchObject({ canCreateHousehold: false });
-    expect(await getItem(membershipKey(hhId, sub))).toMatchObject({ role: 'member' });
+    expect(await getItem(membershipKey(hhId, sub))).toMatchObject({ role: HouseholdRole.Member });
     expect(await getItem(inviteKey(email))).toBeUndefined();
   });
 
@@ -75,7 +76,7 @@ describe('postConfirmation handler against DynamoDB Local', () => {
     await client.send(
       new PutCommand({
         TableName: TABLE_NAME,
-        Item: { ...membershipKey(hhId, sub), role: 'member' },
+        Item: { ...membershipKey(hhId, sub), role: HouseholdRole.Member },
       }),
     );
     await client.send(

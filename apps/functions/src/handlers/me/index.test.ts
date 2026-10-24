@@ -1,9 +1,4 @@
-import {
-  BatchGetCommand,
-  DynamoDBDocumentClient,
-  GetCommand,
-  QueryCommand,
-} from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import type { APIGatewayProxyEventV2WithJWTAuthorizer } from 'aws-lambda';
 import { mockClient } from 'aws-sdk-client-mock';
 import { handler } from './index.ts';
@@ -58,7 +53,7 @@ describe('me handler', () => {
     expect(ddbMock.commandCalls(GetCommand)).toHaveLength(0);
   });
 
-  it('returns the profile with an empty households list', async () => {
+  it('returns the profile identity', async () => {
     const result = await handler(buildEvent());
 
     expect(result).toMatchObject({
@@ -71,158 +66,21 @@ describe('me handler', () => {
       username: null,
       isAdmin: false,
       canCreateHousehold: true,
-      households: [],
-      onboarding: [
-        { id: 'username', done: false },
-        { id: 'household', done: false },
-      ],
+      hasOnboarding: true,
     });
-    expect(ddbMock.commandCalls(BatchGetCommand)).toHaveLength(0);
     expect(ddbMock.commandCalls(GetCommand)[0]?.args[0].input).toMatchObject({
       TableName: 'fridgeboard',
       Key: { PK: 'USER#sub-1', SK: 'PROFILE' },
     });
   });
 
-  it('returns households from GSI1 with names from META', async () => {
-    ddbMock.on(QueryCommand).resolves({
-      Items: [
-        { PK: 'HH#h1', SK: 'MEMBER#sub-1', GSI1PK: 'USER#sub-1', GSI1SK: 'HH#h1', role: 'owner' },
-        { PK: 'HH#h2', SK: 'MEMBER#sub-1', GSI1PK: 'USER#sub-1', GSI1SK: 'HH#h2', role: 'member' },
-      ],
-    });
-    ddbMock.on(BatchGetCommand).resolves({
-      Responses: {
-        fridgeboard: [
-          { PK: 'HH#h2', SK: 'META', name: 'Cabin' },
-          { PK: 'HH#h1', SK: 'META', name: 'Home' },
-        ],
-      },
-    });
-
-    const result = await handler(buildEvent());
-
-    expect(ddbMock.commandCalls(QueryCommand)[0]?.args[0].input).toMatchObject({
-      TableName: 'fridgeboard',
-      IndexName: 'GSI1',
-      ExpressionAttributeValues: { ':pk': 'USER#sub-1' },
-    });
-    expect(ddbMock.commandCalls(BatchGetCommand)[0]?.args[0].input).toEqual({
-      RequestItems: {
-        fridgeboard: {
-          Keys: [
-            { PK: 'HH#h1', SK: 'META' },
-            { PK: 'HH#h2', SK: 'META' },
-          ],
-        },
-      },
-    });
-    expect(JSON.parse(result.body ?? '').households).toEqual([
-      { id: 'h1', name: 'Home', role: 'owner' },
-      { id: 'h2', name: 'Cabin', role: 'member' },
-    ]);
-  });
-
-  it('dedupes duplicate memberships for one household', async () => {
-    ddbMock.on(QueryCommand).resolves({
-      Items: [
-        { GSI1SK: 'HH#h1', role: 'owner' },
-        { GSI1SK: 'HH#h1', role: 'owner' },
-      ],
-    });
-    ddbMock.on(BatchGetCommand).resolves({
-      Responses: { fridgeboard: [{ PK: 'HH#h1', SK: 'META', name: 'Home' }] },
-    });
-
-    const result = await handler(buildEvent());
-
-    expect(ddbMock.commandCalls(BatchGetCommand)[0]?.args[0].input).toEqual({
-      RequestItems: { fridgeboard: { Keys: [{ PK: 'HH#h1', SK: 'META' }] } },
-    });
-    expect(JSON.parse(result.body ?? '').households).toEqual([
-      { id: 'h1', name: 'Home', role: 'owner' },
-    ]);
-  });
-
-  it('skips memberships with a missing or malformed GSI1SK', async () => {
-    ddbMock.on(QueryCommand).resolves({
-      Items: [{ role: 'owner' }, { GSI1SK: 'junk', role: 'owner' }],
-    });
-
-    const result = await handler(buildEvent());
-
-    expect(JSON.parse(result.body ?? '').households).toEqual([]);
-    expect(ddbMock.commandCalls(BatchGetCommand)).toHaveLength(0);
-  });
-
-  it('follows LastEvaluatedKey until the membership query is done', async () => {
-    ddbMock
-      .on(QueryCommand)
-      .resolvesOnce({
-        Items: [{ GSI1SK: 'HH#h1', role: 'owner' }],
-        LastEvaluatedKey: { PK: 'HH#h1', SK: 'MEMBER#sub-1' },
-      })
-      .resolvesOnce({ Items: [{ GSI1SK: 'HH#h2', role: 'member' }] });
-    ddbMock.on(BatchGetCommand).resolves({
-      Responses: {
-        fridgeboard: [
-          { PK: 'HH#h1', SK: 'META', name: 'Home' },
-          { PK: 'HH#h2', SK: 'META', name: 'Cabin' },
-        ],
-      },
-    });
-
-    const result = await handler(buildEvent());
-
-    const queries = ddbMock.commandCalls(QueryCommand);
-    expect(queries).toHaveLength(2);
-    expect(queries[1]?.args[0].input.ExclusiveStartKey).toEqual({
-      PK: 'HH#h1',
-      SK: 'MEMBER#sub-1',
-    });
-    expect(JSON.parse(result.body ?? '').households).toHaveLength(2);
-  });
-
-  it('chunks BatchGet at 100 keys', async () => {
-    const Items = Array.from({ length: 101 }, (_, i) => ({ GSI1SK: `HH#h${i}`, role: 'member' }));
-    ddbMock.on(QueryCommand).resolves({ Items });
-    ddbMock.on(BatchGetCommand).resolves({ Responses: { fridgeboard: [] } });
-
-    await handler(buildEvent());
-
-    const calls = ddbMock.commandCalls(BatchGetCommand);
-    expect(calls.map((c) => c.args[0].input.RequestItems?.fridgeboard?.Keys?.length)).toEqual([
-      100, 1,
-    ]);
-  });
-
-  it('retries unprocessed BatchGet keys once', async () => {
+  it('has no onboarding left once the user has a username and a household', async () => {
+    ddbMock.on(GetCommand).resolves({ Item: { ...profile, username: 'jess' } });
     ddbMock.on(QueryCommand).resolves({ Items: [{ GSI1SK: 'HH#h1', role: 'owner' }] });
-    ddbMock
-      .on(BatchGetCommand)
-      .resolvesOnce({
-        Responses: { fridgeboard: [] },
-        UnprocessedKeys: { fridgeboard: { Keys: [{ PK: 'HH#h1', SK: 'META' }] } },
-      })
-      .resolvesOnce({ Responses: { fridgeboard: [{ PK: 'HH#h1', SK: 'META', name: 'Home' }] } });
 
     const result = await handler(buildEvent());
 
-    expect(ddbMock.commandCalls(BatchGetCommand)).toHaveLength(2);
-    expect(JSON.parse(result.body ?? '').households).toEqual([
-      { id: 'h1', name: 'Home', role: 'owner' },
-    ]);
-  });
-
-  it('throws when BatchGet keys are still unprocessed after the retry', async () => {
-    ddbMock.on(QueryCommand).resolves({ Items: [{ GSI1SK: 'HH#h1', role: 'owner' }] });
-    ddbMock.on(BatchGetCommand).resolves({
-      Responses: { fridgeboard: [] },
-      UnprocessedKeys: { fridgeboard: { Keys: [{ PK: 'HH#h1', SK: 'META' }] } },
-    });
-
-    await expect(handler(buildEvent())).rejects.toThrow();
-    expect(ddbMock.commandCalls(BatchGetCommand)).toHaveLength(2);
+    expect(JSON.parse(result.body ?? '').hasOnboarding).toBe(false);
   });
 
   it('marks admins from cognito:groups', async () => {
@@ -254,7 +112,6 @@ describe('me handler', () => {
     const result = await handler(buildEvent());
 
     expect(result).toEqual({ statusCode: 404 });
-    expect(ddbMock.commandCalls(QueryCommand)).toHaveLength(0);
   });
 
   it('returns 401 when the sub claim is missing', async () => {

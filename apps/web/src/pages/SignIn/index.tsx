@@ -1,4 +1,4 @@
-import { WebFeatureFlag } from '@fridgeboard/contract/configuration/flags/constants';
+import { WebFeatureFlag } from '../../services/configuration/schema/constants';
 import { Card } from '@heroui/react';
 import { browserSupportsWebAuthn } from '@simplewebauthn/browser';
 import { Link, useRouter } from '@tanstack/react-router';

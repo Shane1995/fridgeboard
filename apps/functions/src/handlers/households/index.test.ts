@@ -1,8 +1,14 @@
 import { TransactionCanceledException } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
+import {
+  BatchGetCommand,
+  DynamoDBDocumentClient,
+  QueryCommand,
+  TransactWriteCommand,
+} from '@aws-sdk/lib-dynamodb';
 import type { APIGatewayProxyEventV2WithJWTAuthorizer } from 'aws-lambda';
 import { mockClient } from 'aws-sdk-client-mock';
 import { handler } from './index.ts';
+import { HouseholdRole } from '../../utils/isHouseholdRole/constants.ts';
 
 vi.mock('node:crypto', async (importOriginal) => ({
   ...(await importOriginal<typeof import('node:crypto')>()),
@@ -40,6 +46,18 @@ const buildEvent = (
     time: '',
     timeEpoch: 0,
     authorizer: { principalId: 'p', integrationLatency: 0, jwt: { claims, scopes: [] } },
+  },
+});
+
+const withMethod = (
+  event: APIGatewayProxyEventV2WithJWTAuthorizer,
+  method: string,
+): APIGatewayProxyEventV2WithJWTAuthorizer => ({
+  ...event,
+  routeKey: `${method} /api/v1/households`,
+  requestContext: {
+    ...event.requestContext,
+    http: { ...event.requestContext.http, method },
   },
 });
 
@@ -96,7 +114,11 @@ describe('households handler', () => {
 
     expect(result.statusCode).toBe(201);
     expect(result.headers?.Location).toBe('/api/v1/households/hh-1');
-    expect(JSON.parse(result.body ?? '')).toEqual({ id: 'hh-1', name: 'Our home', role: 'owner' });
+    expect(JSON.parse(result.body ?? '')).toEqual({
+      id: 'hh-1',
+      name: 'Our home',
+      role: HouseholdRole.Owner,
+    });
     const items = transactItems();
     expect(items).toHaveLength(4);
     expect(items?.[0]?.ConditionCheck).toMatchObject({
@@ -114,7 +136,7 @@ describe('households handler', () => {
         SK: 'MEMBER#sub-1',
         GSI1PK: 'USER#sub-1',
         GSI1SK: 'HH#hh-1',
-        role: 'owner',
+        role: HouseholdRole.Owner,
       },
     });
     expect(items?.[3]?.Put).toMatchObject({
@@ -157,5 +179,57 @@ describe('households handler', () => {
     ddbMock.on(TransactWriteCommand).rejects(new Error('boom'));
 
     await expect(handler(buildEvent({ name: 'Home' }))).rejects.toThrow('boom');
+  });
+});
+
+describe('households handler: GET', () => {
+  beforeEach(() => {
+    ddbMock.reset();
+    vi.stubEnv('TABLE_NAME', 'fridgeboard');
+    vi.stubEnv('API_ORIGIN_SECRET', 'origin-secret');
+  });
+
+  it('returns 403 when the origin secret header is missing', async () => {
+    const result = await handler({ ...withMethod(buildEvent(undefined), 'GET'), headers: {} });
+
+    expect(result.statusCode).toBe(403);
+    expect(ddbMock.calls()).toHaveLength(0);
+  });
+
+  it('returns 401 when the sub claim is missing', async () => {
+    const result = await handler(withMethod(buildEvent(undefined, {}), 'GET'));
+
+    expect(result).toEqual({ statusCode: 401 });
+    expect(ddbMock.calls()).toHaveLength(0);
+  });
+
+  it('returns the households of the signed-in user', async () => {
+    ddbMock.on(QueryCommand).resolves({
+      Items: [{ GSI1SK: 'HH#h1', role: HouseholdRole.Owner }],
+    });
+    ddbMock.on(BatchGetCommand).resolves({
+      Responses: { fridgeboard: [{ PK: 'HH#h1', SK: 'META', name: 'Home' }] },
+    });
+
+    const result = await handler(withMethod(buildEvent(undefined), 'GET'));
+
+    expect(result).toMatchObject({
+      statusCode: 200,
+      headers: { 'content-type': 'application/json', 'cache-control': 'no-store' },
+    });
+    expect(JSON.parse(result.body ?? '')).toEqual({
+      households: [{ id: 'h1', name: 'Home', role: HouseholdRole.Owner }],
+    });
+    expect(ddbMock.commandCalls(QueryCommand)[0]?.args[0].input).toMatchObject({
+      ExpressionAttributeValues: { ':pk': 'USER#sub-1' },
+    });
+    expect(ddbMock.commandCalls(TransactWriteCommand)).toHaveLength(0);
+  });
+
+  it('answers 405 for any other method', async () => {
+    const result = await handler(withMethod(buildEvent(undefined), 'DELETE'));
+
+    expect(result).toEqual({ statusCode: 405 });
+    expect(ddbMock.calls()).toHaveLength(0);
   });
 });

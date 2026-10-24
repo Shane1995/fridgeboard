@@ -1,7 +1,7 @@
 import { SessionContext } from '../../../../Context/Session';
 import { createSession } from '../../../../testUtils/createSession';
 import { SessionStatus } from '../../../../services/session/constants';
-import { RemoteConfigContext } from '../../../../Context/RemoteConfig';
+import { RemoteConfigContext } from '../../../../Context/RemoteConfig/context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   createMemoryHistory,

@@ -8,10 +8,6 @@ export default defineConfig({
     projects: [
       {
         extends: true,
-        test: { name: 'contract', include: ['contract/**/*.test.ts'] },
-      },
-      {
-        extends: true,
         test: {
           name: 'integration',
           include: ['api/integration/**/*.test.ts'],

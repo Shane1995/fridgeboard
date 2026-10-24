@@ -1,79 +1,21 @@
-import { WebService } from '@fridgeboard/contract/configuration/services/constants';
+import { WebService } from '../schema/constants';
 import { TEST_WEB_CONFIGURATION } from '../../../testUtils/webConfiguration';
-import { resolveMutationEndpoint, resolveQueryEndpoint } from './index';
+import { resolveEndpoint } from './index';
 
-const withOverride = (timeoutMs: number) => ({
-  ...TEST_WEB_CONFIGURATION,
-  services: {
-    api: {
-      ...TEST_WEB_CONFIGURATION.services.api,
-      endpointsConfig: { [WebService.me]: { timeoutMs } },
-    },
-  },
-});
+const { api } = TEST_WEB_CONFIGURATION.services;
 
-describe('resolveQueryEndpoint', () => {
-  it('resolves the path with the default query timeout', () => {
-    expect(resolveQueryEndpoint(TEST_WEB_CONFIGURATION, WebService.me)).toEqual({
+describe('resolveEndpoint', () => {
+  it('reads the path from the configuration with the given timeout', () => {
+    expect(resolveEndpoint(api, WebService.me, 10_000)).toEqual({
       path: '/api/v1/me',
       timeoutMs: 10_000,
     });
   });
 
-  it('prefers a named entry timeout over the default', () => {
-    expect(
-      resolveQueryEndpoint(TEST_WEB_CONFIGURATION, WebService.me, { timeoutMs: 5_000 }),
-    ).toEqual({
-      path: '/api/v1/me',
-      timeoutMs: 5_000,
-    });
-  });
+  it('prefers a per-endpoint timeout', () => {
+    const withOverride = { ...api, endpointsConfig: { [WebService.me]: { timeoutMs: 2_000 } } };
 
-  it('prefers a per-endpoint timeout over the named entry', () => {
-    expect(
-      resolveQueryEndpoint(withOverride(2_000), WebService.me, { timeoutMs: 5_000 }).timeoutMs,
-    ).toBe(2_000);
-  });
-
-  it('follows a served version bump', () => {
-    const config = {
-      ...TEST_WEB_CONFIGURATION,
-      services: {
-        api: { ...TEST_WEB_CONFIGURATION.services.api, params: { version: 'v2' } },
-      },
-    };
-
-    expect(resolveQueryEndpoint(config, WebService.requestCode).path).toBe('/api/v2/auth/start');
-  });
-});
-
-describe('resolveMutationEndpoint', () => {
-  it('resolves the path with the default mutation timeout', () => {
-    expect(resolveMutationEndpoint(TEST_WEB_CONFIGURATION, WebService.signOut)).toEqual({
-      path: '/api/v1/auth/sign-out',
-      timeoutMs: 10_000,
-    });
-  });
-
-  it('prefers a named entry timeout, then a per-endpoint timeout', () => {
-    expect(
-      resolveMutationEndpoint(TEST_WEB_CONFIGURATION, WebService.signOut, { timeoutMs: 4_000 })
-        .timeoutMs,
-    ).toBe(4_000);
-    expect(
-      resolveMutationEndpoint(
-        {
-          ...TEST_WEB_CONFIGURATION,
-          services: {
-            api: {
-              ...TEST_WEB_CONFIGURATION.services.api,
-              endpointsConfig: { [WebService.signOut]: { timeoutMs: 1_500 } },
-            },
-          },
-        },
-        WebService.signOut,
-        { timeoutMs: 4_000 },
-      ).timeoutMs,
-    ).toBe(1_500);
+    expect(resolveEndpoint(withOverride, WebService.me, 10_000).timeoutMs).toBe(2_000);
+    expect(resolveEndpoint(withOverride, WebService.verify, 10_000).timeoutMs).toBe(10_000);
   });
 });

@@ -1,4 +1,4 @@
-import { WebFeatureFlag } from '@fridgeboard/contract/configuration/flags/constants';
+import { WebFeatureFlag } from '../../services/configuration/schema/constants';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { CONFIGURATION_ERROR_COPY } from '../../components/ConfigurationError/constants';
@@ -55,16 +55,6 @@ describe('RemoteConfigProvider', () => {
     renderProvider();
 
     expect(await screen.findByText('true')).toBeInTheDocument();
-  });
-
-  it('applies the served query settings before the children render', async () => {
-    vi.mocked(getConfiguration).mockResolvedValue(served);
-    const client = renderProvider();
-
-    await screen.findByText('true');
-
-    expect(client.getQueryDefaults(['me']).staleTime).toBe(7_000);
-    expect(client.getDefaultOptions().queries?.staleTime).toBe(30_000);
   });
 
   it('shows the error screen on failure and retries from it', async () => {

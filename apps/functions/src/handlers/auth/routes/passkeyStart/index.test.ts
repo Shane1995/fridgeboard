@@ -5,7 +5,7 @@ import {
   NotAuthorizedException,
   UserNotFoundException,
 } from '@aws-sdk/client-cognito-identity-provider';
-import { DEFAULT_LAMBDA_CONFIGURATION } from '@fridgeboard/contract/configuration/lambda/constants';
+import { DEFAULT_LAMBDA_CONFIGURATION } from '../../../../configuration/lambdaConfigurationSchema/constants.ts';
 import { mockClient } from 'aws-sdk-client-mock';
 import { getConfiguration } from '../../../../configuration/index.ts';
 import { readCookie } from '../../utils/cookies/readCookie/index.ts';

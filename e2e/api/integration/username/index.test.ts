@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
-import { DEFAULT_LAMBDA_CONFIGURATION } from '@fridgeboard/contract/configuration/lambda/constants';
+import { DEFAULT_LAMBDA_CONFIGURATION } from '../../../../apps/functions/src/configuration/lambdaConfigurationSchema/constants.ts';
 import { buildEvent } from '../dynamodbLocal/buildEvent/index.ts';
 import { client } from '../dynamodbLocal/client/index.ts';
 import { getItem } from '../dynamodbLocal/getItem/index.ts';

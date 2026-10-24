@@ -1,4 +1,4 @@
-import type { WebConfiguration } from '@fridgeboard/contract/configuration/web/types';
+import type { WebConfiguration } from '../../hooks/useRemoteConfigContext/types';
 import type { QueryClient } from '@tanstack/react-query';
 import type { PropsWithChildren } from 'react';
 import type { SessionContextValue } from '../../Context/Session/types';

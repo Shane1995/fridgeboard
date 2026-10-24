@@ -5,7 +5,7 @@ import {
   createRouter,
   RouterProvider,
 } from '@tanstack/react-router';
-import { WebFeatureFlag } from '@fridgeboard/contract/configuration/flags/constants';
+import { WebFeatureFlag } from '../../services/configuration/schema/constants';
 import { browserSupportsWebAuthn } from '@simplewebauthn/browser';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { APP_LOADER_COPY } from '../../components/AppLoader/constants';
