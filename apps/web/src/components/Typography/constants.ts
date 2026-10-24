@@ -2,6 +2,7 @@ import type { ElementType } from 'react';
 
 export enum TypographyVariant {
   Logo = 'logo',
+  PageTitle = 'pageTitle',
   Heading1 = 'heading1',
   Heading2 = 'heading2',
   Heading3 = 'heading3',
@@ -16,6 +17,10 @@ export enum TypographyVariant {
 export const TYPOGRAPHY_STYLES: Record<TypographyVariant, { tag: ElementType; className: string }> =
   {
     [TypographyVariant.Logo]: { tag: 'h1', className: 'font-hand px-3 text-6xl text-accent' },
+    [TypographyVariant.PageTitle]: {
+      tag: 'h1',
+      className: 'font-hand text-3xl leading-tight text-accent sm:text-4xl md:text-5xl',
+    },
     [TypographyVariant.Heading1]: { tag: 'h1', className: 'text-3xl font-semibold' },
     [TypographyVariant.Heading2]: { tag: 'h2', className: 'text-2xl font-semibold' },
     [TypographyVariant.Heading3]: { tag: 'h3', className: 'text-lg font-semibold' },

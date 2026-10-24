@@ -32,6 +32,10 @@ export const WEB_SERVICES = Object.values(WebService);
 export enum QueryName {
   me = 'me',
   onboarding = 'onboarding',
+  households = 'households',
+  buckets = 'buckets',
+  items = 'items',
+  suggestions = 'suggestions',
 }
 
 export enum MutationName {
@@ -40,6 +44,14 @@ export enum MutationName {
   signOut = 'signOut',
   setUsername = 'setUsername',
   createHousehold = 'createHousehold',
+  addItem = 'addItem',
+  updateItem = 'updateItem',
+  deleteItem = 'deleteItem',
+  clearChecked = 'clearChecked',
+  createBucket = 'createBucket',
+  updateBucket = 'updateBucket',
+  deleteBucket = 'deleteBucket',
+  reorderBuckets = 'reorderBuckets',
   signInWithPasskey = 'signInWithPasskey',
   registerPasskey = 'registerPasskey',
 }

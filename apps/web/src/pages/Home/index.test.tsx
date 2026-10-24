@@ -6,16 +6,25 @@ import {
   RouterProvider,
 } from '@tanstack/react-router';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { UNSORTED_BUCKET_NAME } from '../../services/shoppingList/constants';
 import { queryClient } from '../../app/queryClient';
 import { HOME_COPY } from './constants';
 import { Home } from '.';
 import { createSession } from '../../testUtils/createSession';
+import { answerHouseholds } from '../../testUtils/createShoppingListWrapper';
 import { TestProviders } from '../../testUtils/TestProviders';
 import { SessionStatus } from '../../services/session/constants';
 
 const fixture = createSession(SessionStatus.SignedIn);
-const { signOut, apiFetch } = fixture;
+const { apiFetch } = fixture;
 const session = fixture.session;
+
+const pickBucket = async (name: string) => {
+  fireEvent.click(screen.getByRole('button', { name: /^Bucket:/ }));
+  const item = await screen.findByRole('menuitemradio', { name });
+  fireEvent.keyDown(item, { key: 'Enter' });
+  fireEvent.keyUp(item, { key: 'Enter' });
+};
 
 const renderHome = () => {
   const rootRoute = createRootRoute();
@@ -38,42 +47,81 @@ const renderHome = () => {
 
 describe('Home', () => {
   beforeEach(() => {
+    window.localStorage.clear();
     queryClient.clear();
     vi.resetAllMocks();
-    apiFetch.mockResolvedValue(
-      new Response(
-        JSON.stringify({
-          sub: 's',
-          email: 'a@b.com',
-          isAdmin: false,
-          canCreateHousehold: false,
-          households: [],
-        }),
-        { status: 200 },
-      ),
-    );
+    answerHouseholds(apiFetch);
   });
 
-  it('shows the app name as the heading', async () => {
+  it('shows the page title as the heading', async () => {
     renderHome();
     expect(await screen.findByRole('heading', { name: HOME_COPY.title })).toBeInTheDocument();
   });
 
-  it('shows who is signed in', async () => {
+  it('puts the household name in the title', async () => {
     renderHome();
-    expect(await screen.findByText(`${HOME_COPY.signedInAs} a@b.com`)).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: `Home ${HOME_COPY.title}` }),
+    ).toBeInTheDocument();
   });
 
-  it('shows a disabled add item button', async () => {
+  it('says the list is empty', async () => {
     renderHome();
-    expect(await screen.findByRole('button', { name: HOME_COPY.addItem })).toBeDisabled();
+    expect(await screen.findByText(HOME_COPY.empty)).toBeInTheDocument();
   });
 
-  it('signs out and returns to the sign-in screen', async () => {
-    signOut.mockResolvedValue(undefined);
+  it('adds an item, ticks it into got it, then clears it', async () => {
     renderHome();
-    fireEvent.click(await screen.findByRole('button', { name: HOME_COPY.signOut }));
-    await waitFor(() => expect(signOut).toHaveBeenCalledTimes(1));
-    expect(await screen.findByText('sign in page')).toBeInTheDocument();
+    fireEvent.change(await screen.findByRole('textbox', { name: 'Item' }), {
+      target: { value: 'Milk' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+    const checkbox = await screen.findByRole('checkbox', { name: 'Milk' });
+    expect(screen.getByRole('region', { name: UNSORTED_BUCKET_NAME })).toContainElement(checkbox);
+
+    fireEvent.click(checkbox);
+    expect(await screen.findByRole('region', { name: HOME_COPY.gotIt })).toContainElement(
+      await screen.findByRole('checkbox', { name: 'Milk', checked: true }),
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: HOME_COPY.clearTicked }));
+    await waitFor(() => expect(screen.queryByText('Milk')).not.toBeInTheDocument());
+  });
+
+  it('narrows the list to one bucket and back to all', async () => {
+    renderHome();
+    fireEvent.click(await screen.findByRole('button', { name: HOME_COPY.newBucket }));
+    fireEvent.change(await screen.findByRole('textbox', { name: 'Name' }), {
+      target: { value: 'Express' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Create bucket' }));
+    await screen.findByRole('region', { name: 'Express' });
+    await pickBucket('Express');
+    fireEvent.change(screen.getByRole('textbox', { name: 'Item' }), { target: { value: 'Milk' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+    await screen.findByRole('checkbox', { name: 'Milk' });
+    fireEvent.change(screen.getByRole('textbox', { name: 'Item' }), { target: { value: 'Tape' } });
+    await pickBucket(UNSORTED_BUCKET_NAME);
+    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+    await screen.findByRole('checkbox', { name: 'Tape' });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Express, 1' }));
+
+    expect(screen.getByRole('checkbox', { name: 'Milk' })).toBeInTheDocument();
+    expect(screen.queryByRole('checkbox', { name: 'Tape' })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /^All/ }));
+
+    expect(await screen.findByRole('checkbox', { name: 'Tape' })).toBeInTheDocument();
+  });
+
+  it('creates a bucket from the dialog', async () => {
+    renderHome();
+    fireEvent.click(await screen.findByRole('button', { name: HOME_COPY.newBucket }));
+    fireEvent.change(await screen.findByRole('textbox', { name: 'Name' }), {
+      target: { value: 'Express' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Create bucket' }));
+    expect(await screen.findByRole('region', { name: 'Express' })).toBeInTheDocument();
   });
 });

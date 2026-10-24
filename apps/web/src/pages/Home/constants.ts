@@ -1,7 +1,10 @@
 export const HOME_COPY = {
-  title: 'Fridgeboard',
-  tagline: 'The shopping list and shifts, off the fridge and on your phone.',
-  addItem: 'Add item',
-  signedInAs: 'Signed in as',
-  signOut: 'Sign out',
+  title: 'Chop List',
+  loading: 'Loading your list…',
+  loadFailed: 'Could not load your list.',
+  empty: 'Nothing on the list yet.',
+  focusEmpty: 'Nothing left in this bucket.',
+  newBucket: 'New bucket',
+  gotIt: 'Got it',
+  clearTicked: 'Clear ticked',
 } as const;
