@@ -10,6 +10,8 @@ import { useSessionContext } from '../../hooks/useSessionContext';
 import { FailureReason } from '../../services/session/constants';
 import { SIGN_IN_COPY } from '../../pages/SignIn/constants';
 import { CONFIRMATION_MS, PASSKEY_PROMPT_COPY as COPY } from './constants';
+import { Typography } from '../Typography';
+import { TypographyVariant } from '../Typography/constants';
 
 export const PasskeyPrompt = () => {
   const enabled = useFeatureFlag(WebFeatureFlag.ENABLE_PASSKEYS);
@@ -70,8 +72,10 @@ export const PasskeyPrompt = () => {
       ) : (
         <Card>
           <Card.Content className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold">{COPY.title}</h2>
-            <p>{COPY.body}</p>
+            <Typography variant={TypographyVariant.Heading3} as="h2">
+              {COPY.title}
+            </Typography>
+            <Typography>{COPY.body}</Typography>
             {message && (
               <Alert status="danger">
                 <Alert.Content>

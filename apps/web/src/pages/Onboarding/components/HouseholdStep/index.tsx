@@ -6,6 +6,8 @@ import {
 import { useState, type FormEvent } from 'react';
 import { useCreateHouseholdMutation } from '../../../../hooks/useCreateHouseholdMutation';
 import { ONBOARDING_COPY } from '../../constants';
+import { Typography } from '../../../../components/Typography';
+import { TypographyVariant } from '../../../../components/Typography/constants';
 
 const COPY = ONBOARDING_COPY.household;
 
@@ -25,8 +27,8 @@ export const HouseholdStep = () => {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <h2 className="text-2xl font-semibold">{COPY.title}</h2>
-      <p>{COPY.intro}</p>
+      <Typography variant={TypographyVariant.Heading2}>{COPY.title}</Typography>
+      <Typography>{COPY.intro}</Typography>
       <TextField
         name="household"
         isRequired

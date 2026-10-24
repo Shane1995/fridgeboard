@@ -1,7 +1,9 @@
 import { BUILD_INFO_COPY } from './constants';
+import { Typography } from '../Typography';
+import { TypographyVariant } from '../Typography/constants';
 
 export const BuildInfo = () => (
-  <p className="text-xs opacity-60">
+  <Typography variant={TypographyVariant.Caption}>
     {BUILD_INFO_COPY.label} {__BUILD_SHA__}
-  </p>
+  </Typography>
 );

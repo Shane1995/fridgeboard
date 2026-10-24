@@ -2,6 +2,8 @@ import { Button } from '@heroui/react';
 import { useNavigate } from '@tanstack/react-router';
 import { useSignOutMutation } from '../../../../hooks/useSignOutMutation';
 import { ONBOARDING_COPY } from '../../constants';
+import { Typography } from '../../../../components/Typography';
+import { TypographyVariant } from '../../../../components/Typography/constants';
 
 const COPY = ONBOARDING_COPY.needsInvite;
 
@@ -11,8 +13,8 @@ export const NeedsInviteStep = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-2xl font-semibold">{COPY.title}</h2>
-      <p>{COPY.intro}</p>
+      <Typography variant={TypographyVariant.Heading2}>{COPY.title}</Typography>
+      <Typography>{COPY.intro}</Typography>
       <Button
         variant="secondary"
         isPending={signOut.isPending}

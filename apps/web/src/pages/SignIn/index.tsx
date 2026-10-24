@@ -13,6 +13,8 @@ import { EmailStep } from './components/EmailStep';
 import { PasskeyStep } from './components/PasskeyStep';
 import { SIGN_IN_COPY } from './constants';
 import type { SignInProps } from './types';
+import { Typography } from '../../components/Typography';
+import { TypographyVariant } from '../../components/Typography/constants';
 
 export const SignIn = ({ initialEmail, redirectTo, children }: SignInProps) => {
   const router = useRouter();
@@ -37,7 +39,9 @@ export const SignIn = ({ initialEmail, redirectTo, children }: SignInProps) => {
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center gap-6 p-6">
-      <h1 className="font-hand px-3 text-center text-6xl text-accent">{SIGN_IN_COPY.logo}</h1>
+      <Typography variant={TypographyVariant.Logo} className="text-center">
+        {SIGN_IN_COPY.logo}
+      </Typography>
       {children}
       <Card>
         <Card.Content>

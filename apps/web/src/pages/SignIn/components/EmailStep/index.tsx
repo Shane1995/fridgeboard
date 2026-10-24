@@ -8,6 +8,8 @@ import { useSignInWithPasskeyMutation } from '../../../../hooks/useSignInWithPas
 import { useStartSignInMutation } from '../../../../hooks/useStartSignInMutation';
 import { EMAIL_MARKER, SIGN_IN_COPY } from '../../constants';
 import type { EmailStepProps } from './types';
+import { Typography } from '../../../../components/Typography';
+import { TypographyVariant } from '../../../../components/Typography/constants';
 
 export const EmailStep = ({ initialEmail, onCodeSent }: EmailStepProps) => {
   const [email, setEmail] = useState(initialEmail ?? '');
@@ -45,8 +47,8 @@ export const EmailStep = ({ initialEmail, onCodeSent }: EmailStepProps) => {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <h2 className="text-2xl font-semibold">{SIGN_IN_COPY.emailTitle}</h2>
-      <p>{SIGN_IN_COPY.emailIntro}</p>
+      <Typography variant={TypographyVariant.Heading2}>{SIGN_IN_COPY.emailTitle}</Typography>
+      <Typography>{SIGN_IN_COPY.emailIntro}</Typography>
       <TextField
         name="email"
         type="email"

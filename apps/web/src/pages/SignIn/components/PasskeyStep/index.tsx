@@ -4,6 +4,8 @@ import { useSignInWithPasskeyMutation } from '../../../../hooks/useSignInWithPas
 import { FailureReason } from '../../../../services/session/constants';
 import { SIGN_IN_COPY } from '../../constants';
 import type { PasskeyStepProps } from './types';
+import { Typography } from '../../../../components/Typography';
+import { TypographyVariant } from '../../../../components/Typography/constants';
 
 const COPY = SIGN_IN_COPY.passkey;
 
@@ -30,10 +32,10 @@ export const PasskeyStep = ({ email, onFallback }: PasskeyStepProps) => {
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-2xl font-semibold">{COPY.title}</h2>
-      <p>
-        {COPY.intro} <strong>{email}</strong>
-      </p>
+      <Typography variant={TypographyVariant.Heading2}>{COPY.title}</Typography>
+      <Typography>
+        {COPY.intro} <Typography variant={TypographyVariant.Strong}>{email}</Typography>
+      </Typography>
       {errorMessage && (
         <Alert status="danger">
           <Alert.Content>

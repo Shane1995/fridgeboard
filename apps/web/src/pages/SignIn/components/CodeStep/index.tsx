@@ -6,6 +6,8 @@ import { CODE_PATTERN, SIGN_IN_COPY } from '../../constants';
 import { UNKNOWN_FEEDBACK } from './constants';
 import type { CodeFeedback, CodeStepProps } from './types';
 import { toVerifyFeedback } from './utils/toVerifyFeedback';
+import { Typography } from '../../../../components/Typography';
+import { TypographyVariant } from '../../../../components/Typography/constants';
 
 export const CodeStep = ({ email, onSignedIn, onBack }: CodeStepProps) => {
   const [code, setCode] = useState('');
@@ -48,10 +50,10 @@ export const CodeStep = ({ email, onSignedIn, onBack }: CodeStepProps) => {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <h2 className="text-2xl font-semibold">{SIGN_IN_COPY.codeTitle}</h2>
-      <p>
-        {SIGN_IN_COPY.codeIntro} <strong>{email}</strong>
-      </p>
+      <Typography variant={TypographyVariant.Heading2}>{SIGN_IN_COPY.codeTitle}</Typography>
+      <Typography>
+        {SIGN_IN_COPY.codeIntro} <Typography variant={TypographyVariant.Strong}>{email}</Typography>
+      </Typography>
       <TextField
         name="code"
         inputMode="numeric"

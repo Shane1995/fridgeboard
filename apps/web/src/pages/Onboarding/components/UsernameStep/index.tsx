@@ -3,6 +3,8 @@ import { useState, type FormEvent } from 'react';
 import { useRemoteConfigContext } from '../../../../hooks/useRemoteConfigContext';
 import { useSetUsernameMutation } from '../../../../hooks/useSetUsernameMutation';
 import { ONBOARDING_COPY } from '../../constants';
+import { Typography } from '../../../../components/Typography';
+import { TypographyVariant } from '../../../../components/Typography/constants';
 
 const COPY = ONBOARDING_COPY.username;
 
@@ -23,8 +25,8 @@ export const UsernameStep = () => {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <h2 className="text-2xl font-semibold">{COPY.title}</h2>
-      <p>{COPY.intro}</p>
+      <Typography variant={TypographyVariant.Heading2}>{COPY.title}</Typography>
+      <Typography>{COPY.intro}</Typography>
       <TextField
         name="username"
         autoComplete="username"
