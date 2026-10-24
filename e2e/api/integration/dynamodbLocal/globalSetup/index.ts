@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { COMPOSE_SERVICE, ENDPOINT, REGION } from '../constants.ts';
-import { createTable } from '../createTable/index.ts';
+import { COMPOSE_SERVICE, ENDPOINT, REGION, TABLE_NAME } from '../constants.ts';
+import { createTable } from '../../../../../apps/functions/scripts/devLocal/createTable/index.ts';
 
 const isReachable = async (): Promise<boolean> => {
   try {
@@ -25,10 +25,13 @@ export const setup = async (): Promise<() => void> => {
       region: REGION,
       credentials: { accessKeyId: 'local', secretAccessKey: 'local' },
     }),
+    TABLE_NAME,
   );
   return () => {
     if (startedHere) {
-      execFileSync('docker', ['compose', 'down'], { stdio: 'inherit' });
+      execFileSync('docker', ['compose', 'rm', '--stop', '--force', COMPOSE_SERVICE], {
+        stdio: 'inherit',
+      });
     }
   };
 };

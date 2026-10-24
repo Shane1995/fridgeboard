@@ -9,3 +9,20 @@ services:
       interval: 2s
       timeout: 3s
       retries: 30
+
+  dynamodb-dev:
+    image: amazon/dynamodb-local:3.3.2@sha256:6ada631ec7aa5fc83446855eb17233e3dad184fec47477e8140c6c569cfe0c86
+    user: root
+    command: -jar DynamoDBLocal.jar -sharedDb -dbPath /data
+    ports:
+      - '127.0.0.1:8001:8000'
+    volumes:
+      - dynamodb-dev:/data
+    healthcheck:
+      test: ['CMD', 'curl', '-s', '-o', '/dev/null', 'http://localhost:8000']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  dynamodb-dev:

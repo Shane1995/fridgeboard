@@ -10,6 +10,8 @@
     "admin:export-user": "node scripts/admin/exportUser/index.ts",
     "admin:sign-out-everywhere": "node scripts/admin/signOutEverywhere/index.ts",
     "smoke": "node scripts/smoke/index.ts",
+    "dev:local": "node scripts/devLocal/index.ts",
+    "dev:local:reset": "node scripts/devLocal/reset/index.ts",
     "typecheck": "tsc -b",
     "test": "vitest run",
     "lint": "oxlint --config ../../.oxlintrc.json src/ scripts/",

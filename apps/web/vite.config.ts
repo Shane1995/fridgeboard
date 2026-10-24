@@ -7,8 +7,13 @@ import { VitePWA } from 'vite-plugin-pwa';
 const ENAMEL = '#F4F6F3';
 const TOMATO = '#E2462F';
 
+const LOCAL_API = 'http://127.0.0.1:3001';
+
 export default defineConfig({
   define: { __BUILD_SHA__: JSON.stringify(process.env.GITHUB_SHA?.slice(0, 7) ?? 'dev') },
+  server: process.env.DEV_LOCAL
+    ? { proxy: { '/api': LOCAL_API, '/configuration.json': LOCAL_API } }
+    : {},
   plugins: [
     tanstackRouter({
       target: 'react',

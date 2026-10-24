@@ -12,3 +12,4 @@ coverage
 .idea
 export-*.json
 .tanstack/
+dist-dev
