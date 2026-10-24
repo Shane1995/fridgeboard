@@ -1,19 +1,13 @@
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import {
-  DEFAULT_LAMBDA_FLAGS,
-  LAMBDA_FEATURE_FLAGS,
-} from '@fridgeboard/contract/configuration/flags/constants';
-import { LambdaConfigurationSchema } from '@fridgeboard/contract/configuration/lambda';
-import { DEFAULT_LAMBDA_CONFIGURATION } from '@fridgeboard/contract/configuration/lambda/constants';
-import type { LambdaConfiguration } from '@fridgeboard/contract/configuration/lambda/types';
-import {
-  DEFAULT_LAMBDA_SETTINGS,
-  LAMBDA_SETTINGS,
-} from '@fridgeboard/contract/configuration/settings/constants';
-import { mergeSettings } from '@fridgeboard/contract/configuration/settings/mergeSettings';
-import { stripTopLevelParams } from '@fridgeboard/contract/configuration/stripTopLevelParams';
-import { stripUnknownFlags } from '@fridgeboard/contract/configuration/stripUnknownFlags';
-import { stripUnknownKeys } from '@fridgeboard/contract/configuration/stripUnknownKeys';
+import { DEFAULT_LAMBDA_FLAGS, LAMBDA_FEATURE_FLAGS } from './flags/constants.ts';
+import { LambdaConfigurationSchema } from './lambdaConfigurationSchema/index.ts';
+import { DEFAULT_LAMBDA_CONFIGURATION } from './lambdaConfigurationSchema/constants.ts';
+import type { LambdaConfiguration } from './lambdaConfigurationSchema/types.ts';
+import { DEFAULT_LAMBDA_SETTINGS, LAMBDA_SETTINGS } from './settings/constants.ts';
+import { mergeSettings } from './settings/mergeSettings/index.ts';
+import { stripTopLevelParams } from './stripTopLevelParams/index.ts';
+import { stripUnknownFlags } from './stripUnknownFlags/index.ts';
+import { stripUnknownKeys } from './stripUnknownKeys/index.ts';
 import { CONFIGURATION_TTL_MS, DEFAULT_CONFIG_KEY } from './constants.ts';
 import type { ConfigurationCache } from './types.ts';
 

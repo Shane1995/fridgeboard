@@ -1,4 +1,4 @@
-import type { IMeResponse } from '@fridgeboard/contract/me';
+import type { IOnboardingResponse } from '@fridgeboard/contract/onboarding';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   createMemoryHistory,
@@ -8,7 +8,7 @@ import {
   RouterProvider,
 } from '@tanstack/react-router';
 import { render, screen } from '@testing-library/react';
-import { RemoteConfigContext } from '../../Context/RemoteConfig';
+import { RemoteConfigContext } from '../../Context/RemoteConfig/context';
 import { SessionContext } from '../../Context/Session';
 import { createSession } from '../../testUtils/createSession';
 import { SessionStatus } from '../../services/session/constants';
@@ -16,15 +16,7 @@ import { RequireOnboarding } from '.';
 import { TEST_WEB_CONFIGURATION } from '../../testUtils/webConfiguration';
 const { session, apiFetch } = createSession(SessionStatus.SignedIn);
 
-const me = (onboarding: IMeResponse['onboarding']): IMeResponse => ({
-  sub: 'sub-1',
-  email: 'jess@example.com',
-  username: 'jess',
-  isAdmin: false,
-  canCreateHousehold: false,
-  households: [],
-  onboarding,
-});
+const me = (sections: IOnboardingResponse['sections']): IOnboardingResponse => ({ sections });
 
 const DONE = [{ id: 'username' as const, done: true }];
 
@@ -62,7 +54,7 @@ const renderAt = (path: string) => {
   return router;
 };
 
-const respondWith = (body: IMeResponse) =>
+const respondWith = (body: IOnboardingResponse) =>
   apiFetch.mockResolvedValue(new Response(JSON.stringify(body), { status: 200 }));
 
 describe('RequireOnboarding', () => {

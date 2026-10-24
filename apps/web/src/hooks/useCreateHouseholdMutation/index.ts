@@ -1,14 +1,15 @@
-import { MutationName } from '@fridgeboard/contract/configuration/mutations/constants';
-import { WebService } from '@fridgeboard/contract/configuration/services/constants';
-import type { IMeResponse } from '@fridgeboard/contract/me';
+import { MutationName } from '../../services/configuration/mutations/constants';
+import { WebService } from '../../services/configuration/services/constants';
+import type { IOnboardingResponse } from '@fridgeboard/contract/onboarding';
 import { useQueryClient } from '@tanstack/react-query';
-import { completeOnboardingSection } from '../../utils/completeOnboardingSection';
 import { postHousehold } from '../../services/api/postHousehold';
 import type { PostHouseholdResult } from '../../services/api/postHousehold/types';
 import { resolveMutationEndpoint } from '../../services/configuration/resolveEndpoint';
-import { ME_QUERY_KEY } from '../useMeQuery/constants';
+import { OnboardingSectionId } from '../../services/onboarding/constants';
+import { completeOnboardingSection } from '../../utils/completeOnboardingSection';
 import { useMutation } from '../useMutation';
 import type { MutationResult } from '../useMutation/types';
+import { ONBOARDING_QUERY_KEY } from '../useOnboardingQuery/constants';
 import { useRemoteConfigContext } from '../useRemoteConfigContext';
 import { useSessionContext } from '../useSessionContext';
 
@@ -24,19 +25,10 @@ export const useCreateHouseholdMutation = (): MutationResult<PostHouseholdResult
         apiFetch,
       );
       if (result.ok) {
-        queryClient.setQueryData<IMeResponse>(ME_QUERY_KEY, (me) =>
-          me === undefined
-            ? me
-            : completeOnboardingSection(
-                {
-                  ...me,
-                  households: [
-                    ...me.households,
-                    { id: result.id, name: result.name, role: 'owner' },
-                  ],
-                },
-                'household',
-              ),
+        queryClient.setQueryData<IOnboardingResponse>([ONBOARDING_QUERY_KEY], (onboarding) =>
+          onboarding === undefined
+            ? onboarding
+            : completeOnboardingSection(onboarding, OnboardingSectionId.Household),
         );
       }
       return result;

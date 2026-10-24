@@ -3,6 +3,7 @@ import { DynamoDBDocumentClient, TransactWriteCommand } from '@aws-sdk/lib-dynam
 import type { APIGatewayProxyEventV2WithJWTAuthorizer } from 'aws-lambda';
 import { mockClient } from 'aws-sdk-client-mock';
 import { handler } from './index.ts';
+import { HouseholdRole } from '../../utils/isHouseholdRole/constants.ts';
 
 vi.mock('node:crypto', async (importOriginal) => ({
   ...(await importOriginal<typeof import('node:crypto')>()),
@@ -96,7 +97,11 @@ describe('households handler', () => {
 
     expect(result.statusCode).toBe(201);
     expect(result.headers?.Location).toBe('/api/v1/households/hh-1');
-    expect(JSON.parse(result.body ?? '')).toEqual({ id: 'hh-1', name: 'Our home', role: 'owner' });
+    expect(JSON.parse(result.body ?? '')).toEqual({
+      id: 'hh-1',
+      name: 'Our home',
+      role: HouseholdRole.Owner,
+    });
     const items = transactItems();
     expect(items).toHaveLength(4);
     expect(items?.[0]?.ConditionCheck).toMatchObject({
@@ -114,7 +119,7 @@ describe('households handler', () => {
         SK: 'MEMBER#sub-1',
         GSI1PK: 'USER#sub-1',
         GSI1SK: 'HH#hh-1',
-        role: 'owner',
+        role: HouseholdRole.Owner,
       },
     });
     expect(items?.[3]?.Put).toMatchObject({

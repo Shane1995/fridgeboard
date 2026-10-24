@@ -1,4 +1,4 @@
-import { WebFeatureFlag } from '@fridgeboard/contract/configuration/flags/constants';
+import { WebFeatureFlag } from '../../../../services/configuration/flags/constants';
 import { Alert, Button, Input, Label, TextField } from '@heroui/react';
 import { browserSupportsWebAuthn } from '@simplewebauthn/browser';
 import { useState, type FormEvent } from 'react';

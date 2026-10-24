@@ -1,4 +1,4 @@
-import { WebService } from '@fridgeboard/contract/configuration/services/constants';
+import { WebService } from '../services/constants';
 import { TEST_WEB_CONFIGURATION } from '../../../testUtils/webConfiguration';
 import { resolveMutationEndpoint, resolveQueryEndpoint } from './index';
 

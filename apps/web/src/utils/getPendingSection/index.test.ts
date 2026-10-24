@@ -1,41 +1,32 @@
-import type { IMeResponse } from '@fridgeboard/contract/me';
+import type { IOnboardingResponse } from '@fridgeboard/contract/onboarding';
+import { OnboardingSectionId } from '../../services/onboarding/constants';
 import { getPendingSection } from '.';
 
-const me = (onboarding: unknown): IMeResponse =>
-  ({
-    sub: 'sub-1',
-    email: 'jess@example.com',
-    username: 'jess',
-    isAdmin: false,
-    canCreateHousehold: false,
-    households: [],
-    onboarding,
-  }) as IMeResponse;
+const onboarding = (sections: IOnboardingResponse['sections']): IOnboardingResponse => ({
+  sections,
+});
 
 describe('getPendingSection', () => {
   it('returns the first section that is not done', () => {
     expect(
       getPendingSection(
-        me([
+        onboarding([
           { id: 'username', done: true },
           { id: 'household', done: false },
         ]),
       ),
-    ).toBe('household');
+    ).toBe(OnboardingSectionId.Household);
   });
 
   it('returns undefined once every section is done', () => {
-    expect(getPendingSection(me([{ id: 'username', done: true }]))).toBeUndefined();
+    expect(getPendingSection(onboarding([{ id: 'username', done: true }]))).toBeUndefined();
   });
 
-  it('skips sections this build does not know how to show', () => {
-    expect(
-      getPendingSection(
-        me([
-          { id: 'profile-photo', done: false },
-          { id: 'household', done: false },
-        ]),
-      ),
-    ).toBe('household');
+  it('skips a section id this build does not know', () => {
+    const unknown = JSON.parse('{"id":"notifications","done":false}');
+
+    expect(getPendingSection(onboarding([unknown, { id: 'username', done: false }]))).toBe(
+      OnboardingSectionId.Username,
+    );
   });
 });

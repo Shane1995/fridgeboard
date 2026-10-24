@@ -3,7 +3,7 @@ import {
   AdminUserGlobalSignOutCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { DeleteEmailIdentityCommand, NotFoundException } from '@aws-sdk/client-sesv2';
-import { fetchMemberships } from '../../../../src/handlers/me/utils/fetchMemberships/index.ts';
+import { fetchMemberships } from '../../../../src/utils/fetchMemberships/index.ts';
 import { HOUSEHOLD_PK_PREFIX, USER_PK_PREFIX } from '../../../../src/utils/keys/constants.ts';
 import { householdIdFromKey } from '../../../../src/utils/keys/householdIdFromKey/index.ts';
 import { buildDeletePlan } from '../buildDeletePlan/index.ts';

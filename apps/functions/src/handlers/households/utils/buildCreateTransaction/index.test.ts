@@ -1,4 +1,5 @@
 import { buildCreateTransaction } from './index.ts';
+import { HouseholdRole } from '../../../../utils/isHouseholdRole/constants.ts';
 
 const params = {
   TableName: 'fridgeboard',
@@ -41,7 +42,7 @@ describe('buildCreateTransaction', () => {
     expect(items[2]?.Put?.Item).toMatchObject({
       PK: 'HH#hh-1',
       SK: 'MEMBER#sub-1',
-      role: 'owner',
+      role: HouseholdRole.Owner,
       joinedAt: params.now,
     });
     expect(items[3]?.Put?.Item).toEqual({

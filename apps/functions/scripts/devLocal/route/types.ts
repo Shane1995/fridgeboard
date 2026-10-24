@@ -1,4 +1,4 @@
-import type { WebService } from '@fridgeboard/contract/configuration/services/constants';
+import type { WebService } from '../../../../web/src/services/configuration/services/constants.ts';
 import type {
   APIGatewayProxyEventV2WithJWTAuthorizer,
   APIGatewayProxyStructuredResultV2,

@@ -2,7 +2,7 @@ import { DynamoDBDocumentClient, TransactWriteCommand } from '@aws-sdk/lib-dynam
 import { TransactionCanceledException } from '@aws-sdk/client-dynamodb';
 import type { APIGatewayProxyEventV2WithJWTAuthorizer } from 'aws-lambda';
 import { mockClient } from 'aws-sdk-client-mock';
-import { DEFAULT_LAMBDA_CONFIGURATION } from '@fridgeboard/contract/configuration/lambda/constants';
+import { DEFAULT_LAMBDA_CONFIGURATION } from '../../configuration/lambdaConfigurationSchema/constants.ts';
 import { getConfiguration } from '../../configuration/index.ts';
 import { handler } from './index.ts';
 

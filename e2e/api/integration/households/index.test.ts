@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
+import { HouseholdRole } from '../../../../apps/functions/src/utils/isHouseholdRole/constants.ts';
 import { buildEvent } from '../dynamodbLocal/buildEvent/index.ts';
 import { client } from '../dynamodbLocal/client/index.ts';
 import { getItem } from '../dynamodbLocal/getItem/index.ts';
@@ -41,7 +42,7 @@ describe('households handler against DynamoDB Local', () => {
     const keys = [householdMetaKey(id), membershipKey(id, sub), ownedHouseholdKey(sub)];
     const items = await Promise.all(keys.map(getItem));
     expect(items[0]).toMatchObject({ name: 'Linden', ownerSub: sub });
-    expect(items[1]).toMatchObject({ role: 'owner' });
+    expect(items[1]).toMatchObject({ role: HouseholdRole.Owner });
     expect(items[2]).toMatchObject({ householdId: id });
   });
 

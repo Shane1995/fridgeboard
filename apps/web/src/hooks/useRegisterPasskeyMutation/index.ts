@@ -1,5 +1,5 @@
-import { MutationName } from '@fridgeboard/contract/configuration/mutations/constants';
-import { WebService } from '@fridgeboard/contract/configuration/services/constants';
+import { MutationName } from '../../services/configuration/mutations/constants';
+import { WebService } from '../../services/configuration/services/constants';
 import { startRegistration } from '@simplewebauthn/browser';
 import { completePasskeyRegistration } from '../../services/api/completePasskeyRegistration';
 import { startPasskeyRegistration } from '../../services/api/startPasskeyRegistration';

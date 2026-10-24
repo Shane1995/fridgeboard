@@ -4,7 +4,7 @@ import { GetCommand } from '@aws-sdk/lib-dynamodb';
 import { householdIdFromKey } from '../../../../src/utils/keys/householdIdFromKey/index.ts';
 import { householdMetaKey } from '../../../../src/utils/keys/householdMetaKey/index.ts';
 import { profileKey } from '../../../../src/utils/keys/profileKey/index.ts';
-import { fetchMemberships } from '../../../../src/handlers/me/utils/fetchMemberships/index.ts';
+import { fetchMemberships } from '../../../../src/utils/fetchMemberships/index.ts';
 import { TABLE_NAME } from '../clients/constants.ts';
 import { doc } from '../clients/index.ts';
 import { resolveUser } from '../resolveUser/index.ts';

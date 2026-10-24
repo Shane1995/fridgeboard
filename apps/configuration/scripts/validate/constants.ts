@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
-import { LambdaConfigurationSchema } from '@fridgeboard/contract/configuration/lambda';
-import { WebConfigurationSchema } from '@fridgeboard/contract/configuration/web';
+import { LambdaConfigurationSchema } from '../../../functions/src/configuration/lambdaConfigurationSchema/index.ts';
+import { WebConfigurationSchema } from '../../../web/src/services/configuration/webConfigurationSchema/index.ts';
 import type { ConfigurationTarget } from './types.ts';
 
 const ROOT = resolve(import.meta.dirname, '../..');

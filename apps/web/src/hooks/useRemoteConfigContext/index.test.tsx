@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
-import { RemoteConfigContext } from '../../Context/RemoteConfig';
+import { RemoteConfigContext } from '../../Context/RemoteConfig/context';
 import { MISSING_PROVIDER_MESSAGE } from './constants';
 import { useRemoteConfigContext } from './index';
 import { TEST_WEB_CONFIGURATION } from '../../testUtils/webConfiguration';

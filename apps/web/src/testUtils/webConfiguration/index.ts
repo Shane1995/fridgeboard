@@ -1,6 +1,6 @@
-import { WebService } from '@fridgeboard/contract/configuration/services/constants';
-import type { WebConfiguration } from '@fridgeboard/contract/configuration/web/types';
-import { WebFeatureFlag } from '@fridgeboard/contract/configuration/flags/constants';
+import { WebService } from '../../services/configuration/services/constants';
+import type { WebConfiguration } from '../../hooks/useRemoteConfigContext/types';
+import { WebFeatureFlag } from '../../services/configuration/flags/constants';
 
 export const TEST_WEB_CONFIGURATION: WebConfiguration = {
   featureFlags: {
@@ -23,6 +23,7 @@ export const TEST_WEB_CONFIGURATION: WebConfiguration = {
       endpoints: {
         [WebService.households]: '/households',
         [WebService.me]: '/me',
+        [WebService.onboarding]: '/me/onboarding',
         [WebService.passkeyStart]: '/auth/passkey/start',
         [WebService.passkeyVerify]: '/auth/passkey/verify',
         [WebService.passkeysComplete]: '/auth/passkeys/complete',

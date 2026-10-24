@@ -1,5 +1,5 @@
 import type { Endpoint } from '../../services/configuration/types';
-import { WebFeatureFlag } from '@fridgeboard/contract/configuration/flags/constants';
+import { WebFeatureFlag } from '../../services/configuration/flags/constants';
 import { browserSupportsWebAuthn, startRegistration } from '@simplewebauthn/browser';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { SessionStatus } from '../../services/session/constants';

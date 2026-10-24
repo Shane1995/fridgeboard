@@ -1,9 +1,13 @@
-import { MutationName } from '@fridgeboard/contract/configuration/mutations/constants';
+import { MutationName } from '../../services/configuration/mutations/constants';
 import { useMutation } from '../useMutation';
 import type { MutationResult } from '../useMutation/types';
 import { useSessionContext } from '../useSessionContext';
 
 export const useSignOutMutation = (): MutationResult<void, void> => {
   const { signOut } = useSessionContext();
-  return useMutation({ mutationFn: () => signOut(), mutationKey: [MutationName.signOut] });
+  return useMutation({
+    mutationFn: () => signOut(),
+    mutationKey: [MutationName.signOut],
+    retryable: true,
+  });
 };

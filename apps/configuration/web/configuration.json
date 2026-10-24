@@ -24,6 +24,7 @@
       "endpoints": {
         "households": "/households",
         "me": "/me",
+        "onboarding": "/me/onboarding",
         "passkeyStart": "/auth/passkey/start",
         "passkeyVerify": "/auth/passkey/verify",
         "passkeysComplete": "/auth/passkeys/complete",

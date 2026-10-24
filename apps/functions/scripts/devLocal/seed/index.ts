@@ -1,4 +1,5 @@
 import { PutCommand, type DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
+import { HouseholdRole } from '../../../src/utils/isHouseholdRole/constants.ts';
 import { householdMetaKey } from '../../../src/utils/keys/householdMetaKey/index.ts';
 import { inviteKey } from '../../../src/utils/keys/inviteKey/index.ts';
 import { membershipKey } from '../../../src/utils/keys/membershipKey/index.ts';
@@ -34,7 +35,7 @@ export const seed = async (client: DynamoDBDocumentClient): Promise<void> => {
     },
     { ...usernameKey(ADMIN_USERNAME), sub },
     { ...householdMetaKey(hhId), name: HOUSEHOLD_NAME, ownerSub: sub, createdAt: now },
-    { ...membershipKey(hhId, sub), role: 'owner', joinedAt: now },
+    { ...membershipKey(hhId, sub), role: HouseholdRole.Owner, joinedAt: now },
     { ...ownedHouseholdKey(sub), householdId: hhId },
     {
       ...inviteKey(MEMBER_INVITE_EMAIL),

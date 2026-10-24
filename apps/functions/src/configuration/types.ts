@@ -1,4 +1,4 @@
-import type { LambdaConfiguration } from '@fridgeboard/contract/configuration/lambda/types';
+import type { LambdaConfiguration } from './lambdaConfigurationSchema/types.ts';
 
 export type ConfigurationCache = {
   value: LambdaConfiguration;

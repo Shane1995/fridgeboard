@@ -14,7 +14,7 @@ import { openFlow } from '../../utils/flowToken/openFlow/index.ts';
 import { sealFlow } from '../../utils/flowToken/sealFlow/index.ts';
 import { readCookie } from '../../utils/cookies/readCookie/index.ts';
 import type { AuthFlow } from '../../utils/flowToken/types.ts';
-import { DEFAULT_LAMBDA_CONFIGURATION } from '@fridgeboard/contract/configuration/lambda/constants';
+import { DEFAULT_LAMBDA_CONFIGURATION } from '../../../../configuration/lambdaConfigurationSchema/constants.ts';
 import { getConfiguration } from '../../../../configuration/index.ts';
 import { verify } from './index.ts';
 

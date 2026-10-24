@@ -1,5 +1,5 @@
 import type { ITokenResponse } from '@fridgeboard/contract/auth';
-import { WebService } from '@fridgeboard/contract/configuration/services/constants';
+import { WebService } from '../../services/configuration/services/constants';
 import { useQueryClient } from '@tanstack/react-query';
 import { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { PropsWithChildren } from 'react';

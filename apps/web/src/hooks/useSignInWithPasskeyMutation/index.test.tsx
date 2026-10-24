@@ -1,4 +1,4 @@
-import { MutationName } from '@fridgeboard/contract/configuration/mutations/constants';
+import { MutationName } from '../../services/configuration/mutations/constants';
 import { startAuthentication, type AuthenticationResponseJSON } from '@simplewebauthn/browser';
 import { QueryClient } from '@tanstack/react-query';
 import { act, renderHook } from '@testing-library/react';
