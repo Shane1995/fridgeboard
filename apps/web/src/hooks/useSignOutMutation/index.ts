@@ -1,4 +1,4 @@
-import { MutationName } from '../../services/configuration/mutations/constants';
+import { MutationName } from '../../services/configuration/schema/constants';
 import { useMutation } from '../useMutation';
 import type { MutationResult } from '../useMutation/types';
 import { useSessionContext } from '../useSessionContext';

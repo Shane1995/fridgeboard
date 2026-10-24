@@ -1,5 +1,5 @@
-import type { MutationName } from '../../services/configuration/mutations/constants';
-import type { WebService } from '../../services/configuration/services/constants';
+import type { MutationName } from '../../services/configuration/schema/constants';
+import type { WebService } from '../../services/configuration/schema/constants';
 
 export type ApiMutationOptions<TVariables, TResponse, TReason extends string> = {
   name: MutationName;

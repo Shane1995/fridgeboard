@@ -1,4 +1,4 @@
-import { MutationName } from '../../services/configuration/mutations/constants';
+import { MutationName } from '../../services/configuration/schema/constants';
 import type { VerifyResult } from '../../services/session/types';
 import { useMutation } from '../useMutation';
 import type { MutationResult } from '../useMutation/types';

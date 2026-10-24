@@ -5,5 +5,5 @@
     "lib": ["es2023", "esnext.array"],
     "types": ["node", "vitest/globals"]
   },
-  "include": ["api", "contract", "vitest.config.ts"]
+  "include": ["api", "vitest.config.ts"]
 }

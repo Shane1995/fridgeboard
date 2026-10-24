@@ -1,6 +1,6 @@
 import { QueryClient } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
-import { WebService } from '../../services/configuration/services/constants';
+import { WebService } from '../../services/configuration/schema/constants';
 import { SessionStatus } from '../../services/session/constants';
 import { createSession } from '../../testUtils/createSession';
 import { createSessionWrapper } from '../../testUtils/createSessionWrapper';

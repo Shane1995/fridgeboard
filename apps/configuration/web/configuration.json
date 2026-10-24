@@ -20,23 +20,19 @@
   },
   "services": {
     "api": {
-      "basePath": "/api/{version}",
       "endpoints": {
-        "households": "/households",
-        "me": "/me",
-        "onboarding": "/me/onboarding",
-        "passkeyStart": "/auth/passkey/start",
-        "passkeyVerify": "/auth/passkey/verify",
-        "passkeysComplete": "/auth/passkeys/complete",
-        "passkeysStart": "/auth/passkeys/start",
-        "refresh": "/auth/refresh",
-        "requestCode": "/auth/start",
-        "signOut": "/auth/sign-out",
-        "username": "/me/username",
-        "verify": "/auth/verify"
-      },
-      "params": {
-        "version": "v1"
+        "households": "/api/v1/households",
+        "me": "/api/v1/me",
+        "onboarding": "/api/v1/me/onboarding",
+        "passkeyStart": "/api/v1/auth/passkey/start",
+        "passkeyVerify": "/api/v1/auth/passkey/verify",
+        "passkeysComplete": "/api/v1/auth/passkeys/complete",
+        "passkeysStart": "/api/v1/auth/passkeys/start",
+        "refresh": "/api/v1/auth/refresh",
+        "requestCode": "/api/v1/auth/start",
+        "signOut": "/api/v1/auth/sign-out",
+        "username": "/api/v1/me/username",
+        "verify": "/api/v1/auth/verify"
       }
     }
   },

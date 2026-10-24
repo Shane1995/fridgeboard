@@ -1,5 +1,5 @@
 import type { Endpoint } from '../../services/configuration/types';
-import { MutationName } from '../../services/configuration/mutations/constants';
+import { MutationName } from '../../services/configuration/schema/constants';
 import { startRegistration, type RegistrationResponseJSON } from '@simplewebauthn/browser';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook } from '@testing-library/react';

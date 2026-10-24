@@ -1,4 +1,4 @@
-import { WebFeatureFlag } from '../../services/configuration/flags/constants';
+import { WebFeatureFlag } from '../../services/configuration/schema/constants';
 import { Alert, Button, Card } from '@heroui/react';
 import { browserSupportsWebAuthn } from '@simplewebauthn/browser';
 import { useState } from 'react';

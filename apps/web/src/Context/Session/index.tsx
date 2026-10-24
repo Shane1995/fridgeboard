@@ -1,6 +1,6 @@
 import type { ITokenResponse } from '@fridgeboard/contract/auth';
-import { MutationName } from '../../services/configuration/mutations/constants';
-import { WebService } from '../../services/configuration/services/constants';
+import { MutationName } from '../../services/configuration/schema/constants';
+import { WebService } from '../../services/configuration/schema/constants';
 import { useQueryClient } from '@tanstack/react-query';
 import { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { PropsWithChildren } from 'react';
@@ -9,7 +9,8 @@ import { useRemoteConfigContext } from '../../hooks/useRemoteConfigContext';
 import type { Endpoint } from '../../services/configuration/types';
 import { request } from '../../services/api/request';
 import { UNAUTHORISED_STATUS } from '../../services/constants';
-import { resolveMutationEndpoint } from '../../services/configuration/resolveEndpoint';
+import { mergedEntry } from '../../utils/mergedEntry';
+import { resolveEndpoint } from '../../services/configuration/resolveEndpoint';
 import { exchangeRefreshCookie } from '../../services/session/exchangeRefreshCookie';
 import {
   RefreshResultKind,
@@ -42,6 +43,11 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
     config.current = configuration;
   }, [configuration]);
   const refreshRef = useRef<() => Promise<boolean>>(async () => false);
+
+  const mutationEndpoint = useCallback((service: WebService, name?: MutationName): Endpoint => {
+    const { services, mutations } = config.current;
+    return resolveEndpoint(services.api, service, mergedEntry(mutations, name).timeoutMs);
+  }, []);
 
   const changeStatus = useCallback(
     (next: SessionStatus) => {
@@ -94,9 +100,7 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
 
     const flight = withRefreshLock(async () => {
       const epoch = state.epoch;
-      const result = await exchangeRefreshCookie(
-        resolveMutationEndpoint(config.current, WebService.refresh),
-      );
+      const result = await exchangeRefreshCookie(mutationEndpoint(WebService.refresh));
       if (state.epoch !== epoch) {
         return false;
       }
@@ -148,17 +152,13 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
   }, [refresh]);
 
   const startSignIn = useCallback(
-    (email: string) =>
-      sendStartSignIn(resolveMutationEndpoint(config.current, WebService.requestCode), email),
+    (email: string) => sendStartSignIn(mutationEndpoint(WebService.requestCode), email),
     [],
   );
 
   const verifyCode = useCallback(
     async (code: string): Promise<VerifyResult> => {
-      const response = await sendVerifyCode(
-        resolveMutationEndpoint(config.current, WebService.verify),
-        code,
-      );
+      const response = await sendVerifyCode(mutationEndpoint(WebService.verify), code);
       if (!response.ok) {
         return response;
       }
@@ -172,15 +172,14 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
   );
 
   const startPasskeySignIn = useCallback(
-    (email: string) =>
-      sendStartPasskey(resolveMutationEndpoint(config.current, WebService.passkeyStart), email),
+    (email: string) => sendStartPasskey(mutationEndpoint(WebService.passkeyStart), email),
     [],
   );
 
   const verifyPasskey = useCallback(
     async (credential: AuthenticationResponseJSON): Promise<VerifyResult> => {
       const response = await sendVerifyPasskey(
-        resolveMutationEndpoint(config.current, WebService.passkeyVerify),
+        mutationEndpoint(WebService.passkeyVerify),
         credential,
       );
       if (!response.ok) {
@@ -196,9 +195,7 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
     const state = runtime.current;
     state.epoch += 1;
     await Promise.resolve(state.flight).catch(() => undefined);
-    await sendSignOut(
-      resolveMutationEndpoint(config.current, WebService.signOut, MutationName.signOut),
-    ).finally(clear);
+    await sendSignOut(mutationEndpoint(WebService.signOut, MutationName.signOut)).finally(clear);
   }, [clear]);
 
   const apiFetch = useCallback(

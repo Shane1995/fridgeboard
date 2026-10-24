@@ -1,4 +1,4 @@
-import { WebConfigurationSchema } from './webConfigurationSchema';
+import { WebConfigurationSchema } from './schema';
 import type { WebConfiguration } from '../../hooks/useRemoteConfigContext/types';
 import {
   CONFIGURATION_LOAD_FAILED,

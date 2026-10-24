@@ -1,9 +1,10 @@
-import { MutationName } from '../../services/configuration/mutations/constants';
-import { WebService } from '../../services/configuration/services/constants';
+import { MutationName } from '../../services/configuration/schema/constants';
+import { WebService } from '../../services/configuration/schema/constants';
 import { startRegistration } from '@simplewebauthn/browser';
 import { completePasskeyRegistration } from '../../services/api/completePasskeyRegistration';
 import { startPasskeyRegistration } from '../../services/api/startPasskeyRegistration';
-import { resolveMutationEndpoint } from '../../services/configuration/resolveEndpoint';
+import { resolveEndpoint } from '../../services/configuration/resolveEndpoint';
+import { mergedEntry } from '../../utils/mergedEntry';
 import { useMutation } from '../useMutation';
 import type { MutationResult } from '../useMutation/types';
 import { useRemoteConfigContext } from '../useRemoteConfigContext';
@@ -11,12 +12,13 @@ import { useSessionContext } from '../useSessionContext';
 import type { RegisterPasskeyResult } from './types';
 
 export const useRegisterPasskeyMutation = (): MutationResult<RegisterPasskeyResult, void> => {
-  const configuration = useRemoteConfigContext();
+  const { services, mutations } = useRemoteConfigContext();
+  const { timeoutMs } = mergedEntry(mutations, MutationName.registerPasskey);
   const { apiFetch } = useSessionContext();
   return useMutation({
     mutationFn: async (): Promise<RegisterPasskeyResult> => {
       const started = await startPasskeyRegistration(
-        resolveMutationEndpoint(configuration, WebService.passkeysStart),
+        resolveEndpoint(services.api, WebService.passkeysStart, timeoutMs),
         apiFetch,
       );
       if (!started.ok) {
@@ -31,7 +33,7 @@ export const useRegisterPasskeyMutation = (): MutationResult<RegisterPasskeyResu
       }
 
       return completePasskeyRegistration(
-        resolveMutationEndpoint(configuration, WebService.passkeysComplete),
+        resolveEndpoint(services.api, WebService.passkeysComplete, timeoutMs),
         credential,
         apiFetch,
       );

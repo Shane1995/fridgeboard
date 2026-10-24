@@ -1,5 +1,6 @@
 import { getJson } from '../../services/api/getJson';
-import { resolveQueryEndpoint } from '../../services/configuration/resolveEndpoint';
+import { resolveEndpoint } from '../../services/configuration/resolveEndpoint';
+import { mergedEntry } from '../../utils/mergedEntry';
 import { SessionStatus } from '../../services/session/constants';
 import { useQuery } from '../useQuery';
 import type { QueryResult } from '../useQuery/types';
@@ -13,13 +14,14 @@ export const useApiQuery = <TData>({
   service,
   enabled = true,
 }: ApiQueryOptions): QueryResult<TData> => {
-  const configuration = useRemoteConfigContext();
+  const { services, queries } = useRemoteConfigContext();
   const { status, apiFetch } = useSessionContext();
   return useQuery({
     queryKey: [name],
     queryFn: () =>
-      getJson<TData>(resolveQueryEndpoint(configuration, service, name), (endpoint) =>
-        apiFetch(endpoint),
+      getJson<TData>(
+        resolveEndpoint(services.api, service, mergedEntry(queries, name).timeoutMs),
+        (endpoint) => apiFetch(endpoint),
       ),
     enabled: enabled && status === SessionStatus.SignedIn,
   });

@@ -1,5 +1,5 @@
 import type { IMeResponse } from '@fridgeboard/contract/me';
-import { WebService } from '../../services/configuration/services/constants';
+import { WebService } from '../../services/configuration/schema/constants';
 import { useApiQuery } from '../useApiQuery';
 import type { QueryResult } from '../useQuery/types';
 import { ME_QUERY_KEY } from './constants';

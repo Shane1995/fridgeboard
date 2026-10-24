@@ -4,8 +4,8 @@ import type {
   ICreateHouseholdResponse,
 } from '@fridgeboard/contract/households';
 import type { ApiResult } from '../../services/api/sendJson/types';
-import { MutationName } from '../../services/configuration/mutations/constants';
-import { WebService } from '../../services/configuration/services/constants';
+import { MutationName } from '../../services/configuration/schema/constants';
+import { WebService } from '../../services/configuration/schema/constants';
 import { OnboardingSectionId } from '../../services/onboarding/constants';
 import { useApiMutation } from '../useApiMutation';
 import { useCompleteOnboardingSection } from '../useCompleteOnboardingSection';

@@ -1,7 +1,7 @@
 import { QueryClient } from '@tanstack/react-query';
 import { act, renderHook } from '@testing-library/react';
-import { MutationName } from '../../services/configuration/mutations/constants';
-import { WebService } from '../../services/configuration/services/constants';
+import { MutationName } from '../../services/configuration/schema/constants';
+import { WebService } from '../../services/configuration/schema/constants';
 import { SessionStatus } from '../../services/session/constants';
 import { createSession } from '../../testUtils/createSession';
 import { createSessionWrapper } from '../../testUtils/createSessionWrapper';

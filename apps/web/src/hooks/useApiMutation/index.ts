@@ -1,6 +1,7 @@
 import type { ApiResult } from '../../services/api/sendJson/types';
 import { sendJson } from '../../services/api/sendJson';
-import { resolveMutationEndpoint } from '../../services/configuration/resolveEndpoint';
+import { resolveEndpoint } from '../../services/configuration/resolveEndpoint';
+import { mergedEntry } from '../../utils/mergedEntry';
 import { useMutation } from '../useMutation';
 import type { MutationResult } from '../useMutation/types';
 import { useRemoteConfigContext } from '../useRemoteConfigContext';
@@ -21,13 +22,13 @@ export const useApiMutation = <TVariables, TResponse, TReason extends string>({
   ApiResult<TResponse, TReason>,
   TVariables
 > => {
-  const configuration = useRemoteConfigContext();
+  const { services, mutations } = useRemoteConfigContext();
   const { apiFetch } = useSessionContext();
   return useMutation({
     mutationKey: [name],
     mutationFn: async (variables: TVariables) => {
       const result = await sendJson<TResponse, TReason>(
-        resolveMutationEndpoint(configuration, service, name),
+        resolveEndpoint(services.api, service, mergedEntry(mutations, name).timeoutMs),
         method,
         toBody(variables),
         reasons,

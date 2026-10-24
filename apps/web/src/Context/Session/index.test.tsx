@@ -1,4 +1,5 @@
 import type { ITokenResponse } from '@fridgeboard/contract/auth';
+import { WebService } from '../../services/configuration/schema/constants';
 import { API_PATHS } from '@fridgeboard/contract/auth/constants';
 import type { WebConfiguration } from '../../hooks/useRemoteConfigContext/types';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -357,7 +358,12 @@ describe('SessionProvider', () => {
       const { result } = await renderSession({
         ...TEST_WEB_CONFIGURATION,
         services: {
-          api: { ...TEST_WEB_CONFIGURATION.services.api, params: { version: 'v2' } },
+          api: {
+            endpoints: {
+              ...TEST_WEB_CONFIGURATION.services.api.endpoints,
+              [WebService.requestCode]: '/api/v2/auth/start',
+            },
+          },
         },
       });
       fetchMock.mockResolvedValueOnce(respond(204));

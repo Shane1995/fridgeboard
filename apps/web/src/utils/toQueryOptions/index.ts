@@ -1,4 +1,4 @@
-import type { QueryEntry } from '../../services/configuration/queries/types';
+import type { QueryEntry } from '../../services/configuration/schema/types';
 import { retryUnlessClientError } from '../retryUnlessClientError';
 
 export const toQueryOptions = ({

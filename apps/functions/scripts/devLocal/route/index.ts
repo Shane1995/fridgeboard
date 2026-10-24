@@ -1,6 +1,5 @@
-import { resolveEndpointUrl } from '../../../../web/src/services/configuration/resolveEndpointUrl/index.ts';
-import { WebService } from '../../../../web/src/services/configuration/services/constants.ts';
-import type { ApiService } from '../../../../web/src/services/configuration/services/types.ts';
+import { WebService } from '../../../../web/src/services/configuration/schema/constants.ts';
+import type { ApiService } from '../../../../web/src/services/configuration/schema/types.ts';
 import { handler as households } from '../../../src/handlers/households/index.ts';
 import { handler as listHouseholds } from '../../../src/handlers/listHouseholds/index.ts';
 import { handler as me } from '../../../src/handlers/me/index.ts';
@@ -29,7 +28,7 @@ const DEFINITIONS: RouteDefinition[] = [
 export const buildRoutes = (api: ApiService): ReadonlyMap<string, RouteEntry> =>
   new Map(
     DEFINITIONS.map(({ method, service, jwt, handler }): [string, RouteEntry] => [
-      `${method} ${resolveEndpointUrl(api, service)}`,
+      `${method} ${api.endpoints[service]}`,
       { jwt, handler },
     ]),
   );

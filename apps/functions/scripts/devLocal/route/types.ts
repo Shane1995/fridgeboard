@@ -1,4 +1,4 @@
-import type { WebService } from '../../../../web/src/services/configuration/services/constants.ts';
+import type { WebService } from '../../../../web/src/services/configuration/schema/constants.ts';
 import type {
   APIGatewayProxyEventV2WithJWTAuthorizer,
   APIGatewayProxyStructuredResultV2,

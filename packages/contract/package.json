@@ -10,9 +10,7 @@
     "./households": "./src/households/types.ts",
     "./households/constants": "./src/households/constants.ts",
     "./onboarding": "./src/onboarding/types.ts",
-    "./username": "./src/username/types.ts",
-    "./username/constants": "./src/username/constants.ts",
-    "./username/isValidUsername": "./src/username/isValidUsername/index.ts"
+    "./username": "./src/username/types.ts"
   },
   "scripts": {
     "typecheck": "tsc -b",

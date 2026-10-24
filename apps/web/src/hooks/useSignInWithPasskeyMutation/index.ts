@@ -1,4 +1,4 @@
-import { MutationName } from '../../services/configuration/mutations/constants';
+import { MutationName } from '../../services/configuration/schema/constants';
 import { startAuthentication } from '@simplewebauthn/browser';
 import { UNKNOWN_REASON } from '../../services/session/constants';
 import { useMutation } from '../useMutation';

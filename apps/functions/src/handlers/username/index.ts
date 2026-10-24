@@ -1,11 +1,11 @@
 import { DynamoDBClient, TransactionCanceledException } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
-import { isValidUsername } from '@fridgeboard/contract/username/isValidUsername';
 import type {
   APIGatewayProxyEventV2WithJWTAuthorizer,
   APIGatewayProxyStructuredResultV2,
 } from 'aws-lambda';
 import { getConfiguration } from '../../configuration/index.ts';
+import { isValidUsername } from '../../utils/isValidUsername/index.ts';
 import { jsonResponse } from '../../utils/jsonResponse/index.ts';
 import { profileKey } from '../../utils/keys/profileKey/index.ts';
 import { usernameKey } from '../../utils/keys/usernameKey/index.ts';

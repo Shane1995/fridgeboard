@@ -1,4 +1,4 @@
-import { WebFeatureFlag } from '../../services/configuration/flags/constants';
+import { WebFeatureFlag } from '../../services/configuration/schema/constants';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { CONFIGURATION_ERROR_COPY } from '../../components/ConfigurationError/constants';

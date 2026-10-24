@@ -1,5 +1,5 @@
 import type { IOnboardingResponse } from '@fridgeboard/contract/onboarding';
-import { WebService } from '../../services/configuration/services/constants';
+import { WebService } from '../../services/configuration/schema/constants';
 import { useApiQuery } from '../useApiQuery';
 import type { QueryResult } from '../useQuery/types';
 import { ONBOARDING_QUERY_KEY } from './constants';
