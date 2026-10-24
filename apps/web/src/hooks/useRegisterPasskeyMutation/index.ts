@@ -3,6 +3,7 @@ import { WebService } from '../../services/configuration/schema/constants';
 import { startRegistration } from '@simplewebauthn/browser';
 import { completePasskeyRegistration } from '../../services/api/completePasskeyRegistration';
 import { startPasskeyRegistration } from '../../services/api/startPasskeyRegistration';
+import { FailureReason } from '../../services/session/constants';
 import { resolveEndpoint } from '../../services/configuration/resolveEndpoint';
 import { mergedEntry } from '../../utils/mergedEntry';
 import { useMutation } from '../useMutation';
@@ -29,7 +30,7 @@ export const useRegisterPasskeyMutation = (): MutationResult<RegisterPasskeyResu
         () => undefined,
       );
       if (!credential) {
-        return { ok: false, reason: 'cancelled' };
+        return { ok: false, reason: FailureReason.Cancelled };
       }
 
       return completePasskeyRegistration(

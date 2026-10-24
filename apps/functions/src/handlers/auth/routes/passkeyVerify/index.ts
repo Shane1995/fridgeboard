@@ -15,13 +15,13 @@ import { openFlow } from '../../utils/flowToken/openFlow/index.ts';
 import { readBodyObject } from '../../utils/readBodyObject/index.ts';
 import { secretHash } from '../../utils/secretHash/index.ts';
 import { sessionResponse } from '../../utils/sessionResponse/index.ts';
-import { PASSKEY_FLOW } from './constants.ts';
+import { AuthFlowKind } from '../../utils/flowToken/constants.ts';
 
 const cognito = new CognitoIdentityProviderClient({});
 
 export const passkeyVerify: Route = async (request, { clientId, clientSecret, flowKey }) => {
   const flow = openFlow(readCookie(request.cookies, FLOW_COOKIE) ?? '', flowKey, Date.now());
-  if (flow?.kind !== PASSKEY_FLOW) {
+  if (flow?.kind !== AuthFlowKind.Passkey) {
     return jsonResponse(400, { reason: 'expired' }, [clearCookie(FLOW_COOKIE)]);
   }
 

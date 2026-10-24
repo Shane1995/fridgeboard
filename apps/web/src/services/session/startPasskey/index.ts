@@ -1,7 +1,7 @@
 import type { Endpoint } from '../../configuration/types';
 import type { IStartRequest } from '@fridgeboard/contract/auth';
 import { request } from '../../api/request';
-import { POST } from '../constants';
+import { FailureReason, POST } from '../constants';
 import type { PasskeyStartResult } from '../types';
 import { isRequestOptions } from '../utils/isRequestOptions';
 import { readFailureReason } from '../utils/readFailureReason';
@@ -21,5 +21,7 @@ export const startPasskey = async (
     typeof payload === 'object' && payload !== null && 'options' in payload
       ? payload.options
       : undefined;
-  return isRequestOptions(options) ? { ok: true, options } : { ok: false, fallback: true };
+  return isRequestOptions(options)
+    ? { ok: true, options }
+    : { ok: false, reason: FailureReason.Fallback };
 };

@@ -3,8 +3,13 @@ import { readCookie } from '../cookies/readCookie/index.ts';
 import { openFlow } from '../flowToken/openFlow/index.ts';
 import type { AuthFlow } from '../flowToken/types.ts';
 import { flowResponse } from './index.ts';
+import { AuthFlowKind } from '../../utils/flowToken/constants.ts';
 
-const FLOW: AuthFlow = { email: 'jess@example.com', session: 'session-1', kind: 'sign-in' };
+const FLOW: AuthFlow = {
+  email: 'jess@example.com',
+  session: 'session-1',
+  kind: AuthFlowKind.SignIn,
+};
 
 describe('flowResponse', () => {
   it('returns 204 with a sealed flow cookie', () => {

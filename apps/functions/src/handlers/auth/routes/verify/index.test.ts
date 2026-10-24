@@ -17,6 +17,7 @@ import type { AuthFlow } from '../../utils/flowToken/types.ts';
 import { DEFAULT_LAMBDA_CONFIGURATION } from '../../../../configuration/lambdaConfigurationSchema/constants.ts';
 import { getConfiguration } from '../../../../configuration/index.ts';
 import { verify } from './index.ts';
+import { AuthFlowKind } from '../../utils/flowToken/constants.ts';
 
 vi.mock('../../../../configuration/index.ts', () => ({ getConfiguration: vi.fn() }));
 
@@ -29,8 +30,8 @@ const SECRETS = {
   flowKey: 'flow-key',
 };
 const SECRET_HASH = 'n0vvPRSy+pkUqGp/4Nml7yskNIP+ZFAOLepv183K42g=';
-const SIGN_UP: AuthFlow = { email: 'jess@example.com', session: 's1', kind: 'sign-up' };
-const SIGN_IN: AuthFlow = { email: 'jess@example.com', session: 's2', kind: 'sign-in' };
+const SIGN_UP: AuthFlow = { email: 'jess@example.com', session: 's1', kind: AuthFlowKind.SignUp };
+const SIGN_IN: AuthFlow = { email: 'jess@example.com', session: 's2', kind: AuthFlowKind.SignIn };
 const TOKENS = { AccessToken: 'access-1', ExpiresIn: 900, RefreshToken: 'refresh-1' };
 const REFRESH_COOKIE =
   'fb_rt=refresh-1; Secure; HttpOnly; SameSite=Strict; Path=/api/v1/auth; Max-Age=315360000';
@@ -50,7 +51,11 @@ describe('verify route', () => {
   });
 
   it('refuses a passkey flow cookie on the email-code route', async () => {
-    const passkey: AuthFlow = { email: 'jess@example.com', session: 's9', kind: 'passkey' };
+    const passkey: AuthFlow = {
+      email: 'jess@example.com',
+      session: 's9',
+      kind: AuthFlowKind.Passkey,
+    };
 
     const result = await verify(buildRequest(passkey), SECRETS);
 
@@ -184,7 +189,7 @@ describe('verify route', () => {
     );
     expect(
       openFlow(readCookie(result.cookies, 'fb_auth_flow') ?? '', SECRETS.flowKey, Date.now()),
-    ).toEqual({ email: 'jess@example.com', session: 's4', kind: 'sign-in' });
+    ).toEqual({ email: 'jess@example.com', session: 's4', kind: AuthFlowKind.SignIn });
   });
 
   it.each([

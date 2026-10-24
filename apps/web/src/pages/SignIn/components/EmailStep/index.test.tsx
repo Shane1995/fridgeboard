@@ -1,6 +1,7 @@
 import { WebFeatureFlag } from '../../../../services/configuration/schema/constants';
 import { browserSupportsWebAuthn, startAuthentication } from '@simplewebauthn/browser';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { FailureReason } from '../../../../services/session/constants';
 import { SIGN_IN_COPY } from '../../constants';
 import { EmailStep } from './index';
 import { createSession } from '../../../../testUtils/createSession';
@@ -130,12 +131,14 @@ describe('EmailStep', () => {
     });
 
     it('says when no passkey exists for the email', async () => {
-      startPasskeySignIn.mockResolvedValue({ ok: false, fallback: true });
+      startPasskeySignIn.mockResolvedValue({ ok: false, reason: FailureReason.Fallback });
       renderStep('jess@example.com', PASSKEYS_ON);
 
       fireEvent.click(passkeyButton());
 
-      expect(await screen.findByText(SIGN_IN_COPY.passkey.noPasskey)).toBeInTheDocument();
+      expect(
+        await screen.findByText(SIGN_IN_COPY.reasons[FailureReason.Fallback]),
+      ).toBeInTheDocument();
       expect(window.localStorage.getItem('fb:passkey-email')).toBeNull();
     });
 
@@ -145,7 +148,9 @@ describe('EmailStep', () => {
 
       fireEvent.click(passkeyButton());
 
-      expect(await screen.findByText(SIGN_IN_COPY.passkey.cancelled)).toBeInTheDocument();
+      expect(
+        await screen.findByText(SIGN_IN_COPY.reasons[FailureReason.Cancelled]),
+      ).toBeInTheDocument();
     });
 
     it('shows the generic message when the request throws', async () => {

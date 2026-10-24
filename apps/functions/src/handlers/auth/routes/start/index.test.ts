@@ -15,6 +15,7 @@ import { readCookie } from '../../utils/cookies/readCookie/index.ts';
 import { DEFAULT_LAMBDA_CONFIGURATION } from '../../../../configuration/lambdaConfigurationSchema/constants.ts';
 import { getConfiguration } from '../../../../configuration/index.ts';
 import { start } from './index.ts';
+import { AuthFlowKind } from '../../utils/flowToken/constants.ts';
 
 vi.mock('../../../../configuration/index.ts', () => ({ getConfiguration: vi.fn() }));
 
@@ -68,7 +69,7 @@ describe('start route', () => {
     expect(flowFrom(result.cookies)).toEqual({
       email: 'jess@example.com',
       session: 's1',
-      kind: 'sign-up',
+      kind: AuthFlowKind.SignUp,
     });
   });
 
@@ -143,7 +144,7 @@ describe('start route', () => {
     expect(flowFrom(result.cookies)).toEqual({
       email: 'jess@example.com',
       session: '',
-      kind: 'sign-up',
+      kind: AuthFlowKind.SignUp,
     });
   });
 
@@ -151,7 +152,7 @@ describe('start route', () => {
     cognitoMock.on(AdminGetUserCommand).resolves({ Username: 'u', UserStatus: 'UNCONFIRMED' });
     cognitoMock.on(ResendConfirmationCodeCommand).resolves({});
     const previous = sealFlow(
-      { email: 'jess@example.com', session: 's1', kind: 'sign-up' },
+      { email: 'jess@example.com', session: 's1', kind: AuthFlowKind.SignUp },
       SECRETS.flowKey,
       Date.now(),
       180_000,
@@ -163,7 +164,7 @@ describe('start route', () => {
     expect(flowFrom(result.cookies)).toEqual({
       email: 'jess@example.com',
       session: 's1',
-      kind: 'sign-up',
+      kind: AuthFlowKind.SignUp,
     });
   });
 
@@ -171,7 +172,7 @@ describe('start route', () => {
     cognitoMock.on(AdminGetUserCommand).resolves({ Username: 'u', UserStatus: 'UNCONFIRMED' });
     cognitoMock.on(ResendConfirmationCodeCommand).resolves({});
     const previous = sealFlow(
-      { email: 'eve@example.com', session: 's1', kind: 'sign-up' },
+      { email: 'eve@example.com', session: 's1', kind: AuthFlowKind.SignUp },
       SECRETS.flowKey,
       Date.now(),
       180_000,
@@ -206,7 +207,7 @@ describe('start route', () => {
     expect(flowFrom(result.cookies)).toEqual({
       email: 'jess@example.com',
       session: 's2',
-      kind: 'sign-in',
+      kind: AuthFlowKind.SignIn,
     });
   });
 

@@ -6,6 +6,7 @@ import { SessionStatus } from '../../services/session/constants';
 import { createSession } from '../../testUtils/createSession';
 import { createSessionWrapper } from '../../testUtils/createSessionWrapper';
 import { useSignInWithPasskeyMutation } from './index';
+import { FailureReason } from '../../services/session/constants';
 
 vi.mock('@simplewebauthn/browser', () => ({ startAuthentication: vi.fn() }));
 
@@ -49,9 +50,9 @@ describe('useSignInWithPasskeyMutation', () => {
   });
 
   it('falls back to the email code when the server has no passkey for the account', async () => {
-    startPasskeySignIn.mockResolvedValue({ ok: false, fallback: true });
+    startPasskeySignIn.mockResolvedValue({ ok: false, reason: FailureReason.Fallback });
 
-    await expect(signIn()).resolves.toEqual({ ok: false, reason: 'fallback' });
+    await expect(signIn()).resolves.toEqual({ ok: false, reason: FailureReason.Fallback });
     expect(startAuthentication).not.toHaveBeenCalled();
   });
 

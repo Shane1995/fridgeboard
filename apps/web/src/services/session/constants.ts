@@ -6,6 +6,22 @@ export enum SessionStatus {
   SignedOut = 'signed-out',
 }
 
+// Why a sign-in step failed. Most values arrive from the server as the reason of an error
+// response; `unknown`, `cancelled` and `fallback` are decided in the browser.
+export enum FailureReason {
+  NoInvite = 'no-invite',
+  VerifyEmail = 'verify-email',
+  BadCode = 'bad-code',
+  Expired = 'expired',
+  Forbidden = 'forbidden',
+  Unauthorised = 'unauthorised',
+  RecentCodeRequired = 'recent-code-required',
+  PasskeyFailed = 'passkey-failed',
+  Unknown = 'unknown',
+  Cancelled = 'cancelled',
+  Fallback = 'fallback',
+}
+
 export enum RefreshResultKind {
   Tokens = 'tokens',
   Rejected = 'rejected',
@@ -19,7 +35,6 @@ export const POST = 'POST';
 
 export const NEXT_STEP_STATUS = 202;
 export const NEXT_ENTER_CODE: IVerifyNextResponse['next'] = 'enter-code';
-export const UNKNOWN_REASON = 'unknown';
 
 export const VISIBILITY_EVENT = 'visibilitychange';
 export const VISIBLE = 'visible';

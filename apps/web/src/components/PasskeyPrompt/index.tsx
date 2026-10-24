@@ -7,6 +7,7 @@ import { useMeQuery } from '../../hooks/useMeQuery';
 import { usePasskeyDevice } from '../../hooks/usePasskeyDevice';
 import { useRegisterPasskeyMutation } from '../../hooks/useRegisterPasskeyMutation';
 import { useSessionContext } from '../../hooks/useSessionContext';
+import { FailureReason } from '../../services/session/constants';
 import { SIGN_IN_COPY } from '../../pages/SignIn/constants';
 import { CONFIRMATION_MS, PASSKEY_PROMPT_COPY as COPY } from './constants';
 
@@ -43,7 +44,7 @@ export const PasskeyPrompt = () => {
           }
           setDone(true);
           setTimeout(() => setHidden(true), CONFIRMATION_MS);
-        } else if (result.reason === 'cancelled') {
+        } else if (result.reason === FailureReason.Cancelled) {
           setMessage(COPY.cancelled);
         } else {
           setMessage(SIGN_IN_COPY.reasons[result.reason]);

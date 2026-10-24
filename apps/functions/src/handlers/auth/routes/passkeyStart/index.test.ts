@@ -11,6 +11,7 @@ import { getConfiguration } from '../../../../configuration/index.ts';
 import { readCookie } from '../../utils/cookies/readCookie/index.ts';
 import { openFlow } from '../../utils/flowToken/openFlow/index.ts';
 import { passkeyStart } from './index.ts';
+import { AuthFlowKind } from '../../utils/flowToken/constants.ts';
 
 vi.mock('../../../../configuration/index.ts', () => ({ getConfiguration: vi.fn() }));
 
@@ -80,7 +81,11 @@ describe('passkeyStart route', () => {
     expect(result.statusCode).toBe(200);
     expect(JSON.parse(result.body ?? '')).toEqual({ options: OPTIONS });
     const flow = openFlow(readCookie(result.cookies, 'fb_auth_flow') ?? '', 'flow-key', Date.now());
-    expect(flow).toEqual({ email: 'jess@example.com', session: 'session-1', kind: 'passkey' });
+    expect(flow).toEqual({
+      email: 'jess@example.com',
+      session: 'session-1',
+      kind: AuthFlowKind.Passkey,
+    });
   });
 
   const FALLBACKS: [string, InitiateAuthCommandOutput][] = [

@@ -3,6 +3,7 @@ import { startAuthentication } from '@simplewebauthn/browser';
 import { SessionStatus } from '../../../../services/session/constants';
 import { createSession } from '../../../../testUtils/createSession';
 import { TestProviders } from '../../../../testUtils/TestProviders';
+import { FailureReason } from '../../../../services/session/constants';
 import { SIGN_IN_COPY } from '../../constants';
 import { PasskeyStep } from '.';
 
@@ -54,7 +55,7 @@ describe('PasskeyStep', () => {
   });
 
   it('switches to the email code when the server has no passkey', async () => {
-    startPasskeySignIn.mockResolvedValue({ ok: false, fallback: true });
+    startPasskeySignIn.mockResolvedValue({ ok: false, reason: FailureReason.Fallback });
     renderStep();
 
     tap();
@@ -68,12 +69,14 @@ describe('PasskeyStep', () => {
 
     tap();
 
-    expect(await screen.findByText(COPY.cancelled)).toBeInTheDocument();
+    expect(
+      await screen.findByText(SIGN_IN_COPY.reasons[FailureReason.Cancelled]),
+    ).toBeInTheDocument();
     expect(onFallback).not.toHaveBeenCalled();
   });
 
   it('shows the failure reason when verification fails', async () => {
-    verifyPasskey.mockResolvedValue({ ok: false, reason: 'passkey-failed' });
+    verifyPasskey.mockResolvedValue({ ok: false, reason: FailureReason.PasskeyFailed });
     renderStep();
 
     tap();

@@ -7,7 +7,6 @@ import { usePasskeyDevice } from '../../../../hooks/usePasskeyDevice';
 import { useSignInWithPasskeyMutation } from '../../../../hooks/useSignInWithPasskeyMutation';
 import { useStartSignInMutation } from '../../../../hooks/useStartSignInMutation';
 import { EMAIL_MARKER, SIGN_IN_COPY } from '../../constants';
-import { passkeyFailureMessage } from '../../utils/passkeyFailureMessage';
 import type { EmailStepProps } from './types';
 
 export const EmailStep = ({ initialEmail, onCodeSent }: EmailStepProps) => {
@@ -39,9 +38,7 @@ export const EmailStep = ({ initialEmail, onCodeSent }: EmailStepProps) => {
     }
     signInWithPasskey.mutate(trimmed, {
       onSuccess: (result) =>
-        result.ok
-          ? device.remember(trimmed)
-          : setErrorMessage(passkeyFailureMessage(result.reason)),
+        result.ok ? device.remember(trimmed) : setErrorMessage(SIGN_IN_COPY.reasons[result.reason]),
       onError: () => setErrorMessage(SIGN_IN_COPY.reasons.unknown),
     });
   };

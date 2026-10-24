@@ -23,6 +23,7 @@ import { jsonResponse } from '../../../../utils/jsonResponse/index.ts';
 import { readBodyField } from '../../utils/readBodyField/index.ts';
 import { secretHash } from '../../utils/secretHash/index.ts';
 import { sessionResponse } from '../../utils/sessionResponse/index.ts';
+import { AuthFlowKind } from '../../utils/flowToken/constants.ts';
 
 const cognito = new CognitoIdentityProviderClient({});
 
@@ -31,7 +32,7 @@ export const verify: Route = async (request, { clientId, clientSecret, flowKey }
   const badCode = jsonResponse(400, { reason: 'bad-code' });
 
   const flow = openFlow(readCookie(request.cookies, FLOW_COOKIE) ?? '', flowKey, Date.now());
-  if (!flow || flow.kind === 'passkey') {
+  if (!flow || flow.kind === AuthFlowKind.Passkey) {
     return expired;
   }
 
@@ -44,7 +45,7 @@ export const verify: Route = async (request, { clientId, clientSecret, flowKey }
   const SecretHash = secretHash(Username, clientId, clientSecret);
 
   try {
-    if (kind === 'sign-up') {
+    if (kind === AuthFlowKind.SignUp) {
       const { Session: confirmedSession } = await cognito.send(
         new ConfirmSignUpCommand({
           ClientId: clientId,
@@ -63,7 +64,7 @@ export const verify: Route = async (request, { clientId, clientSecret, flowKey }
         });
         const { flowTtlMs } = (await getConfiguration()).settings;
         const next = sealFlow(
-          { email: Username, session: signInSession, kind: 'sign-in' },
+          { email: Username, session: signInSession, kind: AuthFlowKind.SignIn },
           flowKey,
           Date.now(),
           flowTtlMs,

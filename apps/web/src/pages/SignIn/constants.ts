@@ -1,4 +1,4 @@
-import type { FailureReason } from '../../services/session/types';
+import { FailureReason } from '../../services/session/constants';
 
 export const SIGN_IN_COPY = {
   logo: 'Fridgeboard',
@@ -23,21 +23,23 @@ export const SIGN_IN_COPY = {
     submit: 'Sign in with a passkey',
     signingIn: 'Checking…',
     useCode: 'Use an email code instead',
-    cancelled: 'Passkey sign-in was cancelled. Try again or use an email code.',
-    noPasskey: 'No passkey found for this email. Use "Email me a code" instead.',
     emailRequired: 'Enter your email first.',
   },
   reasons: {
-    'no-invite': 'No invite found for this email. Ask whoever invited you to send one.',
-    'verify-email':
+    [FailureReason.NoInvite]:
+      'No invite found for this email. Ask whoever invited you to send one.',
+    [FailureReason.VerifyEmail]:
       'Open the email from Amazon Web Services and tap its link first, then try again.',
-    'bad-code': "That code isn't right. Check the email and try again.",
-    expired: 'That code has expired.',
-    forbidden: "This account can't use Fridgeboard.",
-    unauthorised: 'Please sign in again.',
-    'recent-code-required': 'For safety, sign in with an email code first, then try again.',
-    'passkey-failed': "That passkey didn't work. Use an email code instead.",
-    unknown: 'Something went wrong. Please try again.',
+    [FailureReason.BadCode]: "That code isn't right. Check the email and try again.",
+    [FailureReason.Expired]: 'That code has expired.',
+    [FailureReason.Forbidden]: "This account can't use Fridgeboard.",
+    [FailureReason.Unauthorised]: 'Please sign in again.',
+    [FailureReason.RecentCodeRequired]:
+      'For safety, sign in with an email code first, then try again.',
+    [FailureReason.PasskeyFailed]: "That passkey didn't work. Use an email code instead.",
+    [FailureReason.Unknown]: 'Something went wrong. Please try again.',
+    [FailureReason.Cancelled]: 'Passkey sign-in was cancelled. Try again or use an email code.',
+    [FailureReason.Fallback]: 'No passkey found for this email. Use "Email me a code" instead.',
   } satisfies Record<FailureReason, string>,
 } as const;
 

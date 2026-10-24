@@ -9,6 +9,7 @@ import { mockClient } from 'aws-sdk-client-mock';
 import { sealFlow } from '../../utils/flowToken/sealFlow/index.ts';
 import type { AuthFlow } from '../../utils/flowToken/types.ts';
 import { passkeyVerify } from './index.ts';
+import { AuthFlowKind } from '../../utils/flowToken/constants.ts';
 
 const cognitoMock = mockClient(CognitoIdentityProviderClient);
 
@@ -19,7 +20,7 @@ const SECRETS = {
   flowKey: 'flow-key',
 };
 const SECRET_HASH = 'n0vvPRSy+pkUqGp/4Nml7yskNIP+ZFAOLepv183K42g=';
-const PASSKEY: AuthFlow = { email: 'jess@example.com', session: 's1', kind: 'passkey' };
+const PASSKEY: AuthFlow = { email: 'jess@example.com', session: 's1', kind: AuthFlowKind.Passkey };
 const TOKENS = { AccessToken: 'access-1', ExpiresIn: 900, RefreshToken: 'refresh-1' };
 const CREDENTIAL = { id: 'cred-1', type: 'public-key', response: { signature: 'sig' } };
 const CLEARED_FLOW_COOKIE =
@@ -36,8 +37,8 @@ describe('passkeyVerify route', () => {
 
   it.each([
     ['no flow cookie', undefined],
-    ['an email-code sign-in flow', { ...PASSKEY, kind: 'sign-in' as const }],
-    ['a sign-up flow', { ...PASSKEY, kind: 'sign-up' as const }],
+    ['an email-code sign-in flow', { ...PASSKEY, kind: AuthFlowKind.SignIn as const }],
+    ['a sign-up flow', { ...PASSKEY, kind: AuthFlowKind.SignUp as const }],
   ])('rejects %s as expired and never calls Cognito', async (_label, flow) => {
     const result = await passkeyVerify(buildRequest(flow), SECRETS);
 

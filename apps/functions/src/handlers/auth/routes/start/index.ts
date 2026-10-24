@@ -20,6 +20,7 @@ import { jsonResponse } from '../../../../utils/jsonResponse/index.ts';
 import { readBodyField } from '../../utils/readBodyField/index.ts';
 import { secretHash } from '../../utils/secretHash/index.ts';
 import { EMAIL_ATTRIBUTE, EMAIL_MARKER, UNCONFIRMED_STATUS, USER_NOT_FOUND } from './constants.ts';
+import { AuthFlowKind } from '../../utils/flowToken/constants.ts';
 
 const cognito = new CognitoIdentityProviderClient({});
 const ses = new SESv2Client({});
@@ -79,7 +80,7 @@ export const start: Route = async (request, { userPoolId, clientId, clientSecret
       return jsonResponse(403, { reason: 'no-invite' });
     }
     return flowResponse(
-      { email, session: signUp.Session ?? '', kind: 'sign-up' },
+      { email, session: signUp.Session ?? '', kind: AuthFlowKind.SignUp },
       flowKey,
       flowTtlMs,
     );
@@ -91,10 +92,10 @@ export const start: Route = async (request, { userPoolId, clientId, clientSecret
     );
     const previous = openFlow(readCookie(request.cookies, FLOW_COOKIE) ?? '', flowKey, Date.now());
     const session =
-      previous?.email === email && previous.kind === 'sign-up' ? previous.session : '';
-    return flowResponse({ email, session, kind: 'sign-up' }, flowKey, flowTtlMs);
+      previous?.email === email && previous.kind === AuthFlowKind.SignUp ? previous.session : '';
+    return flowResponse({ email, session, kind: AuthFlowKind.SignUp }, flowKey, flowTtlMs);
   }
 
   const session = await emailOtpSignIn({ clientId, username: email, secretHash: SecretHash });
-  return flowResponse({ email, session, kind: 'sign-in' }, flowKey, flowTtlMs);
+  return flowResponse({ email, session, kind: AuthFlowKind.SignIn }, flowKey, flowTtlMs);
 };

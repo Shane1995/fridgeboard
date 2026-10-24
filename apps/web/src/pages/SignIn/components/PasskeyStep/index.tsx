@@ -1,8 +1,8 @@
 import { Alert, Button } from '@heroui/react';
 import { useState } from 'react';
 import { useSignInWithPasskeyMutation } from '../../../../hooks/useSignInWithPasskeyMutation';
+import { FailureReason } from '../../../../services/session/constants';
 import { SIGN_IN_COPY } from '../../constants';
-import { passkeyFailureMessage } from '../../utils/passkeyFailureMessage';
 import type { PasskeyStepProps } from './types';
 
 const COPY = SIGN_IN_COPY.passkey;
@@ -18,10 +18,10 @@ export const PasskeyStep = ({ email, onFallback }: PasskeyStepProps) => {
         if (result.ok) {
           return;
         }
-        if (result.reason === 'fallback') {
+        if (result.reason === FailureReason.Fallback) {
           onFallback();
         } else {
-          setErrorMessage(passkeyFailureMessage(result.reason));
+          setErrorMessage(SIGN_IN_COPY.reasons[result.reason]);
         }
       },
       onError: () => setErrorMessage(SIGN_IN_COPY.reasons.unknown),

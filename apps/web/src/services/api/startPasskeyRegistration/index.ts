@@ -1,5 +1,5 @@
 import type { Endpoint } from '../../configuration/types';
-import { POST, UNKNOWN_REASON } from '../../session/constants';
+import { FailureReason, POST } from '../../session/constants';
 import { isCreationOptions } from '../../session/utils/isCreationOptions';
 import { readFailureReason } from '../../session/utils/readFailureReason';
 import type { StartPasskeyRegistrationResult } from './types';
@@ -18,5 +18,7 @@ export const startPasskeyRegistration = async (
     typeof payload === 'object' && payload !== null && 'options' in payload
       ? payload.options
       : undefined;
-  return isCreationOptions(options) ? { ok: true, options } : { ok: false, reason: UNKNOWN_REASON };
+  return isCreationOptions(options)
+    ? { ok: true, options }
+    : { ok: false, reason: FailureReason.Unknown };
 };

@@ -1,6 +1,6 @@
 import { MutationName } from '../../services/configuration/schema/constants';
 import { startAuthentication } from '@simplewebauthn/browser';
-import { UNKNOWN_REASON } from '../../services/session/constants';
+import { FailureReason } from '../../services/session/constants';
 import { useMutation } from '../useMutation';
 import type { MutationResult } from '../useMutation/types';
 import { useSessionContext } from '../useSessionContext';
@@ -12,21 +12,21 @@ export const useSignInWithPasskeyMutation = (): MutationResult<PasskeySignInResu
     mutationFn: async (email: string): Promise<PasskeySignInResult> => {
       const started = await startPasskeySignIn(email);
       if (!started.ok) {
-        return 'fallback' in started ? { ok: false, reason: 'fallback' } : started;
+        return started;
       }
 
       const credential = await startAuthentication({ optionsJSON: started.options }).catch(
         () => undefined,
       );
       if (!credential) {
-        return { ok: false, reason: 'cancelled' };
+        return { ok: false, reason: FailureReason.Cancelled };
       }
 
       const verified = await verifyPasskey(credential);
       if (verified.ok) {
         return { ok: true };
       }
-      return { ok: false, reason: 'reason' in verified ? verified.reason : UNKNOWN_REASON };
+      return { ok: false, reason: 'reason' in verified ? verified.reason : FailureReason.Unknown };
     },
     mutationKey: [MutationName.signInWithPasskey],
   });

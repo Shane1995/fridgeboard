@@ -1,5 +1,5 @@
 import type { PublicKeyCredentialCreationOptionsJSON } from '@simplewebauthn/browser';
-import type { FailureReason } from '../../session/types';
+import { FailureReason } from '../../session/constants';
 
 export type StartPasskeyRegistrationResult =
   | { ok: true; options: PublicKeyCredentialCreationOptionsJSON }

@@ -1,6 +1,6 @@
 import type { Endpoint } from '../../configuration/types';
 import type { IVerifyRequest } from '@fridgeboard/contract/auth';
-import { NEXT_STEP_STATUS, POST, UNKNOWN_REASON } from '../constants';
+import { NEXT_STEP_STATUS, POST, FailureReason } from '../constants';
 import type { VerifyResponse } from '../types';
 import { isTokenResponse } from '../utils/isTokenResponse';
 import { isVerifyNextResponse } from '../utils/isVerifyNextResponse';
@@ -20,11 +20,11 @@ export const verifyCode = async (endpoint: Endpoint, code: string): Promise<Veri
   if (response.status === NEXT_STEP_STATUS) {
     return isVerifyNextResponse(body)
       ? { ok: false, next: body.next }
-      : { ok: false, reason: UNKNOWN_REASON };
+      : { ok: false, reason: FailureReason.Unknown };
   }
 
   if (!isTokenResponse(body)) {
-    return { ok: false, reason: UNKNOWN_REASON };
+    return { ok: false, reason: FailureReason.Unknown };
   }
   return { ok: true, tokens: body };
 };
