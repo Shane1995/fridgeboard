@@ -1,6 +1,6 @@
 import { act, waitFor } from '@testing-library/react';
 import { UNSORTED_BUCKET_ID } from '../../services/shoppingList/constants';
-import { testRepository } from '../../testUtils/testRepository';
+import { fakeShoppingList } from '../../testUtils/fakeShoppingList';
 import { renderShoppingListMutation } from '../../testUtils/renderShoppingListMutation';
 import { useDeleteItemMutation } from './index';
 
@@ -8,7 +8,7 @@ describe('useDeleteItemMutation', () => {
   beforeEach(() => window.localStorage.clear());
 
   it('deletes an item and refreshes the items query', async () => {
-    const { id } = await testRepository.addItem({
+    const { id } = await fakeShoppingList.addItem({
       name: 'Milk',
       bucketId: UNSORTED_BUCKET_ID,
     });

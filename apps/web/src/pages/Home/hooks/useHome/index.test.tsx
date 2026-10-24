@@ -1,6 +1,6 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { BucketColor, UNSORTED_BUCKET_ID } from '../../../../services/shoppingList/constants';
-import { testRepository } from '../../../../testUtils/testRepository';
+import { fakeShoppingList } from '../../../../testUtils/fakeShoppingList';
 import { createShoppingListWrapper } from '../../../../testUtils/createShoppingListWrapper';
 import { useHome } from './index';
 
@@ -15,13 +15,13 @@ describe('useHome', () => {
   });
 
   it('groups items by bucket and offers General as a move target', async () => {
-    const bucket = await testRepository.createBucket({
+    const bucket = await fakeShoppingList.createBucket({
       name: 'Express',
       color: BucketColor.Mint,
     });
-    const milk = await testRepository.addItem({ name: 'Milk', bucketId: bucket.id });
-    const eggs = await testRepository.addItem({ name: 'Eggs', bucketId: bucket.id });
-    await testRepository.updateItem({ id: eggs.id, changes: { checked: true } });
+    const milk = await fakeShoppingList.addItem({ name: 'Milk', bucketId: bucket.id });
+    const eggs = await fakeShoppingList.addItem({ name: 'Eggs', bucketId: bucket.id });
+    await fakeShoppingList.updateItem({ id: eggs.id, changes: { checked: true } });
     const { result } = renderHook(() => useHome(), { wrapper: createShoppingListWrapper() });
 
     await waitFor(() => expect(result.current.hasItems).toBe(true));
@@ -31,8 +31,8 @@ describe('useHome', () => {
   });
 
   it('keeps General out of the reorderable buckets', async () => {
-    await testRepository.addItem({ name: 'Batteries', bucketId: UNSORTED_BUCKET_ID });
-    await testRepository.createBucket({ name: 'Express', color: BucketColor.Mint });
+    await fakeShoppingList.addItem({ name: 'Batteries', bucketId: UNSORTED_BUCKET_ID });
+    await fakeShoppingList.createBucket({ name: 'Express', color: BucketColor.Mint });
     const { result } = renderHook(() => useHome(), { wrapper: createShoppingListWrapper() });
 
     await waitFor(() => expect(result.current.unsorted?.items).toHaveLength(1));
@@ -40,22 +40,22 @@ describe('useHome', () => {
   });
 
   it('reorders the buckets when one is dropped on another', async () => {
-    const a = await testRepository.createBucket({ name: 'A', color: BucketColor.Mint });
-    const b = await testRepository.createBucket({ name: 'B', color: BucketColor.Sky });
+    const a = await fakeShoppingList.createBucket({ name: 'A', color: BucketColor.Mint });
+    const b = await fakeShoppingList.createBucket({ name: 'B', color: BucketColor.Sky });
     const { result } = renderHook(() => useHome(), { wrapper: createShoppingListWrapper() });
     await waitFor(() => expect(result.current.reorderable).toHaveLength(2));
 
     act(() => result.current.handleDragEnd({ active: { id: a.id }, over: { id: b.id } } as never));
 
     await waitFor(async () =>
-      expect((await testRepository.listBuckets()).map(({ name }) => name)).toEqual(['B', 'A']),
+      expect((await fakeShoppingList.listBuckets()).map(({ name }) => name)).toEqual(['B', 'A']),
     );
     expect(result.current.reorderable.map(({ bucket }) => bucket.name)).toEqual(['B', 'A']);
   });
 
   it('ignores a drop that goes nowhere', async () => {
-    const a = await testRepository.createBucket({ name: 'A', color: BucketColor.Mint });
-    await testRepository.createBucket({ name: 'B', color: BucketColor.Sky });
+    const a = await fakeShoppingList.createBucket({ name: 'A', color: BucketColor.Mint });
+    await fakeShoppingList.createBucket({ name: 'B', color: BucketColor.Sky });
     const { result } = renderHook(() => useHome(), { wrapper: createShoppingListWrapper() });
     await waitFor(() => expect(result.current.reorderable).toHaveLength(2));
 

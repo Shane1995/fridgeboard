@@ -1,6 +1,6 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { BucketColor } from '../../services/shoppingList/constants';
-import { testRepository } from '../../testUtils/testRepository';
+import { fakeShoppingList } from '../../testUtils/fakeShoppingList';
 import { createShoppingListWrapper } from '../../testUtils/createShoppingListWrapper';
 import { useBucketsQuery } from '../useBucketsQuery';
 import { useReorderBucketsMutation } from './index';
@@ -9,8 +9,8 @@ describe('useReorderBucketsMutation', () => {
   beforeEach(() => window.localStorage.clear());
 
   it('reorders the buckets and refreshes the buckets query', async () => {
-    const a = await testRepository.createBucket({ name: 'A', color: BucketColor.Mint });
-    const b = await testRepository.createBucket({ name: 'B', color: BucketColor.Sky });
+    const a = await fakeShoppingList.createBucket({ name: 'A', color: BucketColor.Mint });
+    const b = await fakeShoppingList.createBucket({ name: 'B', color: BucketColor.Sky });
     const { result } = renderHook(
       () => ({ reorder: useReorderBucketsMutation(), buckets: useBucketsQuery() }),
       { wrapper: createShoppingListWrapper() },

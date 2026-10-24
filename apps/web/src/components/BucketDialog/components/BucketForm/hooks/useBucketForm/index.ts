@@ -21,15 +21,18 @@ export const useBucketForm = (bucket: Bucket | undefined, onDone: () => void): B
       return;
     }
     if (bucket === undefined) {
-      create.mutate({ name: trimmed, color }, { onSuccess: onDone });
+      create.mutate({ name: trimmed, color }, { onSuccess: (result) => result.ok && onDone() });
     } else {
-      update.mutate({ id: bucket.id, changes: { name: trimmed, color } }, { onSuccess: onDone });
+      update.mutate(
+        { id: bucket.id, changes: { name: trimmed, color } },
+        { onSuccess: (result) => result.ok && onDone() },
+      );
     }
   };
 
   const handleDelete = () => {
     if (bucket !== undefined) {
-      remove.mutate(bucket.id, { onSuccess: onDone });
+      remove.mutate(bucket.id, { onSuccess: (result) => result.ok && onDone() });
     }
   };
 

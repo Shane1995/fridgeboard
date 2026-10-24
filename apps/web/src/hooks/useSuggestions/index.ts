@@ -1,22 +1,30 @@
+import type { IHistoryResponse } from '@fridgeboard/contract/lists';
 import { useMemo } from 'react';
+import { WebService } from '../../services/configuration/schema/constants';
 import type { HistoryEntry } from '../../services/shoppingList/types';
 import { suggestFrom } from '../../services/shoppingList/utils/suggestFrom';
-import { useQuery } from '../useQuery';
-import { requireRepository, useShoppingList } from '../useShoppingList';
+import { useApiQuery } from '../useApiQuery';
+import { useListParams } from '../useListParams';
 import { SUGGESTIONS_QUERY_KEY } from './constants';
 import type { UseSuggestionsOptions } from './types';
 
 export const useSuggestions = ({ query, onList }: UseSuggestionsOptions): HistoryEntry[] => {
-  const { householdId, repository } = useShoppingList();
-  const { data: history } = useQuery({
-    queryKey: [SUGGESTIONS_QUERY_KEY, householdId],
-    queryFn: () => requireRepository(repository).history(),
-    enabled: repository !== undefined && query.trim() !== '',
+  const { householdId, paramsFor } = useListParams();
+  const { data: history } = useApiQuery({
+    name: SUGGESTIONS_QUERY_KEY,
+    service: WebService.listHistory,
+    params: householdId === undefined ? {} : paramsFor(),
+    enabled: householdId !== undefined && query.trim() !== '',
+    select: ({ entries }: IHistoryResponse) => entries,
   });
   const names = onList.join('\n');
   return useMemo(
     () =>
-      suggestFrom({ history: history ?? [], query, onList: names === '' ? [] : names.split('\n') }),
+      suggestFrom({
+        history: history ?? [],
+        query,
+        onList: names === '' ? [] : names.split('\n'),
+      }),
     [history, query, names],
   );
 };

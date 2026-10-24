@@ -4,7 +4,7 @@ import { useMembersQuery } from './index';
 
 describe('useMembersQuery', () => {
   it('loads the members of the active household', async () => {
-    const { result } = renderHook(() => useMembersQuery(), {
+    const { result } = renderHook(() => useMembersQuery({ enabled: true }), {
       wrapper: createShoppingListWrapper(),
     });
 

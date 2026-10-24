@@ -1,6 +1,6 @@
 import type { IBucket, IListItem } from '@fridgeboard/contract/lists';
 import type { Endpoint } from '../../services/configuration/types';
-import { TEST_HOUSEHOLD_ID } from '../testRepository/constants';
+import { TEST_HOUSEHOLD_ID } from '../fakeShoppingList/constants';
 import type { FakeShoppingListState } from './types';
 
 const BASE = `/api/v1/households/${TEST_HOUSEHOLD_ID}/lists/main`;

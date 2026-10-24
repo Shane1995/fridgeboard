@@ -5,7 +5,7 @@ import { useActiveHousehold } from '../../hooks/useActiveHousehold';
 import { SessionStatus } from '../../services/session/constants';
 import { createSession } from '../createSession';
 import { fakeShoppingListApi } from '../fakeShoppingListApi';
-import { TEST_HOUSEHOLD_ID } from '../testRepository/constants';
+import { TEST_HOUSEHOLD_ID } from '../fakeShoppingList/constants';
 import { TestProviders } from '../TestProviders';
 
 export const answerHouseholds = (apiFetch: { mockImplementation: (fn: never) => unknown }) =>

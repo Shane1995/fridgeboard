@@ -4,7 +4,7 @@ import { useMemberName } from './index';
 
 describe('useMemberName', () => {
   it('finds the username of a member by id', async () => {
-    const { result } = renderHook(() => useMemberName({ id: 'sub-1' }), {
+    const { result } = renderHook(() => useMemberName({ id: 'sub-1', enabled: true }), {
       wrapper: createShoppingListWrapper(),
     });
 
@@ -12,8 +12,19 @@ describe('useMemberName', () => {
   });
 
   it('has no name for someone who is not a member', async () => {
-    const { result } = renderHook(() => useMemberName({ id: 'sub-9' }), {
+    const { result } = renderHook(() => useMemberName({ id: 'sub-9', enabled: true }), {
       wrapper: createShoppingListWrapper(),
+    });
+
+    await Promise.resolve();
+
+    expect(result.current).toBeUndefined();
+  });
+
+  it('does not ask for the members while it is not needed', async () => {
+    const wrapper = createShoppingListWrapper();
+    const { result } = renderHook(() => useMemberName({ id: 'sub-1', enabled: false }), {
+      wrapper,
     });
 
     await Promise.resolve();

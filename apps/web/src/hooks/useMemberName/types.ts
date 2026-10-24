@@ -1,1 +1,1 @@
-export type UseMemberNameOptions = { id: string | undefined };
+export type UseMemberNameOptions = { id: string | undefined; enabled: boolean };

@@ -8,7 +8,7 @@ import { ITEM_INFO_COPY } from './constants';
 type ItemInfoDialogProps = { item: ListItem; state: UseOverlayStateReturn };
 
 export const ItemInfoDialog = ({ item, state }: ItemInfoDialogProps) => {
-  const addedBy = useMemberName({ id: item.addedBy });
+  const addedBy = useMemberName({ id: item.addedBy, enabled: state.isOpen });
   return (
     <Modal state={state}>
       <Modal.Backdrop>

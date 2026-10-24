@@ -1,12 +1,25 @@
-import { MutationName } from '../../services/configuration/schema/constants';
-import type { Bucket } from '../../services/shoppingList/types';
-import { BUCKETS_QUERY_KEY } from '../useBucketsQuery/constants';
+import type { IBucketsResponse } from '@fridgeboard/contract/lists';
+import type { ApiResult } from '../../services/api/sendJson/types';
+import { MutationName, WebService } from '../../services/configuration/schema/constants';
+import { PUT } from '../../services/session/constants';
+import { useApiMutation } from '../useApiMutation';
+import { useListCache } from '../useListCache';
+import { useListParams } from '../useListParams';
 import type { MutationResult } from '../useMutation/types';
-import { useShoppingListMutation } from '../useShoppingListMutation';
 
-export const useReorderBucketsMutation = (): MutationResult<Bucket[], readonly string[]> =>
-  useShoppingListMutation({
+export const useReorderBucketsMutation = (): MutationResult<
+  ApiResult<IBucketsResponse, never>,
+  readonly string[]
+> => {
+  const { paramsFor } = useListParams();
+  const { updateBuckets } = useListCache();
+  return useApiMutation({
     name: MutationName.reorderBuckets,
-    write: ({ repository, variables }) => repository.reorderBuckets({ ids: variables }),
-    invalidates: [BUCKETS_QUERY_KEY],
+    service: WebService.listBucketsOrder,
+    method: PUT,
+    toBody: (ids: readonly string[]) => ({ ids }),
+    toParams: () => paramsFor(),
+    reasons: [],
+    onSuccess: ({ buckets }) => updateBuckets({ update: () => buckets }),
   });
+};
