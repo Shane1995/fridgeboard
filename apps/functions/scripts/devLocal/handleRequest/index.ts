@@ -5,6 +5,7 @@ import { jsonResponse } from '../../../src/utils/jsonResponse/index.ts';
 import { CONFIGURATION_FILE } from '../constants.ts';
 import { decodeToken } from '../decodeToken/index.ts';
 import { readBody } from '../readBody/index.ts';
+import { matchRoute } from '../matchRoute/index.ts';
 import { ROUTES } from '../route/index.ts';
 import { sendResult } from '../sendResult/index.ts';
 import { servedConfiguration } from '../servedConfiguration/index.ts';
@@ -19,15 +20,27 @@ const dispatch = async (
   if (routeKey === 'GET /configuration.json') {
     return servedConfiguration(readFileSync(CONFIGURATION_FILE, 'utf8'));
   }
-  const entry = ROUTES.get(routeKey);
-  if (!entry) {
+  const match = matchRoute(ROUTES, request.method ?? '', path);
+  if (!match) {
     return { statusCode: 404 };
   }
+  const { entry, pathParameters } = match;
   const claims = decodeToken(request.headers.authorization?.replace(/^Bearer /i, ''));
   if (entry.jwt && !claims) {
     return jsonResponse(401, { reason: 'unauthorised' });
   }
-  return entry.handler(toEvent({ request, body: await readBody(request), path }, claims));
+  return entry.handler(
+    toEvent(
+      {
+        request,
+        body: await readBody(request),
+        path,
+        routeKey: match.routeKey,
+        pathParameters,
+      },
+      claims,
+    ),
+  );
 };
 
 export const handleRequest = async (
