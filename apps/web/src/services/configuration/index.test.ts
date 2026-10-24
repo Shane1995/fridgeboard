@@ -26,6 +26,20 @@ describe('getConfiguration', () => {
     await expect(getConfiguration()).resolves.toEqual(TEST_WEB_CONFIGURATION);
   });
 
+  it('loads a configuration that has keys this build does not know', async () => {
+    respond({
+      ...TEST_WEB_CONFIGURATION,
+      brandNew: true,
+      services: {
+        api: {
+          endpoints: { ...TEST_WEB_CONFIGURATION.services.api.endpoints, brandNew: '/api/v1/new' },
+        },
+      },
+    });
+
+    await expect(getConfiguration()).resolves.toEqual(TEST_WEB_CONFIGURATION);
+  });
+
   it('throws on a non-ok response', async () => {
     respond({}, 503);
 
@@ -35,7 +49,6 @@ describe('getConfiguration', () => {
   it.each([
     ['the previous version', { ...TEST_WEB_CONFIGURATION, version: 1 }],
     ['a missing section', { ...TEST_WEB_CONFIGURATION, settings: undefined }],
-    ['an unknown key', { ...TEST_WEB_CONFIGURATION, extra: true }],
   ])('throws on %s', async (_name, body) => {
     respond(body);
 

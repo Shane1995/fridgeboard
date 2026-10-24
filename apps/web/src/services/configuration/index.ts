@@ -1,4 +1,4 @@
-import { WebConfigurationSchema } from './schema';
+import { LenientWebConfigurationSchema } from './schema';
 import type { WebConfiguration } from '../../hooks/useRemoteConfigContext/types';
 import {
   CONFIGURATION_LOAD_FAILED,
@@ -13,5 +13,5 @@ export const getConfiguration = async (): Promise<WebConfiguration> => {
   if (!response.ok) {
     throw new Error(CONFIGURATION_LOAD_FAILED, { cause: response.status });
   }
-  return WebConfigurationSchema.parse(await response.json());
+  return LenientWebConfigurationSchema.parse(await response.json());
 };

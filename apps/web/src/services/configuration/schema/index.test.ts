@@ -5,6 +5,7 @@ import {
   QueryEntrySchema,
   ApiServiceSchema,
   WebConfigurationSchema,
+  LenientWebConfigurationSchema,
   WebSettingsSchema,
 } from '.';
 import { WEB_FEATURE_FLAGS, WEB_SERVICES, WebFeatureFlag } from './constants';
@@ -376,6 +377,55 @@ describe('web configuration schema', () => {
       ['extra param', api({ params: { version: 'v1', other: 'x' } })],
     ])('rejects %s', (_name, input) => {
       expect(WebConfigurationSchema.safeParse(input).success).toBe(false);
+    });
+  });
+
+  describe('LenientWebConfigurationSchema', () => {
+    const newer = {
+      ...VALID,
+      extra: true,
+      featureFlags: { ...VALID.featureFlags, ENABLE_NEW_THING: true },
+      mutations: {
+        default: { ...VALID.mutations.default, burst: 3 },
+        brandNewMutation: { retry: 1 },
+      },
+      queries: { default: { ...VALID.queries.default, extra: 1 } },
+      services: {
+        api: {
+          endpoints: { ...ENDPOINTS, brandNew: '/api/v1/brand-new' },
+          endpointsConfig: { me: { timeoutMs: 2_000, extra: 1 }, brandNew: { timeoutMs: 3_000 } },
+          basePath: '/api',
+        },
+      },
+      settings: { ...VALID.settings, newSetting: 1 },
+    };
+
+    it('still accepts a configuration it fully understands', () => {
+      expect(LenientWebConfigurationSchema.parse(VALID)).toEqual(VALID);
+    });
+
+    it('ignores keys a newer build added, at every level', () => {
+      const parsed = LenientWebConfigurationSchema.parse(newer);
+
+      expect(parsed.featureFlags).toEqual(VALID.featureFlags);
+      expect(parsed.services.api.endpoints).toEqual(ENDPOINTS);
+      expect(parsed.services.api.endpointsConfig).toEqual({ me: { timeoutMs: 2_000 } });
+      expect(parsed.mutations).toEqual({ default: VALID.mutations.default });
+      expect(parsed.settings).toEqual(VALID.settings);
+      expect(parsed).not.toHaveProperty('extra');
+    });
+
+    it('is the strict schema that refuses the same document', () => {
+      expect(WebConfigurationSchema.safeParse(newer).success).toBe(false);
+    });
+
+    it.each([
+      ['a bad value', { ...VALID, settings: { ...VALID.settings, usernameMinLength: 99 } }],
+      ['another version', { ...VALID, version: 3 }],
+      ['a missing endpoint', api({ endpoints: { me: '/api/v1/me' } })],
+      ['a path outside /api', api({ endpoints: { ...ENDPOINTS, me: 'https://evil.example/me' } })],
+    ])('still rejects %s', (_name, input) => {
+      expect(LenientWebConfigurationSchema.safeParse(input).success).toBe(false);
     });
   });
 });
