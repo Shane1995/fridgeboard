@@ -14,7 +14,6 @@ type ShopSectionProps = { section: ShopSectionData; allShops: readonly Shop[] };
 export const ShopSection = ({ section: { shop, items }, allShops }: ShopSectionProps) => {
   const editDialog = useOverlayState();
   const isEditable = shop.id !== UNSORTED_SHOP_ID;
-  const moveTargets = allShops.filter(({ id }) => id !== shop.id);
 
   return (
     <section
@@ -48,7 +47,7 @@ export const ShopSection = ({ section: { shop, items }, allShops }: ShopSectionP
       ) : (
         <ul className="flex flex-col divide-y divide-foreground/5">
           {items.map((item) => (
-            <ItemRow key={item.id} item={item} moveTargets={moveTargets} />
+            <ItemRow key={item.id} item={item} shops={allShops} />
           ))}
         </ul>
       )}

@@ -1,10 +1,10 @@
 import { suggestFrom } from './index';
 
 const history = [
-  { name: 'Oat milk', shopId: 'a', count: 5 },
-  { name: 'Milk', shopId: 'a', count: 2 },
-  { name: 'Almond milk', shopId: 'b', count: 9 },
-  { name: 'Bread', shopId: 'a', count: 7 },
+  { name: 'Oat milk', shopIds: ['a'], count: 5 },
+  { name: 'Milk', shopIds: ['a'], count: 2 },
+  { name: 'Almond milk', shopIds: ['b'], count: 9 },
+  { name: 'Bread', shopIds: ['a'], count: 7 },
 ];
 
 describe('suggestFrom', () => {
@@ -29,7 +29,7 @@ describe('suggestFrom', () => {
   it('caps the number of suggestions', () => {
     const many = Array.from({ length: 12 }, (_, index) => ({
       name: `Milk ${index}`,
-      shopId: 'a',
+      shopIds: ['a'],
       count: index,
     }));
 

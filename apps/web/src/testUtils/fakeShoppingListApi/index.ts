@@ -31,15 +31,17 @@ const nextId = (prefix: string) => {
   return `${prefix}-${state.current.counter}`;
 };
 
-const remember = ({ name, shopId }: { name: string; shopId: string }) => {
+const remember = ({ name, shopIds }: { name: string; shopIds: string[] }) => {
   const known = state.current.history.find(
     (entry) => entry.name.toLowerCase() === name.toLowerCase(),
   );
   state.current.history =
     known === undefined
-      ? [...state.current.history, { name, shopId, count: 1 }]
+      ? [...state.current.history, { name, shopIds, shopId: shopIds[0] ?? UNSORTED, count: 1 }]
       : state.current.history.map((entry) =>
-          entry === known ? { name, shopId, count: entry.count + 1 } : entry,
+          entry === known
+            ? { name, shopIds, shopId: shopIds[0] ?? UNSORTED, count: entry.count + 1 }
+            : entry,
         );
 };
 
@@ -50,17 +52,18 @@ const handleItems = (method: string, init: RequestInit) => {
     return json(200, { items: state.current.items });
   }
   const body = readBody(init);
-  const shopId = typeof body.shopId === 'string' ? body.shopId : UNSORTED;
+  const shopIds = Array.isArray(body.shopIds) ? body.shopIds.map(String) : [];
   const item: IListItem = {
     id: nextId('item'),
     name: String(body.name),
-    shopId,
+    shopIds,
+    shopId: shopIds[0] ?? UNSORTED,
     checked: false,
     createdAt: state.current.counter,
     addedBy: SUB,
   };
   state.current.items = [...state.current.items, item];
-  remember(item);
+  remember({ name: item.name, shopIds });
   return json(201, item);
 };
 
@@ -73,7 +76,9 @@ const handleItem = (id: string, method: string, init: RequestInit) => {
     state.current.items = state.current.items.filter((item) => item.id !== id);
     return json(204);
   }
-  const updated = { ...current, ...readBody(init) };
+  const changes = readBody(init);
+  const shopIds = Array.isArray(changes.shopIds) ? changes.shopIds.map(String) : current.shopIds;
+  const updated = { ...current, ...changes, shopIds, shopId: shopIds[0] ?? UNSORTED };
   state.current.items = state.current.items.map((item) => (item.id === id ? updated : item));
   return json(200, updated);
 };
@@ -110,9 +115,10 @@ const handleShop = (id: string, method: string, init: RequestInit) => {
   }
   if (method === 'DELETE') {
     state.current.shops = state.current.shops.filter((shop) => shop.id !== id);
-    state.current.items = state.current.items.map((item) =>
-      item.shopId === id ? { ...item, shopId: UNSORTED } : item,
-    );
+    state.current.items = state.current.items.map((item) => {
+      const shopIds = item.shopIds.filter((shopId) => shopId !== id);
+      return { ...item, shopIds, shopId: shopIds[0] ?? UNSORTED };
+    });
     return json(204);
   }
   const updated = { ...current, ...readBody(init) };

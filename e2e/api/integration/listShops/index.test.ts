@@ -117,7 +117,7 @@ describe('list shops handler against DynamoDB Local', () => {
     expect(
       await getItem(itemKey({ householdId: member.householdId, listId: 'main', itemId: itemId })),
     ).toMatchObject({
-      shopId: 'unsorted',
+      shopIds: [],
     });
     expect(json(await call(member, 'GET')).shops).toEqual([]);
     expect((await call(member, 'DELETE', `/${shopId}`, undefined, shopId)).statusCode).toBe(404);
@@ -130,5 +130,28 @@ describe('list shops handler against DynamoDB Local', () => {
 
     expect((await call(outsider, 'GET')).statusCode).toBe(404);
     expect((await call(outsider, 'POST', '', { name: 'x', color: 'sky' })).statusCode).toBe(404);
+  });
+
+  it('takes a deleted shop off an item that is also in another shop', async () => {
+    const member = await seedMember();
+    const { id: aldi } = await createShop(member, 'Aldi');
+    const { id: lidl } = await createShop(member, 'Lidl');
+    const { id: itemId } = json(
+      await itemsHandler(
+        buildEvent({
+          claims: { sub: member.sub },
+          method: 'POST',
+          path: `/api/v1/households/${member.householdId}/lists/main/items`,
+          pathParameters: { householdId: member.householdId, listId: 'main' },
+          body: { name: 'Eggs', shopIds: [aldi, lidl] },
+        }),
+      ),
+    );
+
+    await call(member, 'DELETE', `/${aldi}`, undefined, aldi);
+
+    expect(
+      await getItem(itemKey({ householdId: member.householdId, listId: 'main', itemId })),
+    ).toMatchObject({ shopIds: [lidl] });
   });
 });

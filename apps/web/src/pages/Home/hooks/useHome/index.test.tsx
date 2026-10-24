@@ -19,19 +19,19 @@ describe('useHome', () => {
       name: 'Express',
       color: ShopColor.Mint,
     });
-    const milk = await fakeShoppingList.addItem({ name: 'Milk', shopId: shop.id });
-    const eggs = await fakeShoppingList.addItem({ name: 'Eggs', shopId: shop.id });
+    const milk = await fakeShoppingList.addItem({ name: 'Milk', shopIds: [shop.id] });
+    const eggs = await fakeShoppingList.addItem({ name: 'Eggs', shopIds: [shop.id] });
     await fakeShoppingList.updateItem({ id: eggs.id, changes: { checked: true } });
     const { result } = renderHook(() => useHome(), { wrapper: createShoppingListWrapper() });
 
     await waitFor(() => expect(result.current.hasItems).toBe(true));
-    expect(result.current.grouped.sections[0]?.items).toEqual([milk]);
+    expect(result.current.grouped.sections[0]?.items.map(({ id }) => id)).toEqual([milk.id]);
     expect(result.current.grouped.checked.map(({ id }) => id)).toEqual([eggs.id]);
     expect(result.current.allShops.map(({ id }) => id)).toEqual([UNSORTED_SHOP_ID, shop.id]);
   });
 
   it('keeps General out of the reorderable shops', async () => {
-    await fakeShoppingList.addItem({ name: 'Batteries', shopId: UNSORTED_SHOP_ID });
+    await fakeShoppingList.addItem({ name: 'Batteries', shopIds: [] });
     await fakeShoppingList.createShop({ name: 'Express', color: ShopColor.Mint });
     const { result } = renderHook(() => useHome(), { wrapper: createShoppingListWrapper() });
 

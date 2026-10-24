@@ -47,7 +47,7 @@ describe('useAddItemForm', () => {
       name: 'Express',
       color: ShopColor.Mint,
     });
-    const bought = await fakeShoppingList.addItem({ name: 'Milk', shopId: shop.id });
+    const bought = await fakeShoppingList.addItem({ name: 'Milk', shopIds: [shop.id] });
     await fakeShoppingList.updateItem({ id: bought.id, changes: { checked: true } });
     const { result } = renderHook(() => useAddItemForm(), { wrapper: createShoppingListWrapper() });
     await waitFor(() => expect(result.current.shops).toHaveLength(2));
@@ -64,10 +64,10 @@ describe('useAddItemForm', () => {
   });
 
   it('does not suggest an item that is already on the list', async () => {
-    await fakeShoppingList.addItem({ name: 'Milk', shopId: UNSORTED_SHOP_ID });
+    await fakeShoppingList.addItem({ name: 'Milk', shopIds: [] });
     const mince = await fakeShoppingList.addItem({
       name: 'Mince',
-      shopId: UNSORTED_SHOP_ID,
+      shopIds: [],
     });
     await fakeShoppingList.updateItem({ id: mince.id, changes: { checked: true } });
     const { result } = renderHook(() => useAddItemForm(), { wrapper: createShoppingListWrapper() });

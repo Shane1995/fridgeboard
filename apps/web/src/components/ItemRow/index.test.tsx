@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { ShopColor, UNSORTED_SHOP_ID } from '../../services/shoppingList/constants';
+import { ShopColor } from '../../services/shoppingList/constants';
 import type { Shop, ListItem } from '../../services/shoppingList/types';
 import { createShoppingListWrapper } from '../../testUtils/createShoppingListWrapper';
 import { ITEM_ROW_COPY } from './constants';
@@ -8,18 +8,18 @@ import { ItemRow } from './index';
 const ITEM: ListItem = {
   id: 'i1',
   name: 'Milk',
-  shopId: UNSORTED_SHOP_ID,
+  shopIds: [],
   checked: false,
   createdAt: 0,
 };
 const EXPRESS: Shop = { id: 'b1', name: 'Express', color: ShopColor.Mint, order: 0 };
 
-const renderRow = (moveTargets: Shop[] = [EXPRESS]) => {
+const renderRow = (shops: Shop[] = [EXPRESS]) => {
   const Wrapper = createShoppingListWrapper();
   render(
     <Wrapper>
       <ul>
-        <ItemRow item={ITEM} moveTargets={moveTargets} />
+        <ItemRow item={ITEM} shops={shops} />
       </ul>
     </Wrapper>,
   );
@@ -33,24 +33,24 @@ describe('ItemRow', () => {
     expect(screen.getByText('Milk')).toBeInTheDocument();
   });
 
-  it('offers Info, Move and Delete in the menu, with the shops one step further in', async () => {
+  it('offers Info, Shops and Delete in the menu, with the shops one step further in', async () => {
     renderRow();
 
     fireEvent.click(screen.getByRole('button', { name: ITEM_ROW_COPY.menu }));
 
     expect(await screen.findByRole('menuitem', { name: ITEM_ROW_COPY.info })).toBeInTheDocument();
-    expect(screen.getByRole('menuitem', { name: ITEM_ROW_COPY.move })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: ITEM_ROW_COPY.shops })).toBeInTheDocument();
     expect(screen.getByRole('menuitem', { name: ITEM_ROW_COPY.delete })).toBeInTheDocument();
     expect(screen.queryByRole('menuitem', { name: 'Express' })).not.toBeInTheDocument();
   });
 
-  it('leaves out Move when there is nowhere to move the item', async () => {
+  it('leaves out Shops when there are no shops to choose', async () => {
     renderRow([]);
 
     fireEvent.click(screen.getByRole('button', { name: ITEM_ROW_COPY.menu }));
 
     expect(await screen.findByRole('menuitem', { name: ITEM_ROW_COPY.info })).toBeInTheDocument();
-    expect(screen.queryByRole('menuitem', { name: ITEM_ROW_COPY.move })).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: ITEM_ROW_COPY.shops })).not.toBeInTheDocument();
     expect(screen.getByRole('menuitem', { name: ITEM_ROW_COPY.delete })).toBeInTheDocument();
   });
 });

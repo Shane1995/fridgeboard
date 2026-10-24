@@ -16,7 +16,7 @@ const chipClass = (selected: boolean) =>
   }`;
 
 export const ShopFilter = ({ sections, focusedId, onSelect }: ShopFilterProps) => {
-  const total = sections.reduce((sum, { items }) => sum + items.length, 0);
+  const total = new Set(sections.flatMap(({ items }) => items.map(({ id }) => id))).size;
 
   return (
     <div

@@ -63,7 +63,9 @@ describe('list items handler against DynamoDB Local', () => {
       checked: false,
       addedBy: member.sub,
     });
-    expect(history.entries).toEqual([{ name: 'oat milk', shopId: 'unsorted', count: 2 }]);
+    expect(history.entries).toEqual([
+      { name: 'oat milk', shopIds: [], shopId: 'unsorted', count: 2 },
+    ]);
     expect(
       await getItem(
         historyKey({ householdId: member.householdId, listId: 'main', name: 'Oat Milk' }),
@@ -132,9 +134,7 @@ describe('list items handler against DynamoDB Local', () => {
 
     expect(
       await getItem(historyKey({ householdId: member.householdId, listId: 'main', name: 'Eggs' })),
-    ).toMatchObject({
-      shopId: 'b1',
-    });
+    ).toMatchObject({ shopIds: ['b1'] });
   });
 
   it('refuses an unknown shop, an empty name and an empty patch', async () => {
@@ -180,5 +180,97 @@ describe('list items handler against DynamoDB Local', () => {
     await call(first, 'POST', '/items', { name: 'Eggs' });
 
     expect(json(await call(second, 'GET', '/items')).items).toEqual([]);
+  });
+
+  const seedShop = async (member: { householdId: string }, id: string) => {
+    await client.send(
+      new PutCommand({
+        TableName: TABLE_NAME,
+        Item: {
+          ...shopKey({ householdId: member.householdId, listId: 'main', shopId: id }),
+          id,
+          name: id,
+          color: 'sky',
+          order: 0,
+        },
+      }),
+    );
+  };
+
+  it('puts an item in two shops and keeps the single shopId for older builds', async () => {
+    const member = await seedMember();
+    await seedShop(member, 'express');
+    await seedShop(member, 'ms');
+
+    const created = json(
+      await call(member, 'POST', '/items', {
+        name: 'Hummus',
+        shopIds: ['express', 'ms', 'express'],
+      }),
+    );
+
+    expect(created).toMatchObject({ shopIds: ['express', 'ms'], shopId: 'express' });
+    expect(json(await call(member, 'GET', '/history')).entries).toEqual([
+      { name: 'Hummus', shopIds: ['express', 'ms'], shopId: 'express', count: 1 },
+    ]);
+  });
+
+  it('changes the shops of an item with a list, and with the single shopId of an older build', async () => {
+    const member = await seedMember();
+    await seedShop(member, 'express');
+    await seedShop(member, 'ms');
+    const { id } = json(await call(member, 'POST', '/items', { name: 'Eggs' }));
+
+    const both = await call(member, 'PATCH', `/items/${id}`, { shopIds: ['express', 'ms'] }, id);
+    const legacy = await call(member, 'PATCH', `/items/${id}`, { shopId: 'ms' }, id);
+    const none = await call(member, 'PATCH', `/items/${id}`, { shopIds: [] }, id);
+
+    expect(json(both).shopIds).toEqual(['express', 'ms']);
+    expect(json(legacy)).toMatchObject({ shopIds: ['ms'], shopId: 'ms' });
+    expect(json(none)).toMatchObject({ shopIds: [], shopId: 'unsorted' });
+  });
+
+  it('refuses an unknown shop, a list that is not a list, and too many shops', async () => {
+    const member = await seedMember();
+    const { id } = json(await call(member, 'POST', '/items', { name: 'Eggs' }));
+
+    const unknown = await call(member, 'PATCH', `/items/${id}`, { shopIds: ['nope'] }, id);
+    const notList = await call(member, 'PATCH', `/items/${id}`, { shopIds: 'express' }, id);
+    const tooMany = await call(
+      member,
+      'PATCH',
+      `/items/${id}`,
+      { shopIds: Array.from({ length: 11 }, (_, index) => `s${index}`) },
+      id,
+    );
+
+    expect([unknown, notList, tooMany].map(({ statusCode }) => statusCode)).toEqual([
+      400, 400, 400,
+    ]);
+    expect(json(unknown)).toEqual({ reason: 'invalid-shop' });
+  });
+
+  it('reads a row written before items could have several shops', async () => {
+    const member = await seedMember();
+    await seedShop(member, 'express');
+    await client.send(
+      new PutCommand({
+        TableName: TABLE_NAME,
+        Item: {
+          ...itemKey({ householdId: member.householdId, listId: 'main', itemId: 'old' }),
+          id: 'old',
+          name: 'Tea',
+          shopId: 'express',
+          checked: false,
+          createdAt: 1,
+          addedBy: member.sub,
+        },
+      }),
+    );
+
+    expect(json(await call(member, 'GET', '/items')).items[0]).toMatchObject({
+      shopIds: ['express'],
+      shopId: 'express',
+    });
   });
 });

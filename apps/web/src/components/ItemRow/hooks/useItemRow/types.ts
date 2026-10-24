@@ -10,5 +10,6 @@ export type ItemRowState = {
   commit: (event?: FormEvent) => void;
   cancel: () => void;
   toggle: (checked: boolean) => void;
+  setShops: (change: { shopIds: string[] }) => void;
   handleMenuAction: (key: string | number) => void;
 };

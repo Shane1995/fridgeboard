@@ -5,6 +5,7 @@ export type ShopColorName = (typeof SHOP_COLORS)[number];
 export type IListItem = {
   id: string;
   name: string;
+  shopIds: string[];
   shopId: string;
   checked: boolean;
   createdAt: number;
@@ -13,9 +14,14 @@ export type IListItem = {
 
 export type IListItemsResponse = { items: IListItem[] };
 
-export type ICreateListItemRequest = { name: string; shopId?: string };
+export type ICreateListItemRequest = { name: string; shopIds?: string[]; shopId?: string };
 
-export type IUpdateListItemRequest = { name?: string; shopId?: string; checked?: boolean };
+export type IUpdateListItemRequest = {
+  name?: string;
+  shopIds?: string[];
+  shopId?: string;
+  checked?: boolean;
+};
 
 export type IShop = { id: string; name: string; color: ShopColorName; order: number };
 
@@ -27,7 +33,7 @@ export type IUpdateShopRequest = { name?: string; color?: ShopColorName };
 
 export type IReorderShopsRequest = { ids: string[] };
 
-export type IHistoryEntry = { name: string; shopId: string; count: number };
+export type IHistoryEntry = { name: string; shopIds: string[]; shopId: string; count: number };
 
 export type IHistoryResponse = { entries: IHistoryEntry[] };
 

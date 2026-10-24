@@ -7,7 +7,6 @@ import { createSession } from '../../testUtils/createSession';
 import { TestProviders } from '../../testUtils/TestProviders';
 import { useShopsQuery } from '../useShopsQuery';
 import { useSuggestions } from '../useSuggestions';
-import { UNSORTED_SHOP_ID } from '../../services/shoppingList/constants';
 import { fakeShoppingList } from '../../testUtils/fakeShoppingList';
 import { createShoppingListWrapper } from '../../testUtils/createShoppingListWrapper';
 import { useItemsQuery } from './index';
@@ -16,7 +15,7 @@ describe('useItemsQuery', () => {
   beforeEach(() => window.localStorage.clear());
 
   it('loads the items', async () => {
-    await fakeShoppingList.addItem({ name: 'Milk', shopId: UNSORTED_SHOP_ID });
+    await fakeShoppingList.addItem({ name: 'Milk', shopIds: [] });
     const { result } = renderHook(() => useItemsQuery(), { wrapper: createShoppingListWrapper() });
 
     await waitFor(() => expect(result.current.data?.map(({ name }) => name)).toEqual(['Milk']));

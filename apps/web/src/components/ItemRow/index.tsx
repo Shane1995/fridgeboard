@@ -2,19 +2,19 @@ import { Checkbox, Dropdown } from '@heroui/react';
 import { Ellipsis } from 'lucide-react';
 import type { Shop, ListItem } from '../../services/shoppingList/types';
 import { ItemInfoDialog } from '../ItemInfoDialog';
+import { ShopSwatch } from '../ShopSwatch';
 import {
   DELETE_ACTION,
   EDIT_MAX_LENGTH,
   INFO_ACTION,
   ITEM_ROW_COPY,
-  MOVE_ACTION,
-  MOVE_ACTION_PREFIX,
+  SHOPS_ACTION,
 } from './constants';
 import { useItemRow } from './hooks/useItemRow';
 
-type ItemRowProps = { item: ListItem; moveTargets: readonly Shop[] };
+type ItemRowProps = { item: ListItem; shops: readonly Shop[] };
 
-export const ItemRow = ({ item, moveTargets }: ItemRowProps) => {
+export const ItemRow = ({ item, shops }: ItemRowProps) => {
   const {
     infoDialog,
     isEditing,
@@ -24,6 +24,7 @@ export const ItemRow = ({ item, moveTargets }: ItemRowProps) => {
     commit,
     cancel,
     toggle,
+    setShops,
     handleMenuAction,
   } = useItemRow(item);
 
@@ -70,17 +71,26 @@ export const ItemRow = ({ item, moveTargets }: ItemRowProps) => {
             <Dropdown.Item id={INFO_ACTION} textValue={ITEM_ROW_COPY.info}>
               {ITEM_ROW_COPY.info}
             </Dropdown.Item>
-            {moveTargets.length > 0 && (
+            {shops.length > 0 && (
               <Dropdown.SubmenuTrigger>
-                <Dropdown.Item id={MOVE_ACTION} textValue={ITEM_ROW_COPY.move}>
-                  {ITEM_ROW_COPY.move}
+                <Dropdown.Item id={SHOPS_ACTION} textValue={ITEM_ROW_COPY.shops}>
+                  {ITEM_ROW_COPY.shops}
                   <Dropdown.SubmenuIndicator />
                 </Dropdown.Item>
                 <Dropdown.Popover>
-                  <Dropdown.Menu aria-label={ITEM_ROW_COPY.moveTo} onAction={handleMenuAction}>
-                    {moveTargets.map(({ id, name }) => (
-                      <Dropdown.Item key={id} id={`${MOVE_ACTION_PREFIX}${id}`} textValue={name}>
+                  <Dropdown.Menu
+                    aria-label={ITEM_ROW_COPY.shops}
+                    selectionMode="multiple"
+                    selectedKeys={new Set(item.shopIds)}
+                    onSelectionChange={(keys) =>
+                      setShops({ shopIds: keys instanceof Set ? [...keys].map(String) : [] })
+                    }
+                  >
+                    {shops.map(({ id, name, color }) => (
+                      <Dropdown.Item key={id} id={id} textValue={name}>
+                        <ShopSwatch color={color} />
                         {name}
+                        <Dropdown.ItemIndicator />
                       </Dropdown.Item>
                     ))}
                   </Dropdown.Menu>

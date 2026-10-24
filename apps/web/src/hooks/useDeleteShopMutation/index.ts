@@ -21,7 +21,15 @@ export const useDeleteShopMutation = (): MutationResult<ApiResult<undefined, nev
       updateShops({ update: (shops) => shops.filter((shop) => shop.id !== id) });
       updateItems({
         update: (items) =>
-          items.map((item) => (item.shopId === id ? { ...item, shopId: UNSORTED_SHOP_ID } : item)),
+          items.map((item) =>
+            item.shopIds.includes(id)
+              ? {
+                  ...item,
+                  shopIds: item.shopIds.filter((shopId) => shopId !== id),
+                  shopId: item.shopIds.find((shopId) => shopId !== id) ?? UNSORTED_SHOP_ID,
+                }
+              : item,
+          ),
       });
     },
   });
