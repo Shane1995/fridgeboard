@@ -17,6 +17,7 @@ import { useHome } from './hooks/useHome';
 
 export const Home = () => {
   const {
+    title,
     grouped,
     focusedId,
     setFocus,
@@ -37,7 +38,7 @@ export const Home = () => {
 
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-7 p-6">
-      <PageHeader title={HOME_COPY.title} />
+      <PageHeader title={title} />
       <AddItemForm focusedBucketId={focusedId} />
       {grouped.sections.length > 0 && (
         <BucketFilter sections={grouped.sections} focusedId={focusedId} onSelect={setFocus} />

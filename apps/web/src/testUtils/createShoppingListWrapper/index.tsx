@@ -32,6 +32,6 @@ export const renderHookWithHousehold = async <T,>(useHookUnderTest: () => T) => 
   const wrapper = createShoppingListWrapper();
   const household = renderHook(() => useActiveHousehold(), { wrapper });
   const rendered = renderHook(useHookUnderTest, { wrapper });
-  await waitFor(() => expect(household.result.current).toBe(TEST_HOUSEHOLD_ID));
+  await waitFor(() => expect(household.result.current?.id).toBe(TEST_HOUSEHOLD_ID));
   return rendered;
 };

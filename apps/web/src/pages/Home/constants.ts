@@ -1,5 +1,5 @@
 export const HOME_COPY = {
-  title: 'Chop list',
+  title: 'Chop List',
   loading: 'Loading your list…',
   loadFailed: 'Could not load your list.',
   empty: 'Nothing on the list yet.',

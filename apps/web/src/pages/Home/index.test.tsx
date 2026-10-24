@@ -58,6 +58,13 @@ describe('Home', () => {
     expect(await screen.findByRole('heading', { name: HOME_COPY.title })).toBeInTheDocument();
   });
 
+  it('puts the household name in the title', async () => {
+    renderHome();
+    expect(
+      await screen.findByRole('heading', { name: `Home ${HOME_COPY.title}` }),
+    ).toBeInTheDocument();
+  });
+
   it('says the list is empty', async () => {
     renderHome();
     expect(await screen.findByText(HOME_COPY.empty)).toBeInTheDocument();

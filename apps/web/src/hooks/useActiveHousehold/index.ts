@@ -1,6 +1,7 @@
+import type { IHouseholdSummary } from '@fridgeboard/contract/households';
 import { useHouseholdsQuery } from '../useHouseholdsQuery';
 
-export const useActiveHousehold = (): string | undefined => {
+export const useActiveHousehold = (): IHouseholdSummary | undefined => {
   const { data } = useHouseholdsQuery();
-  return data?.households[0]?.id;
+  return data?.households[0];
 };

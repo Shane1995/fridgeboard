@@ -5,6 +5,7 @@ import { useOverlayState } from '@heroui/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useBucketsQuery } from '../../../../hooks/useBucketsQuery';
 import { BUCKETS_QUERY_KEY } from '../../../../hooks/useBucketsQuery/constants';
+import { useActiveHousehold } from '../../../../hooks/useActiveHousehold';
 import { useClearCheckedMutation } from '../../../../hooks/useClearCheckedMutation';
 import { useReorderBucketsMutation } from '../../../../hooks/useReorderBucketsMutation';
 import { useLocalStorage } from '../../../../hooks/useLocalStorage';
@@ -18,9 +19,11 @@ import {
   groupItemsByBucket,
   UNSORTED_BUCKET,
 } from '../../../../services/shoppingList/utils/groupItemsByBucket';
+import { HOME_COPY } from '../../constants';
 import type { HomeState } from './types';
 
 export const useHome = (): HomeState => {
+  const household = useActiveHousehold();
   const buckets = useBucketsQuery();
   const items = useItemsQuery();
   const newBucketDialog = useOverlayState();
@@ -64,6 +67,7 @@ export const useHome = (): HomeState => {
   };
 
   return {
+    title: household === undefined ? HOME_COPY.title : `${household.name} ${HOME_COPY.title}`,
     grouped,
     focusedId,
     setFocus,

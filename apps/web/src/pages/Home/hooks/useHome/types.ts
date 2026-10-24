@@ -8,6 +8,7 @@ import type {
 } from '../../../../services/shoppingList/types';
 
 export type HomeState = {
+  title: string;
   grouped: GroupedItems;
   focusedId: string | undefined;
   setFocus: (id: string | undefined) => void;

@@ -6,7 +6,7 @@ import { useActiveHousehold } from '../useActiveHousehold';
 import type { ShoppingList } from './types';
 
 export const useShoppingList = (): ShoppingList => {
-  const householdId = useActiveHousehold();
+  const householdId = useActiveHousehold()?.id;
   const repository = useMemo(() => {
     if (householdId === undefined) {
       return undefined;
