@@ -1,3 +1,7 @@
 import type { IncomingMessage } from 'node:http';
 
-export type ToEventInput = { request: IncomingMessage; body: string; path: string };
+export type ToEventInput = {
+  request: Pick<IncomingMessage, 'method' | 'headers'>;
+  body: string;
+  path: string;
+};

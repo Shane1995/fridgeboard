@@ -1,9 +1,7 @@
-import type { IncomingMessage } from 'node:http';
 import { ORIGIN_HEADER, ORIGIN_SECRET } from '../constants.ts';
 import { toEvent } from './index.ts';
 
-const request = (headers: Record<string, string | string[]>): IncomingMessage =>
-  ({ method: 'PUT', headers }) as IncomingMessage;
+const request = (headers: Record<string, string>) => ({ method: 'PUT', headers });
 
 describe('toEvent', () => {
   it('adds the origin secret, splits cookies and carries the claims', () => {
