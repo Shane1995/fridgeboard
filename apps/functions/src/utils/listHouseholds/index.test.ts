@@ -2,10 +2,12 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { BatchGetCommand, DynamoDBDocumentClient, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { mockClient } from 'aws-sdk-client-mock';
 import { HouseholdRole } from '../isHouseholdRole/constants.ts';
+import { createTable } from '../table/index.ts';
 import { listHouseholds } from './index.ts';
 
 const ddbMock = mockClient(DynamoDBDocumentClient);
 const client = DynamoDBDocumentClient.from(new DynamoDBClient({}));
+const table = createTable(client, 'fridgeboard');
 
 describe('listHouseholds', () => {
   beforeEach(() => {
@@ -14,7 +16,7 @@ describe('listHouseholds', () => {
   });
 
   it('returns an empty list when the user has no memberships', async () => {
-    expect(await listHouseholds(client, 'fridgeboard', 'sub-1')).toEqual([]);
+    expect(await listHouseholds(table, 'sub-1')).toEqual([]);
     expect(ddbMock.commandCalls(BatchGetCommand)).toHaveLength(0);
   });
 
@@ -46,7 +48,7 @@ describe('listHouseholds', () => {
       },
     });
 
-    const result = await listHouseholds(client, 'fridgeboard', 'sub-1');
+    const result = await listHouseholds(table, 'sub-1');
 
     expect(ddbMock.commandCalls(QueryCommand)[0]?.args[0].input).toMatchObject({
       TableName: 'fridgeboard',
@@ -80,7 +82,7 @@ describe('listHouseholds', () => {
       Responses: { fridgeboard: [{ PK: 'HH#h1', SK: 'META', name: 'Home' }] },
     });
 
-    const result = await listHouseholds(client, 'fridgeboard', 'sub-1');
+    const result = await listHouseholds(table, 'sub-1');
 
     expect(ddbMock.commandCalls(BatchGetCommand)[0]?.args[0].input).toEqual({
       RequestItems: { fridgeboard: { Keys: [{ PK: 'HH#h1', SK: 'META' }] } },
@@ -93,7 +95,7 @@ describe('listHouseholds', () => {
       Items: [{ role: HouseholdRole.Owner }, { GSI1SK: 'junk', role: HouseholdRole.Owner }],
     });
 
-    const result = await listHouseholds(client, 'fridgeboard', 'sub-1');
+    const result = await listHouseholds(table, 'sub-1');
 
     expect(result).toEqual([]);
     expect(ddbMock.commandCalls(BatchGetCommand)).toHaveLength(0);
@@ -116,7 +118,7 @@ describe('listHouseholds', () => {
       },
     });
 
-    const result = await listHouseholds(client, 'fridgeboard', 'sub-1');
+    const result = await listHouseholds(table, 'sub-1');
 
     const queries = ddbMock.commandCalls(QueryCommand);
     expect(queries).toHaveLength(2);
@@ -135,7 +137,7 @@ describe('listHouseholds', () => {
     ddbMock.on(QueryCommand).resolves({ Items });
     ddbMock.on(BatchGetCommand).resolves({ Responses: { fridgeboard: [] } });
 
-    await listHouseholds(client, 'fridgeboard', 'sub-1');
+    await listHouseholds(table, 'sub-1');
 
     const calls = ddbMock.commandCalls(BatchGetCommand);
     expect(calls.map((c) => c.args[0].input.RequestItems?.fridgeboard?.Keys?.length)).toEqual([
@@ -153,7 +155,7 @@ describe('listHouseholds', () => {
       })
       .resolvesOnce({ Responses: { fridgeboard: [{ PK: 'HH#h1', SK: 'META', name: 'Home' }] } });
 
-    const result = await listHouseholds(client, 'fridgeboard', 'sub-1');
+    const result = await listHouseholds(table, 'sub-1');
 
     expect(ddbMock.commandCalls(BatchGetCommand)).toHaveLength(2);
     expect(result).toEqual([{ id: 'h1', name: 'Home', role: HouseholdRole.Owner }]);
@@ -166,7 +168,7 @@ describe('listHouseholds', () => {
       UnprocessedKeys: { fridgeboard: { Keys: [{ PK: 'HH#h1', SK: 'META' }] } },
     });
 
-    await expect(listHouseholds(client, 'fridgeboard', 'sub-1')).rejects.toThrow();
+    await expect(listHouseholds(table, 'sub-1')).rejects.toThrow();
     expect(ddbMock.commandCalls(BatchGetCommand)).toHaveLength(2);
   });
 });

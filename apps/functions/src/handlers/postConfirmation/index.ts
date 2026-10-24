@@ -3,23 +3,18 @@ import {
   CognitoIdentityProviderClient,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { ConditionalCheckFailedException, DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import {
-  DeleteCommand,
-  DynamoDBDocumentClient,
-  GetCommand,
-  PutCommand,
-} from '@aws-sdk/lib-dynamodb';
+import { DeleteCommand, DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 import type { PostConfirmationTriggerEvent } from 'aws-lambda';
 import { inviteKey } from '../../utils/keys/inviteKey/index.ts';
 import { profileKey } from '../../utils/keys/profileKey/index.ts';
-import type { Invite } from '../../utils/keys/types.ts';
+import { InviteItemSchema } from '../../utils/items/inviteItem/index.ts';
+import { INVITE_TYPE } from '../../utils/keys/types.ts';
+import { createTable } from '../../utils/table/index.ts';
 import { joinHousehold } from './utils/joinHousehold/index.ts';
 import { normaliseEmail } from '../../utils/normaliseEmail/index.ts';
 import {
   ADMIN_GROUP,
-  APP_INVITE_TYPE,
   CONFIRM_SIGN_UP_SOURCE,
-  HOUSEHOLD_INVITE_TYPE,
   MISSING_SUB_ERROR,
   PROFILE_NOT_EXISTS_CONDITION,
 } from './constants.ts';
@@ -42,10 +37,10 @@ export const handler = async (
   const TableName = process.env.TABLE_NAME;
   const email = normaliseEmail(event.request.userAttributes.email ?? '');
   const Key = inviteKey(email);
-  const { Item } = await client.send(new GetCommand({ TableName, Key, ConsistentRead: true }));
-  const type: Invite['type'] | undefined = Item?.type;
-  const admin: Invite['admin'] = Item?.admin;
-  const hhId: Invite['hhId'] = Item?.hhId;
+  const invite = await createTable(client, String(TableName)).get(Key, InviteItemSchema);
+  const type = invite?.type;
+  const admin = invite?.admin;
+  const hhId = invite?.hhId;
 
   try {
     await client.send(
@@ -55,7 +50,7 @@ export const handler = async (
           ...profileKey(sub),
           email,
           createdAt: new Date().toISOString(),
-          canCreateHousehold: type === APP_INVITE_TYPE,
+          canCreateHousehold: type === INVITE_TYPE.APP,
         },
         ConditionExpression: PROFILE_NOT_EXISTS_CONDITION,
       }),
@@ -76,11 +71,11 @@ export const handler = async (
     );
   }
 
-  if (type === APP_INVITE_TYPE) {
+  if (type === INVITE_TYPE.APP) {
     await client.send(new DeleteCommand({ TableName, Key }));
   }
 
-  if (type === HOUSEHOLD_INVITE_TYPE && hhId) {
+  if (type === INVITE_TYPE.HOUSEHOLD && hhId) {
     await joinHousehold(client, TableName, { hhId, sub, invite: Key });
   }
 

@@ -7,6 +7,7 @@ import type {
 } from 'aws-lambda';
 import { jsonResponse } from '../../utils/jsonResponse/index.ts';
 import { withVerifiedOrigin } from '../../utils/originVerified/index.ts';
+import { createTable } from '../../utils/table/index.ts';
 import { pendingOnboarding } from '../../utils/pendingOnboarding/index.ts';
 import { readProfile } from '../../utils/readProfile/index.ts';
 import { ADMIN_GROUP, GROUPS_CLAIM } from '../me/constants.ts';
@@ -24,14 +25,14 @@ export const handler = withVerifiedOrigin(
       return { statusCode: 401 };
     }
 
-    const TableName = process.env.TABLE_NAME;
-    const profile = await readProfile(client, TableName, sub);
+    const table = createTable(client, String(process.env.TABLE_NAME));
+    const profile = await readProfile(table, sub);
     if (!profile) {
       return { statusCode: 404 };
     }
 
     const body: IOnboardingResponse = {
-      sections: await pendingOnboarding(client, TableName, {
+      sections: await pendingOnboarding(table, {
         sub,
         profile,
         isAdmin: parseGroups(claims[GROUPS_CLAIM]).includes(ADMIN_GROUP),

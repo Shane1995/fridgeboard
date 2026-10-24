@@ -3,7 +3,9 @@ import {
   AdminUserGlobalSignOutCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { DeleteEmailIdentityCommand, NotFoundException } from '@aws-sdk/client-sesv2';
-import { fetchMemberships } from '../../../../src/utils/fetchMemberships/index.ts';
+import { createTable } from '../../../../src/utils/table/index.ts';
+import { RawItemSchema } from '../../../../src/utils/items/rawItem/index.ts';
+import { membershipQuery } from '../../../../src/utils/membershipQuery/index.ts';
 import { HOUSEHOLD_PK_PREFIX, USER_PK_PREFIX } from '../../../../src/utils/keys/constants.ts';
 import { householdIdFromKey } from '../../../../src/utils/keys/householdIdFromKey/index.ts';
 import { buildDeletePlan } from '../buildDeletePlan/index.ts';
@@ -27,7 +29,7 @@ export const runDeleteUser = async (email: string): Promise<DeleteUserResult> =>
     KeyConditionExpression: PK_CONDITION,
     ExpressionAttributeValues: { ':pk': `${USER_PK_PREFIX}${sub}` },
   });
-  const memberships = await fetchMemberships(doc, TABLE_NAME, sub);
+  const memberships = await createTable(doc, TABLE_NAME).query(membershipQuery(sub), RawItemSchema);
   const ids = memberships.flatMap((item) => householdIdFromKey(item['PK']) ?? []);
   const householdMembers = Object.fromEntries(
     await Promise.all(

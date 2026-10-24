@@ -8,6 +8,7 @@ import type {
 import { jsonResponse } from '../../utils/jsonResponse/index.ts';
 import { listHouseholds } from '../../utils/listHouseholds/index.ts';
 import { withVerifiedOrigin } from '../../utils/originVerified/index.ts';
+import { createTable } from '../../utils/table/index.ts';
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 
@@ -21,7 +22,7 @@ export const handler = withVerifiedOrigin(
     }
 
     const body: IHouseholdsResponse = {
-      households: await listHouseholds(client, String(process.env.TABLE_NAME), sub),
+      households: await listHouseholds(createTable(client, String(process.env.TABLE_NAME)), sub),
     };
     return jsonResponse(200, body);
   },

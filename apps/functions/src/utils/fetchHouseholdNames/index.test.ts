@@ -1,9 +1,11 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { BatchGetCommand, DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { mockClient } from 'aws-sdk-client-mock';
+import { createTable } from '../table/index.ts';
 import { fetchHouseholdNames } from './index.ts';
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient({}));
+const table = createTable(client, 'fridgeboard');
 const ddbMock = mockClient(DynamoDBDocumentClient);
 
 describe('fetchHouseholdNames', () => {
@@ -16,13 +18,13 @@ describe('fetchHouseholdNames', () => {
       Responses: { fridgeboard: [{ PK: 'HH#h1', SK: 'META', name: 'Home' }, { PK: 'junk' }] },
     });
 
-    const names = await fetchHouseholdNames(client, 'fridgeboard', ['h1']);
+    const names = await fetchHouseholdNames(table, ['h1']);
 
     expect([...names]).toEqual([['h1', 'Home']]);
   });
 
   it('makes no calls for no ids', async () => {
-    expect((await fetchHouseholdNames(client, 'fridgeboard', [])).size).toBe(0);
+    expect((await fetchHouseholdNames(table, [])).size).toBe(0);
     expect(ddbMock.commandCalls(BatchGetCommand)).toHaveLength(0);
   });
 
@@ -30,7 +32,7 @@ describe('fetchHouseholdNames', () => {
     ddbMock.on(BatchGetCommand).resolves({ Responses: { fridgeboard: [] } });
     const ids = Array.from({ length: 101 }, (_, i) => `h${i}`);
 
-    await fetchHouseholdNames(client, 'fridgeboard', ids);
+    await fetchHouseholdNames(table, ids);
 
     const sizes = ddbMock
       .commandCalls(BatchGetCommand)
@@ -46,7 +48,7 @@ describe('fetchHouseholdNames', () => {
       .resolves({ Responses: { fridgeboard: [] } });
     const ids = Array.from({ length: 250 }, (_, i) => `h${i}`);
 
-    await expect(fetchHouseholdNames(client, 'fridgeboard', ids)).rejects.toThrow('boom');
+    await expect(fetchHouseholdNames(table, ids)).rejects.toThrow('boom');
     expect(ddbMock.commandCalls(BatchGetCommand)).toHaveLength(2);
   });
 });

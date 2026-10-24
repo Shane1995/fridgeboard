@@ -1,5 +1,7 @@
-import { PutCommand, type DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
+import type { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { HouseholdRole } from '../../../src/utils/isHouseholdRole/constants.ts';
+import { INVITE_TYPE, type TableKey } from '../../../src/utils/keys/types.ts';
+import { createTable } from '../../../src/utils/table/index.ts';
 import { householdMetaKey } from '../../../src/utils/keys/householdMetaKey/index.ts';
 import { inviteKey } from '../../../src/utils/keys/inviteKey/index.ts';
 import { membershipKey } from '../../../src/utils/keys/membershipKey/index.ts';
@@ -25,7 +27,7 @@ export const seed = async (client: DynamoDBDocumentClient): Promise<void> => {
   const now = new Date().toISOString();
   const nowSeconds = Math.floor(Date.now() / 1000);
   const invite = { invitedBy: sub, expiresAt: nowSeconds + INVITE_TTL_SECONDS };
-  const items: Record<string, unknown>[] = [
+  const items: (TableKey & Record<string, unknown>)[] = [
     {
       ...profileKey(sub),
       email: ADMIN_EMAIL,
@@ -39,14 +41,13 @@ export const seed = async (client: DynamoDBDocumentClient): Promise<void> => {
     { ...ownedHouseholdKey(sub), householdId: hhId },
     {
       ...inviteKey(MEMBER_INVITE_EMAIL),
-      type: 'household',
+      type: INVITE_TYPE.HOUSEHOLD,
       hhId,
       ...invite,
       ttl: invite.expiresAt,
     },
-    { ...inviteKey(APP_INVITE_EMAIL), type: 'app', ...invite, ttl: invite.expiresAt },
+    { ...inviteKey(APP_INVITE_EMAIL), type: INVITE_TYPE.APP, ...invite, ttl: invite.expiresAt },
   ];
-  await Promise.all(
-    items.map((Item) => client.send(new PutCommand({ TableName: TABLE_NAME, Item }))),
-  );
+  const table = createTable(client, TABLE_NAME);
+  await Promise.all(items.map((item) => table.put(item)));
 };
