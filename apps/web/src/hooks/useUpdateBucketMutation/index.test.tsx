@@ -1,6 +1,6 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { BucketColor } from '../../services/shoppingList/constants';
-import { testRepository } from '../../testUtils/testRepository';
+import { fakeShoppingList } from '../../testUtils/fakeShoppingList';
 import { createShoppingListWrapper } from '../../testUtils/createShoppingListWrapper';
 import { useBucketsQuery } from '../useBucketsQuery';
 import { useUpdateBucketMutation } from './index';
@@ -9,7 +9,7 @@ describe('useUpdateBucketMutation', () => {
   beforeEach(() => window.localStorage.clear());
 
   it('renames a bucket and refreshes the buckets query', async () => {
-    const { id } = await testRepository.createBucket({
+    const { id } = await fakeShoppingList.createBucket({
       name: 'Express',
       color: BucketColor.Mint,
     });

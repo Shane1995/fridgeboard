@@ -1,12 +1,30 @@
-import { MutationName } from '../../services/configuration/schema/constants';
-import { BUCKETS_QUERY_KEY } from '../useBucketsQuery/constants';
-import { ITEMS_QUERY_KEY } from '../useItemsQuery/constants';
+import type { ApiResult } from '../../services/api/sendJson/types';
+import { MutationName, WebService } from '../../services/configuration/schema/constants';
+import { DELETE } from '../../services/session/constants';
+import { UNSORTED_BUCKET_ID } from '../../services/shoppingList/constants';
+import { useApiMutation } from '../useApiMutation';
+import { useListCache } from '../useListCache';
+import { useListParams } from '../useListParams';
 import type { MutationResult } from '../useMutation/types';
-import { useShoppingListMutation } from '../useShoppingListMutation';
 
-export const useDeleteBucketMutation = (): MutationResult<void, string> =>
-  useShoppingListMutation({
+export const useDeleteBucketMutation = (): MutationResult<ApiResult<undefined, never>, string> => {
+  const { paramsFor } = useListParams();
+  const { updateBuckets, updateItems } = useListCache();
+  return useApiMutation({
     name: MutationName.deleteBucket,
-    write: ({ repository, variables }) => repository.deleteBucket({ id: variables }),
-    invalidates: [BUCKETS_QUERY_KEY, ITEMS_QUERY_KEY],
+    service: WebService.listBucket,
+    method: DELETE,
+    toBody: () => undefined,
+    toParams: (id: string) => paramsFor({ bucketId: id }),
+    reasons: [],
+    onSuccess: (_removed, id) => {
+      updateBuckets({ update: (buckets) => buckets.filter((bucket) => bucket.id !== id) });
+      updateItems({
+        update: (items) =>
+          items.map((item) =>
+            item.bucketId === id ? { ...item, bucketId: UNSORTED_BUCKET_ID } : item,
+          ),
+      });
+    },
   });
+};

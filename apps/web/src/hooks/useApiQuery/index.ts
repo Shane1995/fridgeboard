@@ -9,18 +9,19 @@ import { useSessionContext } from '../useSessionContext';
 import type { ApiQueryOptions } from './types';
 
 // A signed-in GET of one API service. Add a query by calling this with its name and service.
-export const useApiQuery = <TData>({
+export const useApiQuery = <TResponse, TData = TResponse>({
   name,
   service,
   params,
   enabled = true,
-}: ApiQueryOptions): QueryResult<TData> => {
+  select,
+}: ApiQueryOptions<TResponse, TData>): QueryResult<TData> => {
   const { services, queries } = useRemoteConfigContext();
   const { status, apiFetch } = useSessionContext();
   return useQuery({
     queryKey: params === undefined ? [name] : [name, params],
     queryFn: () =>
-      getJson<TData>(
+      getJson<TResponse>(
         resolveEndpoint({
           api: services.api,
           service,
@@ -30,5 +31,6 @@ export const useApiQuery = <TData>({
         (endpoint) => apiFetch(endpoint),
       ),
     enabled: enabled && status === SessionStatus.SignedIn,
+    ...(select === undefined ? {} : { select }),
   });
 };

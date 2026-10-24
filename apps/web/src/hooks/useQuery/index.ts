@@ -6,16 +6,18 @@ import type { QueryOptions, QueryResult } from './types';
 
 // Every setting comes from the remote configuration: its `default` entry, overridden by the
 // entry named after the first element of the query key. Nothing is set in code.
-export const useQuery = <TData>({
+export const useQuery = <TResponse, TData = TResponse>({
   queryKey,
   queryFn,
   enabled,
-}: QueryOptions<TData>): QueryResult<TData> => {
+  select,
+}: QueryOptions<TResponse, TData>): QueryResult<TData> => {
   const { queries } = useRemoteConfigContext();
-  return useTanStackQuery({
+  return useTanStackQuery<TResponse, Error, TData>({
     queryKey,
     queryFn,
     ...toQueryOptions(mergedEntry(queries, queryKey[0])),
     ...(enabled === undefined ? {} : { enabled }),
+    ...(select === undefined ? {} : { select }),
   });
 };

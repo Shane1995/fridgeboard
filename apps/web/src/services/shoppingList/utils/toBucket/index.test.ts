@@ -1,4 +1,4 @@
-import { BucketColor } from '../../../constants';
+import { BucketColor } from '../../constants';
 import { toBucket } from './index';
 
 describe('toBucket', () => {

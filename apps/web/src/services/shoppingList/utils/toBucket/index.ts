@@ -1,6 +1,6 @@
 import type { IBucket } from '@fridgeboard/contract/lists';
-import { BucketColor } from '../../../constants';
-import type { Bucket } from '../../../types';
+import { BucketColor } from '../../constants';
+import type { Bucket } from '../../types';
 
 export const toBucket = ({ id, name, color, order }: IBucket): Bucket => ({
   id,

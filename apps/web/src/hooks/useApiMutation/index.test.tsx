@@ -1,5 +1,5 @@
 import { QueryClient } from '@tanstack/react-query';
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { MutationName } from '../../services/configuration/schema/constants';
 import { WebService } from '../../services/configuration/schema/constants';
 import { SessionStatus } from '../../services/session/constants';
@@ -47,7 +47,7 @@ describe('useApiMutation', () => {
       method: 'PUT',
       body: JSON.stringify({ username: 'jess' }),
     });
-    expect(onSuccess).toHaveBeenCalledWith({ username: 'jess' });
+    expect(onSuccess).toHaveBeenCalledWith({ username: 'jess' }, 'jess');
   });
 
   it('returns a known failure reason without calling onSuccess', async () => {
@@ -75,5 +75,108 @@ describe('useApiMutation', () => {
     expect(client.getMutationCache().getAll().at(-1)?.options.mutationKey).toEqual([
       MutationName.setUsername,
     ]);
+  });
+
+  describe('params and optimistic changes', () => {
+    const KEY = ['items', { householdId: 'hh-1', listId: 'main' }];
+
+    const setupList = (response: Response | Promise<Response>) => {
+      const { session, apiFetch } = createSession(SessionStatus.SignedIn);
+      apiFetch.mockImplementation(async () => response);
+      const client = new QueryClient();
+      client.setQueryData(KEY, { items: ['a', 'b'] });
+      const { result } = renderHook(
+        () =>
+          useApiMutation({
+            name: MutationName.deleteItem,
+            service: WebService.listItem,
+            method: 'DELETE',
+            toBody: () => undefined,
+            toParams: (id: string) => ({ householdId: 'hh-1', listId: 'main', itemId: id }),
+            reasons: [] as const,
+            onSuccess: vi.fn(),
+            optimistic: {
+              queryKey: KEY,
+              update: ({
+                current,
+                variables,
+              }: {
+                current: { items: string[] };
+                variables: string;
+              }) => ({ items: current.items.filter((item) => item !== variables) }),
+            },
+          }),
+        { wrapper: createSessionWrapper(session, client) },
+      );
+      return { result, apiFetch, client };
+    };
+
+    it('fills the path parameters from the variables and keeps the optimistic change', async () => {
+      const { result, apiFetch, client } = setupList(new Response(null, { status: 204 }));
+
+      await act(async () => {
+        await result.current.mutateAsync('a');
+      });
+
+      expect(apiFetch).toHaveBeenCalledWith(
+        endpoint('/api/v1/households/hh-1/lists/main/items/a'),
+        { method: 'DELETE', body: undefined },
+      );
+      expect(client.getQueryData(KEY)).toEqual({ items: ['b'] });
+    });
+
+    it('shows the change while the request is out', async () => {
+      let answer: (response: Response) => void = () => undefined;
+      const { result, client } = setupList(new Promise((resolve) => (answer = resolve)));
+
+      act(() => {
+        result.current.mutate('a');
+      });
+
+      await waitFor(() => expect(client.getQueryData(KEY)).toEqual({ items: ['b'] }));
+      await act(async () => answer(new Response(null, { status: 204 })));
+    });
+
+    it('puts the old data back when the answer is a failure', async () => {
+      const { result, client } = setupList(
+        new Response(JSON.stringify({ reason: 'not-found' }), { status: 404 }),
+      );
+
+      await act(async () => {
+        await result.current.mutateAsync('a');
+      });
+
+      expect(client.getQueryData(KEY)).toEqual({ items: ['a', 'b'] });
+    });
+
+    it('puts the old data back when the request throws', async () => {
+      const { session, apiFetch } = createSession(SessionStatus.SignedIn);
+      apiFetch.mockRejectedValue(new Error('offline'));
+      const client = new QueryClient();
+      client.setQueryData(KEY, { items: ['a'] });
+      const { result } = renderHook(
+        () =>
+          useApiMutation({
+            name: MutationName.deleteItem,
+            service: WebService.listItem,
+            method: 'DELETE',
+            toBody: () => undefined,
+            toParams: () => ({ householdId: 'hh-1', listId: 'main', itemId: 'a' }),
+            reasons: [] as const,
+            onSuccess: vi.fn(),
+            optimistic: {
+              queryKey: KEY,
+              update: () => ({ items: [] }),
+            },
+          }),
+        { wrapper: createSessionWrapper(session, client) },
+      );
+
+      await act(async () => {
+        await result.current.mutateAsync('a').catch(() => undefined);
+      });
+
+      expect(client.getQueryData(KEY)).toEqual({ items: ['a'] });
+    });
   });
 });

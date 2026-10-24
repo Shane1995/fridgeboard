@@ -1,13 +1,13 @@
 import { act, waitFor } from '@testing-library/react';
 import { UNSORTED_BUCKET_ID } from '../../../../services/shoppingList/constants';
-import { testRepository } from '../../../../testUtils/testRepository';
+import { fakeShoppingList } from '../../../../testUtils/fakeShoppingList';
 import type { ListItem } from '../../../../services/shoppingList/types';
 import { renderHookWithHousehold } from '../../../../testUtils/createShoppingListWrapper';
 import { DELETE_ACTION, INFO_ACTION, MOVE_ACTION_PREFIX } from '../../constants';
 import { useItemRow } from './index';
 
 const setup = async () => {
-  const item: ListItem = await testRepository.addItem({
+  const item: ListItem = await fakeShoppingList.addItem({
     name: 'Milk',
     bucketId: UNSORTED_BUCKET_ID,
   });
@@ -15,7 +15,7 @@ const setup = async () => {
   return { item, result };
 };
 
-const stored = async () => (await testRepository.listItems())[0];
+const stored = async () => (await fakeShoppingList.listItems())[0];
 
 describe('useItemRow', () => {
   beforeEach(() => window.localStorage.clear());

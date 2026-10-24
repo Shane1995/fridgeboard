@@ -1,12 +1,23 @@
-import { MutationName } from '../../services/configuration/schema/constants';
-import type { Bucket, NewBucket } from '../../services/shoppingList/types';
-import { BUCKETS_QUERY_KEY } from '../useBucketsQuery/constants';
+import type { IBucket } from '@fridgeboard/contract/lists';
+import type { ApiResult } from '../../services/api/sendJson/types';
+import { MutationName, WebService } from '../../services/configuration/schema/constants';
+import { POST } from '../../services/session/constants';
+import type { NewBucket } from '../../services/shoppingList/types';
+import { useApiMutation } from '../useApiMutation';
+import { useListCache } from '../useListCache';
+import { useListParams } from '../useListParams';
 import type { MutationResult } from '../useMutation/types';
-import { useShoppingListMutation } from '../useShoppingListMutation';
 
-export const useCreateBucketMutation = (): MutationResult<Bucket, NewBucket> =>
-  useShoppingListMutation({
+export const useCreateBucketMutation = (): MutationResult<ApiResult<IBucket, never>, NewBucket> => {
+  const { paramsFor } = useListParams();
+  const { updateBuckets } = useListCache();
+  return useApiMutation({
     name: MutationName.createBucket,
-    write: ({ repository, variables }) => repository.createBucket(variables),
-    invalidates: [BUCKETS_QUERY_KEY],
+    service: WebService.listBuckets,
+    method: POST,
+    toBody: ({ name, color }: NewBucket) => ({ name, color }),
+    toParams: () => paramsFor(),
+    reasons: [],
+    onSuccess: (created) => updateBuckets({ update: (buckets) => [...buckets, created] }),
   });
+};

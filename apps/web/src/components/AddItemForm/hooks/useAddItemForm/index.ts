@@ -49,7 +49,10 @@ export const useAddItemForm = (focusedBucketId?: string): AddItemFormState => {
     if (trimmed === '' || addItem.isPending) {
       return;
     }
-    addItem.mutate({ name: trimmed, bucketId }, { onSuccess: () => setName('') });
+    addItem.mutate(
+      { name: trimmed, bucketId },
+      { onSuccess: (result) => result.ok && setName('') },
+    );
   };
 
   return {

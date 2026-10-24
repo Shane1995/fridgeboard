@@ -1,12 +1,27 @@
-import { MutationName } from '../../services/configuration/schema/constants';
+import type { IListItemsResponse } from '@fridgeboard/contract/lists';
+import type { ApiResult } from '../../services/api/sendJson/types';
+import { MutationName, WebService } from '../../services/configuration/schema/constants';
+import { DELETE } from '../../services/session/constants';
+import { useApiMutation } from '../useApiMutation';
 import { ITEMS_QUERY_KEY } from '../useItemsQuery/constants';
+import { useListParams } from '../useListParams';
 import type { MutationResult } from '../useMutation/types';
-import { useShoppingListMutation } from '../useShoppingListMutation';
 
-export const useDeleteItemMutation = (): MutationResult<void, string> =>
-  useShoppingListMutation({
+export const useDeleteItemMutation = (): MutationResult<ApiResult<undefined, never>, string> => {
+  const { paramsFor, queryKeyFor } = useListParams();
+  return useApiMutation({
     name: MutationName.deleteItem,
-    write: ({ repository, variables }) => repository.deleteItem({ id: variables }),
-    invalidates: [ITEMS_QUERY_KEY],
-    optimistic: ({ items, variables }) => items.filter(({ id }) => id !== variables),
+    service: WebService.listItem,
+    method: DELETE,
+    toBody: () => undefined,
+    toParams: (id: string) => paramsFor({ itemId: id }),
+    reasons: [],
+    onSuccess: () => undefined,
+    optimistic: {
+      queryKey: queryKeyFor(ITEMS_QUERY_KEY),
+      update: ({ current, variables }: { current: IListItemsResponse; variables: string }) => ({
+        items: current.items.filter(({ id }) => id !== variables),
+      }),
+    },
   });
+};

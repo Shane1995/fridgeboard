@@ -71,4 +71,22 @@ describe('useApiQuery', () => {
     expect(apiFetch).toHaveBeenCalledWith(endpoint('/api/v1/households/hh-1/members'));
     expect(client.getQueryData(['members', { householdId: 'hh-1' }])).toEqual(BODY);
   });
+
+  it('hands the cached response to select and caches the raw response', async () => {
+    const client = new QueryClient();
+    const { session, apiFetch } = createSession(SessionStatus.SignedIn);
+    apiFetch.mockResolvedValue(new Response(JSON.stringify(BODY), { status: 200 }));
+    const { result } = renderHook(
+      () =>
+        useApiQuery({
+          name: 'picked',
+          service: WebService.me,
+          select: (response: typeof BODY) => response.sub.toUpperCase(),
+        }),
+      { wrapper: createSessionWrapper(session, client) },
+    );
+
+    await waitFor(() => expect(result.current.data).toBe('SUB-1'));
+    expect(client.getQueryData(['picked'])).toEqual(BODY);
+  });
 });

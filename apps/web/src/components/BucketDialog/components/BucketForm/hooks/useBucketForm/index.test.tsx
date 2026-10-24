@@ -1,6 +1,6 @@
 import { act, waitFor } from '@testing-library/react';
 import { BucketColor } from '../../../../../../services/shoppingList/constants';
-import { testRepository } from '../../../../../../testUtils/testRepository';
+import { fakeShoppingList } from '../../../../../../testUtils/fakeShoppingList';
 import { renderHookWithHousehold } from '../../../../../../testUtils/createShoppingListWrapper';
 import { useBucketForm } from './index';
 
@@ -21,13 +21,13 @@ describe('useBucketForm', () => {
     submit(result);
 
     await waitFor(() => expect(onDone).toHaveBeenCalled());
-    expect(await testRepository.listBuckets()).toMatchObject([
+    expect(await fakeShoppingList.listBuckets()).toMatchObject([
       { name: 'Express', color: BucketColor.Grape },
     ]);
   });
 
   it('starts from the bucket being edited and saves the changes', async () => {
-    const bucket = await testRepository.createBucket({
+    const bucket = await fakeShoppingList.createBucket({
       name: 'Express',
       color: BucketColor.Mint,
     });
@@ -40,11 +40,11 @@ describe('useBucketForm', () => {
     submit(result);
 
     await waitFor(() => expect(onDone).toHaveBeenCalled());
-    expect((await testRepository.listBuckets())[0]?.name).toBe('Tesco');
+    expect((await fakeShoppingList.listBuckets())[0]?.name).toBe('Tesco');
   });
 
   it('deletes the bucket being edited', async () => {
-    const bucket = await testRepository.createBucket({
+    const bucket = await fakeShoppingList.createBucket({
       name: 'Express',
       color: BucketColor.Mint,
     });
@@ -54,7 +54,7 @@ describe('useBucketForm', () => {
     act(() => result.current.handleDelete());
 
     await waitFor(() => expect(onDone).toHaveBeenCalled());
-    expect(await testRepository.listBuckets()).toEqual([]);
+    expect(await fakeShoppingList.listBuckets()).toEqual([]);
   });
 
   it('has nothing to delete when creating', async () => {
@@ -74,6 +74,6 @@ describe('useBucketForm', () => {
     submit(result);
 
     expect(onDone).not.toHaveBeenCalled();
-    expect(await testRepository.listBuckets()).toEqual([]);
+    expect(await fakeShoppingList.listBuckets()).toEqual([]);
   });
 });

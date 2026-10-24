@@ -1,13 +1,29 @@
-import { MutationName } from '../../services/configuration/schema/constants';
-import type { ListItem, NewItem } from '../../services/shoppingList/types';
-import { ITEMS_QUERY_KEY } from '../useItemsQuery/constants';
-import { SUGGESTIONS_QUERY_KEY } from '../useSuggestions/constants';
+import type { IListItem } from '@fridgeboard/contract/lists';
+import type { ApiResult } from '../../services/api/sendJson/types';
+import { MutationName, WebService } from '../../services/configuration/schema/constants';
+import { POST } from '../../services/session/constants';
+import type { NewItem } from '../../services/shoppingList/types';
+import { useApiMutation } from '../useApiMutation';
+import { useInvalidateQueries } from '../useInvalidateQueries';
+import { useListCache } from '../useListCache';
+import { useListParams } from '../useListParams';
 import type { MutationResult } from '../useMutation/types';
-import { useShoppingListMutation } from '../useShoppingListMutation';
+import { SUGGESTIONS_QUERY_KEY } from '../useSuggestions/constants';
 
-export const useAddItemMutation = (): MutationResult<ListItem, NewItem> =>
-  useShoppingListMutation({
+export const useAddItemMutation = (): MutationResult<ApiResult<IListItem, never>, NewItem> => {
+  const { paramsFor } = useListParams();
+  const invalidate = useInvalidateQueries();
+  const { updateItems } = useListCache();
+  return useApiMutation({
     name: MutationName.addItem,
-    write: ({ repository, variables }) => repository.addItem(variables),
-    invalidates: [ITEMS_QUERY_KEY, SUGGESTIONS_QUERY_KEY],
+    service: WebService.listItems,
+    method: POST,
+    toBody: ({ name, bucketId }: NewItem) => ({ name, bucketId }),
+    toParams: () => paramsFor(),
+    reasons: [],
+    onSuccess: (added) => {
+      updateItems({ update: (items) => [...items, added] });
+      void invalidate({ keys: [SUGGESTIONS_QUERY_KEY], refetchType: 'none' });
+    },
   });
+};
