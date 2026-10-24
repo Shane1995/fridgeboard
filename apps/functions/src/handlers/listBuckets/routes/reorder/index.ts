@@ -13,7 +13,7 @@ export const reorderListBuckets = async ({ user, table, scope }: ListRouteContex
     return jsonResponse(400, { reason: 'invalid-request' });
   }
 
-  const existing = await queryBuckets(table, scope);
+  const existing = await queryBuckets({ table, scope });
   if (!ids.every((id) => existing.some((bucket) => bucket.id === id))) {
     return jsonResponse(400, { reason: 'invalid-bucket' });
   }
@@ -29,11 +29,11 @@ export const reorderListBuckets = async ({ user, table, scope }: ListRouteContex
     reordered
       .filter((bucket, index) => existing.find(({ id }) => id === bucket.id)?.order !== index)
       .map((bucket) =>
-        table.update(
-          bucketKey(scope.householdId, scope.listId, bucket.id),
-          { set: { order: bucket.order } },
-          BucketItemSchema,
-        ),
+        table.update({
+          key: bucketKey({ ...scope, bucketId: bucket.id }),
+          parts: { set: { order: bucket.order } },
+          schema: BucketItemSchema,
+        }),
       ),
   );
   return jsonResponse(200, { buckets: reordered });

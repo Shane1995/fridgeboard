@@ -7,16 +7,19 @@ import { historyKey } from '../../../../utils/keys/historyKey/index.ts';
 import { itemKey } from '../../../../utils/keys/itemKey/index.ts';
 import { readJsonBody } from '../../../../utils/readJsonBody/index.ts';
 import { readText } from '../../../../utils/readText/index.ts';
-import type { ListRouteContext } from '../../../../utils/resolveList/types.ts';
+import type { ItemRouteOptions } from '../../../../utils/resolveList/types.ts';
 import { toListItem } from '../../utils/toListItem/index.ts';
 
-export const updateListItem = async ({ user, table, scope }: ListRouteContext, itemId: string) => {
+export const updateListItem = async ({
+  context: { user, table, scope },
+  itemId,
+}: ItemRouteOptions) => {
   const body = readJsonBody(user.event);
   const fields = typeof body === 'object' && body !== null ? (body as Record<string, unknown>) : {};
   const set: Record<string, unknown> = {};
 
   if ('name' in fields) {
-    const name = readText(fields.name, LIST_ITEM_NAME_MAX_LENGTH);
+    const name = readText({ value: fields.name, maxLength: LIST_ITEM_NAME_MAX_LENGTH });
     if (name === undefined) {
       return jsonResponse(400, { reason: 'invalid-name' });
     }
@@ -25,7 +28,7 @@ export const updateListItem = async ({ user, table, scope }: ListRouteContext, i
   if ('bucketId' in fields) {
     if (
       typeof fields.bucketId !== 'string' ||
-      !(await bucketExists(table, scope, fields.bucketId))
+      !(await bucketExists({ table, scope, bucketId: fields.bucketId }))
     ) {
       return jsonResponse(400, { reason: 'invalid-bucket' });
     }
@@ -41,20 +44,20 @@ export const updateListItem = async ({ user, table, scope }: ListRouteContext, i
     return jsonResponse(400, { reason: 'invalid-request' });
   }
 
-  const updated = await table.update(
-    itemKey(scope.householdId, scope.listId, itemId),
-    { set },
-    ListItemSchema,
-  );
+  const updated = await table.update({
+    key: itemKey({ ...scope, itemId }),
+    parts: { set },
+    schema: ListItemSchema,
+  });
   if (updated === undefined) {
     return jsonResponse(404, { reason: 'not-found' });
   }
   if (typeof set.bucketId === 'string') {
-    await table.update(
-      historyKey(scope.householdId, scope.listId, updated.name),
-      { set: { bucketId: set.bucketId } },
-      HistoryItemSchema,
-    );
+    await table.update({
+      key: historyKey({ ...scope, name: updated.name }),
+      parts: { set: { bucketId: set.bucketId } },
+      schema: HistoryItemSchema,
+    });
   }
   return jsonResponse(200, toListItem(updated));
 };

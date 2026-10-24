@@ -21,7 +21,7 @@ describe('useHome', () => {
     });
     const milk = await testRepository.addItem({ name: 'Milk', bucketId: bucket.id });
     const eggs = await testRepository.addItem({ name: 'Eggs', bucketId: bucket.id });
-    await testRepository.updateItem(eggs.id, { checked: true });
+    await testRepository.updateItem({ id: eggs.id, changes: { checked: true } });
     const { result } = renderHook(() => useHome(), { wrapper: createShoppingListWrapper() });
 
     await waitFor(() => expect(result.current.hasItems).toBe(true));

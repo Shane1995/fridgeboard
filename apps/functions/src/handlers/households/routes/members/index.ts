@@ -25,7 +25,7 @@ export const listMembers = async (
   if (
     householdId === undefined ||
     !ID_PATTERN.test(householdId) ||
-    !(await isMember(table, householdId, sub))
+    !(await isMember({ table, householdId, sub }))
   ) {
     return jsonResponse(404, { reason: 'not-found' });
   }

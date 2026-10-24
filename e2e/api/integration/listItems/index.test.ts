@@ -64,7 +64,11 @@ describe('list items handler against DynamoDB Local', () => {
       addedBy: member.sub,
     });
     expect(history.entries).toEqual([{ name: 'oat milk', bucketId: 'unsorted', count: 2 }]);
-    expect(await getItem(historyKey(member.householdId, 'main', 'Oat Milk'))).toMatchObject({
+    expect(
+      await getItem(
+        historyKey({ householdId: member.householdId, listId: 'main', name: 'Oat Milk' }),
+      ),
+    ).toMatchObject({
       count: 2,
     });
   });
@@ -76,7 +80,7 @@ describe('list items handler against DynamoDB Local', () => {
       new PutCommand({
         TableName: TABLE_NAME,
         Item: {
-          ...bucketKey(member.householdId, 'main', bucketId),
+          ...bucketKey({ householdId: member.householdId, listId: 'main', bucketId: bucketId }),
           id: bucketId,
           name: 'Aldi',
           color: 'sky',
@@ -96,10 +100,16 @@ describe('list items handler against DynamoDB Local', () => {
 
     expect(updated.statusCode).toBe(200);
     expect(json(updated)).toMatchObject({ checked: true, name: 'Free eggs', bucketId });
-    expect(await getItem(itemKey(member.householdId, 'main', id))).toMatchObject({
+    expect(
+      await getItem(itemKey({ householdId: member.householdId, listId: 'main', itemId: id })),
+    ).toMatchObject({
       name: 'Free eggs',
     });
-    expect(await getItem(historyKey(member.householdId, 'main', 'Free eggs'))).toBeUndefined();
+    expect(
+      await getItem(
+        historyKey({ householdId: member.householdId, listId: 'main', name: 'Free eggs' }),
+      ),
+    ).toBeUndefined();
   });
 
   it('moves the history entry of an item to the new bucket', async () => {
@@ -108,7 +118,7 @@ describe('list items handler against DynamoDB Local', () => {
       new PutCommand({
         TableName: TABLE_NAME,
         Item: {
-          ...bucketKey(member.householdId, 'main', 'b1'),
+          ...bucketKey({ householdId: member.householdId, listId: 'main', bucketId: 'b1' }),
           id: 'b1',
           name: 'Aldi',
           color: 'sky',
@@ -120,7 +130,9 @@ describe('list items handler against DynamoDB Local', () => {
 
     await call(member, 'PATCH', `/items/${id}`, { bucketId: 'b1' }, id);
 
-    expect(await getItem(historyKey(member.householdId, 'main', 'Eggs'))).toMatchObject({
+    expect(
+      await getItem(historyKey({ householdId: member.householdId, listId: 'main', name: 'Eggs' })),
+    ).toMatchObject({
       bucketId: 'b1',
     });
   });

@@ -32,11 +32,11 @@ export type Table = {
     schema: TSchema,
   ) => Promise<z.infer<TSchema>[]>;
   put: (item: TableKey & Record<string, unknown>) => Promise<void>;
-  update: <TSchema extends ItemSchema>(
-    key: TableKey,
-    parts: UpdateParts,
-    schema: TSchema,
-  ) => Promise<z.infer<TSchema> | undefined>;
+  update: <TSchema extends ItemSchema>(change: {
+    key: TableKey;
+    parts: UpdateParts;
+    schema: TSchema;
+  }) => Promise<z.infer<TSchema> | undefined>;
   remove: (key: TableKey) => Promise<boolean>;
   transactWrite: (items: TransactItem[]) => Promise<void>;
 };

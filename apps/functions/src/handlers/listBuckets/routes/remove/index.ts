@@ -5,9 +5,12 @@ import { bucketKey } from '../../../../utils/keys/bucketKey/index.ts';
 import { HOUSEHOLD_PK_PREFIX } from '../../../../utils/keys/constants.ts';
 import { itemKey } from '../../../../utils/keys/itemKey/index.ts';
 import { itemPrefix } from '../../../../utils/keys/itemPrefix/index.ts';
-import type { ListRouteContext } from '../../../../utils/resolveList/types.ts';
+import type { BucketRouteOptions } from '../../../../utils/resolveList/types.ts';
 
-export const removeListBucket = async ({ table, scope }: ListRouteContext, bucketId: string) => {
+export const removeListBucket = async ({
+  context: { table, scope },
+  bucketId,
+}: BucketRouteOptions) => {
   const { householdId, listId } = scope;
   const items = await table.query(
     {
@@ -23,14 +26,14 @@ export const removeListBucket = async ({ table, scope }: ListRouteContext, bucke
     items
       .filter((item) => item.bucketId === bucketId)
       .map((item) =>
-        table.update(
-          itemKey(householdId, listId, item.id),
-          { set: { bucketId: UNSORTED_BUCKET_ID } },
-          ListItemSchema,
-        ),
+        table.update({
+          key: itemKey({ householdId, listId, itemId: item.id }),
+          parts: { set: { bucketId: UNSORTED_BUCKET_ID } },
+          schema: ListItemSchema,
+        }),
       ),
   );
-  return (await table.remove(bucketKey(householdId, listId, bucketId)))
+  return (await table.remove(bucketKey({ householdId, listId, bucketId })))
     ? { statusCode: 204 }
     : jsonResponse(404, { reason: 'not-found' });
 };

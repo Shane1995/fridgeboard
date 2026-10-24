@@ -5,8 +5,8 @@ import type { MutationResult } from '../useMutation/types';
 import { useShoppingListMutation } from '../useShoppingListMutation';
 
 export const useReorderBucketsMutation = (): MutationResult<Bucket[], readonly string[]> =>
-  useShoppingListMutation(
-    MutationName.reorderBuckets,
-    (repository, variables) => repository.reorderBuckets(variables),
-    [BUCKETS_QUERY_KEY],
-  );
+  useShoppingListMutation({
+    name: MutationName.reorderBuckets,
+    write: ({ repository, variables }) => repository.reorderBuckets({ ids: variables }),
+    invalidates: [BUCKETS_QUERY_KEY],
+  });

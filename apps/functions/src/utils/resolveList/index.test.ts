@@ -19,7 +19,10 @@ describe('resolveList', () => {
   it('returns the household and list for a member', async () => {
     ddbMock.on(GetCommand).resolves({ Item: { GSI1SK: 'HH#hh-1', role: 'member' } });
 
-    const scope = await resolveList(userFor({ householdId: 'hh-1', listId: 'main' }), table);
+    const scope = await resolveList({
+      user: userFor({ householdId: 'hh-1', listId: 'main' }),
+      table,
+    });
 
     expect(scope).toEqual({ householdId: 'hh-1', listId: 'main' });
     expect(ddbMock.commandCalls(GetCommand)[0]?.args[0].input.Key).toEqual({
@@ -32,7 +35,7 @@ describe('resolveList', () => {
     ddbMock.on(GetCommand).resolves({});
 
     expect(
-      await resolveList(userFor({ householdId: 'hh-1', listId: 'main' }), table),
+      await resolveList({ user: userFor({ householdId: 'hh-1', listId: 'main' }), table }),
     ).toBeUndefined();
   });
 
@@ -42,7 +45,7 @@ describe('resolveList', () => {
     [{ householdId: 'hh-1', listId: 'a#b' }],
     [{ householdId: 'hh#1', listId: 'main' }],
   ])('rejects bad path parameters %j without reading the table', async (pathParameters) => {
-    expect(await resolveList(userFor(pathParameters), table)).toBeUndefined();
+    expect(await resolveList({ user: userFor(pathParameters), table })).toBeUndefined();
     expect(ddbMock.commandCalls(GetCommand)).toHaveLength(0);
   });
 });

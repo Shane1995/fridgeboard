@@ -4,6 +4,9 @@ import type { MutationResult } from '../useMutation/types';
 import { useShoppingListMutation } from '../useShoppingListMutation';
 
 export const useClearCheckedMutation = (): MutationResult<void, void> =>
-  useShoppingListMutation(MutationName.clearChecked, (repository) => repository.clearChecked(), [
-    ITEMS_QUERY_KEY,
-  ]);
+  useShoppingListMutation({
+    name: MutationName.clearChecked,
+    write: ({ repository }) => repository.clearChecked(),
+    invalidates: [ITEMS_QUERY_KEY],
+    optimistic: ({ items }) => items.filter(({ checked }) => !checked),
+  });

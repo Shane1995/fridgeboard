@@ -20,7 +20,16 @@ export const TEST_WEB_CONFIGURATION: WebConfiguration = {
   services: {
     api: {
       endpoints: {
+        [WebService.householdMembers]: '/api/v1/households/{householdId}/members',
         [WebService.households]: '/api/v1/households',
+        [WebService.listBucket]:
+          '/api/v1/households/{householdId}/lists/{listId}/buckets/{bucketId}',
+        [WebService.listBuckets]: '/api/v1/households/{householdId}/lists/{listId}/buckets',
+        [WebService.listBucketsOrder]:
+          '/api/v1/households/{householdId}/lists/{listId}/buckets/order',
+        [WebService.listHistory]: '/api/v1/households/{householdId}/lists/{listId}/history',
+        [WebService.listItem]: '/api/v1/households/{householdId}/lists/{listId}/items/{itemId}',
+        [WebService.listItems]: '/api/v1/households/{householdId}/lists/{listId}/items',
         [WebService.me]: '/api/v1/me',
         [WebService.onboarding]: '/api/v1/me/onboarding',
         [WebService.passkeyStart]: '/api/v1/auth/passkey/start',

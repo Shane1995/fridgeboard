@@ -16,7 +16,7 @@ const client = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 
 export const handler = withAuthenticatedUser(async (user) => {
   const table = createTable(client, String(process.env.TABLE_NAME));
-  const scope = await resolveList(user, table);
+  const scope = await resolveList({ user, table });
   if (scope === undefined) {
     return jsonResponse(404, { reason: 'not-found' });
   }
@@ -39,9 +39,9 @@ export const handler = withAuthenticatedUser(async (user) => {
   }
   switch (method) {
     case HttpMethod.Patch:
-      return updateListBucket(context, bucketId);
+      return updateListBucket({ context, bucketId });
     case HttpMethod.Delete:
-      return removeListBucket(context, bucketId);
+      return removeListBucket({ context, bucketId });
     default:
       return { statusCode: 405 };
   }

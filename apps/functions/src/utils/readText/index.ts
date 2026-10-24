@@ -1,4 +1,6 @@
-export const readText = (value: unknown, maxLength: number): string | undefined => {
+import type { ReadTextOptions } from './types.ts';
+
+export const readText = ({ value, maxLength }: ReadTextOptions): string | undefined => {
   if (typeof value !== 'string') {
     return undefined;
   }

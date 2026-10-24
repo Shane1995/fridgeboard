@@ -8,8 +8,8 @@ export const useUpdateBucketMutation = (): MutationResult<
   Bucket,
   { id: string; changes: BucketChanges }
 > =>
-  useShoppingListMutation(
-    MutationName.updateBucket,
-    (repository, { id, changes }) => repository.updateBucket(id, changes),
-    [BUCKETS_QUERY_KEY],
-  );
+  useShoppingListMutation({
+    name: MutationName.updateBucket,
+    write: ({ repository, variables }) => repository.updateBucket(variables),
+    invalidates: [BUCKETS_QUERY_KEY],
+  });

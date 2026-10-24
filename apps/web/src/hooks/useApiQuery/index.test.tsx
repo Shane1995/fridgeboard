@@ -52,4 +52,23 @@ describe('useApiQuery', () => {
 
     expect(apiFetch).not.toHaveBeenCalled();
   });
+
+  it('fills the endpoint placeholders and keys the cache by the params', async () => {
+    const client = new QueryClient();
+    const { session, apiFetch } = createSession(SessionStatus.SignedIn);
+    apiFetch.mockResolvedValue(new Response(JSON.stringify(BODY), { status: 200 }));
+    const { result } = renderHook(
+      () =>
+        useApiQuery({
+          name: 'members',
+          service: WebService.householdMembers,
+          params: { householdId: 'hh-1' },
+        }),
+      { wrapper: createSessionWrapper(session, client) },
+    );
+
+    await waitFor(() => expect(result.current.data).toEqual(BODY));
+    expect(apiFetch).toHaveBeenCalledWith(endpoint('/api/v1/households/hh-1/members'));
+    expect(client.getQueryData(['members', { householdId: 'hh-1' }])).toEqual(BODY);
+  });
 });

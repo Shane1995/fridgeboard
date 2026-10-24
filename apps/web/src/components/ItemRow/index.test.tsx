@@ -14,12 +14,12 @@ const ITEM: ListItem = {
 };
 const EXPRESS: Bucket = { id: 'b1', name: 'Express', color: BucketColor.Mint, order: 0 };
 
-const renderRow = () => {
+const renderRow = (moveTargets: Bucket[] = [EXPRESS]) => {
   const Wrapper = createShoppingListWrapper();
   render(
     <Wrapper>
       <ul>
-        <ItemRow item={ITEM} moveTargets={[EXPRESS]} />
+        <ItemRow item={ITEM} moveTargets={moveTargets} />
       </ul>
     </Wrapper>,
   );
@@ -42,5 +42,15 @@ describe('ItemRow', () => {
     expect(screen.getByRole('menuitem', { name: ITEM_ROW_COPY.move })).toBeInTheDocument();
     expect(screen.getByRole('menuitem', { name: ITEM_ROW_COPY.delete })).toBeInTheDocument();
     expect(screen.queryByRole('menuitem', { name: 'Express' })).not.toBeInTheDocument();
+  });
+
+  it('leaves out Move when there is nowhere to move the item', async () => {
+    renderRow([]);
+
+    fireEvent.click(screen.getByRole('button', { name: ITEM_ROW_COPY.menu }));
+
+    expect(await screen.findByRole('menuitem', { name: ITEM_ROW_COPY.info })).toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: ITEM_ROW_COPY.move })).not.toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: ITEM_ROW_COPY.delete })).toBeInTheDocument();
   });
 });

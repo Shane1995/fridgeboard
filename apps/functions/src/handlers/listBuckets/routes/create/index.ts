@@ -12,7 +12,7 @@ import { readColor } from '../../utils/readColor/index.ts';
 export const createListBucket = async ({ user, table, scope }: ListRouteContext) => {
   const body = readJsonBody(user.event);
   const fields = typeof body === 'object' && body !== null ? (body as Record<string, unknown>) : {};
-  const name = readText(fields.name, BUCKET_NAME_MAX_LENGTH);
+  const name = readText({ value: fields.name, maxLength: BUCKET_NAME_MAX_LENGTH });
   if (name === undefined) {
     return jsonResponse(400, { reason: 'invalid-name' });
   }
@@ -21,9 +21,9 @@ export const createListBucket = async ({ user, table, scope }: ListRouteContext)
     return jsonResponse(400, { reason: 'invalid-color' });
   }
 
-  const existing = await queryBuckets(table, scope);
+  const existing = await queryBuckets({ table, scope });
   const order = existing.reduce((highest, bucket) => Math.max(highest, bucket.order), -1) + 1;
   const bucket: IBucket = { id: newId(), name, color, order };
-  await table.put({ ...bucketKey(scope.householdId, scope.listId, bucket.id), ...bucket });
+  await table.put({ ...bucketKey({ ...scope, bucketId: bucket.id }), ...bucket });
   return jsonResponse(201, bucket);
 };

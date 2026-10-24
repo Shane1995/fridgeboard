@@ -114,7 +114,9 @@ describe('list buckets handler against DynamoDB Local', () => {
     const removed = await call(member, 'DELETE', `/${bucketId}`, undefined, bucketId);
 
     expect(removed.statusCode).toBe(204);
-    expect(await getItem(itemKey(member.householdId, 'main', itemId))).toMatchObject({
+    expect(
+      await getItem(itemKey({ householdId: member.householdId, listId: 'main', itemId: itemId })),
+    ).toMatchObject({
       bucketId: 'unsorted',
     });
     expect(json(await call(member, 'GET')).buckets).toEqual([]);

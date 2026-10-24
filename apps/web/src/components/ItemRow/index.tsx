@@ -70,21 +70,23 @@ export const ItemRow = ({ item, moveTargets }: ItemRowProps) => {
             <Dropdown.Item id={INFO_ACTION} textValue={ITEM_ROW_COPY.info}>
               {ITEM_ROW_COPY.info}
             </Dropdown.Item>
-            <Dropdown.SubmenuTrigger>
-              <Dropdown.Item id={MOVE_ACTION} textValue={ITEM_ROW_COPY.move}>
-                {ITEM_ROW_COPY.move}
-                <Dropdown.SubmenuIndicator />
-              </Dropdown.Item>
-              <Dropdown.Popover>
-                <Dropdown.Menu aria-label={ITEM_ROW_COPY.moveTo} onAction={handleMenuAction}>
-                  {moveTargets.map(({ id, name }) => (
-                    <Dropdown.Item key={id} id={`${MOVE_ACTION_PREFIX}${id}`} textValue={name}>
-                      {name}
-                    </Dropdown.Item>
-                  ))}
-                </Dropdown.Menu>
-              </Dropdown.Popover>
-            </Dropdown.SubmenuTrigger>
+            {moveTargets.length > 0 && (
+              <Dropdown.SubmenuTrigger>
+                <Dropdown.Item id={MOVE_ACTION} textValue={ITEM_ROW_COPY.move}>
+                  {ITEM_ROW_COPY.move}
+                  <Dropdown.SubmenuIndicator />
+                </Dropdown.Item>
+                <Dropdown.Popover>
+                  <Dropdown.Menu aria-label={ITEM_ROW_COPY.moveTo} onAction={handleMenuAction}>
+                    {moveTargets.map(({ id, name }) => (
+                      <Dropdown.Item key={id} id={`${MOVE_ACTION_PREFIX}${id}`} textValue={name}>
+                        {name}
+                      </Dropdown.Item>
+                    ))}
+                  </Dropdown.Menu>
+                </Dropdown.Popover>
+              </Dropdown.SubmenuTrigger>
+            )}
             <Dropdown.Item id={DELETE_ACTION} textValue={ITEM_ROW_COPY.delete} variant="danger">
               {ITEM_ROW_COPY.delete}
             </Dropdown.Item>
