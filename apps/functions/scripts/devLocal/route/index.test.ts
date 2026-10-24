@@ -7,9 +7,9 @@ const api = {
     username: '/api/v2/profile/name',
     households: '/api/v2/households',
     householdMembers: '/api/v2/households/{householdId}/members',
-    listBucket: '/api/v2/households/{householdId}/lists/{listId}/buckets/{bucketId}',
-    listBuckets: '/api/v2/households/{householdId}/lists/{listId}/buckets',
-    listBucketsOrder: '/api/v2/households/{householdId}/lists/{listId}/buckets/order',
+    listShop: '/api/v2/households/{householdId}/lists/{listId}/shops/{shopId}',
+    listShops: '/api/v2/households/{householdId}/lists/{listId}/shops',
+    listShopsOrder: '/api/v2/households/{householdId}/lists/{listId}/shops/order',
     listHistory: '/api/v2/households/{householdId}/lists/{listId}/history',
     listItem: '/api/v2/households/{householdId}/lists/{listId}/items/{itemId}',
     listItems: '/api/v2/households/{householdId}/lists/{listId}/items',
@@ -37,15 +37,15 @@ describe('buildRoutes', () => {
     expect(routes.has('GET /api/v1/me')).toBe(false);
   });
 
-  it('serves the list, bucket, history and member routes by their templated paths', () => {
+  it('serves the list, shop, history and member routes by their templated paths', () => {
     const keys = [...buildRoutes(api).keys()];
 
     expect(keys).toEqual(
       expect.arrayContaining([
         'GET /api/v2/households/{householdId}/lists/{listId}/items',
         'PATCH /api/v2/households/{householdId}/lists/{listId}/items/{itemId}',
-        'PUT /api/v2/households/{householdId}/lists/{listId}/buckets/order',
-        'DELETE /api/v2/households/{householdId}/lists/{listId}/buckets/{bucketId}',
+        'PUT /api/v2/households/{householdId}/lists/{listId}/shops/order',
+        'DELETE /api/v2/households/{householdId}/lists/{listId}/shops/{shopId}',
         'GET /api/v2/households/{householdId}/lists/{listId}/history',
         'GET /api/v2/households/{householdId}/members',
       ]),

@@ -1,22 +1,22 @@
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useAddItemMutation } from '../../../../hooks/useAddItemMutation';
-import { useBucketsQuery } from '../../../../hooks/useBucketsQuery';
+import { useShopsQuery } from '../../../../hooks/useShopsQuery';
 import { useItemsQuery } from '../../../../hooks/useItemsQuery';
 import { useSuggestions } from '../../../../hooks/useSuggestions';
 import { useLocalStorage } from '../../../../hooks/useLocalStorage';
 import {
-  LAST_BUCKET_STORAGE_KEY,
-  UNSORTED_BUCKET_ID,
+  LAST_SHOP_STORAGE_KEY,
+  UNSORTED_SHOP_ID,
 } from '../../../../services/shoppingList/constants';
-import { UNSORTED_BUCKET } from '../../../../services/shoppingList/utils/groupItemsByBucket';
+import { UNSORTED_SHOP } from '../../../../services/shoppingList/utils/groupItemsByShop';
 import type { HistoryEntry } from '../../../../services/shoppingList/types';
 import type { AddItemFormState } from './types';
 
-export const useAddItemForm = (focusedBucketId?: string): AddItemFormState => {
+export const useAddItemForm = (focusedShopId?: string): AddItemFormState => {
   const [name, setName] = useState('');
-  const [lastBucketId, setLastBucketId] = useLocalStorage(LAST_BUCKET_STORAGE_KEY);
-  const { data } = useBucketsQuery();
+  const [lastShopId, setLastShopId] = useLocalStorage(LAST_SHOP_STORAGE_KEY);
+  const { data } = useShopsQuery();
   const addItem = useAddItemMutation();
   const query = name.trim();
   const { data: items } = useItemsQuery();
@@ -24,22 +24,22 @@ export const useAddItemForm = (focusedBucketId?: string): AddItemFormState => {
   const found = useSuggestions({ query, onList });
 
   useEffect(() => {
-    if (focusedBucketId !== undefined) {
-      setLastBucketId(focusedBucketId);
+    if (focusedShopId !== undefined) {
+      setLastShopId(focusedShopId);
     }
-  }, [focusedBucketId, setLastBucketId]);
+  }, [focusedShopId, setLastShopId]);
 
-  const buckets = [UNSORTED_BUCKET, ...(data ?? [])];
-  const bucketId = buckets.find(({ id }) => id === lastBucketId)?.id ?? UNSORTED_BUCKET_ID;
+  const shops = [UNSORTED_SHOP, ...(data ?? [])];
+  const shopId = shops.find(({ id }) => id === lastShopId)?.id ?? UNSORTED_SHOP_ID;
 
   const suggestions = found.filter(
     ({ name: known }) => known.toLowerCase() !== query.toLowerCase(),
   );
 
-  const pickSuggestion = ({ name: picked, bucketId: pickedBucket }: HistoryEntry) => {
+  const pickSuggestion = ({ name: picked, shopId: pickedShop }: HistoryEntry) => {
     setName(picked);
-    if (buckets.some(({ id }) => id === pickedBucket)) {
-      setLastBucketId(pickedBucket);
+    if (shops.some(({ id }) => id === pickedShop)) {
+      setLastShopId(pickedShop);
     }
   };
 
@@ -49,18 +49,15 @@ export const useAddItemForm = (focusedBucketId?: string): AddItemFormState => {
     if (trimmed === '' || addItem.isPending) {
       return;
     }
-    addItem.mutate(
-      { name: trimmed, bucketId },
-      { onSuccess: (result) => result.ok && setName('') },
-    );
+    addItem.mutate({ name: trimmed, shopId }, { onSuccess: (result) => result.ok && setName('') });
   };
 
   return {
     name,
     setName,
-    bucketId,
-    setBucketId: setLastBucketId,
-    buckets,
+    shopId,
+    setShopId: setLastShopId,
+    shops,
     suggestions,
     pickSuggestion,
     isAdding: addItem.isPending,

@@ -1,5 +1,5 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { useBucketsQuery } from '../../hooks/useBucketsQuery';
+import { useShopsQuery } from '../../hooks/useShopsQuery';
 import { useItemsQuery } from '../../hooks/useItemsQuery';
 import { createShoppingListWrapper } from '../createShoppingListWrapper';
 
@@ -11,7 +11,7 @@ export const renderShoppingListMutation = async <T,>(
     () => ({
       mutation: useMutationUnderTest(),
       items: useItemsQuery(),
-      buckets: useBucketsQuery(),
+      shops: useShopsQuery(),
     }),
     { wrapper: createShoppingListWrapper() },
   );

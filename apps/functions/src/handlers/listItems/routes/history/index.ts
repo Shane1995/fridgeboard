@@ -17,7 +17,7 @@ export const listHistory = async ({ table, scope }: ListRouteContext) => {
   );
   return jsonResponse(200, {
     entries: entries
-      .map(({ name, bucketId, count }) => ({ name, bucketId, count }))
+      .map(({ name, shopId, count }) => ({ name, shopId, count }))
       .sort((a, b) => b.count - a.count),
   });
 };

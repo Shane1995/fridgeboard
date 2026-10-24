@@ -1,5 +1,5 @@
 import { act, waitFor } from '@testing-library/react';
-import { UNSORTED_BUCKET_ID } from '../../services/shoppingList/constants';
+import { UNSORTED_SHOP_ID } from '../../services/shoppingList/constants';
 import { fakeShoppingList } from '../../testUtils/fakeShoppingList';
 import { renderShoppingListMutation } from '../../testUtils/renderShoppingListMutation';
 import { useUpdateItemMutation } from './index';
@@ -10,7 +10,7 @@ describe('useUpdateItemMutation', () => {
   it('ticks an item and refreshes the items query', async () => {
     const { id } = await fakeShoppingList.addItem({
       name: 'Milk',
-      bucketId: UNSORTED_BUCKET_ID,
+      shopId: UNSORTED_SHOP_ID,
     });
     const result = await renderShoppingListMutation(() => useUpdateItemMutation(), 1);
 

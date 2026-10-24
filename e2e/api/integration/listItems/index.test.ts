@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import { handler } from '../../../../apps/functions/src/handlers/listItems/index.ts';
 import { HouseholdRole } from '../../../../apps/functions/src/utils/isHouseholdRole/constants.ts';
-import { bucketKey } from '../../../../apps/functions/src/utils/keys/bucketKey/index.ts';
+import { shopKey } from '../../../../apps/functions/src/utils/keys/shopKey/index.ts';
 import { historyKey } from '../../../../apps/functions/src/utils/keys/historyKey/index.ts';
 import { itemKey } from '../../../../apps/functions/src/utils/keys/itemKey/index.ts';
 import { membershipKey } from '../../../../apps/functions/src/utils/keys/membershipKey/index.ts';
@@ -59,11 +59,11 @@ describe('list items handler against DynamoDB Local', () => {
       'oat milk',
     ]);
     expect(listed.items[0]).toMatchObject({
-      bucketId: 'unsorted',
+      shopId: 'unsorted',
       checked: false,
       addedBy: member.sub,
     });
-    expect(history.entries).toEqual([{ name: 'oat milk', bucketId: 'unsorted', count: 2 }]);
+    expect(history.entries).toEqual([{ name: 'oat milk', shopId: 'unsorted', count: 2 }]);
     expect(
       await getItem(
         historyKey({ householdId: member.householdId, listId: 'main', name: 'Oat Milk' }),
@@ -73,15 +73,15 @@ describe('list items handler against DynamoDB Local', () => {
     });
   });
 
-  it('ticks, renames and moves an item, and remembers the new bucket in the history', async () => {
+  it('ticks, renames and moves an item, and remembers the new shop in the history', async () => {
     const member = await seedMember();
-    const bucketId = 'b1';
+    const shopId = 'b1';
     await client.send(
       new PutCommand({
         TableName: TABLE_NAME,
         Item: {
-          ...bucketKey({ householdId: member.householdId, listId: 'main', bucketId: bucketId }),
-          id: bucketId,
+          ...shopKey({ householdId: member.householdId, listId: 'main', shopId: shopId }),
+          id: shopId,
           name: 'Aldi',
           color: 'sky',
           order: 0,
@@ -94,12 +94,12 @@ describe('list items handler against DynamoDB Local', () => {
       member,
       'PATCH',
       `/items/${id}`,
-      { checked: true, name: 'Free eggs', bucketId },
+      { checked: true, name: 'Free eggs', shopId },
       id,
     );
 
     expect(updated.statusCode).toBe(200);
-    expect(json(updated)).toMatchObject({ checked: true, name: 'Free eggs', bucketId });
+    expect(json(updated)).toMatchObject({ checked: true, name: 'Free eggs', shopId });
     expect(
       await getItem(itemKey({ householdId: member.householdId, listId: 'main', itemId: id })),
     ).toMatchObject({
@@ -112,13 +112,13 @@ describe('list items handler against DynamoDB Local', () => {
     ).toBeUndefined();
   });
 
-  it('moves the history entry of an item to the new bucket', async () => {
+  it('moves the history entry of an item to the new shop', async () => {
     const member = await seedMember();
     await client.send(
       new PutCommand({
         TableName: TABLE_NAME,
         Item: {
-          ...bucketKey({ householdId: member.householdId, listId: 'main', bucketId: 'b1' }),
+          ...shopKey({ householdId: member.householdId, listId: 'main', shopId: 'b1' }),
           id: 'b1',
           name: 'Aldi',
           color: 'sky',
@@ -128,25 +128,25 @@ describe('list items handler against DynamoDB Local', () => {
     );
     const { id } = json(await call(member, 'POST', '/items', { name: 'Eggs' }));
 
-    await call(member, 'PATCH', `/items/${id}`, { bucketId: 'b1' }, id);
+    await call(member, 'PATCH', `/items/${id}`, { shopId: 'b1' }, id);
 
     expect(
       await getItem(historyKey({ householdId: member.householdId, listId: 'main', name: 'Eggs' })),
     ).toMatchObject({
-      bucketId: 'b1',
+      shopId: 'b1',
     });
   });
 
-  it('refuses an unknown bucket, an empty name and an empty patch', async () => {
+  it('refuses an unknown shop, an empty name and an empty patch', async () => {
     const member = await seedMember();
     const { id } = json(await call(member, 'POST', '/items', { name: 'Eggs' }));
 
-    const unknownBucket = await call(member, 'POST', '/items', { name: 'Tea', bucketId: 'nope' });
+    const unknownShop = await call(member, 'POST', '/items', { name: 'Tea', shopId: 'nope' });
     const emptyName = await call(member, 'POST', '/items', { name: '   ' });
     const emptyPatch = await call(member, 'PATCH', `/items/${id}`, {}, id);
 
-    expect(unknownBucket.statusCode).toBe(400);
-    expect(json(unknownBucket)).toEqual({ reason: 'invalid-bucket' });
+    expect(unknownShop.statusCode).toBe(400);
+    expect(json(unknownShop)).toEqual({ reason: 'invalid-shop' });
     expect(json(emptyName)).toEqual({ reason: 'invalid-name' });
     expect(emptyPatch.statusCode).toBe(400);
   });

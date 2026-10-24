@@ -1,4 +1,4 @@
-export enum BucketColor {
+export enum ShopColor {
   Tomato = 'tomato',
   Mustard = 'mustard',
   Mint = 'mint',
@@ -8,12 +8,12 @@ export enum BucketColor {
   Slate = 'slate',
 }
 
-export const UNSORTED_BUCKET_ID = 'unsorted';
-export const UNSORTED_BUCKET_NAME = 'General';
-export const LAST_BUCKET_STORAGE_KEY = 'fridgeboard.lastBucket';
-export const FOCUS_BUCKET_STORAGE_KEY = 'fridgeboard.focusBucket';
+export const UNSORTED_SHOP_ID = 'unsorted';
+export const UNSORTED_SHOP_NAME = 'General';
+export const LAST_SHOP_STORAGE_KEY = 'fridgeboard.lastShop';
+export const FOCUS_SHOP_STORAGE_KEY = 'fridgeboard.focusShop';
 
 export const ITEM_NAME_MAX_LENGTH = 80;
-export const BUCKET_NAME_MAX_LENGTH = 30;
+export const SHOP_NAME_MAX_LENGTH = 30;
 
 export const MAX_SUGGESTIONS = 5;

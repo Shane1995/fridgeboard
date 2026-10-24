@@ -3,65 +3,65 @@ import type { DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useOverlayState } from '@heroui/react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useBucketsQuery } from '../../../../hooks/useBucketsQuery';
-import { BUCKETS_QUERY_KEY } from '../../../../hooks/useBucketsQuery/constants';
+import { useShopsQuery } from '../../../../hooks/useShopsQuery';
+import { SHOPS_QUERY_KEY } from '../../../../hooks/useShopsQuery/constants';
 import { useActiveHousehold } from '../../../../hooks/useActiveHousehold';
 import { useClearCheckedMutation } from '../../../../hooks/useClearCheckedMutation';
-import { useReorderBucketsMutation } from '../../../../hooks/useReorderBucketsMutation';
+import { useReorderShopsMutation } from '../../../../hooks/useReorderShopsMutation';
 import { useLocalStorage } from '../../../../hooks/useLocalStorage';
 import { useItemsQuery } from '../../../../hooks/useItemsQuery';
 import {
-  FOCUS_BUCKET_STORAGE_KEY,
-  UNSORTED_BUCKET_ID,
+  FOCUS_SHOP_STORAGE_KEY,
+  UNSORTED_SHOP_ID,
 } from '../../../../services/shoppingList/constants';
-import type { Bucket } from '../../../../services/shoppingList/types';
+import type { Shop } from '../../../../services/shoppingList/types';
 import {
-  groupItemsByBucket,
-  UNSORTED_BUCKET,
-} from '../../../../services/shoppingList/utils/groupItemsByBucket';
+  groupItemsByShop,
+  UNSORTED_SHOP,
+} from '../../../../services/shoppingList/utils/groupItemsByShop';
 import { HOME_COPY } from '../../constants';
 import type { HomeState } from './types';
 
 export const useHome = (): HomeState => {
   const household = useActiveHousehold();
-  const buckets = useBucketsQuery();
+  const shops = useShopsQuery();
   const items = useItemsQuery();
-  const newBucketDialog = useOverlayState();
+  const newShopDialog = useOverlayState();
   const clear = useClearCheckedMutation();
-  const [storedFocus, setFocus] = useLocalStorage(FOCUS_BUCKET_STORAGE_KEY);
-  const reorder = useReorderBucketsMutation();
+  const [storedFocus, setFocus] = useLocalStorage(FOCUS_SHOP_STORAGE_KEY);
+  const reorder = useReorderShopsMutation();
   const queryClient = useQueryClient();
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
-  const bucketList = buckets.data ?? [];
+  const shopList = shops.data ?? [];
   const itemList = items.data ?? [];
 
-  const grouped = groupItemsByBucket(bucketList, itemList);
-  const focusedId = [UNSORTED_BUCKET, ...bucketList].find(({ id }) => id === storedFocus)?.id;
+  const grouped = groupItemsByShop(shopList, itemList);
+  const focusedId = [UNSORTED_SHOP, ...shopList].find(({ id }) => id === storedFocus)?.id;
   const visibleSections =
     focusedId === undefined
       ? grouped.sections
-      : grouped.sections.filter(({ bucket }) => bucket.id === focusedId);
+      : grouped.sections.filter(({ shop }) => shop.id === focusedId);
   const visibleChecked =
     focusedId === undefined
       ? grouped.checked
-      : grouped.checked.filter(({ bucketId }) =>
-          focusedId === UNSORTED_BUCKET_ID
-            ? !bucketList.some(({ id }) => id === bucketId)
-            : bucketId === focusedId,
+      : grouped.checked.filter(({ shopId }) =>
+          focusedId === UNSORTED_SHOP_ID
+            ? !shopList.some(({ id }) => id === shopId)
+            : shopId === focusedId,
         );
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     if (over === null || active.id === over.id) {
       return;
     }
-    const ids = bucketList.map(({ id }) => id);
+    const ids = shopList.map(({ id }) => id);
     const reordered = arrayMove(ids, ids.indexOf(String(active.id)), ids.indexOf(String(over.id)));
-    queryClient.setQueryData<Bucket[]>([BUCKETS_QUERY_KEY], (current) =>
-      reordered.flatMap((id) => current?.find((bucket) => bucket.id === id) ?? []),
+    queryClient.setQueryData<Shop[]>([SHOPS_QUERY_KEY], (current) =>
+      reordered.flatMap((id) => current?.find((shop) => shop.id === id) ?? []),
     );
     reorder.mutate(reordered);
   };
@@ -73,15 +73,15 @@ export const useHome = (): HomeState => {
     setFocus,
     visibleSections,
     visibleChecked,
-    reorderable: grouped.sections.filter(({ bucket }) => bucket.id !== UNSORTED_BUCKET_ID),
-    unsorted: grouped.sections.find(({ bucket }) => bucket.id === UNSORTED_BUCKET_ID),
+    reorderable: grouped.sections.filter(({ shop }) => shop.id !== UNSORTED_SHOP_ID),
+    unsorted: grouped.sections.find(({ shop }) => shop.id === UNSORTED_SHOP_ID),
     sensors,
     handleDragEnd,
-    allBuckets: [UNSORTED_BUCKET, ...bucketList],
+    allShops: [UNSORTED_SHOP, ...shopList],
     hasItems: itemList.length > 0,
-    isLoading: buckets.isPending || items.isPending,
-    hasError: buckets.isError || items.isError,
-    newBucketDialog,
+    isLoading: shops.isPending || items.isPending,
+    hasError: shops.isError || items.isError,
+    newShopDialog,
     isClearing: clear.isPending,
     handleClearChecked: () => clear.mutate(),
   };

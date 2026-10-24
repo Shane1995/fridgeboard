@@ -1,8 +1,8 @@
 import type { DragEndEvent, SensorDescriptor, SensorOptions } from '@dnd-kit/core';
 import type { UseOverlayStateReturn } from '@heroui/react';
 import type {
-  Bucket,
-  BucketSectionData,
+  Shop,
+  ShopSectionData,
   GroupedItems,
   ListItem,
 } from '../../../../services/shoppingList/types';
@@ -12,17 +12,17 @@ export type HomeState = {
   grouped: GroupedItems;
   focusedId: string | undefined;
   setFocus: (id: string | undefined) => void;
-  visibleSections: BucketSectionData[];
+  visibleSections: ShopSectionData[];
   visibleChecked: ListItem[];
-  reorderable: BucketSectionData[];
-  unsorted: BucketSectionData | undefined;
+  reorderable: ShopSectionData[];
+  unsorted: ShopSectionData | undefined;
   sensors: SensorDescriptor<SensorOptions>[];
   handleDragEnd: (event: DragEndEvent) => void;
-  allBuckets: Bucket[];
+  allShops: Shop[];
   hasItems: boolean;
   isLoading: boolean;
   hasError: boolean;
-  newBucketDialog: UseOverlayStateReturn;
+  newShopDialog: UseOverlayStateReturn;
   isClearing: boolean;
   handleClearChecked: () => void;
 };

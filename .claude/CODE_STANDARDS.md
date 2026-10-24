@@ -15,7 +15,7 @@ TypeScript, Node and React standards for Fridgeboard. Apply every rule to any co
 4. **One function per component file.** Helpers move to a sibling `hooks/` (stateful) or `utils/` (pure) directory.
 5. **Sub-components live in a co-located `components/` directory:**
    - used by one parent → `<Parent>/components/<Name>/`
-   - shared by siblings → the lowest common ancestor's `components/<Name>/`. Example: `ShoppingList/components/ItemCheckbox/` shared by `ItemRow` and `BucketRow`, whereas `ShoppingList/ItemRow/components/ItemMenu/` is used only by `ItemRow`.
+   - shared by siblings → the lowest common ancestor's `components/<Name>/`. Example: `ShoppingList/components/ItemCheckbox/` shared by `ItemRow` and `ShopRow`, whereas `ShoppingList/ItemRow/components/ItemMenu/` is used only by `ItemRow`.
 
 ## Web layout
 

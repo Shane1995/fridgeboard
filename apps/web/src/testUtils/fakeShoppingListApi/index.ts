@@ -1,4 +1,4 @@
-import type { IBucket, IListItem } from '@fridgeboard/contract/lists';
+import type { IShop, IListItem } from '@fridgeboard/contract/lists';
 import type { Endpoint } from '../../services/configuration/types';
 import { TEST_HOUSEHOLD_ID } from '../fakeShoppingList/constants';
 import type { FakeShoppingListState } from './types';
@@ -9,7 +9,7 @@ const SUB = 'sub-1';
 
 const emptyState = (): FakeShoppingListState => ({
   items: [],
-  buckets: [],
+  shops: [],
   history: [],
   counter: 0,
 });
@@ -31,30 +31,30 @@ const nextId = (prefix: string) => {
   return `${prefix}-${state.current.counter}`;
 };
 
-const remember = ({ name, bucketId }: { name: string; bucketId: string }) => {
+const remember = ({ name, shopId }: { name: string; shopId: string }) => {
   const known = state.current.history.find(
     (entry) => entry.name.toLowerCase() === name.toLowerCase(),
   );
   state.current.history =
     known === undefined
-      ? [...state.current.history, { name, bucketId, count: 1 }]
+      ? [...state.current.history, { name, shopId, count: 1 }]
       : state.current.history.map((entry) =>
-          entry === known ? { name, bucketId, count: entry.count + 1 } : entry,
+          entry === known ? { name, shopId, count: entry.count + 1 } : entry,
         );
 };
 
-const byOrder = (a: IBucket, b: IBucket) => a.order - b.order;
+const byOrder = (a: IShop, b: IShop) => a.order - b.order;
 
 const handleItems = (method: string, init: RequestInit) => {
   if (method === 'GET') {
     return json(200, { items: state.current.items });
   }
   const body = readBody(init);
-  const bucketId = typeof body.bucketId === 'string' ? body.bucketId : UNSORTED;
+  const shopId = typeof body.shopId === 'string' ? body.shopId : UNSORTED;
   const item: IListItem = {
     id: nextId('item'),
     name: String(body.name),
-    bucketId,
+    shopId,
     checked: false,
     createdAt: state.current.counter,
     addedBy: SUB,
@@ -78,48 +78,45 @@ const handleItem = (id: string, method: string, init: RequestInit) => {
   return json(200, updated);
 };
 
-const handleBuckets = (method: string, init: RequestInit) => {
+const handleShops = (method: string, init: RequestInit) => {
   if (method === 'GET') {
-    return json(200, { buckets: [...state.current.buckets].sort(byOrder) });
+    return json(200, { shops: [...state.current.shops].sort(byOrder) });
   }
   const { name, color } = readBody(init);
-  const order =
-    state.current.buckets.reduce((high, bucket) => Math.max(high, bucket.order), -1) + 1;
-  const bucket = {
-    id: nextId('bucket'),
+  const order = state.current.shops.reduce((high, shop) => Math.max(high, shop.order), -1) + 1;
+  const shop = {
+    id: nextId('shop'),
     name: String(name),
-    color: color as IBucket['color'],
+    color: color as IShop['color'],
     order,
   };
-  state.current.buckets = [...state.current.buckets, bucket];
-  return json(201, bucket);
+  state.current.shops = [...state.current.shops, shop];
+  return json(201, shop);
 };
 
 const handleOrder = (init: RequestInit) => {
   const ids = readBody(init).ids as string[];
   const rank = (id: string) => (ids.includes(id) ? ids.indexOf(id) : ids.length);
-  state.current.buckets = [...state.current.buckets]
+  state.current.shops = [...state.current.shops]
     .sort((a, b) => rank(a.id) - rank(b.id) || a.order - b.order)
-    .map((bucket, order) => ({ ...bucket, order }));
-  return json(200, { buckets: state.current.buckets });
+    .map((shop, order) => ({ ...shop, order }));
+  return json(200, { shops: state.current.shops });
 };
 
-const handleBucket = (id: string, method: string, init: RequestInit) => {
-  const current = state.current.buckets.find((bucket) => bucket.id === id);
+const handleShop = (id: string, method: string, init: RequestInit) => {
+  const current = state.current.shops.find((shop) => shop.id === id);
   if (current === undefined) {
     return json(404, { reason: 'not-found' });
   }
   if (method === 'DELETE') {
-    state.current.buckets = state.current.buckets.filter((bucket) => bucket.id !== id);
+    state.current.shops = state.current.shops.filter((shop) => shop.id !== id);
     state.current.items = state.current.items.map((item) =>
-      item.bucketId === id ? { ...item, bucketId: UNSORTED } : item,
+      item.shopId === id ? { ...item, shopId: UNSORTED } : item,
     );
     return json(204);
   }
   const updated = { ...current, ...readBody(init) };
-  state.current.buckets = state.current.buckets.map((bucket) =>
-    bucket.id === id ? updated : bucket,
-  );
+  state.current.shops = state.current.shops.map((shop) => (shop.id === id ? updated : shop));
   return json(200, updated);
 };
 
@@ -135,14 +132,14 @@ export const fakeShoppingListApi = async (
   if (rest?.startsWith('/items/')) {
     return handleItem(rest.slice('/items/'.length), method, init);
   }
-  if (rest === '/buckets') {
-    return handleBuckets(method, init);
+  if (rest === '/shops') {
+    return handleShops(method, init);
   }
-  if (rest === '/buckets/order') {
+  if (rest === '/shops/order') {
     return handleOrder(init);
   }
-  if (rest?.startsWith('/buckets/')) {
-    return handleBucket(rest.slice('/buckets/'.length), method, init);
+  if (rest?.startsWith('/shops/')) {
+    return handleShop(rest.slice('/shops/'.length), method, init);
   }
   if (rest === '/history') {
     return json(200, { entries: state.current.history });

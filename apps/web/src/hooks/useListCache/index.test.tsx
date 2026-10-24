@@ -5,7 +5,7 @@ import { SessionStatus } from '../../services/session/constants';
 import { answerHouseholds } from '../../testUtils/createShoppingListWrapper';
 import { createSession } from '../../testUtils/createSession';
 import { TestProviders } from '../../testUtils/TestProviders';
-import { BUCKETS_QUERY_KEY } from '../useBucketsQuery/constants';
+import { SHOPS_QUERY_KEY } from '../useShopsQuery/constants';
 import { ITEMS_QUERY_KEY } from '../useItemsQuery/constants';
 import { useListParams } from '../useListParams';
 import { useListCache } from './index';
@@ -13,7 +13,7 @@ import { useListCache } from './index';
 const ITEM = {
   id: 'i1',
   name: 'Milk',
-  bucketId: 'unsorted',
+  shopId: 'unsorted',
   checked: false,
   createdAt: 1,
   addedBy: 'sub-1',
@@ -36,23 +36,22 @@ const setup = async () => {
 };
 
 describe('useListCache', () => {
-  it('changes the cached items and buckets', async () => {
+  it('changes the cached items and shops', async () => {
     const { client, result } = await setup();
     client.setQueryData(result.current.params.queryKeyFor(ITEMS_QUERY_KEY), { items: [ITEM] });
-    client.setQueryData(result.current.params.queryKeyFor(BUCKETS_QUERY_KEY), { buckets: [] });
+    client.setQueryData(result.current.params.queryKeyFor(SHOPS_QUERY_KEY), { shops: [] });
 
     result.current.cache.updateItems({ update: (items) => items.filter(({ id }) => id !== 'i1') });
-    result.current.cache.updateBuckets({
-      update: (buckets) => [...buckets, { id: 'b1', name: 'Aldi', color: 'sky', order: 0 }],
+    result.current.cache.updateShops({
+      update: (shops) => [...shops, { id: 'b1', name: 'Aldi', color: 'sky', order: 0 }],
     });
 
     expect(client.getQueryData(result.current.params.queryKeyFor(ITEMS_QUERY_KEY))).toEqual({
       items: [],
     });
     expect(
-      client.getQueryData<{ buckets: unknown[] }>(
-        result.current.params.queryKeyFor(BUCKETS_QUERY_KEY),
-      )?.buckets,
+      client.getQueryData<{ shops: unknown[] }>(result.current.params.queryKeyFor(SHOPS_QUERY_KEY))
+        ?.shops,
     ).toHaveLength(1);
   });
 

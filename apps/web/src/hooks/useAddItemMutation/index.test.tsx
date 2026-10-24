@@ -1,5 +1,5 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { UNSORTED_BUCKET_ID } from '../../services/shoppingList/constants';
+import { UNSORTED_SHOP_ID } from '../../services/shoppingList/constants';
 import { createShoppingListWrapper } from '../../testUtils/createShoppingListWrapper';
 import { useItemsQuery } from '../useItemsQuery';
 import { useAddItemMutation } from './index';
@@ -14,7 +14,7 @@ describe('useAddItemMutation', () => {
     await waitFor(() => expect(result.current.items.data).toEqual([]));
 
     await act(async () =>
-      result.current.add.mutateAsync({ name: 'Milk', bucketId: UNSORTED_BUCKET_ID }),
+      result.current.add.mutateAsync({ name: 'Milk', shopId: UNSORTED_SHOP_ID }),
     );
 
     await waitFor(() =>

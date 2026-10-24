@@ -3,12 +3,12 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { Button } from '@heroui/react';
 import { Plus } from 'lucide-react';
 import { AddItemForm } from '../../components/AddItemForm';
-import { BucketDialog } from '../../components/BucketDialog';
-import { BucketFilter } from '../../components/BucketFilter';
-import { BucketSection } from '../../components/BucketSection';
+import { ShopDialog } from '../../components/ShopDialog';
+import { ShopFilter } from '../../components/ShopFilter';
+import { ShopSection } from '../../components/ShopSection';
 import { ItemRow } from '../../components/ItemRow';
 import { restrictToVerticalAxis } from '../../utils/restrictToVerticalAxis';
-import { SortableBucket } from '../../components/SortableBucket';
+import { SortableShop } from '../../components/SortableShop';
 import { PageHeader } from '../../components/PageHeader';
 import { Typography } from '../../components/Typography';
 import { TypographyVariant } from '../../components/Typography/constants';
@@ -27,11 +27,11 @@ export const Home = () => {
     unsorted,
     sensors,
     handleDragEnd,
-    allBuckets,
+    allShops,
     hasItems,
     isLoading,
     hasError,
-    newBucketDialog,
+    newShopDialog,
     isClearing,
     handleClearChecked,
   } = useHome();
@@ -39,16 +39,16 @@ export const Home = () => {
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-7 p-6">
       <PageHeader title={title} />
-      <AddItemForm focusedBucketId={focusedId} />
+      <AddItemForm focusedShopId={focusedId} />
       {grouped.sections.length > 0 && (
-        <BucketFilter sections={grouped.sections} focusedId={focusedId} onSelect={setFocus} />
+        <ShopFilter sections={grouped.sections} focusedId={focusedId} onSelect={setFocus} />
       )}
       {isLoading && <Typography>{HOME_COPY.loading}</Typography>}
       {hasError && <Typography>{HOME_COPY.loadFailed}</Typography>}
       {!isLoading && !hasError && !hasItems && <Typography>{HOME_COPY.empty}</Typography>}
       {focusedId === undefined ? (
         <>
-          {unsorted && <BucketSection section={unsorted} allBuckets={allBuckets} />}
+          {unsorted && <ShopSection section={unsorted} allShops={allShops} />}
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -56,18 +56,14 @@ export const Home = () => {
             onDragEnd={handleDragEnd}
           >
             <SortableContext
-              items={reorderable.map(({ bucket }) => bucket.id)}
+              items={reorderable.map(({ shop }) => shop.id)}
               strategy={verticalListSortingStrategy}
             >
               <div className="flex flex-col gap-7">
                 {reorderable.map((section) => (
-                  <SortableBucket
-                    key={section.bucket.id}
-                    id={section.bucket.id}
-                    name={section.bucket.name}
-                  >
-                    <BucketSection section={section} allBuckets={allBuckets} />
-                  </SortableBucket>
+                  <SortableShop key={section.shop.id} id={section.shop.id} name={section.shop.name}>
+                    <ShopSection section={section} allShops={allShops} />
+                  </SortableShop>
                 ))}
               </div>
             </SortableContext>
@@ -76,7 +72,7 @@ export const Home = () => {
       ) : (
         <>
           {visibleSections.map((section) => (
-            <BucketSection key={section.bucket.id} section={section} allBuckets={allBuckets} />
+            <ShopSection key={section.shop.id} section={section} allShops={allShops} />
           ))}
           {visibleSections.length === 0 && visibleChecked.length === 0 && (
             <Typography>{HOME_COPY.focusEmpty}</Typography>
@@ -102,7 +98,7 @@ export const Home = () => {
           </header>
           <ul className="flex flex-col gap-2">
             {visibleChecked.map((item) => (
-              <ItemRow key={item.id} item={item} moveTargets={allBuckets} />
+              <ItemRow key={item.id} item={item} moveTargets={allShops} />
             ))}
           </ul>
         </section>
@@ -110,14 +106,14 @@ export const Home = () => {
       {focusedId === undefined && (
         <button
           type="button"
-          onClick={newBucketDialog.open}
+          onClick={newShopDialog.open}
           className="flex cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-foreground/15 px-4 py-3 text-sm font-medium opacity-60 transition-opacity hover:opacity-100"
         >
           <Plus aria-hidden size={18} />
-          {HOME_COPY.newBucket}
+          {HOME_COPY.newShop}
         </button>
       )}
-      <BucketDialog state={newBucketDialog} />
+      <ShopDialog state={newShopDialog} />
     </main>
   );
 };

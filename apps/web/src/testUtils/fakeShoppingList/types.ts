@@ -1,8 +1,8 @@
-import type { BucketColor } from '../../services/shoppingList/constants';
+import type { ShopColor } from '../../services/shoppingList/constants';
 import type { ItemChanges } from '../../services/shoppingList/types';
 
-export type AddFakeItem = { name: string; bucketId: string };
+export type AddFakeItem = { name: string; shopId: string };
 
-export type AddFakeBucket = { name: string; color: BucketColor };
+export type AddFakeShop = { name: string; color: ShopColor };
 
 export type UpdateFakeItem = { id: string; changes: ItemChanges };

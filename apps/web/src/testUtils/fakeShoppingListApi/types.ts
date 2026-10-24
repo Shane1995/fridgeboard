@@ -1,8 +1,8 @@
-import type { IBucket, IHistoryEntry, IListItem } from '@fridgeboard/contract/lists';
+import type { IShop, IHistoryEntry, IListItem } from '@fridgeboard/contract/lists';
 
 export type FakeShoppingListState = {
   items: IListItem[];
-  buckets: IBucket[];
+  shops: IShop[];
   history: IHistoryEntry[];
   counter: number;
 };

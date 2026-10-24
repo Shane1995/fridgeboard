@@ -4,14 +4,14 @@ import type { ListItem } from '../../types';
 export const toListItem = ({
   id,
   name,
-  bucketId,
+  shopId,
   checked,
   createdAt,
   addedBy,
 }: IListItem): ListItem => ({
   id,
   name,
-  bucketId,
+  shopId,
   checked,
   createdAt,
   addedBy,

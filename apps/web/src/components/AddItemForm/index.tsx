@@ -1,23 +1,23 @@
 import { Plus } from 'lucide-react';
 import { ITEM_NAME_MAX_LENGTH } from '../../services/shoppingList/constants';
-import { BucketPicker } from '../BucketPicker';
+import { ShopPicker } from '../ShopPicker';
 import { ADD_ITEM_COPY } from './constants';
 import { useAddItemForm } from './hooks/useAddItemForm';
 
-type AddItemFormProps = { focusedBucketId?: string | undefined };
+type AddItemFormProps = { focusedShopId?: string | undefined };
 
-export const AddItemForm = ({ focusedBucketId }: AddItemFormProps) => {
+export const AddItemForm = ({ focusedShopId }: AddItemFormProps) => {
   const {
     name,
     setName,
-    bucketId,
-    setBucketId,
-    buckets,
+    shopId,
+    setShopId,
+    shops,
     suggestions,
     pickSuggestion,
     isAdding,
     handleSubmit,
-  } = useAddItemForm(focusedBucketId);
+  } = useAddItemForm(focusedShopId);
 
   return (
     <div className="relative">
@@ -34,7 +34,7 @@ export const AddItemForm = ({ focusedBucketId }: AddItemFormProps) => {
           onChange={(event) => setName(event.target.value)}
           className="min-w-0 flex-1 bg-transparent py-1 text-base outline-none placeholder:opacity-40 md:py-2 md:text-lg"
         />
-        <BucketPicker buckets={buckets} bucketId={bucketId} onChange={setBucketId} />
+        <ShopPicker shops={shops} shopId={shopId} onChange={setShopId} />
         <button
           type="submit"
           aria-label={ADD_ITEM_COPY.submit}
