@@ -36,7 +36,7 @@ const buildEvent = (
   },
 });
 
-describe('listHouseholds handler', () => {
+describe('myHouseholds handler', () => {
   beforeEach(() => {
     ddbMock.reset();
     vi.stubEnv('TABLE_NAME', 'fridgeboard');

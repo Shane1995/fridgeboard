@@ -1,7 +1,7 @@
 import { WebService } from '../../../../web/src/services/configuration/schema/constants.ts';
 import type { ApiService } from '../../../../web/src/services/configuration/schema/types.ts';
 import { handler as households } from '../../../src/handlers/households/index.ts';
-import { handler as listHouseholds } from '../../../src/handlers/listHouseholds/index.ts';
+import { handler as myHouseholds } from '../../../src/handlers/myHouseholds/index.ts';
 import { handler as me } from '../../../src/handlers/me/index.ts';
 import { handler as onboarding } from '../../../src/handlers/onboarding/index.ts';
 import { handler as username } from '../../../src/handlers/username/index.ts';
@@ -17,7 +17,7 @@ const DEFINITIONS: RouteDefinition[] = [
   { method: 'GET', service: WebService.me, jwt: true, handler: me },
   { method: 'GET', service: WebService.onboarding, jwt: true, handler: onboarding },
   { method: 'PUT', service: WebService.username, jwt: true, handler: username },
-  { method: 'GET', service: WebService.households, jwt: true, handler: listHouseholds },
+  { method: 'GET', service: WebService.households, jwt: true, handler: myHouseholds },
   { method: 'POST', service: WebService.households, jwt: true, handler: households },
   { method: 'POST', service: WebService.requestCode, jwt: false, handler: start },
   { method: 'POST', service: WebService.verify, jwt: false, handler: verify },
