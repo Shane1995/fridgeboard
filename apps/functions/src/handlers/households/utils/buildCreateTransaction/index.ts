@@ -2,11 +2,11 @@ import type { TransactWriteCommandInput } from '@aws-sdk/lib-dynamodb';
 import { householdMetaKey } from '../../../../utils/keys/householdMetaKey/index.ts';
 import { membershipKey } from '../../../../utils/keys/membershipKey/index.ts';
 import { ownedHouseholdKey } from '../../../../utils/keys/ownedHouseholdKey/index.ts';
+import { HouseholdRole } from '../../../../utils/isHouseholdRole/constants.ts';
 import { profileKey } from '../../../../utils/keys/profileKey/index.ts';
 import {
   CAN_CREATE_CONDITION,
   NOT_EXISTS_CONDITION,
-  OWNER_ROLE,
   PROFILE_EXISTS_CONDITION,
 } from '../../constants.ts';
 import type { CreateTransactionParams } from './types.ts';
@@ -37,7 +37,7 @@ export const buildCreateTransaction = ({
   {
     Put: {
       TableName,
-      Item: { ...membershipKey(id, sub), role: OWNER_ROLE, joinedAt: now },
+      Item: { ...membershipKey(id, sub), role: HouseholdRole.Owner, joinedAt: now },
     },
   },
   {

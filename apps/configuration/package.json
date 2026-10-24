@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "validate": "node --experimental-transform-types scripts/validate/index.ts",
+    "validate": "tsx scripts/validate/index.ts",
     "typecheck": "tsc -b",
     "test": "vitest run",
     "lint": "oxlint --config ../../.oxlintrc.json scripts/",
@@ -14,6 +14,7 @@
   "devDependencies": {
     "@fridgeboard/contract": "workspace:*",
     "@types/node": "^26.6.5",
+    "tsx": "^4.20.6",
     "typescript": "^7.0.2",
     "vitest": "^5.0.5"
   }

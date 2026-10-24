@@ -1,5 +1,5 @@
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { DEFAULT_LAMBDA_SETTINGS } from '@fridgeboard/contract/configuration/settings/constants';
+import { DEFAULT_LAMBDA_SETTINGS } from './settings/constants.ts';
 import { sdkStreamMixin } from '@smithy/util-stream';
 import { mockClient } from 'aws-sdk-client-mock';
 import { Readable } from 'node:stream';

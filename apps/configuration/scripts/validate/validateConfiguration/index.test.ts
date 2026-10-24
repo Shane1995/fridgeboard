@@ -1,4 +1,4 @@
-import { WebConfigurationSchema } from '@fridgeboard/contract/configuration/web';
+import { WebConfigurationSchema } from '../../../../web/src/services/configuration/webConfigurationSchema/index.ts';
 import { validateConfiguration } from './index.ts';
 
 const target = { name: 'web', schema: WebConfigurationSchema };
@@ -21,6 +21,7 @@ const VALID = {
       endpoints: {
         households: '/households',
         me: '/me',
+        onboarding: '/me/onboarding',
         passkeyStart: '/auth/passkey/start',
         passkeyVerify: '/auth/passkey/verify',
         passkeysComplete: '/auth/passkeys/complete',

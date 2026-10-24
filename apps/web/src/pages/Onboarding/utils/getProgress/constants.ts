@@ -1,3 +1,3 @@
-import type { OnboardingSectionId } from '@fridgeboard/contract/me';
+import { OnboardingSectionId } from '../../../../services/onboarding/constants';
 
-export const NON_STEP_SECTIONS: readonly OnboardingSectionId[] = ['needs-invite'];
+export const NON_STEP_SECTIONS: readonly OnboardingSectionId[] = [OnboardingSectionId.NeedsInvite];

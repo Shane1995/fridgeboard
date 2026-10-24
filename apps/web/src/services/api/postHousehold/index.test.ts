@@ -10,8 +10,7 @@ describe('postHousehold', () => {
 
     await expect(postHousehold(endpoint('/api/v1/households'), 'Home', fetcher)).resolves.toEqual({
       ok: true,
-      id: 'hh-1',
-      name: 'Home',
+      household: { id: 'hh-1', name: 'Home', role: 'owner' },
     });
     expect(fetcher).toHaveBeenCalledWith(endpoint('/api/v1/households'), {
       method: 'POST',

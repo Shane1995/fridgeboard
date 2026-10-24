@@ -1,30 +1,25 @@
-import type { IMeResponse } from '@fridgeboard/contract/me';
+import type { IOnboardingResponse } from '@fridgeboard/contract/onboarding';
+import { OnboardingSectionId } from '../../services/onboarding/constants';
 import { completeOnboardingSection } from '.';
 
-const me: IMeResponse = {
-  sub: 'sub-1',
-  email: 'jess@example.com',
-  username: null,
-  isAdmin: false,
-  canCreateHousehold: true,
-  households: [],
-  onboarding: [
+const onboarding: IOnboardingResponse = {
+  sections: [
     { id: 'username', done: false },
     { id: 'household', done: false },
   ],
 };
 
 describe('completeOnboardingSection', () => {
-  it('marks only the given section done', () => {
-    expect(completeOnboardingSection(me, 'username').onboarding).toEqual([
+  it('marks only the named section done', () => {
+    expect(completeOnboardingSection(onboarding, OnboardingSectionId.Username).sections).toEqual([
       { id: 'username', done: true },
       { id: 'household', done: false },
     ]);
   });
 
-  it('does not mutate the original', () => {
-    completeOnboardingSection(me, 'username');
+  it('does not change the input', () => {
+    completeOnboardingSection(onboarding, OnboardingSectionId.Username);
 
-    expect(me.onboarding[0]?.done).toBe(false);
+    expect(onboarding.sections[0]?.done).toBe(false);
   });
 });

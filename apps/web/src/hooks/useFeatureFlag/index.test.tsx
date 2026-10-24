@@ -1,4 +1,4 @@
-import { WebFeatureFlag } from '@fridgeboard/contract/configuration/flags/constants';
+import { WebFeatureFlag } from '../../services/configuration/flags/constants';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';

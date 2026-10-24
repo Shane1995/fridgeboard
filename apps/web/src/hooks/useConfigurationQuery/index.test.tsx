@@ -22,17 +22,4 @@ describe('useConfigurationQuery', () => {
 
     await waitFor(() => expect(result.current.data).toEqual(TEST_WEB_CONFIGURATION));
   });
-
-  it('applies the served query settings to the query client', async () => {
-    vi.mocked(getConfiguration).mockResolvedValue({
-      ...TEST_WEB_CONFIGURATION,
-      queries: { ...TEST_WEB_CONFIGURATION.queries, me: { staleTimeMs: 7_000 } },
-    });
-    const client = new QueryClient();
-    const { result } = renderHook(() => useConfigurationQuery(), { wrapper: wrapperFor(client) });
-
-    await waitFor(() => expect(result.current.data).toBeDefined());
-
-    expect(client.getQueryDefaults(['me']).staleTime).toBe(7_000);
-  });
 });

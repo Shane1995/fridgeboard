@@ -1,6 +1,6 @@
-import { resolveEndpointUrl } from '@fridgeboard/contract/configuration/resolveEndpointUrl';
-import type { WebService } from '@fridgeboard/contract/configuration/services/constants';
-import type { WebConfiguration } from '@fridgeboard/contract/configuration/web/types';
+import { resolveEndpointUrl } from '../resolveEndpointUrl';
+import type { WebService } from '../services/constants';
+import type { WebConfiguration } from '../../../hooks/useRemoteConfigContext/types';
 import type { Endpoint } from '../types';
 
 type Named = { timeoutMs?: number | undefined };

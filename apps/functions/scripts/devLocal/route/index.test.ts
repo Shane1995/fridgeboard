@@ -5,6 +5,7 @@ const api = {
   params: { version: 'v2' },
   endpoints: {
     me: '/me',
+    onboarding: '/me/onboarding',
     username: '/profile/name',
     households: '/households',
     requestCode: '/auth/start',
@@ -23,6 +24,8 @@ describe('buildRoutes', () => {
     const routes = buildRoutes(api);
 
     expect(routes.get('GET /api/v2/me')?.jwt).toBe(true);
+    expect(routes.get('GET /api/v2/me/onboarding')?.jwt).toBe(true);
+    expect(routes.get('GET /api/v2/households')?.jwt).toBe(true);
     expect(routes.get('PUT /api/v2/profile/name')?.jwt).toBe(true);
     expect(routes.get('POST /api/v2/households')?.jwt).toBe(true);
     expect(routes.get('POST /api/v2/auth/start')?.jwt).toBe(false);

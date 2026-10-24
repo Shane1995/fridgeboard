@@ -1,5 +1,8 @@
-import type { IMeResponse, OnboardingSectionId } from '@fridgeboard/contract/me';
-import { KNOWN_SECTIONS } from './constants';
+import type { IOnboardingResponse } from '@fridgeboard/contract/onboarding';
+import type { OnboardingSectionId } from '../../services/onboarding/constants';
+import { isKnownSection } from '../isKnownSection';
 
-export const getPendingSection = ({ onboarding }: IMeResponse): OnboardingSectionId | undefined =>
-  onboarding.find(({ id, done }) => !done && KNOWN_SECTIONS.includes(id))?.id;
+export const getPendingSection = ({
+  sections,
+}: IOnboardingResponse): OnboardingSectionId | undefined =>
+  sections.flatMap(({ id, done }) => (!done && isKnownSection(id) ? [id] : []))[0];

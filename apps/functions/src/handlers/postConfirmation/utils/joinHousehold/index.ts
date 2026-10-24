@@ -4,6 +4,7 @@ import {
   type DynamoDBDocumentClient,
   TransactWriteCommand,
 } from '@aws-sdk/lib-dynamodb';
+import { HouseholdRole } from '../../../../utils/isHouseholdRole/constants.ts';
 import { householdMetaKey } from '../../../../utils/keys/householdMetaKey/index.ts';
 import { membershipKey } from '../../../../utils/keys/membershipKey/index.ts';
 import { CONDITION_FAILED } from '../../constants.ts';
@@ -11,7 +12,6 @@ import {
   HOUSEHOLD_EXISTS_CONDITION,
   HOUSEHOLD_NOT_FOUND_ERROR,
   HOUSEHOLD_REASON_INDEX,
-  MEMBER_ROLE,
   MEMBERSHIP_NOT_EXISTS_CONDITION,
   MEMBERSHIP_REASON_INDEX,
 } from './constants.ts';
@@ -38,7 +38,7 @@ export const joinHousehold = async (
               TableName,
               Item: {
                 ...membershipKey(hhId, sub),
-                role: MEMBER_ROLE,
+                role: HouseholdRole.Member,
                 joinedAt: new Date().toISOString(),
               },
               ConditionExpression: MEMBERSHIP_NOT_EXISTS_CONDITION,

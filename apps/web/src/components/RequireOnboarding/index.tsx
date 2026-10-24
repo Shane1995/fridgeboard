@@ -1,13 +1,13 @@
 import { useLocation, useNavigate } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import type { PropsWithChildren } from 'react';
-import { useMeQuery } from '../../hooks/useMeQuery';
+import { useOnboardingQuery } from '../../hooks/useOnboardingQuery';
 import { getPendingSection } from '../../utils/getPendingSection';
 import { AppLoader } from '../AppLoader';
 import { ONBOARDING_PATH } from './constants';
 
 export const RequireOnboarding = ({ children }: PropsWithChildren) => {
-  const { data, isPending } = useMeQuery();
+  const { data, isPending } = useOnboardingQuery();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const onOnboardingPage = pathname === ONBOARDING_PATH;

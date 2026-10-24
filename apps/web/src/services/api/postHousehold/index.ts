@@ -17,7 +17,7 @@ export const postHousehold = async (
   });
   if (response.ok) {
     const body: ICreateHouseholdResponse = await response.json();
-    return { ok: true, id: body.id, name: body.name };
+    return { ok: true, household: body };
   }
   const body: Partial<ICreateHouseholdErrorResponse> = await response.json().catch(() => ({}));
   const reason = REASONS.find((known) => known === body.reason);

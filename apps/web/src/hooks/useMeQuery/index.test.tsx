@@ -2,7 +2,7 @@ import type { IMeResponse } from '@fridgeboard/contract/me';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
-import { RemoteConfigContext } from '../../Context/RemoteConfig';
+import { RemoteConfigContext } from '../../Context/RemoteConfig/context';
 import { SessionContext } from '../../Context/Session';
 import { createSession } from '../../testUtils/createSession';
 import { SessionStatus } from '../../services/session/constants';
@@ -16,11 +16,6 @@ const ME: IMeResponse = {
   username: null,
   isAdmin: false,
   canCreateHousehold: true,
-  households: [],
-  onboarding: [
-    { id: 'username', done: false },
-    { id: 'household', done: false },
-  ],
 };
 
 const apiFetch = vi.fn();
