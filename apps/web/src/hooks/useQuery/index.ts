@@ -1,5 +1,5 @@
 import { useQuery as useTanStackQuery } from '@tanstack/react-query';
-import { entryFor } from '../../utils/entryFor';
+import { mergedEntry } from '../../utils/mergedEntry';
 import { toQueryOptions } from '../../utils/toQueryOptions';
 import { useRemoteConfigContext } from '../useRemoteConfigContext';
 import type { QueryOptions, QueryResult } from './types';
@@ -15,7 +15,7 @@ export const useQuery = <TData>({
   return useTanStackQuery({
     queryKey,
     queryFn,
-    ...toQueryOptions({ ...queries.default, ...entryFor(queries, queryKey[0]) }),
+    ...toQueryOptions(mergedEntry(queries, queryKey[0])),
     ...(enabled === undefined ? {} : { enabled }),
   });
 };

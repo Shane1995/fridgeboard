@@ -1,4 +1,5 @@
 import type { ITokenResponse } from '@fridgeboard/contract/auth';
+import { MutationName } from '../../services/configuration/mutations/constants';
 import { WebService } from '../../services/configuration/services/constants';
 import { useQueryClient } from '@tanstack/react-query';
 import { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -196,7 +197,7 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
     state.epoch += 1;
     await Promise.resolve(state.flight).catch(() => undefined);
     await sendSignOut(
-      resolveMutationEndpoint(config.current, WebService.signOut, config.current.mutations.signOut),
+      resolveMutationEndpoint(config.current, WebService.signOut, MutationName.signOut),
     ).finally(clear);
   }, [clear]);
 

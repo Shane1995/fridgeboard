@@ -1,5 +1,5 @@
 import { useMutation as useTanStackMutation } from '@tanstack/react-query';
-import { entryFor } from '../../utils/entryFor';
+import { mergedEntry } from '../../utils/mergedEntry';
 import { toMutationOptions } from '../../utils/toMutationOptions';
 import { useRemoteConfigContext } from '../useRemoteConfigContext';
 import type { MutationOptions, MutationResult } from './types';
@@ -15,8 +15,6 @@ export const useMutation = <TData, TVariables = void>({
   return useTanStackMutation({
     mutationFn,
     mutationKey,
-    ...(retryable
-      ? toMutationOptions({ ...mutations.default, ...entryFor(mutations, mutationKey[0]) })
-      : { retry: 0 }),
+    ...(retryable ? toMutationOptions(mergedEntry(mutations, mutationKey[0])) : { retry: 0 }),
   });
 };

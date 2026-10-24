@@ -1,9 +1,8 @@
+import type { WebConfiguration } from '../../../hooks/useRemoteConfigContext/types';
+import { mergedEntry } from '../../../utils/mergedEntry';
 import { resolveEndpointUrl } from '../resolveEndpointUrl';
 import type { WebService } from '../services/constants';
-import type { WebConfiguration } from '../../../hooks/useRemoteConfigContext/types';
 import type { Endpoint } from '../types';
-
-type Named = { timeoutMs?: number | undefined };
 
 const resolve = (
   { api }: WebConfiguration['services'],
@@ -14,14 +13,15 @@ const resolve = (
   timeoutMs: api.endpointsConfig?.[endpoint]?.timeoutMs ?? timeoutMs,
 });
 
+// `name` picks the named query entry whose timeout applies; without one the default entry does.
 export const resolveQueryEndpoint = (
   { services, queries }: Pick<WebConfiguration, 'services' | 'queries'>,
   endpoint: WebService,
-  named: Named = {},
-): Endpoint => resolve(services, endpoint, named.timeoutMs ?? queries.default.timeoutMs);
+  name?: string,
+): Endpoint => resolve(services, endpoint, mergedEntry(queries, name).timeoutMs);
 
 export const resolveMutationEndpoint = (
   { services, mutations }: Pick<WebConfiguration, 'services' | 'mutations'>,
   endpoint: WebService,
-  named: Named = {},
-): Endpoint => resolve(services, endpoint, named.timeoutMs ?? mutations.default.timeoutMs);
+  name?: string,
+): Endpoint => resolve(services, endpoint, mergedEntry(mutations, name).timeoutMs);
