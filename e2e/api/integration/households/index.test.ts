@@ -125,3 +125,41 @@ describe('households handler: GET against DynamoDB Local', () => {
     expect(households).toEqual([]);
   });
 });
+
+const members = (sub: string, householdId: string) =>
+  handler(
+    buildEvent({
+      claims: { sub },
+      method: 'GET',
+      path: `/api/v1/households/${householdId}/members`,
+      pathParameters: { householdId },
+    }),
+  );
+
+describe('households handler: GET members against DynamoDB Local', () => {
+  it('lists the members with their usernames, owner first', async () => {
+    const owner = randomUUID();
+    const guest = randomUUID();
+    const hhId = randomUUID();
+    await put({ ...membershipKey(hhId, owner), role: HouseholdRole.Owner });
+    await put({ ...membershipKey(hhId, guest), role: HouseholdRole.Member });
+    await put({ ...profileKey(owner), email: 'owner@example.com', username: 'shane' });
+    await put({ ...profileKey(guest), email: 'guest@example.com' });
+
+    const result = await members(guest, hhId);
+
+    expect(result.statusCode).toBe(200);
+    expect(JSON.parse(String(result.body)).members).toEqual([
+      { id: owner, role: HouseholdRole.Owner, username: 'shane' },
+      { id: guest, role: HouseholdRole.Member },
+    ]);
+    expect(String(result.body)).not.toContain('@example.com');
+  });
+
+  it('is a 404 for someone outside the household', async () => {
+    const hhId = randomUUID();
+    await put({ ...membershipKey(hhId, randomUUID()), role: HouseholdRole.Owner });
+
+    expect((await members(randomUUID(), hhId)).statusCode).toBe(404);
+  });
+});

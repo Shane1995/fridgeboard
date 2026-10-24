@@ -6,8 +6,17 @@ import type {
 import type {
   ICreateHouseholdErrorResponse,
   ICreateHouseholdResponse,
+  IHouseholdMembersResponse,
   IHouseholdsResponse,
 } from '@fridgeboard/contract/households';
+import type {
+  IBucket,
+  IBucketsResponse,
+  IHistoryResponse,
+  IListErrorResponse,
+  IListItem,
+  IListItemsResponse,
+} from '@fridgeboard/contract/lists';
 import type { IOnboardingResponse } from '@fridgeboard/contract/onboarding';
 import type { IPasskeyStartResponse, IPasskeysStartResponse } from '@fridgeboard/contract/auth';
 import type { IMeResponse } from '@fridgeboard/contract/me';
@@ -23,6 +32,13 @@ export type ResponseBody =
   | ICreateHouseholdResponse
   | ICreateHouseholdErrorResponse
   | IHouseholdsResponse
+  | IHouseholdMembersResponse
+  | IListItem
+  | IListItemsResponse
+  | IBucket
+  | IBucketsResponse
+  | IHistoryResponse
+  | IListErrorResponse
   | IOnboardingResponse
   | IPasskeyStartResponse
   | IPasskeysStartResponse;

@@ -1,10 +1,13 @@
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { ConditionalCheckFailedException, DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import {
   BatchGetCommand,
+  DeleteCommand,
   DynamoDBDocumentClient,
   GetCommand,
   PutCommand,
   QueryCommand,
+  TransactWriteCommand,
+  UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
 import { mockClient } from 'aws-sdk-client-mock';
 import * as z from 'zod/mini';
@@ -131,6 +134,78 @@ describe('createTable', () => {
       expect(ddbMock.commandCalls(PutCommand)[0]?.args[0].input).toEqual({
         TableName: 'fridgeboard',
         Item: { ...KEY, name: 'Home' },
+      });
+    });
+  });
+  describe('update', () => {
+    it('sets the given attributes on an existing item and returns it typed', async () => {
+      ddbMock.on(UpdateCommand).resolves({ Attributes: { ...KEY, name: 'Flat' } });
+
+      const item = await table.update(KEY, { set: { name: 'Flat' } }, ItemSchema);
+
+      expect(item?.name).toBe('Flat');
+      expect(ddbMock.commandCalls(UpdateCommand)[0]?.args[0].input).toEqual({
+        TableName: 'fridgeboard',
+        Key: KEY,
+        UpdateExpression: 'SET #a0 = :v0',
+        ExpressionAttributeNames: { '#a0': 'name' },
+        ExpressionAttributeValues: { ':v0': 'Flat' },
+        ConditionExpression: 'attribute_exists(PK)',
+        ReturnValues: 'ALL_NEW',
+      });
+    });
+
+    it('returns undefined when the item does not exist', async () => {
+      ddbMock
+        .on(UpdateCommand)
+        .rejects(new ConditionalCheckFailedException({ message: 'no', $metadata: {} }));
+
+      expect(await table.update(KEY, { set: { name: 'Flat' } }, ItemSchema)).toBeUndefined();
+    });
+
+    it('lets any other failure through', async () => {
+      ddbMock.on(UpdateCommand).rejects(new Error('boom'));
+
+      await expect(table.update(KEY, { set: { name: 'Flat' } }, ItemSchema)).rejects.toThrow(
+        'boom',
+      );
+    });
+  });
+
+  describe('remove', () => {
+    it('says whether an item was deleted', async () => {
+      ddbMock
+        .on(DeleteCommand)
+        .resolvesOnce({ Attributes: { ...KEY } })
+        .resolvesOnce({});
+
+      expect(await table.remove(KEY)).toBe(true);
+      expect(await table.remove(KEY)).toBe(false);
+    });
+  });
+
+  describe('transactWrite', () => {
+    it('sends puts and updates in one transaction', async () => {
+      ddbMock.on(TransactWriteCommand).resolves({});
+
+      await table.transactWrite([
+        { put: { ...KEY, name: 'Home' } },
+        { update: KEY, parts: { add: { count: 1 } } },
+      ]);
+
+      expect(ddbMock.commandCalls(TransactWriteCommand)[0]?.args[0].input).toEqual({
+        TransactItems: [
+          { Put: { TableName: 'fridgeboard', Item: { ...KEY, name: 'Home' } } },
+          {
+            Update: {
+              TableName: 'fridgeboard',
+              Key: KEY,
+              UpdateExpression: 'ADD #a0 :v0',
+              ExpressionAttributeNames: { '#a0': 'count' },
+              ExpressionAttributeValues: { ':v0': 1 },
+            },
+          },
+        ],
       });
     });
   });

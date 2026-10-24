@@ -9,6 +9,15 @@ export type QueryParams = {
   ExpressionAttributeValues: Record<string, string>;
 };
 
+export type UpdateParts = {
+  set?: Record<string, unknown>;
+  add?: Record<string, number>;
+};
+
+export type TransactItem =
+  | { put: TableKey & Record<string, unknown> }
+  | { update: TableKey; parts: UpdateParts };
+
 export type Table = {
   get: <TSchema extends ItemSchema>(
     key: TableKey,
@@ -23,4 +32,11 @@ export type Table = {
     schema: TSchema,
   ) => Promise<z.infer<TSchema>[]>;
   put: (item: TableKey & Record<string, unknown>) => Promise<void>;
+  update: <TSchema extends ItemSchema>(
+    key: TableKey,
+    parts: UpdateParts,
+    schema: TSchema,
+  ) => Promise<z.infer<TSchema> | undefined>;
+  remove: (key: TableKey) => Promise<boolean>;
+  transactWrite: (items: TransactItem[]) => Promise<void>;
 };

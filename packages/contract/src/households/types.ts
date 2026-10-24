@@ -11,3 +11,7 @@ export type ICreateHouseholdResponse = IHouseholdSummary;
 export type ICreateHouseholdErrorResponse = {
   reason: 'invalid-name' | 'not-allowed' | 'household-exists';
 };
+
+export type IHouseholdMember = { id: string; username?: string; role: HouseholdRole };
+
+export type IHouseholdMembersResponse = { members: IHouseholdMember[] };
