@@ -3,7 +3,7 @@ import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import { buildEvent } from '../dynamodbLocal/buildEvent/index.ts';
 import { client } from '../dynamodbLocal/client/index.ts';
 import { TABLE_NAME } from '../dynamodbLocal/constants.ts';
-import { handler } from '../../../../apps/functions/src/handlers/listHouseholds/index.ts';
+import { handler } from '../../../../apps/functions/src/handlers/myHouseholds/index.ts';
 import { HouseholdRole } from '../../../../apps/functions/src/utils/isHouseholdRole/constants.ts';
 import { householdMetaKey } from '../../../../apps/functions/src/utils/keys/householdMetaKey/index.ts';
 import { membershipKey } from '../../../../apps/functions/src/utils/keys/membershipKey/index.ts';
@@ -15,7 +15,7 @@ const put = async (Item: Record<string, unknown>): Promise<void> => {
 const list = (sub: string) =>
   handler(buildEvent({ claims: { sub }, method: 'GET', path: '/api/v1/households' }));
 
-describe('listHouseholds handler against DynamoDB Local', () => {
+describe('myHouseholds handler against DynamoDB Local', () => {
   it('lists every household the user belongs to through GSI1', async () => {
     const sub = randomUUID();
     const owned = randomUUID();
