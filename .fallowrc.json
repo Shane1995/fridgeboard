@@ -38,7 +38,13 @@
       "apps/web/index.html",
       "apps/web/src/main.tsx",
       "apps/web/src/app/router/types.ts",
-      "apps/configuration/scripts/validate/index.ts"
+      "apps/configuration/scripts/validate/index.ts",
+      "apps/functions/scripts/devLocal/index.ts",
+      "apps/functions/scripts/devLocal/reset/index.ts",
+      "apps/functions/scripts/devLocal/server/index.ts",
+      "apps/functions/scripts/devLocal/constants.ts",
+      "e2e/api/integration/dynamodbLocal/constants.ts",
+      "e2e/api/integration/dynamodbLocal/globalSetup/index.ts"
     ]
   },
   "ignoreUnresolvedImports": ["/react-aria-pressable.css"]
