@@ -2,14 +2,13 @@ import type { IBucket } from '@fridgeboard/contract/lists';
 import { BucketItemSchema } from '../../../../utils/items/bucketItem/index.ts';
 import { bucketPrefix } from '../../../../utils/keys/bucketPrefix/index.ts';
 import { HOUSEHOLD_PK_PREFIX } from '../../../../utils/keys/constants.ts';
-import type { ListScope } from '../../../../utils/resolveList/types.ts';
-import type { Table } from '../../../../utils/table/types.ts';
 import { toBucket } from '../toBucket/index.ts';
+import type { QueryBucketsOptions } from './types.ts';
 
-export const queryBuckets = async (
-  table: Table,
-  { householdId, listId }: ListScope,
-): Promise<IBucket[]> =>
+export const queryBuckets = async ({
+  table,
+  scope: { householdId, listId },
+}: QueryBucketsOptions): Promise<IBucket[]> =>
   (
     await table.query(
       {

@@ -141,7 +141,11 @@ describe('createTable', () => {
     it('sets the given attributes on an existing item and returns it typed', async () => {
       ddbMock.on(UpdateCommand).resolves({ Attributes: { ...KEY, name: 'Flat' } });
 
-      const item = await table.update(KEY, { set: { name: 'Flat' } }, ItemSchema);
+      const item = await table.update({
+        key: KEY,
+        parts: { set: { name: 'Flat' } },
+        schema: ItemSchema,
+      });
 
       expect(item?.name).toBe('Flat');
       expect(ddbMock.commandCalls(UpdateCommand)[0]?.args[0].input).toEqual({
@@ -160,15 +164,17 @@ describe('createTable', () => {
         .on(UpdateCommand)
         .rejects(new ConditionalCheckFailedException({ message: 'no', $metadata: {} }));
 
-      expect(await table.update(KEY, { set: { name: 'Flat' } }, ItemSchema)).toBeUndefined();
+      expect(
+        await table.update({ key: KEY, parts: { set: { name: 'Flat' } }, schema: ItemSchema }),
+      ).toBeUndefined();
     });
 
     it('lets any other failure through', async () => {
       ddbMock.on(UpdateCommand).rejects(new Error('boom'));
 
-      await expect(table.update(KEY, { set: { name: 'Flat' } }, ItemSchema)).rejects.toThrow(
-        'boom',
-      );
+      await expect(
+        table.update({ key: KEY, parts: { set: { name: 'Flat' } }, schema: ItemSchema }),
+      ).rejects.toThrow('boom');
     });
   });
 

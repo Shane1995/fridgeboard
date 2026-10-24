@@ -16,11 +16,14 @@ export const createListItem = async ({ user, table, scope }: ListRouteContext) =
   const body = readJsonBody(user.event);
   const { name: rawName, bucketId: rawBucketId = UNSORTED_BUCKET_ID } =
     typeof body === 'object' && body !== null ? (body as Record<string, unknown>) : {};
-  const name = readText(rawName, LIST_ITEM_NAME_MAX_LENGTH);
+  const name = readText({ value: rawName, maxLength: LIST_ITEM_NAME_MAX_LENGTH });
   if (name === undefined) {
     return jsonResponse(400, { reason: 'invalid-name' });
   }
-  if (typeof rawBucketId !== 'string' || !(await bucketExists(table, scope, rawBucketId))) {
+  if (
+    typeof rawBucketId !== 'string' ||
+    !(await bucketExists({ table, scope, bucketId: rawBucketId }))
+  ) {
     return jsonResponse(400, { reason: 'invalid-bucket' });
   }
 
@@ -33,9 +36,9 @@ export const createListItem = async ({ user, table, scope }: ListRouteContext) =
     addedBy: user.sub,
   };
   await table.transactWrite([
-    { put: { ...itemKey(scope.householdId, scope.listId, item.id), ...item } },
+    { put: { ...itemKey({ ...scope, itemId: item.id }), ...item } },
     {
-      update: historyKey(scope.householdId, scope.listId, name),
+      update: historyKey({ ...scope, name }),
       parts: { set: { name, bucketId: item.bucketId }, add: { count: 1 } },
     },
   ]);

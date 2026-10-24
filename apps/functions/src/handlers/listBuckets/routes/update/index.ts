@@ -4,20 +4,20 @@ import { jsonResponse } from '../../../../utils/jsonResponse/index.ts';
 import { bucketKey } from '../../../../utils/keys/bucketKey/index.ts';
 import { readJsonBody } from '../../../../utils/readJsonBody/index.ts';
 import { readText } from '../../../../utils/readText/index.ts';
-import type { ListRouteContext } from '../../../../utils/resolveList/types.ts';
+import type { BucketRouteOptions } from '../../../../utils/resolveList/types.ts';
 import { readColor } from '../../utils/readColor/index.ts';
 import { toBucket } from '../../utils/toBucket/index.ts';
 
-export const updateListBucket = async (
-  { user, table, scope }: ListRouteContext,
-  bucketId: string,
-) => {
+export const updateListBucket = async ({
+  context: { user, table, scope },
+  bucketId,
+}: BucketRouteOptions) => {
   const body = readJsonBody(user.event);
   const fields = typeof body === 'object' && body !== null ? (body as Record<string, unknown>) : {};
   const set: Record<string, unknown> = {};
 
   if ('name' in fields) {
-    const name = readText(fields.name, BUCKET_NAME_MAX_LENGTH);
+    const name = readText({ value: fields.name, maxLength: BUCKET_NAME_MAX_LENGTH });
     if (name === undefined) {
       return jsonResponse(400, { reason: 'invalid-name' });
     }
@@ -34,11 +34,11 @@ export const updateListBucket = async (
     return jsonResponse(400, { reason: 'invalid-request' });
   }
 
-  const updated = await table.update(
-    bucketKey(scope.householdId, scope.listId, bucketId),
-    { set },
-    BucketItemSchema,
-  );
+  const updated = await table.update({
+    key: bucketKey({ ...scope, bucketId }),
+    parts: { set },
+    schema: BucketItemSchema,
+  });
   return updated === undefined
     ? jsonResponse(404, { reason: 'not-found' })
     : jsonResponse(200, toBucket(updated));

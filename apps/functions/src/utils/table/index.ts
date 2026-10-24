@@ -84,7 +84,7 @@ export const createTable = (client: DynamoDBDocumentClient, TableName: string): 
     await client.send(new PutCommand({ TableName, Item }));
   },
 
-  update: async (Key, parts, schema) => {
+  update: async ({ key: Key, parts, schema }) => {
     try {
       const { Attributes } = await client.send(
         new UpdateCommand({
