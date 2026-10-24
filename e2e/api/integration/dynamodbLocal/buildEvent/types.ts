@@ -3,5 +3,6 @@ export type BuildEventOptions = {
   body?: unknown;
   method?: string;
   path?: string;
+  pathParameters?: Record<string, string>;
   headers?: Record<string, string>;
 };

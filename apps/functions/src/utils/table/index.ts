@@ -1,11 +1,16 @@
+import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
 import {
   BatchGetCommand,
+  DeleteCommand,
   type DynamoDBDocumentClient,
   GetCommand,
   paginateQuery,
   PutCommand,
+  TransactWriteCommand,
+  UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
 import type * as z from 'zod/mini';
+import { buildUpdate } from '../buildUpdate/index.ts';
 import type { TableKey } from '../keys/types.ts';
 import { BATCH_GET_LIMIT, UNPROCESSED_KEYS_ERROR } from './constants.ts';
 import type { ItemSchema, Table } from './types.ts';
@@ -77,5 +82,44 @@ export const createTable = (client: DynamoDBDocumentClient, TableName: string): 
 
   put: async (Item) => {
     await client.send(new PutCommand({ TableName, Item }));
+  },
+
+  update: async (Key, parts, schema) => {
+    try {
+      const { Attributes } = await client.send(
+        new UpdateCommand({
+          TableName,
+          Key,
+          ...buildUpdate(parts),
+          ConditionExpression: 'attribute_exists(PK)',
+          ReturnValues: 'ALL_NEW',
+        }),
+      );
+      return Attributes === undefined ? undefined : parseItems(schema, [Attributes])[0];
+    } catch (error) {
+      if (error instanceof ConditionalCheckFailedException) {
+        return undefined;
+      }
+      throw error;
+    }
+  },
+
+  remove: async (Key) => {
+    const { Attributes } = await client.send(
+      new DeleteCommand({ TableName, Key, ReturnValues: 'ALL_OLD' }),
+    );
+    return Attributes !== undefined;
+  },
+
+  transactWrite: async (items) => {
+    await client.send(
+      new TransactWriteCommand({
+        TransactItems: items.map((item) =>
+          'put' in item
+            ? { Put: { TableName, Item: item.put } }
+            : { Update: { TableName, Key: item.update, ...buildUpdate(item.parts) } },
+        ),
+      }),
+    );
   },
 });
