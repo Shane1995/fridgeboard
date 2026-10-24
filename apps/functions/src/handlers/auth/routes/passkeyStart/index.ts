@@ -14,6 +14,7 @@ import { readBodyField } from '../../utils/readBodyField/index.ts';
 import { secretHash } from '../../utils/secretHash/index.ts';
 import { EMAIL_MARKER, REQUEST_OPTIONS_PARAMETER } from './constants.ts';
 import { parseOptions } from './utils/parseOptions/index.ts';
+import { AuthFlowKind } from '../../utils/flowToken/constants.ts';
 
 const cognito = new CognitoIdentityProviderClient({});
 
@@ -51,6 +52,10 @@ export const passkeyStart: Route = async (request, { clientId, clientSecret, flo
 
   const { flowTtlMs } = (await getConfiguration()).settings;
   return jsonResponse(200, { options }, [
-    flowCookie({ email, session: response.Session, kind: 'passkey' }, flowKey, flowTtlMs),
+    flowCookie(
+      { email, session: response.Session, kind: AuthFlowKind.Passkey },
+      flowKey,
+      flowTtlMs,
+    ),
   ]);
 };

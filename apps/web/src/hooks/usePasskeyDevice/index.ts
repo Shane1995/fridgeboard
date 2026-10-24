@@ -1,29 +1,20 @@
-import { useCallback, useState } from 'react';
-import { readStorage } from '../../services/storage/readStorage';
-import { writeStorage } from '../../services/storage/writeStorage';
+import { useCallback } from 'react';
+import { useLocalStorage } from '../useLocalStorage';
 import { DISMISSED, PASSKEY_EMAIL_KEY, PASSKEY_PROMPT_DISMISSED_KEY } from './constants';
 import type { PasskeyDevice } from './types';
 
 export const usePasskeyDevice = (): PasskeyDevice => {
-  const [email, setEmail] = useState(() => readStorage(PASSKEY_EMAIL_KEY));
-  const [promptDismissed, setPromptDismissed] = useState(
-    () => readStorage(PASSKEY_PROMPT_DISMISSED_KEY) === DISMISSED,
-  );
+  const [email, setEmail] = useLocalStorage(PASSKEY_EMAIL_KEY);
+  const [dismissed, setDismissed] = useLocalStorage(PASSKEY_PROMPT_DISMISSED_KEY);
 
-  const remember = useCallback((value: string) => {
-    writeStorage(PASSKEY_EMAIL_KEY, value);
-    setEmail(value);
-  }, []);
+  const forget = useCallback(() => setEmail(undefined), [setEmail]);
+  const dismissPrompt = useCallback(() => setDismissed(DISMISSED), [setDismissed]);
 
-  const forget = useCallback(() => {
-    writeStorage(PASSKEY_EMAIL_KEY, undefined);
-    setEmail(undefined);
-  }, []);
-
-  const dismissPrompt = useCallback(() => {
-    writeStorage(PASSKEY_PROMPT_DISMISSED_KEY, DISMISSED);
-    setPromptDismissed(true);
-  }, []);
-
-  return { email, promptDismissed, remember, forget, dismissPrompt };
+  return {
+    email,
+    promptDismissed: dismissed === DISMISSED,
+    remember: setEmail,
+    forget,
+    dismissPrompt,
+  };
 };

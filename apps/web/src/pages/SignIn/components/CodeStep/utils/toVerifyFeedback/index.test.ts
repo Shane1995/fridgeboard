@@ -1,4 +1,5 @@
 import { SIGN_IN_COPY } from '../../../../constants';
+import { FailureReason } from '../../../../../../services/session/constants';
 import { toVerifyFeedback } from './index';
 
 describe('toVerifyFeedback', () => {
@@ -15,7 +16,7 @@ describe('toVerifyFeedback', () => {
   });
 
   it('maps expired to an expired error', () => {
-    expect(toVerifyFeedback({ ok: false, reason: 'expired' })).toEqual({
+    expect(toVerifyFeedback({ ok: false, reason: FailureReason.Expired })).toEqual({
       message: SIGN_IN_COPY.reasons.expired,
       isError: true,
       isExpired: true,
@@ -23,7 +24,7 @@ describe('toVerifyFeedback', () => {
   });
 
   it('maps every other reason to its copy', () => {
-    expect(toVerifyFeedback({ ok: false, reason: 'bad-code' })?.message).toBe(
+    expect(toVerifyFeedback({ ok: false, reason: FailureReason.BadCode })?.message).toBe(
       SIGN_IN_COPY.reasons['bad-code'],
     );
   });

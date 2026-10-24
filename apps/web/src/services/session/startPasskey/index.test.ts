@@ -1,5 +1,6 @@
 import { endpoint } from '../../../testUtils/endpoint';
 import { startPasskey } from '.';
+import { FailureReason } from '../constants';
 
 const json = (status: number, body: unknown) =>
   new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
@@ -36,7 +37,7 @@ describe('startPasskey', () => {
 
     await expect(startPasskey(endpoint('/api/v1/auth/passkey/start'), 'a@b.com')).resolves.toEqual({
       ok: false,
-      fallback: true,
+      reason: FailureReason.Fallback,
     });
   });
 
@@ -45,7 +46,7 @@ describe('startPasskey', () => {
 
     await expect(startPasskey(endpoint('/api/v1/auth/passkey/start'), 'a@b.com')).resolves.toEqual({
       ok: false,
-      fallback: true,
+      reason: FailureReason.Fallback,
     });
   });
 

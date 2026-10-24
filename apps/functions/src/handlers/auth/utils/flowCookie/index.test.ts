@@ -2,8 +2,9 @@ import { readCookie } from '../cookies/readCookie/index.ts';
 import { openFlow } from '../flowToken/openFlow/index.ts';
 import type { AuthFlow } from '../flowToken/types.ts';
 import { flowCookie } from './index.ts';
+import { AuthFlowKind } from '../../utils/flowToken/constants.ts';
 
-const FLOW: AuthFlow = { email: 'jess@example.com', session: 's1', kind: 'passkey' };
+const FLOW: AuthFlow = { email: 'jess@example.com', session: 's1', kind: AuthFlowKind.Passkey };
 
 describe('flowCookie', () => {
   it('seals the flow into the flow cookie with the matching lifetime', () => {

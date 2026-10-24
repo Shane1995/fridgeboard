@@ -1,28 +1,17 @@
-import type { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
+import { HouseholdMetaItemSchema } from '../items/householdMetaItem/index.ts';
 import { householdIdFromKey } from '../keys/householdIdFromKey/index.ts';
 import { householdMetaKey } from '../keys/householdMetaKey/index.ts';
-import { batchGetMetas } from '../batchGetMetas/index.ts';
-import { BATCH_GET_LIMIT } from './constants.ts';
+import type { Table } from '../table/types.ts';
 
 export const fetchHouseholdNames = async (
-  client: DynamoDBDocumentClient,
-  TableName: string,
+  table: Table,
   ids: string[],
 ): Promise<Map<string, string>> => {
-  const chunks = Array.from({ length: Math.ceil(ids.length / BATCH_GET_LIMIT) }, (_, i) =>
-    ids.slice(i * BATCH_GET_LIMIT, (i + 1) * BATCH_GET_LIMIT).map(householdMetaKey),
-  );
-  const metas = await chunks.reduce<Promise<Record<string, unknown>[]>>(
-    async (previous, Keys) => [
-      ...(await previous),
-      ...(await batchGetMetas(client, TableName, Keys)),
-    ],
-    Promise.resolve([]),
-  );
+  const metas = await table.batchGet(ids.map(householdMetaKey), HouseholdMetaItemSchema);
   return new Map(
     metas.flatMap(({ PK, name }): [string, string][] => {
       const id = householdIdFromKey(PK);
-      return id === undefined ? [] : [[id, String(name)]];
+      return id === undefined ? [] : [[id, name]];
     }),
   );
 };

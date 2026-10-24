@@ -1,12 +1,6 @@
 import type { PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/browser';
-import type {
-  IAuthErrorReason,
-  ITokenResponse,
-  IVerifyNextResponse,
-} from '@fridgeboard/contract/auth';
-import type { RefreshResultKind, UNKNOWN_REASON } from './constants';
-
-export type FailureReason = IAuthErrorReason | typeof UNKNOWN_REASON;
+import type { ITokenResponse, IVerifyNextResponse } from '@fridgeboard/contract/auth';
+import type { FailureReason, RefreshResultKind } from './constants';
 
 export type StartResult = { ok: true } | { ok: false; reason: FailureReason };
 
@@ -27,5 +21,4 @@ export type RefreshResult =
 
 export type PasskeyStartResult =
   | { ok: true; options: PublicKeyCredentialRequestOptionsJSON }
-  | { ok: false; fallback: true }
   | { ok: false; reason: FailureReason };

@@ -2,7 +2,7 @@ import type { Endpoint } from '../../configuration/types';
 import type { IPasskeyCredentialRequest } from '@fridgeboard/contract/auth';
 import type { AuthenticationResponseJSON } from '@simplewebauthn/browser';
 import { request } from '../../api/request';
-import { POST, UNKNOWN_REASON } from '../constants';
+import { POST, FailureReason } from '../constants';
 import type { VerifyResponse } from '../types';
 import { isTokenResponse } from '../utils/isTokenResponse';
 import { readFailureReason } from '../utils/readFailureReason';
@@ -18,5 +18,7 @@ export const verifyPasskey = async (
   }
 
   const body: unknown = await response.json().catch(() => undefined);
-  return isTokenResponse(body) ? { ok: true, tokens: body } : { ok: false, reason: UNKNOWN_REASON };
+  return isTokenResponse(body)
+    ? { ok: true, tokens: body }
+    : { ok: false, reason: FailureReason.Unknown };
 };

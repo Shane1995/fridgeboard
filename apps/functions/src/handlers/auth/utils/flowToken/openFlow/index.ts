@@ -2,6 +2,7 @@ import { createDecipheriv } from 'node:crypto';
 import { deriveKey } from '../deriveKey/index.ts';
 import { CIPHER, IV_LENGTH, TAG_LENGTH } from '../constants.ts';
 import type { AuthFlow, FlowPayload } from '../types.ts';
+import { isAuthFlowKind } from '../isAuthFlowKind/index.ts';
 
 export const openFlow = (token: string, key: string, now: number): AuthFlow | undefined => {
   const bytes = Buffer.from(token, 'base64url');
@@ -22,7 +23,7 @@ export const openFlow = (token: string, key: string, now: number): AuthFlow | un
     if (
       typeof email !== 'string' ||
       typeof session !== 'string' ||
-      (kind !== 'sign-up' && kind !== 'sign-in' && kind !== 'passkey') ||
+      !isAuthFlowKind(kind) ||
       typeof exp !== 'number' ||
       now > exp
     ) {

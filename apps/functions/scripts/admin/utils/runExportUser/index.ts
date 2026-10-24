@@ -4,7 +4,9 @@ import { GetCommand } from '@aws-sdk/lib-dynamodb';
 import { householdIdFromKey } from '../../../../src/utils/keys/householdIdFromKey/index.ts';
 import { householdMetaKey } from '../../../../src/utils/keys/householdMetaKey/index.ts';
 import { profileKey } from '../../../../src/utils/keys/profileKey/index.ts';
-import { fetchMemberships } from '../../../../src/utils/fetchMemberships/index.ts';
+import { createTable } from '../../../../src/utils/table/index.ts';
+import { RawItemSchema } from '../../../../src/utils/items/rawItem/index.ts';
+import { membershipQuery } from '../../../../src/utils/membershipQuery/index.ts';
 import { TABLE_NAME } from '../clients/constants.ts';
 import { doc } from '../clients/index.ts';
 import { resolveUser } from '../resolveUser/index.ts';
@@ -15,7 +17,7 @@ export const runExportUser = async (email: string, directory: string): Promise<s
   const { Item: profile } = await doc.send(
     new GetCommand({ TableName: TABLE_NAME, Key: profileKey(sub) }),
   );
-  const memberships = await fetchMemberships(doc, TABLE_NAME, sub);
+  const memberships = await createTable(doc, TABLE_NAME).query(membershipQuery(sub), RawItemSchema);
   const withHouseholds = await Promise.all(
     memberships.map(async (membership) => {
       const id = householdIdFromKey(membership['PK']);

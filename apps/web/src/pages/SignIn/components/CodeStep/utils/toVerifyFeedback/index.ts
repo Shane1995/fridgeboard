@@ -1,3 +1,4 @@
+import { FailureReason } from '../../../../../../services/session/constants';
 import type { VerifyResult } from '../../../../../../services/session/types';
 import { SIGN_IN_COPY } from '../../../../constants';
 import type { CodeFeedback } from '../../types';
@@ -12,6 +13,6 @@ export const toVerifyFeedback = (result: VerifyResult): CodeFeedback | undefined
   return {
     message: SIGN_IN_COPY.reasons[result.reason],
     isError: true,
-    isExpired: result.reason === 'expired',
+    isExpired: result.reason === FailureReason.Expired,
   };
 };

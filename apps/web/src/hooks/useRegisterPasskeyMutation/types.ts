@@ -1,5 +1,3 @@
-import type { FailureReason } from '../../services/session/types';
+import { FailureReason } from '../../services/session/constants';
 
-export type RegisterPasskeyResult =
-  | { ok: true }
-  | { ok: false; reason: 'cancelled' | FailureReason };
+export type RegisterPasskeyResult = { ok: true } | { ok: false; reason: FailureReason };

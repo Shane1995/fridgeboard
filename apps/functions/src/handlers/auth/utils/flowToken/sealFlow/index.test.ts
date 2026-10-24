@@ -1,11 +1,16 @@
 import type { AuthFlow } from '../types.ts';
 import { openFlow } from '../openFlow/index.ts';
 import { sealFlow } from './index.ts';
+import { AuthFlowKind } from '../../../utils/flowToken/constants.ts';
 
 const KEY = 'flow-key';
 const TTL = 180_000;
 const NOW = 1_700_000_000_000;
-const FLOW: AuthFlow = { email: 'jess@example.com', session: 'session-1', kind: 'sign-up' };
+const FLOW: AuthFlow = {
+  email: 'jess@example.com',
+  session: 'session-1',
+  kind: AuthFlowKind.SignUp,
+};
 
 describe('sealFlow', () => {
   it('does not reveal the email, kind or session in the token', () => {

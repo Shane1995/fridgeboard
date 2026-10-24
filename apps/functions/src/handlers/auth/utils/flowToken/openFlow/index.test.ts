@@ -1,10 +1,15 @@
 import { sealFlow } from '../sealFlow/index.ts';
 import type { AuthFlow } from '../types.ts';
 import { openFlow } from './index.ts';
+import { AuthFlowKind } from '../../../utils/flowToken/constants.ts';
 
 const KEY = 'flow-key';
 const NOW = 1_700_000_000_000;
-const FLOW: AuthFlow = { email: 'jess@example.com', session: 'session-1', kind: 'sign-up' };
+const FLOW: AuthFlow = {
+  email: 'jess@example.com',
+  session: 'session-1',
+  kind: AuthFlowKind.SignUp,
+};
 
 const flipByte = (token: string, index: number): string => {
   const bytes = Buffer.from(token, 'base64url');
@@ -20,7 +25,7 @@ describe('openFlow', () => {
   });
 
   it('round-trips a passkey flow', () => {
-    const flow: AuthFlow = { ...FLOW, kind: 'passkey' };
+    const flow: AuthFlow = { ...FLOW, kind: AuthFlowKind.Passkey };
 
     expect(openFlow(sealFlow(flow, KEY, NOW, 180_000), KEY, NOW)).toEqual(flow);
   });
