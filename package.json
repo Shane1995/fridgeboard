@@ -16,6 +16,8 @@
     "format:check": "turbo run format:check",
     "typecheck": "turbo run typecheck",
     "dev": "turbo run dev --filter @fridgeboard/web",
+    "dev:local": "pnpm --filter @fridgeboard/functions dev:local",
+    "dev:local:reset": "pnpm --filter @fridgeboard/functions dev:local:reset",
     "prepare": "husky"
   },
   "devDependencies": {

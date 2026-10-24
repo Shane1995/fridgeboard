@@ -1,0 +1,14 @@
+import type { WebService } from '@fridgeboard/contract/configuration/services/constants';
+import type {
+  APIGatewayProxyEventV2WithJWTAuthorizer,
+  APIGatewayProxyStructuredResultV2,
+} from 'aws-lambda';
+
+export type RouteEntry = {
+  jwt: boolean;
+  handler: (
+    event: APIGatewayProxyEventV2WithJWTAuthorizer,
+  ) => Promise<APIGatewayProxyStructuredResultV2>;
+};
+
+export type RouteDefinition = RouteEntry & { method: string; service: WebService };
