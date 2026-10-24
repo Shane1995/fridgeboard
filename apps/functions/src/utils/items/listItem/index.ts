@@ -4,7 +4,7 @@ import * as z from 'zod/mini';
 export const ListItemSchema = z.looseObject({
   id: z.string(),
   name: z.string(),
-  bucketId: z.string(),
+  shopId: z.string(),
   checked: z.boolean(),
   createdAt: z.number(),
   addedBy: z.string(),

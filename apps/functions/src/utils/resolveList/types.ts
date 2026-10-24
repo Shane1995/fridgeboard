@@ -9,4 +9,4 @@ export type ResolveListOptions = { user: AuthenticatedUser; table: Table };
 
 export type ItemRouteOptions = { context: ListRouteContext; itemId: string };
 
-export type BucketRouteOptions = { context: ListRouteContext; bucketId: string };
+export type ShopRouteOptions = { context: ListRouteContext; shopId: string };

@@ -1,6 +1,6 @@
 import { Checkbox, Dropdown } from '@heroui/react';
 import { Ellipsis } from 'lucide-react';
-import type { Bucket, ListItem } from '../../services/shoppingList/types';
+import type { Shop, ListItem } from '../../services/shoppingList/types';
 import { ItemInfoDialog } from '../ItemInfoDialog';
 import {
   DELETE_ACTION,
@@ -12,7 +12,7 @@ import {
 } from './constants';
 import { useItemRow } from './hooks/useItemRow';
 
-type ItemRowProps = { item: ListItem; moveTargets: readonly Bucket[] };
+type ItemRowProps = { item: ListItem; moveTargets: readonly Shop[] };
 
 export const ItemRow = ({ item, moveTargets }: ItemRowProps) => {
   const {

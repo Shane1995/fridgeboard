@@ -6,7 +6,7 @@ import {
   RouterProvider,
 } from '@tanstack/react-router';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { UNSORTED_BUCKET_NAME } from '../../services/shoppingList/constants';
+import { UNSORTED_SHOP_NAME } from '../../services/shoppingList/constants';
 import { queryClient } from '../../app/queryClient';
 import { HOME_COPY } from './constants';
 import { Home } from '.';
@@ -19,8 +19,8 @@ const fixture = createSession(SessionStatus.SignedIn);
 const { apiFetch } = fixture;
 const session = fixture.session;
 
-const pickBucket = async (name: string) => {
-  fireEvent.click(screen.getByRole('button', { name: /^Bucket:/ }));
+const pickShop = async (name: string) => {
+  fireEvent.click(screen.getByRole('button', { name: /^Shop:/ }));
   const item = await screen.findByRole('menuitemradio', { name });
   fireEvent.keyDown(item, { key: 'Enter' });
   fireEvent.keyUp(item, { key: 'Enter' });
@@ -77,7 +77,7 @@ describe('Home', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'Add' }));
     const checkbox = await screen.findByRole('checkbox', { name: 'Milk' });
-    expect(screen.getByRole('region', { name: UNSORTED_BUCKET_NAME })).toContainElement(checkbox);
+    expect(screen.getByRole('region', { name: UNSORTED_SHOP_NAME })).toContainElement(checkbox);
 
     fireEvent.click(checkbox);
     expect(await screen.findByRole('region', { name: HOME_COPY.gotIt })).toContainElement(
@@ -88,20 +88,20 @@ describe('Home', () => {
     await waitFor(() => expect(screen.queryByText('Milk')).not.toBeInTheDocument());
   });
 
-  it('narrows the list to one bucket and back to all', async () => {
+  it('narrows the list to one shop and back to all', async () => {
     renderHome();
-    fireEvent.click(await screen.findByRole('button', { name: HOME_COPY.newBucket }));
+    fireEvent.click(await screen.findByRole('button', { name: HOME_COPY.newShop }));
     fireEvent.change(await screen.findByRole('textbox', { name: 'Name' }), {
       target: { value: 'Express' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Create bucket' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Create shop' }));
     await screen.findByRole('region', { name: 'Express' });
-    await pickBucket('Express');
+    await pickShop('Express');
     fireEvent.change(screen.getByRole('textbox', { name: 'Item' }), { target: { value: 'Milk' } });
     fireEvent.click(screen.getByRole('button', { name: 'Add' }));
     await screen.findByRole('checkbox', { name: 'Milk' });
     fireEvent.change(screen.getByRole('textbox', { name: 'Item' }), { target: { value: 'Tape' } });
-    await pickBucket(UNSORTED_BUCKET_NAME);
+    await pickShop(UNSORTED_SHOP_NAME);
     fireEvent.click(screen.getByRole('button', { name: 'Add' }));
     await screen.findByRole('checkbox', { name: 'Tape' });
 
@@ -115,13 +115,13 @@ describe('Home', () => {
     expect(await screen.findByRole('checkbox', { name: 'Tape' })).toBeInTheDocument();
   });
 
-  it('creates a bucket from the dialog', async () => {
+  it('creates a shop from the dialog', async () => {
     renderHome();
-    fireEvent.click(await screen.findByRole('button', { name: HOME_COPY.newBucket }));
+    fireEvent.click(await screen.findByRole('button', { name: HOME_COPY.newShop }));
     fireEvent.change(await screen.findByRole('textbox', { name: 'Name' }), {
       target: { value: 'Express' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Create bucket' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Create shop' }));
     expect(await screen.findByRole('region', { name: 'Express' })).toBeInTheDocument();
   });
 });

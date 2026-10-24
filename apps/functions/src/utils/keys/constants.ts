@@ -9,5 +9,5 @@ export const USERNAME_SK = 'USERNAME';
 export const MEMBER_SK_PREFIX = 'MEMBER#';
 export const OWNED_HOUSEHOLD_SK = 'OWNED_HOUSEHOLD';
 export const ITEM_SK_PREFIX = 'ITEM#';
-export const BUCKET_SK_PREFIX = 'BUCKET#';
+export const SHOP_SK_PREFIX = 'SHOP#';
 export const HISTORY_SK_PREFIX = 'HIST#';

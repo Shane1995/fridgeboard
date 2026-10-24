@@ -5,7 +5,7 @@ describe('toListItem', () => {
     const item = {
       id: 'i1',
       name: 'Milk',
-      bucketId: 'unsorted',
+      shopId: 'unsorted',
       checked: false,
       createdAt: 5,
       addedBy: 'sub-1',

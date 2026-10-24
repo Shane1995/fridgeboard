@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { BucketColor, UNSORTED_BUCKET_ID } from '../../services/shoppingList/constants';
-import type { Bucket, ListItem } from '../../services/shoppingList/types';
+import { ShopColor, UNSORTED_SHOP_ID } from '../../services/shoppingList/constants';
+import type { Shop, ListItem } from '../../services/shoppingList/types';
 import { createShoppingListWrapper } from '../../testUtils/createShoppingListWrapper';
 import { ITEM_ROW_COPY } from './constants';
 import { ItemRow } from './index';
@@ -8,13 +8,13 @@ import { ItemRow } from './index';
 const ITEM: ListItem = {
   id: 'i1',
   name: 'Milk',
-  bucketId: UNSORTED_BUCKET_ID,
+  shopId: UNSORTED_SHOP_ID,
   checked: false,
   createdAt: 0,
 };
-const EXPRESS: Bucket = { id: 'b1', name: 'Express', color: BucketColor.Mint, order: 0 };
+const EXPRESS: Shop = { id: 'b1', name: 'Express', color: ShopColor.Mint, order: 0 };
 
-const renderRow = (moveTargets: Bucket[] = [EXPRESS]) => {
+const renderRow = (moveTargets: Shop[] = [EXPRESS]) => {
   const Wrapper = createShoppingListWrapper();
   render(
     <Wrapper>
@@ -33,7 +33,7 @@ describe('ItemRow', () => {
     expect(screen.getByText('Milk')).toBeInTheDocument();
   });
 
-  it('offers Info, Move and Delete in the menu, with the buckets one step further in', async () => {
+  it('offers Info, Move and Delete in the menu, with the shops one step further in', async () => {
     renderRow();
 
     fireEvent.click(screen.getByRole('button', { name: ITEM_ROW_COPY.menu }));

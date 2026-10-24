@@ -1,23 +1,23 @@
-import type { BucketColor } from './constants';
+import type { ShopColor } from './constants';
 
-export type Bucket = { id: string; name: string; color: BucketColor; order: number };
+export type Shop = { id: string; name: string; color: ShopColor; order: number };
 
 export type ListItem = {
   id: string;
   name: string;
-  bucketId: string;
+  shopId: string;
   checked: boolean;
   createdAt: number;
   addedBy?: string | undefined;
 };
 
-export type HistoryEntry = { name: string; bucketId: string; count: number };
+export type HistoryEntry = { name: string; shopId: string; count: number };
 
-export type NewItem = { name: string; bucketId: string };
-export type ItemChanges = Partial<Pick<ListItem, 'name' | 'bucketId' | 'checked'>>;
-export type NewBucket = { name: string; color: BucketColor };
-export type BucketChanges = Partial<Pick<Bucket, 'name' | 'color'>>;
+export type NewItem = { name: string; shopId: string };
+export type ItemChanges = Partial<Pick<ListItem, 'name' | 'shopId' | 'checked'>>;
+export type NewShop = { name: string; color: ShopColor };
+export type ShopChanges = Partial<Pick<Shop, 'name' | 'color'>>;
 
-export type BucketSectionData = { bucket: Bucket; items: ListItem[] };
+export type ShopSectionData = { shop: Shop; items: ListItem[] };
 
-export type GroupedItems = { sections: BucketSectionData[]; checked: ListItem[] };
+export type GroupedItems = { sections: ShopSectionData[]; checked: ListItem[] };

@@ -10,8 +10,8 @@ import type {
   IHouseholdsResponse,
 } from '@fridgeboard/contract/households';
 import type {
-  IBucket,
-  IBucketsResponse,
+  IShop,
+  IShopsResponse,
   IHistoryResponse,
   IListErrorResponse,
   IListItem,
@@ -35,8 +35,8 @@ export type ResponseBody =
   | IHouseholdMembersResponse
   | IListItem
   | IListItemsResponse
-  | IBucket
-  | IBucketsResponse
+  | IShop
+  | IShopsResponse
   | IHistoryResponse
   | IListErrorResponse
   | IOnboardingResponse

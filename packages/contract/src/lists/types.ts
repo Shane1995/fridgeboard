@@ -1,11 +1,11 @@
-import type { BUCKET_COLORS } from './constants.ts';
+import type { SHOP_COLORS } from './constants.ts';
 
-export type BucketColorName = (typeof BUCKET_COLORS)[number];
+export type ShopColorName = (typeof SHOP_COLORS)[number];
 
 export type IListItem = {
   id: string;
   name: string;
-  bucketId: string;
+  shopId: string;
   checked: boolean;
   createdAt: number;
   addedBy: string;
@@ -13,24 +13,24 @@ export type IListItem = {
 
 export type IListItemsResponse = { items: IListItem[] };
 
-export type ICreateListItemRequest = { name: string; bucketId?: string };
+export type ICreateListItemRequest = { name: string; shopId?: string };
 
-export type IUpdateListItemRequest = { name?: string; bucketId?: string; checked?: boolean };
+export type IUpdateListItemRequest = { name?: string; shopId?: string; checked?: boolean };
 
-export type IBucket = { id: string; name: string; color: BucketColorName; order: number };
+export type IShop = { id: string; name: string; color: ShopColorName; order: number };
 
-export type IBucketsResponse = { buckets: IBucket[] };
+export type IShopsResponse = { shops: IShop[] };
 
-export type ICreateBucketRequest = { name: string; color: BucketColorName };
+export type ICreateShopRequest = { name: string; color: ShopColorName };
 
-export type IUpdateBucketRequest = { name?: string; color?: BucketColorName };
+export type IUpdateShopRequest = { name?: string; color?: ShopColorName };
 
-export type IReorderBucketsRequest = { ids: string[] };
+export type IReorderShopsRequest = { ids: string[] };
 
-export type IHistoryEntry = { name: string; bucketId: string; count: number };
+export type IHistoryEntry = { name: string; shopId: string; count: number };
 
 export type IHistoryResponse = { entries: IHistoryEntry[] };
 
 export type IListErrorResponse = {
-  reason: 'not-found' | 'invalid-name' | 'invalid-bucket' | 'invalid-color' | 'invalid-request';
+  reason: 'not-found' | 'invalid-name' | 'invalid-shop' | 'invalid-color' | 'invalid-request';
 };

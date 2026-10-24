@@ -41,7 +41,7 @@ export const useItemRow = (item: ListItem): ItemRowState => {
     } else if (action.startsWith(MOVE_ACTION_PREFIX)) {
       update.mutate({
         id: item.id,
-        changes: { bucketId: action.slice(MOVE_ACTION_PREFIX.length) },
+        changes: { shopId: action.slice(MOVE_ACTION_PREFIX.length) },
       });
     }
   };

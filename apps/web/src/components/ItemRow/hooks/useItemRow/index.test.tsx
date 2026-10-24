@@ -1,5 +1,5 @@
 import { act, waitFor } from '@testing-library/react';
-import { UNSORTED_BUCKET_ID } from '../../../../services/shoppingList/constants';
+import { UNSORTED_SHOP_ID } from '../../../../services/shoppingList/constants';
 import { fakeShoppingList } from '../../../../testUtils/fakeShoppingList';
 import type { ListItem } from '../../../../services/shoppingList/types';
 import { renderHookWithHousehold } from '../../../../testUtils/createShoppingListWrapper';
@@ -9,7 +9,7 @@ import { useItemRow } from './index';
 const setup = async () => {
   const item: ListItem = await fakeShoppingList.addItem({
     name: 'Milk',
-    bucketId: UNSORTED_BUCKET_ID,
+    shopId: UNSORTED_SHOP_ID,
   });
   const { result } = await renderHookWithHousehold(() => useItemRow(item));
   return { item, result };
@@ -60,12 +60,12 @@ describe('useItemRow', () => {
     expect((await stored())?.name).toBe('Milk');
   });
 
-  it('moves the item to another bucket from the menu', async () => {
+  it('moves the item to another shop from the menu', async () => {
     const { result } = await setup();
 
     act(() => result.current.handleMenuAction(`${MOVE_ACTION_PREFIX}b1`));
 
-    await waitFor(async () => expect((await stored())?.bucketId).toBe('b1'));
+    await waitFor(async () => expect((await stored())?.shopId).toBe('b1'));
   });
 
   it('opens the item info from the menu', async () => {

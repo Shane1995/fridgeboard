@@ -183,9 +183,9 @@ describe('web configuration schema', () => {
   const ENDPOINTS = {
     households: '/api/v1/households',
     householdMembers: '/api/v1/households/{householdId}/members',
-    listBucket: '/api/v1/households/{householdId}/lists/{listId}/buckets/{bucketId}',
-    listBuckets: '/api/v1/households/{householdId}/lists/{listId}/buckets',
-    listBucketsOrder: '/api/v1/households/{householdId}/lists/{listId}/buckets/order',
+    listShop: '/api/v1/households/{householdId}/lists/{listId}/shops/{shopId}',
+    listShops: '/api/v1/households/{householdId}/lists/{listId}/shops',
+    listShopsOrder: '/api/v1/households/{householdId}/lists/{listId}/shops/order',
     listHistory: '/api/v1/households/{householdId}/lists/{listId}/history',
     listItem: '/api/v1/households/{householdId}/lists/{listId}/items/{itemId}',
     listItems: '/api/v1/households/{householdId}/lists/{listId}/items',

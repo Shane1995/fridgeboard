@@ -1,12 +1,12 @@
 import type { FormEvent } from 'react';
-import type { Bucket, HistoryEntry } from '../../../../services/shoppingList/types';
+import type { Shop, HistoryEntry } from '../../../../services/shoppingList/types';
 
 export type AddItemFormState = {
   name: string;
   setName: (name: string) => void;
-  bucketId: string;
-  setBucketId: (bucketId: string) => void;
-  buckets: Bucket[];
+  shopId: string;
+  setShopId: (shopId: string) => void;
+  shops: Shop[];
   suggestions: HistoryEntry[];
   pickSuggestion: (suggestion: HistoryEntry) => void;
   isAdding: boolean;

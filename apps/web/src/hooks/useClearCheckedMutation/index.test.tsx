@@ -1,5 +1,5 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { UNSORTED_BUCKET_ID } from '../../services/shoppingList/constants';
+import { UNSORTED_SHOP_ID } from '../../services/shoppingList/constants';
 import { fakeShoppingList } from '../../testUtils/fakeShoppingList';
 import { createShoppingListWrapper } from '../../testUtils/createShoppingListWrapper';
 import { useItemsQuery } from '../useItemsQuery';
@@ -11,9 +11,9 @@ describe('useClearCheckedMutation', () => {
   it('removes ticked items and refreshes the items query', async () => {
     const milk = await fakeShoppingList.addItem({
       name: 'Milk',
-      bucketId: UNSORTED_BUCKET_ID,
+      shopId: UNSORTED_SHOP_ID,
     });
-    await fakeShoppingList.addItem({ name: 'Eggs', bucketId: UNSORTED_BUCKET_ID });
+    await fakeShoppingList.addItem({ name: 'Eggs', shopId: UNSORTED_SHOP_ID });
     await fakeShoppingList.updateItem({ id: milk.id, changes: { checked: true } });
     const { result } = renderHook(
       () => ({ clear: useClearCheckedMutation(), items: useItemsQuery() }),
