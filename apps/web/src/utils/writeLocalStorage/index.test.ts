@@ -1,13 +1,13 @@
-import { writeStorage } from '.';
+import { writeLocalStorage } from '.';
 
-describe('writeStorage', () => {
+describe('writeLocalStorage', () => {
   afterEach(() => {
     window.localStorage.clear();
     vi.restoreAllMocks();
   });
 
   it('stores a value', () => {
-    writeStorage('k', 'v');
+    writeLocalStorage('k', 'v');
 
     expect(window.localStorage.getItem('k')).toBe('v');
   });
@@ -15,7 +15,7 @@ describe('writeStorage', () => {
   it('removes the key when the value is undefined', () => {
     window.localStorage.setItem('k', 'v');
 
-    writeStorage('k', undefined);
+    writeLocalStorage('k', undefined);
 
     expect(window.localStorage.getItem('k')).toBeNull();
   });
@@ -25,6 +25,6 @@ describe('writeStorage', () => {
       throw new Error('blocked');
     });
 
-    expect(() => writeStorage('k', 'v')).not.toThrow();
+    expect(() => writeLocalStorage('k', 'v')).not.toThrow();
   });
 });

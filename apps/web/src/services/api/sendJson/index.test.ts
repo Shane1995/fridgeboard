@@ -1,4 +1,5 @@
 import { endpoint } from '../../../testUtils/endpoint';
+import { FailureReason } from '../../session/constants';
 import { sendJson } from './index';
 
 const REASONS = ['taken', 'invalid'] as const;
@@ -24,10 +25,22 @@ describe('sendJson', () => {
     ).resolves.toEqual({ ok: false, reason });
   });
 
+  it('returns undefined data for an empty success body', async () => {
+    await expect(
+      sendJson(
+        endpoint('/api/v1/x'),
+        'POST',
+        undefined,
+        REASONS,
+        vi.fn(async () => new Response(null, { status: 204 })),
+      ),
+    ).resolves.toEqual({ ok: true, data: undefined });
+  });
+
   it('falls back to unknown for unrecognised or unreadable failures', async () => {
     await expect(
       sendJson(endpoint('/api/v1/x'), 'POST', {}, REASONS, json(500, { reason: 'boom' })),
-    ).resolves.toEqual({ ok: false, reason: 'unknown' });
+    ).resolves.toEqual({ ok: false, reason: FailureReason.Unknown });
     await expect(
       sendJson(
         endpoint('/api/v1/x'),
@@ -36,6 +49,6 @@ describe('sendJson', () => {
         REASONS,
         vi.fn(async () => new Response('nope', { status: 502 })),
       ),
-    ).resolves.toEqual({ ok: false, reason: 'unknown' });
+    ).resolves.toEqual({ ok: false, reason: FailureReason.Unknown });
   });
 });

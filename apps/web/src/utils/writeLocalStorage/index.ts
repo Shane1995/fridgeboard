@@ -1,4 +1,4 @@
-export const writeStorage = (key: string, value: string | undefined): void => {
+export const writeLocalStorage = (key: string, value: string | undefined): void => {
   try {
     if (value === undefined) {
       window.localStorage.removeItem(key);

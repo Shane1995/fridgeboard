@@ -22,6 +22,8 @@ export enum FailureReason {
   Fallback = 'fallback',
 }
 
+export const FAILURE_REASONS: readonly FailureReason[] = Object.values(FailureReason);
+
 export enum RefreshResultKind {
   Tokens = 'tokens',
   Rejected = 'rejected',

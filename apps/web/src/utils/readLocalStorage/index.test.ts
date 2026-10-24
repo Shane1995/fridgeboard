@@ -1,6 +1,6 @@
-import { readStorage } from '.';
+import { readLocalStorage } from '.';
 
-describe('readStorage', () => {
+describe('readLocalStorage', () => {
   afterEach(() => {
     window.localStorage.clear();
     vi.restoreAllMocks();
@@ -9,11 +9,11 @@ describe('readStorage', () => {
   it('returns the stored value', () => {
     window.localStorage.setItem('k', 'v');
 
-    expect(readStorage('k')).toBe('v');
+    expect(readLocalStorage('k')).toBe('v');
   });
 
   it('returns undefined when nothing is stored', () => {
-    expect(readStorage('missing')).toBeUndefined();
+    expect(readLocalStorage('missing')).toBeUndefined();
   });
 
   it('returns undefined when storage is unavailable', () => {
@@ -21,6 +21,6 @@ describe('readStorage', () => {
       throw new Error('blocked');
     });
 
-    expect(readStorage('k')).toBeUndefined();
+    expect(readLocalStorage('k')).toBeUndefined();
   });
 });
