@@ -1,6 +1,6 @@
 import type { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { HouseholdRole } from '../../../src/utils/isHouseholdRole/constants.ts';
-import { INVITE_TYPE, type TableKey } from '../../../src/utils/keys/types.ts';
+import { InviteType, type TableKey } from '../../../src/utils/keys/types.ts';
 import { createTable } from '../../../src/utils/table/index.ts';
 import { householdMetaKey } from '../../../src/utils/keys/householdMetaKey/index.ts';
 import { inviteKey } from '../../../src/utils/keys/inviteKey/index.ts';
@@ -41,12 +41,12 @@ export const seed = async (client: DynamoDBDocumentClient): Promise<void> => {
     { ...ownedHouseholdKey(sub), householdId: hhId },
     {
       ...inviteKey(MEMBER_INVITE_EMAIL),
-      type: INVITE_TYPE.HOUSEHOLD,
+      type: InviteType.Household,
       hhId,
       ...invite,
       ttl: invite.expiresAt,
     },
-    { ...inviteKey(APP_INVITE_EMAIL), type: INVITE_TYPE.APP, ...invite, ttl: invite.expiresAt },
+    { ...inviteKey(APP_INVITE_EMAIL), type: InviteType.App, ...invite, ttl: invite.expiresAt },
   ];
   const table = createTable(client, TABLE_NAME);
   await Promise.all(items.map((item) => table.put(item)));

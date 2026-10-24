@@ -1,12 +1,12 @@
 export type TableKey = { PK: string; SK: string };
 
-export enum INVITE_TYPE {
-  APP = 'app',
-  HOUSEHOLD = 'household',
+export enum InviteType {
+  App = 'app',
+  Household = 'household',
 }
 
 export type Invite = {
-  type: INVITE_TYPE;
+  type: InviteType;
   hhId?: string;
   admin?: boolean;
   invitedBy: string;

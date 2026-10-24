@@ -8,7 +8,7 @@ import type { PostConfirmationTriggerEvent } from 'aws-lambda';
 import { inviteKey } from '../../utils/keys/inviteKey/index.ts';
 import { profileKey } from '../../utils/keys/profileKey/index.ts';
 import { InviteItemSchema } from '../../utils/items/inviteItem/index.ts';
-import { INVITE_TYPE } from '../../utils/keys/types.ts';
+import { InviteType } from '../../utils/keys/types.ts';
 import { createTable } from '../../utils/table/index.ts';
 import { joinHousehold } from './utils/joinHousehold/index.ts';
 import { normaliseEmail } from '../../utils/normaliseEmail/index.ts';
@@ -50,7 +50,7 @@ export const handler = async (
           ...profileKey(sub),
           email,
           createdAt: new Date().toISOString(),
-          canCreateHousehold: type === INVITE_TYPE.APP,
+          canCreateHousehold: type === InviteType.App,
         },
         ConditionExpression: PROFILE_NOT_EXISTS_CONDITION,
       }),
@@ -71,11 +71,11 @@ export const handler = async (
     );
   }
 
-  if (type === INVITE_TYPE.APP) {
+  if (type === InviteType.App) {
     await client.send(new DeleteCommand({ TableName, Key }));
   }
 
-  if (type === INVITE_TYPE.HOUSEHOLD && hhId) {
+  if (type === InviteType.Household && hhId) {
     await joinHousehold(client, TableName, { hhId, sub, invite: Key });
   }
 
