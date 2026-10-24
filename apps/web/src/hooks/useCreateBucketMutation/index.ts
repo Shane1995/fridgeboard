@@ -5,8 +5,8 @@ import type { MutationResult } from '../useMutation/types';
 import { useShoppingListMutation } from '../useShoppingListMutation';
 
 export const useCreateBucketMutation = (): MutationResult<Bucket, NewBucket> =>
-  useShoppingListMutation(
-    MutationName.createBucket,
-    (repository, variables) => repository.createBucket(variables),
-    [BUCKETS_QUERY_KEY],
-  );
+  useShoppingListMutation({
+    name: MutationName.createBucket,
+    write: ({ repository, variables }) => repository.createBucket(variables),
+    invalidates: [BUCKETS_QUERY_KEY],
+  });

@@ -4,17 +4,29 @@ import type { ReactNode } from 'react';
 import { useActiveHousehold } from '../../hooks/useActiveHousehold';
 import { SessionStatus } from '../../services/session/constants';
 import { createSession } from '../createSession';
-import { TEST_HOUSEHOLD_ID } from '../testRepository';
+import { fakeShoppingListApi } from '../fakeShoppingListApi';
+import { TEST_HOUSEHOLD_ID } from '../testRepository/constants';
 import { TestProviders } from '../TestProviders';
 
 export const answerHouseholds = (apiFetch: { mockImplementation: (fn: never) => unknown }) =>
-  apiFetch.mockImplementation((async ({ path }: { path: string }) =>
-    path.endsWith('/households')
-      ? new Response(
-          JSON.stringify({ households: [{ id: TEST_HOUSEHOLD_ID, name: 'Home', role: 'owner' }] }),
-          { status: 200 },
-        )
-      : new Response('{}', { status: 404 })) as never);
+  apiFetch.mockImplementation((async (
+    endpoint: { path: string; timeoutMs: number },
+    init?: RequestInit,
+  ) => {
+    if (endpoint.path.endsWith('/households')) {
+      return new Response(
+        JSON.stringify({ households: [{ id: TEST_HOUSEHOLD_ID, name: 'Home', role: 'owner' }] }),
+        { status: 200 },
+      );
+    }
+    if (endpoint.path.endsWith('/members')) {
+      return new Response(
+        JSON.stringify({ members: [{ id: 'sub-1', username: 'shane', role: 'owner' }] }),
+        { status: 200 },
+      );
+    }
+    return fakeShoppingListApi(endpoint, init);
+  }) as never);
 
 export const createShoppingListWrapper = () => {
   const client = new QueryClient();

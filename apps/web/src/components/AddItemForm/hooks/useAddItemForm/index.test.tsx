@@ -48,7 +48,7 @@ describe('useAddItemForm', () => {
       color: BucketColor.Mint,
     });
     const bought = await testRepository.addItem({ name: 'Milk', bucketId: bucket.id });
-    await testRepository.updateItem(bought.id, { checked: true });
+    await testRepository.updateItem({ id: bought.id, changes: { checked: true } });
     const { result } = renderHook(() => useAddItemForm(), { wrapper: createShoppingListWrapper() });
     await waitFor(() => expect(result.current.buckets).toHaveLength(2));
 
@@ -69,7 +69,7 @@ describe('useAddItemForm', () => {
       name: 'Mince',
       bucketId: UNSORTED_BUCKET_ID,
     });
-    await testRepository.updateItem(mince.id, { checked: true });
+    await testRepository.updateItem({ id: mince.id, changes: { checked: true } });
     const { result } = renderHook(() => useAddItemForm(), { wrapper: createShoppingListWrapper() });
 
     act(() => result.current.setName('mi'));

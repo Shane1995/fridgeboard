@@ -12,15 +12,21 @@ import type { ApiQueryOptions } from './types';
 export const useApiQuery = <TData>({
   name,
   service,
+  params,
   enabled = true,
 }: ApiQueryOptions): QueryResult<TData> => {
   const { services, queries } = useRemoteConfigContext();
   const { status, apiFetch } = useSessionContext();
   return useQuery({
-    queryKey: [name],
+    queryKey: params === undefined ? [name] : [name, params],
     queryFn: () =>
       getJson<TData>(
-        resolveEndpoint(services.api, service, mergedEntry(queries, name).timeoutMs),
+        resolveEndpoint({
+          api: services.api,
+          service,
+          timeoutMs: mergedEntry(queries, name).timeoutMs,
+          ...(params === undefined ? {} : { params }),
+        }),
         (endpoint) => apiFetch(endpoint),
       ),
     enabled: enabled && status === SessionStatus.SignedIn,

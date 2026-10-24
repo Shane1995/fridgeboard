@@ -28,7 +28,11 @@ export const useApiMutation = <TVariables, TResponse, TReason extends string>({
     mutationKey: [name],
     mutationFn: async (variables: TVariables) => {
       const result = await sendJson<TResponse, TReason>(
-        resolveEndpoint(services.api, service, mergedEntry(mutations, name).timeoutMs),
+        resolveEndpoint({
+          api: services.api,
+          service,
+          timeoutMs: mergedEntry(mutations, name).timeoutMs,
+        }),
         method,
         toBody(variables),
         reasons,

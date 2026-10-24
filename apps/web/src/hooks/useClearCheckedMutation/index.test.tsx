@@ -14,7 +14,7 @@ describe('useClearCheckedMutation', () => {
       bucketId: UNSORTED_BUCKET_ID,
     });
     await testRepository.addItem({ name: 'Eggs', bucketId: UNSORTED_BUCKET_ID });
-    await testRepository.updateItem(milk.id, { checked: true });
+    await testRepository.updateItem({ id: milk.id, changes: { checked: true } });
     const { result } = renderHook(
       () => ({ clear: useClearCheckedMutation(), items: useItemsQuery() }),
       { wrapper: createShoppingListWrapper() },

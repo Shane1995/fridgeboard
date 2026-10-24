@@ -182,6 +182,13 @@ describe('web settings schema', () => {
 describe('web configuration schema', () => {
   const ENDPOINTS = {
     households: '/api/v1/households',
+    householdMembers: '/api/v1/households/{householdId}/members',
+    listBucket: '/api/v1/households/{householdId}/lists/{listId}/buckets/{bucketId}',
+    listBuckets: '/api/v1/households/{householdId}/lists/{listId}/buckets',
+    listBucketsOrder: '/api/v1/households/{householdId}/lists/{listId}/buckets/order',
+    listHistory: '/api/v1/households/{householdId}/lists/{listId}/history',
+    listItem: '/api/v1/households/{householdId}/lists/{listId}/items/{itemId}',
+    listItems: '/api/v1/households/{householdId}/lists/{listId}/items',
     me: '/api/v1/me',
     onboarding: '/api/v1/me/onboarding',
     passkeyStart: '/api/v1/auth/passkey/start',

@@ -6,6 +6,13 @@ const api = {
     onboarding: '/api/v2/me/onboarding',
     username: '/api/v2/profile/name',
     households: '/api/v2/households',
+    householdMembers: '/api/v2/households/{householdId}/members',
+    listBucket: '/api/v2/households/{householdId}/lists/{listId}/buckets/{bucketId}',
+    listBuckets: '/api/v2/households/{householdId}/lists/{listId}/buckets',
+    listBucketsOrder: '/api/v2/households/{householdId}/lists/{listId}/buckets/order',
+    listHistory: '/api/v2/households/{householdId}/lists/{listId}/history',
+    listItem: '/api/v2/households/{householdId}/lists/{listId}/items/{itemId}',
+    listItems: '/api/v2/households/{householdId}/lists/{listId}/items',
     requestCode: '/api/v2/auth/start',
     verify: '/api/v2/auth/verify',
     refresh: '/api/v2/auth/refresh',
@@ -28,6 +35,21 @@ describe('buildRoutes', () => {
     expect(routes.get('POST /api/v2/households')?.jwt).toBe(true);
     expect(routes.get('POST /api/v2/auth/start')?.jwt).toBe(false);
     expect(routes.has('GET /api/v1/me')).toBe(false);
+  });
+
+  it('serves the list, bucket, history and member routes by their templated paths', () => {
+    const keys = [...buildRoutes(api).keys()];
+
+    expect(keys).toEqual(
+      expect.arrayContaining([
+        'GET /api/v2/households/{householdId}/lists/{listId}/items',
+        'PATCH /api/v2/households/{householdId}/lists/{listId}/items/{itemId}',
+        'PUT /api/v2/households/{householdId}/lists/{listId}/buckets/order',
+        'DELETE /api/v2/households/{householdId}/lists/{listId}/buckets/{bucketId}',
+        'GET /api/v2/households/{householdId}/lists/{listId}/history',
+        'GET /api/v2/households/{householdId}/members',
+      ]),
+    );
   });
 
   it('has no passkey routes', () => {

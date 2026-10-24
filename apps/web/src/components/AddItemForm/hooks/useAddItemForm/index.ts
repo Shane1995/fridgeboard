@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useAddItemMutation } from '../../../../hooks/useAddItemMutation';
-import { useMeQuery } from '../../../../hooks/useMeQuery';
 import { useBucketsQuery } from '../../../../hooks/useBucketsQuery';
 import { useItemsQuery } from '../../../../hooks/useItemsQuery';
-import { useSuggestionsQuery } from '../../../../hooks/useSuggestionsQuery';
+import { useSuggestions } from '../../../../hooks/useSuggestions';
 import { useLocalStorage } from '../../../../hooks/useLocalStorage';
 import {
   LAST_BUCKET_STORAGE_KEY,
@@ -18,12 +17,11 @@ export const useAddItemForm = (focusedBucketId?: string): AddItemFormState => {
   const [name, setName] = useState('');
   const [lastBucketId, setLastBucketId] = useLocalStorage(LAST_BUCKET_STORAGE_KEY);
   const { data } = useBucketsQuery();
-  const { data: me } = useMeQuery();
   const addItem = useAddItemMutation();
   const query = name.trim();
   const { data: items } = useItemsQuery();
   const onList = (items ?? []).filter(({ checked }) => !checked).map(({ name: listed }) => listed);
-  const { data: found } = useSuggestionsQuery(query, onList);
+  const found = useSuggestions({ query, onList });
 
   useEffect(() => {
     if (focusedBucketId !== undefined) {
@@ -34,7 +32,7 @@ export const useAddItemForm = (focusedBucketId?: string): AddItemFormState => {
   const buckets = [UNSORTED_BUCKET, ...(data ?? [])];
   const bucketId = buckets.find(({ id }) => id === lastBucketId)?.id ?? UNSORTED_BUCKET_ID;
 
-  const suggestions = (found ?? []).filter(
+  const suggestions = found.filter(
     ({ name: known }) => known.toLowerCase() !== query.toLowerCase(),
   );
 
@@ -51,10 +49,7 @@ export const useAddItemForm = (focusedBucketId?: string): AddItemFormState => {
     if (trimmed === '' || addItem.isPending) {
       return;
     }
-    addItem.mutate(
-      { name: trimmed, bucketId, addedBy: me?.username ?? me?.email },
-      { onSuccess: () => setName('') },
-    );
+    addItem.mutate({ name: trimmed, bucketId }, { onSuccess: () => setName('') });
   };
 
   return {

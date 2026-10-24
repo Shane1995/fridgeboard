@@ -4,8 +4,9 @@ import type { MutationResult } from '../useMutation/types';
 import { useShoppingListMutation } from '../useShoppingListMutation';
 
 export const useDeleteItemMutation = (): MutationResult<void, string> =>
-  useShoppingListMutation(
-    MutationName.deleteItem,
-    (repository, variables) => repository.deleteItem(variables),
-    [ITEMS_QUERY_KEY],
-  );
+  useShoppingListMutation({
+    name: MutationName.deleteItem,
+    write: ({ repository, variables }) => repository.deleteItem({ id: variables }),
+    invalidates: [ITEMS_QUERY_KEY],
+    optimistic: ({ items, variables }) => items.filter(({ id }) => id !== variables),
+  });

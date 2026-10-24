@@ -19,7 +19,7 @@ export const useRegisterPasskeyMutation = (): MutationResult<RegisterPasskeyResu
   return useMutation({
     mutationFn: async (): Promise<RegisterPasskeyResult> => {
       const started = await sendJson<{ options?: unknown } | undefined, FailureReason>(
-        resolveEndpoint(services.api, WebService.passkeysStart, timeoutMs),
+        resolveEndpoint({ api: services.api, service: WebService.passkeysStart, timeoutMs }),
         POST,
         undefined,
         FAILURE_REASONS,
@@ -40,7 +40,7 @@ export const useRegisterPasskeyMutation = (): MutationResult<RegisterPasskeyResu
 
       const payload: IPasskeyCredentialRequest = { credential: { ...credential } };
       const completed = await sendJson<unknown, FailureReason>(
-        resolveEndpoint(services.api, WebService.passkeysComplete, timeoutMs),
+        resolveEndpoint({ api: services.api, service: WebService.passkeysComplete, timeoutMs }),
         POST,
         payload,
         FAILURE_REASONS,

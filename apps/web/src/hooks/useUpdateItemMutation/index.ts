@@ -3,13 +3,16 @@ import type { ItemChanges, ListItem } from '../../services/shoppingList/types';
 import { ITEMS_QUERY_KEY } from '../useItemsQuery/constants';
 import type { MutationResult } from '../useMutation/types';
 import { useShoppingListMutation } from '../useShoppingListMutation';
+import { SUGGESTIONS_QUERY_KEY } from '../useSuggestions/constants';
 
 export const useUpdateItemMutation = (): MutationResult<
   ListItem,
   { id: string; changes: ItemChanges }
 > =>
-  useShoppingListMutation(
-    MutationName.updateItem,
-    (repository, { id, changes }) => repository.updateItem(id, changes),
-    [ITEMS_QUERY_KEY],
-  );
+  useShoppingListMutation({
+    name: MutationName.updateItem,
+    write: ({ repository, variables }) => repository.updateItem(variables),
+    invalidates: [ITEMS_QUERY_KEY, SUGGESTIONS_QUERY_KEY],
+    optimistic: ({ items, variables: { id, changes } }) =>
+      items.map((item) => (item.id === id ? { ...item, ...changes } : item)),
+  });

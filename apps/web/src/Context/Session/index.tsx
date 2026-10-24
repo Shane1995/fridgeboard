@@ -46,7 +46,11 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
 
   const mutationEndpoint = useCallback((service: WebService, name?: MutationName): Endpoint => {
     const { services, mutations } = config.current;
-    return resolveEndpoint(services.api, service, mergedEntry(mutations, name).timeoutMs);
+    return resolveEndpoint({
+      api: services.api,
+      service,
+      timeoutMs: mergedEntry(mutations, name).timeoutMs,
+    });
   }, []);
 
   const changeStatus = useCallback(

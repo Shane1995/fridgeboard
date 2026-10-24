@@ -1,7 +1,7 @@
 const UNSAFE_URL_PATTERN = /\.\.|[%?#\\\s]|\/\//;
 export const API_URL_PATTERN = /^\/api\//;
 export const SAFE_URL_PATTERN = new RegExp(`^(?!.*(?:${UNSAFE_URL_PATTERN.source})).*$`);
-export const ENDPOINT_PATH_PATTERN = /^\/(?!\/)[A-Za-z0-9/_-]*$/;
+export const ENDPOINT_PATH_PATTERN = /^\/(?!\/)[A-Za-z0-9/_{}-]*$/;
 
 export const WEB_CONFIGURATION_VERSION = 2;
 
@@ -13,6 +13,13 @@ export enum WebFeatureFlag {
 export const WEB_FEATURE_FLAGS: readonly string[] = Object.values(WebFeatureFlag);
 
 export enum WebService {
+  householdMembers = 'householdMembers',
+  listBucket = 'listBucket',
+  listBuckets = 'listBuckets',
+  listBucketsOrder = 'listBucketsOrder',
+  listHistory = 'listHistory',
+  listItem = 'listItem',
+  listItems = 'listItems',
   me = 'me',
   onboarding = 'onboarding',
   households = 'households',
@@ -35,6 +42,7 @@ export enum QueryName {
   households = 'households',
   buckets = 'buckets',
   items = 'items',
+  members = 'members',
   suggestions = 'suggestions',
 }
 
