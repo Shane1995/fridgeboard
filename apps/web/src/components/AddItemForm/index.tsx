@@ -1,3 +1,4 @@
+import { Checkbox, Label } from '@heroui/react';
 import { Plus } from 'lucide-react';
 import { ITEM_NAME_MAX_LENGTH } from '../../services/shoppingList/constants';
 import { useAutoFocus } from '../../hooks/useAutoFocus';
@@ -15,6 +16,9 @@ export const AddItemForm = ({ focusedShopId }: AddItemFormProps) => {
     handleKeyDown,
     shopIds,
     setShopIds,
+    canSeparate,
+    separate,
+    setSeparate,
     shops,
     suggestions,
     pickSuggestion,
@@ -49,6 +53,19 @@ export const AddItemForm = ({ focusedShopId }: AddItemFormProps) => {
           <Plus aria-hidden size={18} />
         </button>
       </form>
+      {canSeparate && (
+        <div className="mt-3 flex flex-col gap-1">
+          <Checkbox isSelected={separate} onChange={setSeparate}>
+            <Checkbox.Control>
+              <Checkbox.Indicator />
+            </Checkbox.Control>
+            <Checkbox.Content>
+              <Label>{ADD_ITEM_COPY.separate}</Label>
+            </Checkbox.Content>
+          </Checkbox>
+          <span className="text-xs opacity-60">{ADD_ITEM_COPY.separateHint}</span>
+        </div>
+      )}
       {suggestions.length > 0 && (
         <ul
           aria-label={ADD_ITEM_COPY.suggestions}

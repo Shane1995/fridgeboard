@@ -6,51 +6,104 @@ import {
   renderHookWithHousehold,
 } from '../../../../testUtils/createShoppingListWrapper';
 import { useAddItemForm } from './index';
+import type { AddItemFormState } from './types';
+
+const renderWithShops = async (names: string[]) => {
+  const ids: string[] = [];
+  for (const name of names) {
+    ids.push((await fakeShoppingList.createShop({ name, color: ShopColor.Mint })).id);
+  }
+  const { result } = renderHook(() => useAddItemForm(), { wrapper: createShoppingListWrapper() });
+  await waitFor(() => expect(result.current.shops).toHaveLength(names.length));
+  return { result, ids };
+};
+
+const submitName = async (result: { current: AddItemFormState }, name: string) => {
+  act(() => result.current.setName(name));
+  act(() => result.current.handleSubmit({ preventDefault: vi.fn() } as never));
+  await waitFor(() => expect(result.current.name).toBe(''));
+};
 
 describe('useAddItemForm', () => {
   beforeEach(() => window.localStorage.clear());
 
   it('offers the real shops and starts with none picked, so an item goes to Unassigned', async () => {
-    const shop = await fakeShoppingList.createShop({ name: 'Express', color: ShopColor.Mint });
-    const { result } = renderHook(() => useAddItemForm(), { wrapper: createShoppingListWrapper() });
+    const { result, ids } = await renderWithShops(['Express']);
 
-    await waitFor(() => expect(result.current.shops.map(({ id }) => id)).toEqual([shop.id]));
+    expect(result.current.shops.map(({ id }) => id)).toEqual(ids);
     expect(result.current.shopIds).toEqual([]);
   });
 
   it('adds an item with no shop when none is picked', async () => {
     const { result } = await renderHookWithHousehold(() => useAddItemForm());
 
-    act(() => result.current.setName('Milk'));
-    act(() => result.current.handleSubmit({ preventDefault: vi.fn() } as never));
+    await submitName(result, 'Milk');
 
-    await waitFor(() => expect(result.current.name).toBe(''));
     expect((await fakeShoppingList.listItems())[0]).toMatchObject({ name: 'Milk', shopIds: [] });
   });
 
   it('adds an item to every shop picked and keeps the picks for the next item', async () => {
-    const express = await fakeShoppingList.createShop({ name: 'Express', color: ShopColor.Mint });
-    const market = await fakeShoppingList.createShop({ name: 'Market', color: ShopColor.Sky });
-    const { result } = renderHook(() => useAddItemForm(), { wrapper: createShoppingListWrapper() });
-    await waitFor(() => expect(result.current.shops).toHaveLength(2));
+    const { result, ids } = await renderWithShops(['Express', 'Market']);
+
+    act(() => result.current.setShopIds(ids));
+    await submitName(result, '  Milk ');
+
+    expect((await fakeShoppingList.listItems())[0]).toMatchObject({ name: 'Milk', shopIds: ids });
+    expect(result.current.shopIds).toEqual(ids);
+  });
+
+  it('only offers separate items once two or more shops are picked', async () => {
+    const { result, ids } = await renderWithShops(['Express', 'Market']);
+
+    expect(result.current.canSeparate).toBe(false);
+    act(() => result.current.setShopIds(ids.slice(0, 1)));
+    expect(result.current.canSeparate).toBe(false);
+    act(() => result.current.setShopIds(ids));
+    expect(result.current.canSeparate).toBe(true);
+  });
+
+  it('adds one item for each shop when separate items are chosen', async () => {
+    const { result, ids } = await renderWithShops(['Express', 'Market']);
 
     act(() => {
-      result.current.setShopIds([express.id, market.id]);
-      result.current.setName('  Milk ');
+      result.current.setShopIds(ids);
+      result.current.setSeparate(true);
     });
-    act(() => result.current.handleSubmit({ preventDefault: vi.fn() } as never));
+    await submitName(result, 'Apples');
 
-    await waitFor(() => expect(result.current.name).toBe(''));
-    expect((await fakeShoppingList.listItems())[0]).toMatchObject({
-      name: 'Milk',
-      shopIds: [express.id, market.id],
+    expect(
+      (await fakeShoppingList.listItems()).map(({ name, shopIds }) => ({ name, shopIds })),
+    ).toEqual(ids.map((id) => ({ name: 'Apples', shopIds: [id] })));
+  });
+
+  it('adds a single item when separate is on but only one shop is picked', async () => {
+    const { result, ids } = await renderWithShops(['Express']);
+
+    act(() => {
+      result.current.setShopIds(ids);
+      result.current.setSeparate(true);
     });
-    expect(result.current.shopIds).toEqual([express.id, market.id]);
+    await submitName(result, 'Apples');
+
+    expect(await fakeShoppingList.listItems()).toHaveLength(1);
+  });
+
+  it('keeps the name when an item cannot be added', async () => {
+    const { result } = await renderHookWithHousehold(() => useAddItemForm(), {
+      failMethod: 'POST',
+    });
+
+    act(() => result.current.setName('Apples'));
+    await act(async () => result.current.handleSubmit({ preventDefault: vi.fn() } as never));
+
+    expect(result.current.name).toBe('Apples');
   });
 
   it('starts on the shop being viewed and follows the view when it changes', async () => {
-    const express = await fakeShoppingList.createShop({ name: 'Express', color: ShopColor.Mint });
-    const market = await fakeShoppingList.createShop({ name: 'Market', color: ShopColor.Sky });
+    const [express, market] = await Promise.all([
+      fakeShoppingList.createShop({ name: 'Express', color: ShopColor.Mint }),
+      fakeShoppingList.createShop({ name: 'Market', color: ShopColor.Sky }),
+    ]);
     const initialProps: { focus: string | undefined } = { focus: express.id };
     const { result, rerender } = renderHook(
       ({ focus }: { focus: string | undefined }) => useAddItemForm(focus),
@@ -67,13 +120,11 @@ describe('useAddItemForm', () => {
   });
 
   it('drops a picked shop that no longer exists', async () => {
-    const express = await fakeShoppingList.createShop({ name: 'Express', color: ShopColor.Mint });
-    const { result } = renderHook(() => useAddItemForm(), { wrapper: createShoppingListWrapper() });
-    await waitFor(() => expect(result.current.shops).toHaveLength(1));
+    const { result, ids } = await renderWithShops(['Express']);
 
-    act(() => result.current.setShopIds([express.id, 'deleted-shop']));
+    act(() => result.current.setShopIds([...ids, 'deleted-shop']));
 
-    expect(result.current.shopIds).toEqual([express.id]);
+    expect(result.current.shopIds).toEqual(ids);
   });
 
   it('suggests remembered names and brings back all their shops when picked', async () => {

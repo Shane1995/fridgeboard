@@ -4,11 +4,13 @@ import type { Shop, ListItem } from '../../services/shoppingList/types';
 import { ItemInfoDialog } from '../ItemInfoDialog';
 import { ShopSwatch } from '../ShopSwatch';
 import {
+  COMBINE_ACTION,
   DELETE_ACTION,
   EDIT_MAX_LENGTH,
   INFO_ACTION,
   ITEM_ROW_COPY,
   SHOPS_ACTION,
+  SPLIT_ACTION,
 } from './constants';
 import { useItemRow } from './hooks/useItemRow';
 
@@ -25,6 +27,8 @@ export const ItemRow = ({ item, shops }: ItemRowProps) => {
     cancel,
     toggle,
     setShops,
+    canSplit,
+    duplicateCount,
     handleMenuAction,
   } = useItemRow(item);
 
@@ -96,6 +100,16 @@ export const ItemRow = ({ item, shops }: ItemRowProps) => {
                   </Dropdown.Menu>
                 </Dropdown.Popover>
               </Dropdown.SubmenuTrigger>
+            )}
+            {canSplit && (
+              <Dropdown.Item id={SPLIT_ACTION} textValue={ITEM_ROW_COPY.split}>
+                {ITEM_ROW_COPY.split}
+              </Dropdown.Item>
+            )}
+            {duplicateCount > 0 && (
+              <Dropdown.Item id={COMBINE_ACTION} textValue={ITEM_ROW_COPY.combine(duplicateCount)}>
+                {ITEM_ROW_COPY.combine(duplicateCount)}
+              </Dropdown.Item>
             )}
             <Dropdown.Item id={DELETE_ACTION} textValue={ITEM_ROW_COPY.delete} variant="danger">
               {ITEM_ROW_COPY.delete}

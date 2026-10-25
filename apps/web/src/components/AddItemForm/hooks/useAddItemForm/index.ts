@@ -11,6 +11,7 @@ import type { AddItemFormState } from './types';
 export const useAddItemForm = (focusedShopId?: string): AddItemFormState => {
   const [name, setName] = useState('');
   const [highlighted, setHighlighted] = useState(NO_HIGHLIGHT);
+  const [separate, setSeparate] = useState(false);
   const { data } = useShopsQuery();
   const addItem = useAddItemMutation();
   const query = name.trim();
@@ -39,13 +40,29 @@ export const useAddItemForm = (focusedShopId?: string): AddItemFormState => {
     setShopIds(pickedShops.filter((id) => shops.some((shop) => shop.id === id)));
   };
 
+  const canSeparate = shopIds.length > 1;
+
+  const submit = async (trimmed: string) => {
+    const groups = separate && canSeparate ? shopIds.map((id) => [id]) : [shopIds];
+    try {
+      const results = await Promise.all(
+        groups.map((ids) => addItem.mutateAsync({ name: trimmed, shopIds: ids })),
+      );
+      if (results.every(({ ok }) => ok)) {
+        setName('');
+      }
+    } catch {
+      return;
+    }
+  };
+
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
     const trimmed = name.trim();
     if (trimmed === '' || addItem.isPending) {
       return;
     }
-    addItem.mutate({ name: trimmed, shopIds }, { onSuccess: (result) => result.ok && setName('') });
+    void submit(trimmed);
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -69,6 +86,9 @@ export const useAddItemForm = (focusedShopId?: string): AddItemFormState => {
     handleKeyDown,
     shopIds,
     setShopIds,
+    canSeparate,
+    separate,
+    setSeparate,
     shops,
     suggestions,
     pickSuggestion,

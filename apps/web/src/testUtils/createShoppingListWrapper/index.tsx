@@ -49,8 +49,11 @@ export const createShoppingListWrapper = ({ failMethod }: ShoppingListWrapperOpt
   return wrapper;
 };
 
-export const renderHookWithHousehold = async <T,>(useHookUnderTest: () => T) => {
-  const wrapper = createShoppingListWrapper();
+export const renderHookWithHousehold = async <T,>(
+  useHookUnderTest: () => T,
+  options: ShoppingListWrapperOptions = {},
+) => {
+  const wrapper = createShoppingListWrapper(options);
   const household = renderHook(() => useActiveHousehold(), { wrapper });
   const rendered = renderHook(useHookUnderTest, { wrapper });
   await waitFor(() => expect(household.result.current?.id).toBe(TEST_HOUSEHOLD_ID));
