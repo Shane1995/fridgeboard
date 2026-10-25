@@ -1,5 +1,7 @@
 import { QueryClient } from '@tanstack/react-query';
-import { act, renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, screen, waitFor } from '@testing-library/react';
+import type { ReactNode } from 'react';
+import { ToastProvider } from '../../Context/Toast';
 import { MutationName } from '../../services/configuration/schema/constants';
 import { WebService } from '../../services/configuration/schema/constants';
 import { SessionStatus } from '../../services/session/constants';
@@ -201,5 +203,82 @@ describe('useApiMutation', () => {
 
       expect(client.getQueryData(KEY)).toEqual({ items: ['a'] });
     });
+  });
+});
+
+describe('useApiMutation failure message', () => {
+  const FAILED = 'Could not save the username.';
+
+  const setUp = (
+    { failureMessage }: { failureMessage?: string },
+    answer: () => Promise<Response>,
+  ) => {
+    const { session, apiFetch } = createSession(SessionStatus.SignedIn);
+    apiFetch.mockImplementation(answer);
+    const Base = createSessionWrapper(session, new QueryClient());
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <Base>
+        <ToastProvider>{children}</ToastProvider>
+      </Base>
+    );
+    const { result } = renderHook(
+      () =>
+        useApiMutation({
+          name: MutationName.setUsername,
+          service: WebService.username,
+          method: 'PUT',
+          toBody: (username: string) => ({ username }),
+          reasons: REASONS,
+          ...(failureMessage === undefined ? {} : { failureMessage }),
+        }),
+      { wrapper },
+    );
+    return result;
+  };
+
+  it('shows it when the server answers with a failure', async () => {
+    const result = setUp(
+      { failureMessage: FAILED },
+      async () => new Response('{}', { status: 409 }),
+    );
+
+    await act(async () => {
+      await result.current.mutateAsync('jess');
+    });
+
+    expect(await screen.findByText(FAILED)).toBeInTheDocument();
+  });
+
+  it('shows it when the request itself throws', async () => {
+    const result = setUp({ failureMessage: FAILED }, () => Promise.reject(new Error('offline')));
+
+    await act(async () => {
+      await result.current.mutateAsync('jess').catch(() => undefined);
+    });
+
+    expect(await screen.findByText(FAILED)).toBeInTheDocument();
+  });
+
+  it('shows nothing when the request works', async () => {
+    const result = setUp(
+      { failureMessage: FAILED },
+      async () => new Response(JSON.stringify({ username: 'jess' }), { status: 200 }),
+    );
+
+    await act(async () => {
+      await result.current.mutateAsync('jess');
+    });
+
+    expect(screen.queryByText(FAILED)).not.toBeInTheDocument();
+  });
+
+  it('shows nothing when no message was given', async () => {
+    const result = setUp({}, async () => new Response('{}', { status: 409 }));
+
+    await act(async () => {
+      await result.current.mutateAsync('jess');
+    });
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 });

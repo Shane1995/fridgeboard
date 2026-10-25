@@ -4,6 +4,7 @@ import { sendJson } from '../../services/api/sendJson';
 import { resolveEndpoint } from '../../services/configuration/resolveEndpoint';
 import { MutationName, WebService } from '../../services/configuration/schema/constants';
 import { DELETE } from '../../services/session/constants';
+import { ITEM_FAILURE_COPY } from '../../services/shoppingList/constants';
 import { mergedEntry } from '../../utils/mergedEntry';
 import { useInvalidateQueries } from '../useInvalidateQueries';
 import { ITEMS_QUERY_KEY } from '../useItemsQuery/constants';
@@ -12,6 +13,7 @@ import { useMutation } from '../useMutation';
 import type { MutationResult } from '../useMutation/types';
 import { useRemoteConfigContext } from '../useRemoteConfigContext';
 import { useSessionContext } from '../useSessionContext';
+import { useToast } from '../useToast';
 
 export const useClearCheckedMutation = (): MutationResult<void, void> => {
   const queryClient = useQueryClient();
@@ -19,6 +21,7 @@ export const useClearCheckedMutation = (): MutationResult<void, void> => {
   const { apiFetch } = useSessionContext();
   const { paramsFor, queryKeyFor } = useListParams();
   const invalidate = useInvalidateQueries();
+  const toast = useToast();
   return useMutation({
     mutationKey: [MutationName.clearChecked],
     mutationFn: async () => {
@@ -49,10 +52,12 @@ export const useClearCheckedMutation = (): MutationResult<void, void> => {
         ),
       ).catch((error: unknown) => {
         queryClient.setQueryData(itemsKey, snapshot);
+        toast.error(ITEM_FAILURE_COPY.clearTicked);
         throw error;
       });
       if (results.some(({ ok }) => !ok)) {
         await invalidate({ keys: [ITEMS_QUERY_KEY] });
+        toast.error(ITEM_FAILURE_COPY.clearTicked);
         throw new Error('Clearing the ticked items failed');
       }
     },

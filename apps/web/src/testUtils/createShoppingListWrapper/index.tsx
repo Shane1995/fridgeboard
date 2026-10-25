@@ -28,10 +28,19 @@ export const answerHouseholds = (apiFetch: { mockImplementation: (fn: never) => 
     return fakeShoppingListApi(endpoint, init);
   }) as never);
 
-export const createShoppingListWrapper = () => {
+type ShoppingListWrapperOptions = { failMethod?: string };
+
+export const createShoppingListWrapper = ({ failMethod }: ShoppingListWrapperOptions = {}) => {
   const client = new QueryClient();
   const { session, apiFetch } = createSession(SessionStatus.SignedIn);
   answerHouseholds(apiFetch);
+  if (failMethod !== undefined) {
+    const answer = apiFetch.getMockImplementation();
+    apiFetch.mockImplementation((async (endpoint: { path: string }, init?: RequestInit) =>
+      init?.method === failMethod
+        ? new Response('{}', { status: 500 })
+        : answer?.(endpoint as never, init)) as never);
+  }
   const wrapper = ({ children }: { children: ReactNode }) => (
     <TestProviders session={session} client={client}>
       {children}
