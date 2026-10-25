@@ -15,13 +15,13 @@ export const SortableShop = ({ id, name, children }: SortableShopProps) => {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id });
+  } = useSortable({ id, data: { type: 'shop' } });
 
   return (
     <div
       ref={setNodeRef}
       style={{ transform: CSS.Translate.toString(transform), transition }}
-      className={`relative ${isDragging ? 'z-30 drop-shadow-xl' : ''}`}
+      className={`relative transition-opacity ${isDragging ? 'opacity-40' : ''}`}
     >
       {children}
       <button

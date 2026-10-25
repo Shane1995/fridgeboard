@@ -21,6 +21,7 @@ export type HomeState = {
   handleDragEnd: (event: DragEndEvent) => void;
   handleDragCancel: () => void;
   activeItem: ListItem | undefined;
+  activeShop: ShopSectionData | undefined;
   canDragItems: boolean;
   allShops: Shop[];
   hasItems: boolean;

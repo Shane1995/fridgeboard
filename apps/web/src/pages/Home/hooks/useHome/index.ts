@@ -41,6 +41,7 @@ export const useHome = (): HomeState => {
   const moveItem = useMoveItem();
   const dragFlag = useFeatureFlag(WebFeatureFlag.ENABLE_ITEM_DRAG);
   const [activeItem, setActiveItem] = useState<ListItem | undefined>();
+  const [activeShopId, setActiveShopId] = useState<string | undefined>();
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
@@ -69,10 +70,16 @@ export const useHome = (): HomeState => {
 
   const allShops = [UNSORTED_SHOP, ...shopList];
 
-  const handleDragStart = ({ active }: DragStartEvent) =>
-    setActiveItem(readDraggedItem(active.data.current)?.item);
+  const handleDragStart = ({ active }: DragStartEvent) => {
+    const item = readDraggedItem(active.data.current)?.item;
+    setActiveItem(item);
+    setActiveShopId(item === undefined ? String(active.id) : undefined);
+  };
 
-  const handleDragCancel = () => setActiveItem(undefined);
+  const handleDragCancel = () => {
+    setActiveItem(undefined);
+    setActiveShopId(undefined);
+  };
 
   const dropItem = ({ active, over }: DragEndEvent) => {
     const dragged = readDraggedItem(active.data.current);
@@ -87,7 +94,7 @@ export const useHome = (): HomeState => {
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    setActiveItem(undefined);
+    handleDragCancel();
     if (readDraggedItem(active.data.current) !== undefined) {
       dropItem(event);
       return;
@@ -117,6 +124,7 @@ export const useHome = (): HomeState => {
     handleDragEnd,
     handleDragCancel,
     activeItem,
+    activeShop: grouped.sections.find(({ shop }) => shop.id === activeShopId),
     canDragItems: dragFlag && focusedId === undefined,
     allShops,
     hasItems: itemList.length > 0,

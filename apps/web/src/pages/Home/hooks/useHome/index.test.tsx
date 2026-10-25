@@ -93,6 +93,45 @@ describe('useHome', () => {
     expect(result.current.reorderable.map(({ shop }) => shop.name)).toEqual(['A', 'B']);
   });
 
+  describe('dragging a shop', () => {
+    const shopDrag = (id: string) => ({ id, data: { current: { type: 'shop' } } });
+
+    const setUp = async () => {
+      const a = await fakeShoppingList.createShop({ name: 'A', color: ShopColor.Mint });
+      await fakeShoppingList.createShop({ name: 'B', color: ShopColor.Sky });
+      const { result } = renderHook(() => useHome(), { wrapper: createShoppingListWrapper() });
+      await waitFor(() => expect(result.current.reorderable).toHaveLength(2));
+      return { a, result };
+    };
+
+    it('remembers which shop is being dragged, for the lifted preview', async () => {
+      const { a, result } = await setUp();
+
+      act(() => result.current.handleDragStart({ active: shopDrag(a.id) } as never));
+
+      expect(result.current.activeShop?.shop.id).toBe(a.id);
+      expect(result.current.activeItem).toBeUndefined();
+    });
+
+    it('forgets it when the drag is cancelled', async () => {
+      const { a, result } = await setUp();
+      act(() => result.current.handleDragStart({ active: shopDrag(a.id) } as never));
+
+      act(() => result.current.handleDragCancel());
+
+      expect(result.current.activeShop).toBeUndefined();
+    });
+
+    it('forgets it when the shop is dropped', async () => {
+      const { a, result } = await setUp();
+      act(() => result.current.handleDragStart({ active: shopDrag(a.id) } as never));
+
+      act(() => result.current.handleDragEnd({ active: shopDrag(a.id), over: null } as never));
+
+      expect(result.current.activeShop).toBeUndefined();
+    });
+  });
+
   describe('dragging an item', () => {
     const DRAG = { [WebFeatureFlag.ENABLE_ITEM_DRAG]: true };
 
