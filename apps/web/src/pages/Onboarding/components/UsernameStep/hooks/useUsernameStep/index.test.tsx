@@ -3,12 +3,11 @@ import { SessionStatus } from '../../../../../../services/session/constants';
 import { createProvidersWrapper } from '../../../../../../testUtils/createProvidersWrapper';
 import { createSession } from '../../../../../../testUtils/createSession';
 import { endpoint } from '../../../../../../testUtils/endpoint';
+import { json } from '../../../../../../testUtils/json';
+import { submitEvent } from '../../../../../../testUtils/submitEvent';
 import { TEST_WEB_CONFIGURATION } from '../../../../../../testUtils/webConfiguration';
 import { ONBOARDING_COPY } from '../../../../constants';
 import { useUsernameStep } from './index';
-
-const submit = { preventDefault: vi.fn() };
-const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status });
 
 const setup = () => {
   const { session, apiFetch } = createSession(SessionStatus.SignedIn);
@@ -33,7 +32,7 @@ describe('useUsernameStep', () => {
     apiFetch.mockResolvedValue(json(200, { username: 'jess' }));
 
     act(() => result.current.setUsername('  jess '));
-    await act(async () => result.current.handleSubmit(submit));
+    await act(async () => result.current.handleSubmit(submitEvent));
 
     expect(apiFetch).toHaveBeenCalledWith(endpoint('/api/v1/me/username'), {
       method: 'PUT',
@@ -46,7 +45,7 @@ describe('useUsernameStep', () => {
     const { result, apiFetch } = setup();
     apiFetch.mockResolvedValue(json(409, { reason: 'username-taken' }));
 
-    await act(async () => result.current.handleSubmit(submit));
+    await act(async () => result.current.handleSubmit(submitEvent));
 
     expect(result.current.errorMessage).toBe(ONBOARDING_COPY.username.reasons['username-taken']);
   });
@@ -55,7 +54,7 @@ describe('useUsernameStep', () => {
     const { result, apiFetch } = setup();
     apiFetch.mockRejectedValue(new Error('network'));
 
-    await act(async () => result.current.handleSubmit(submit));
+    await act(async () => result.current.handleSubmit(submitEvent));
 
     expect(result.current.errorMessage).toBe(ONBOARDING_COPY.username.reasons.unknown);
   });

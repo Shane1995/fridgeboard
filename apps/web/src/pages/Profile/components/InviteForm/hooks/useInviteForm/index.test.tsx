@@ -3,11 +3,10 @@ import { SessionStatus } from '../../../../../../services/session/constants';
 import { createProvidersWrapper } from '../../../../../../testUtils/createProvidersWrapper';
 import { createSession } from '../../../../../../testUtils/createSession';
 import { endpoint } from '../../../../../../testUtils/endpoint';
+import { json } from '../../../../../../testUtils/json';
+import { submitEvent } from '../../../../../../testUtils/submitEvent';
 import { INVITE_COPY } from '../../constants';
 import { useInviteForm } from './index';
-
-const submit = { preventDefault: vi.fn() };
-const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status });
 
 const setup = (inviteResponse: () => Response | Promise<Response>) => {
   const { session, apiFetch } = createSession(SessionStatus.SignedIn);
@@ -24,7 +23,7 @@ const setup = (inviteResponse: () => Response | Promise<Response>) => {
 
 const send = async (result: ReturnType<typeof setup>['result'], email: string): Promise<void> => {
   act(() => result.current.setEmail(email));
-  await act(async () => result.current.handleSubmit(submit));
+  await act(async () => result.current.handleSubmit(submitEvent));
 };
 
 describe('useInviteForm', () => {
