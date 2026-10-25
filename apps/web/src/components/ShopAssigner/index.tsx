@@ -39,6 +39,7 @@ export const ShopAssigner = ({ shops, selectedIds, onChange }: ShopAssignerProps
         <Dropdown.Menu
           aria-label={SHOP_ASSIGNER_COPY.assign}
           selectionMode="multiple"
+          shouldCloseOnSelect={false}
           selectedKeys={new Set(picked.map(({ id }) => id))}
           onSelectionChange={(keys) => onChange(keys instanceof Set ? [...keys].map(String) : [])}
         >

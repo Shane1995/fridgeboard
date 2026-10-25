@@ -69,6 +69,15 @@ describe('ShopAssigner', () => {
     expect(onChange).toHaveBeenCalledWith(['b1', 'b3']);
   });
 
+  it('keeps the menu open after one shop is ticked, so several can be chosen', async () => {
+    render(<ShopAssigner shops={SHOPS} selectedIds={[]} onChange={vi.fn()} />);
+
+    open();
+    choose(await screen.findByRole('menuitemcheckbox', { name: 'Express run' }));
+
+    expect(screen.getByRole('menuitemcheckbox', { name: 'Market' })).toBeInTheDocument();
+  });
+
   it('reports the shop taken away from the picked ones', async () => {
     const onChange = vi.fn();
     render(<ShopAssigner shops={SHOPS} selectedIds={['b1', 'b3']} onChange={onChange} />);
