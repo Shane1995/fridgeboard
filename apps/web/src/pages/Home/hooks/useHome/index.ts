@@ -3,9 +3,11 @@ import type { DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useOverlayState } from '@heroui/react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 import { useShopsQuery } from '../../../../hooks/useShopsQuery';
 import { SHOPS_QUERY_KEY } from '../../../../hooks/useShopsQuery/constants';
 import { useActiveHousehold } from '../../../../hooks/useActiveHousehold';
+import { useHouseholdsQuery } from '../../../../hooks/useHouseholdsQuery';
 import { useClearCheckedMutation } from '../../../../hooks/useClearCheckedMutation';
 import { useReorderShopsMutation } from '../../../../hooks/useReorderShopsMutation';
 import { useLocalStorage } from '../../../../hooks/useLocalStorage';
@@ -25,6 +27,7 @@ import type { HomeState } from './types';
 
 export const useHome = (): HomeState => {
   const household = useActiveHousehold();
+  const households = useHouseholdsQuery();
   const shops = useShopsQuery();
   const items = useItemsQuery();
   const newShopDialog = useOverlayState();
@@ -36,6 +39,13 @@ export const useHome = (): HomeState => {
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
+
+  const isPending =
+    !households.isError && (households.isPending || shops.isPending || items.isPending);
+  const [hasSettled, setHasSettled] = useState(false);
+  if (!isPending && !hasSettled) {
+    setHasSettled(true);
+  }
 
   const shopList = shops.data ?? [];
   const itemList = items.data ?? [];
@@ -76,8 +86,9 @@ export const useHome = (): HomeState => {
     handleDragEnd,
     allShops: [UNSORTED_SHOP, ...shopList],
     hasItems: itemList.length > 0,
-    isLoading: shops.isPending || items.isPending,
-    hasError: shops.isError || items.isError,
+    isLoading: isPending && !hasSettled,
+    isEmpty: shops.isSuccess && items.isSuccess && itemList.length === 0,
+    hasError: households.isError || shops.isError || items.isError,
     newShopDialog,
     isClearing: clear.isPending,
     handleClearChecked: () => clear.mutate(),

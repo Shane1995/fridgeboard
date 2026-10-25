@@ -5,12 +5,13 @@ import {
   createRouter,
   RouterProvider,
 } from '@tanstack/react-router';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { UNSORTED_SHOP_NAME } from '../../services/shoppingList/constants';
 import { queryClient } from '../../app/queryClient';
 import { HOME_COPY } from './constants';
 import { Home } from '.';
 import { createSession } from '../../testUtils/createSession';
+import { TEST_HOUSEHOLD_ID } from '../../testUtils/fakeShoppingList/constants';
 import { answerHouseholds } from '../../testUtils/createShoppingListWrapper';
 import { TestProviders } from '../../testUtils/TestProviders';
 import { SessionStatus } from '../../services/session/constants';
@@ -18,6 +19,22 @@ import { SessionStatus } from '../../services/session/constants';
 const fixture = createSession(SessionStatus.SignedIn);
 const { apiFetch } = fixture;
 const session = fixture.session;
+
+const answerHouseholdsThen = (listAnswer: () => Promise<Response>) =>
+  apiFetch.mockImplementation((async (endpoint: { path: string }) => {
+    if (endpoint.path.endsWith('/households')) {
+      return new Response(
+        JSON.stringify({ households: [{ id: TEST_HOUSEHOLD_ID, name: 'Home', role: 'owner' }] }),
+        { status: 200 },
+      );
+    }
+    if (endpoint.path.endsWith('/members')) {
+      return new Response(JSON.stringify({ members: [] }), { status: 200 });
+    }
+    return listAnswer();
+  }) as never);
+
+const SKELETON_ROWS = 3;
 
 const toggleShop = async (name: string) => {
   fireEvent.click(screen.getByRole('button', { name: /^Assign to shops/ }));
@@ -55,7 +72,9 @@ describe('Home', () => {
 
   it('shows the page title as the heading', async () => {
     renderHome();
-    expect(await screen.findByRole('heading', { name: HOME_COPY.title })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: new RegExp(HOME_COPY.title) }),
+    ).toBeInTheDocument();
   });
 
   it('puts the household name in the title', async () => {
@@ -68,6 +87,74 @@ describe('Home', () => {
   it('says the list is empty', async () => {
     renderHome();
     expect(await screen.findByText(HOME_COPY.empty)).toBeInTheDocument();
+  });
+
+  describe('while the list is loading', () => {
+    beforeEach(() => {
+      answerHouseholdsThen(() => new Promise<Response>(() => {}));
+    });
+
+    it('shows a skeleton shaped like the page, labelled for screen readers', async () => {
+      renderHome();
+
+      const status = await screen.findByRole('status', { name: HOME_COPY.loading });
+      expect(status).toHaveAttribute('aria-busy', 'true');
+      expect(within(status).getAllByRole('listitem', { hidden: true })).toHaveLength(SKELETON_ROWS);
+    });
+
+    it('holds back the real controls until there is data', async () => {
+      renderHome();
+
+      await screen.findByRole('status', { name: HOME_COPY.loading });
+      expect(screen.queryByRole('textbox', { name: 'Item' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: HOME_COPY.newShop })).not.toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: HOME_COPY.title })).not.toBeInTheDocument();
+    });
+
+    it('no longer shows the loading sentence as visible text', async () => {
+      renderHome();
+
+      await screen.findByRole('status', { name: HOME_COPY.loading });
+      expect(screen.queryByText(HOME_COPY.loading)).not.toBeInTheDocument();
+    });
+
+    it('does not claim the list is empty or failed yet', async () => {
+      renderHome();
+
+      await screen.findByRole('status', { name: HOME_COPY.loading });
+      expect(screen.queryByText(HOME_COPY.empty)).not.toBeInTheDocument();
+      expect(screen.queryByText(HOME_COPY.loadFailed)).not.toBeInTheDocument();
+    });
+  });
+
+  it('swaps the skeleton for the failure message when the households cannot load', async () => {
+    apiFetch.mockImplementation((async (endpoint: { path: string }) =>
+      endpoint.path.endsWith('/households')
+        ? new Response('{}', { status: 500 })
+        : new Response('{}', { status: 404 })) as never);
+    renderHome();
+
+    expect(
+      await screen.findByText(HOME_COPY.loadFailed, undefined, { timeout: 4000 }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('status', { name: HOME_COPY.loading })).not.toBeInTheDocument();
+  });
+
+  it('removes the skeleton once the list has loaded', async () => {
+    renderHome();
+
+    expect(await screen.findByText(HOME_COPY.empty)).toBeInTheDocument();
+    expect(screen.queryByRole('status', { name: HOME_COPY.loading })).not.toBeInTheDocument();
+  });
+
+  it('swaps the skeleton for the failure message when the list cannot load', async () => {
+    answerHouseholdsThen(async () => new Response('{}', { status: 500 }));
+    renderHome();
+
+    expect(
+      await screen.findByText(HOME_COPY.loadFailed, undefined, { timeout: 4000 }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('status', { name: HOME_COPY.loading })).not.toBeInTheDocument();
   });
 
   it('adds an item, ticks it into got it, then clears it', async () => {

@@ -12,6 +12,7 @@ import { SortableShop } from '../../components/SortableShop';
 import { PageHeader } from '../../components/PageHeader';
 import { Typography } from '../../components/Typography';
 import { TypographyVariant } from '../../components/Typography/constants';
+import { HomeSkeleton } from './components/HomeSkeleton';
 import { HOME_COPY } from './constants';
 import { useHome } from './hooks/useHome';
 
@@ -28,13 +29,17 @@ export const Home = () => {
     sensors,
     handleDragEnd,
     allShops,
-    hasItems,
+    isEmpty,
     isLoading,
     hasError,
     newShopDialog,
     isClearing,
     handleClearChecked,
   } = useHome();
+
+  if (isLoading) {
+    return <HomeSkeleton />;
+  }
 
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-7 p-6">
@@ -43,9 +48,8 @@ export const Home = () => {
       {grouped.sections.length > 0 && (
         <ShopFilter sections={grouped.sections} focusedId={focusedId} onSelect={setFocus} />
       )}
-      {isLoading && <Typography>{HOME_COPY.loading}</Typography>}
       {hasError && <Typography>{HOME_COPY.loadFailed}</Typography>}
-      {!isLoading && !hasError && !hasItems && <Typography>{HOME_COPY.empty}</Typography>}
+      {isEmpty && <Typography>{HOME_COPY.empty}</Typography>}
       {focusedId === undefined ? (
         <>
           {unsorted && <ShopSection section={unsorted} allShops={allShops} />}
