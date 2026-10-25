@@ -1,4 +1,4 @@
-import { RemoteConfigProvider } from '../../../../Context/RemoteConfig';
+import { RemoteConfigProvider } from '../Context/RemoteConfig';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   createMemoryHistory,
@@ -7,12 +7,12 @@ import {
   RouterProvider,
 } from '@tanstack/react-router';
 import { render, screen } from '@testing-library/react';
-import { ROUTER_COPY } from '../../../../app/router/constants';
-import { Route as rootRoute } from '../../../../routes/__root';
-import { getConfiguration } from '../../../../services/configuration';
-import { TEST_WEB_CONFIGURATION } from '../../../../testUtils/webConfiguration';
+import { ROUTER_COPY } from '../app/router/constants';
+import { Route as rootRoute } from './__root';
+import { getConfiguration } from '../services/configuration';
+import { TEST_WEB_CONFIGURATION } from '../testUtils/webConfiguration';
 
-vi.mock('../../../../services/configuration', () => ({ getConfiguration: vi.fn() }));
+vi.mock('../services/configuration', () => ({ getConfiguration: vi.fn() }));
 
 const renderAt = (path: string) => {
   const okRoute = createRoute({

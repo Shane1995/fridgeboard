@@ -1,4 +1,4 @@
-import { Route } from '../../../../routes/sign-in';
+import { Route } from './sign-in';
 
 const validate = (search: { redirect?: unknown }) => {
   const validateSearch = Route.options.validateSearch;

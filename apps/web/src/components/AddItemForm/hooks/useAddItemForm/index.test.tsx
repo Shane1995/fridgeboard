@@ -87,4 +87,74 @@ describe('useAddItemForm', () => {
 
     expect(await fakeShoppingList.listItems()).toEqual([]);
   });
+
+  describe('keyboard', () => {
+    const key = (name: string) => ({ key: name, preventDefault: vi.fn() }) as never;
+
+    const setUp = async () => {
+      const shop = await fakeShoppingList.createShop({ name: 'Express', color: ShopColor.Mint });
+      for (const name of ['Milk', 'Mince']) {
+        const bought = await fakeShoppingList.addItem({ name, shopIds: [shop.id] });
+        await fakeShoppingList.updateItem({ id: bought.id, changes: { checked: true } });
+      }
+      const hook = renderHook(() => useAddItemForm(), { wrapper: createShoppingListWrapper() });
+      await waitFor(() => expect(hook.result.current.shops).toHaveLength(2));
+      act(() => hook.result.current.setName('mi'));
+      await waitFor(() => expect(hook.result.current.suggestions).toHaveLength(2));
+      return hook.result;
+    };
+
+    it('highlights nothing until an arrow key is pressed', async () => {
+      const result = await setUp();
+
+      expect(result.current.highlighted).toBe(-1);
+      act(() => result.current.handleKeyDown(key('ArrowDown')));
+      expect(result.current.highlighted).toBe(0);
+    });
+
+    it('moves the highlight within the suggestions', async () => {
+      const result = await setUp();
+
+      act(() => result.current.handleKeyDown(key('ArrowDown')));
+      act(() => result.current.handleKeyDown(key('ArrowDown')));
+      act(() => result.current.handleKeyDown(key('ArrowDown')));
+      expect(result.current.highlighted).toBe(1);
+      act(() => result.current.handleKeyDown(key('ArrowUp')));
+      expect(result.current.highlighted).toBe(0);
+      act(() => result.current.handleKeyDown(key('ArrowUp')));
+      expect(result.current.highlighted).toBe(-1);
+    });
+
+    it('picks the highlighted suggestion on Enter instead of submitting', async () => {
+      const result = await setUp();
+      const enter = key('Enter');
+
+      act(() => result.current.handleKeyDown(key('ArrowDown')));
+      const expected = result.current.suggestions[0]!.name;
+      act(() => result.current.handleKeyDown(enter));
+
+      expect(result.current.name).toBe(expected);
+      expect(result.current.highlighted).toBe(-1);
+      expect((enter as { preventDefault: () => void }).preventDefault).toHaveBeenCalled();
+    });
+
+    it('leaves Enter alone when nothing is highlighted', async () => {
+      const result = await setUp();
+      const enter = key('Enter');
+
+      act(() => result.current.handleKeyDown(enter));
+
+      expect(result.current.name).toBe('mi');
+      expect((enter as { preventDefault: () => void }).preventDefault).not.toHaveBeenCalled();
+    });
+
+    it('clears the highlight when the text changes', async () => {
+      const result = await setUp();
+
+      act(() => result.current.handleKeyDown(key('ArrowDown')));
+      act(() => result.current.setName('min'));
+
+      expect(result.current.highlighted).toBe(-1);
+    });
+  });
 });
