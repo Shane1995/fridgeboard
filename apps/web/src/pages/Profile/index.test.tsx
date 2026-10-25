@@ -6,6 +6,7 @@ import { createSession } from '../../testUtils/createSession';
 import { TestProviders } from '../../testUtils/TestProviders';
 import { WebFeatureFlag } from '../../services/configuration/schema/constants';
 import { TEST_WEB_CONFIGURATION } from '../../testUtils/webConfiguration';
+import { INVITE_COPY } from './components/InviteForm/constants';
 import { PROFILE_COPY } from './constants';
 import { Profile } from '.';
 
@@ -114,6 +115,14 @@ describe('Profile', () => {
       expect(screen.getByText(PROFILE_COPY.unnamedMember)).toBeInTheDocument();
     });
 
+    it('offers an invite form next to the members', async () => {
+      respondWith([HOUSEHOLD], MEMBERS);
+      await renderProfile(withMembersFlag(true));
+
+      expect(await screen.findByRole('button', { name: INVITE_COPY.submit })).toBeInTheDocument();
+      expect(screen.getByLabelText(INVITE_COPY.label)).toBeInTheDocument();
+    });
+
     it('is hidden while the feature flag is off', async () => {
       respondWith([HOUSEHOLD], MEMBERS);
       await renderProfile(withMembersFlag(false));
@@ -121,6 +130,7 @@ describe('Profile', () => {
       expect(await screen.findByText('Home')).toBeInTheDocument();
       expect(screen.queryByText('Natassia')).not.toBeInTheDocument();
       expect(screen.queryByText(PROFILE_COPY.members)).not.toBeInTheDocument();
+      expect(screen.queryByText(INVITE_COPY.title)).not.toBeInTheDocument();
     });
 
     it('says so when the members fail to load', async () => {
