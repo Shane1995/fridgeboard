@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { FormEvent } from 'react';
+import type { FormEvent, KeyboardEvent } from 'react';
 import { useAddItemMutation } from '../../../../hooks/useAddItemMutation';
 import { useShopsQuery } from '../../../../hooks/useShopsQuery';
 import { useItemsQuery } from '../../../../hooks/useItemsQuery';
@@ -11,10 +11,12 @@ import {
 } from '../../../../services/shoppingList/constants';
 import { UNSORTED_SHOP } from '../../../../services/shoppingList/utils/groupItemsByShop';
 import type { HistoryEntry } from '../../../../services/shoppingList/types';
+import { NO_HIGHLIGHT } from './constants';
 import type { AddItemFormState } from './types';
 
 export const useAddItemForm = (focusedShopId?: string): AddItemFormState => {
   const [name, setName] = useState('');
+  const [highlighted, setHighlighted] = useState(NO_HIGHLIGHT);
   const [lastShopId, setLastShopId] = useLocalStorage(LAST_SHOP_STORAGE_KEY);
   const { data } = useShopsQuery();
   const addItem = useAddItemMutation();
@@ -36,8 +38,13 @@ export const useAddItemForm = (focusedShopId?: string): AddItemFormState => {
     ({ name: known }) => known.toLowerCase() !== query.toLowerCase(),
   );
 
+  const updateName = (value: string) => {
+    setName(value);
+    setHighlighted(NO_HIGHLIGHT);
+  };
+
   const pickSuggestion = ({ name: picked, shopIds: pickedShops }: HistoryEntry) => {
-    setName(picked);
+    updateName(picked);
     const pickedShop = pickedShops.find((id) => shops.some((shop) => shop.id === id));
     if (pickedShop !== undefined) {
       setLastShopId(pickedShop);
@@ -56,9 +63,25 @@ export const useAddItemForm = (focusedShopId?: string): AddItemFormState => {
     );
   };
 
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    const last = suggestions.length - 1;
+    if (event.key === 'ArrowDown' && last >= 0) {
+      event.preventDefault();
+      setHighlighted((current) => Math.min(current + 1, last));
+    } else if (event.key === 'ArrowUp' && last >= 0) {
+      event.preventDefault();
+      setHighlighted((current) => Math.max(current - 1, NO_HIGHLIGHT));
+    } else if (event.key === 'Enter' && suggestions[highlighted] !== undefined) {
+      event.preventDefault();
+      pickSuggestion(suggestions[highlighted]);
+    }
+  };
+
   return {
     name,
-    setName,
+    setName: updateName,
+    highlighted,
+    handleKeyDown,
     shopId,
     setShopId: setLastShopId,
     shops,

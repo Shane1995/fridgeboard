@@ -11,6 +11,8 @@ export const AddItemForm = ({ focusedShopId }: AddItemFormProps) => {
   const {
     name,
     setName,
+    highlighted,
+    handleKeyDown,
     shopId,
     setShopId,
     shops,
@@ -34,6 +36,7 @@ export const AddItemForm = ({ focusedShopId }: AddItemFormProps) => {
           maxLength={ITEM_NAME_MAX_LENGTH}
           value={name}
           onChange={(event) => setName(event.target.value)}
+          onKeyDown={handleKeyDown}
           className="min-w-0 flex-1 bg-transparent py-1 text-base outline-none placeholder:opacity-40 md:py-2 md:text-lg"
         />
         <ShopPicker shops={shops} shopId={shopId} onChange={setShopId} />
@@ -51,12 +54,13 @@ export const AddItemForm = ({ focusedShopId }: AddItemFormProps) => {
           aria-label={ADD_ITEM_COPY.suggestions}
           className="absolute inset-x-3 top-full z-30 mt-2 overflow-hidden rounded-2xl border border-foreground/10 bg-white py-1 shadow-lg"
         >
-          {suggestions.map((suggestion) => (
+          {suggestions.map((suggestion, index) => (
             <li key={suggestion.name}>
               <button
                 type="button"
                 onClick={() => pickSuggestion(suggestion)}
-                className="w-full cursor-pointer px-4 py-2 text-left hover:bg-black/5"
+                aria-current={index === highlighted}
+                className="w-full cursor-pointer px-4 py-2 text-left hover:bg-black/5 aria-[current=true]:bg-black/5"
               >
                 {suggestion.name}
               </button>
