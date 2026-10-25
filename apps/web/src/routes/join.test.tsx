@@ -1,7 +1,7 @@
-import { SessionContext } from '../../../../Context/Session';
-import { createSession } from '../../../../testUtils/createSession';
-import { SessionStatus } from '../../../../services/session/constants';
-import { RemoteConfigContext } from '../../../../Context/RemoteConfig/context';
+import { SessionContext } from '../Context/Session';
+import { createSession } from '../testUtils/createSession';
+import { SessionStatus } from '../services/session/constants';
+import { RemoteConfigContext } from '../Context/RemoteConfig/context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   createMemoryHistory,
@@ -11,9 +11,9 @@ import {
   RouterProvider,
 } from '@tanstack/react-router';
 import { render, screen } from '@testing-library/react';
-import { SIGN_IN_COPY } from '../../../../pages/SignIn/constants';
-import { Route } from '../../../../routes/join';
-import { TEST_WEB_CONFIGURATION } from '../../../../testUtils/webConfiguration';
+import { SIGN_IN_COPY } from '../pages/SignIn/constants';
+import { Route } from './join';
+import { TEST_WEB_CONFIGURATION } from '../testUtils/webConfiguration';
 
 const { session } = createSession(SessionStatus.SignedOut);
 

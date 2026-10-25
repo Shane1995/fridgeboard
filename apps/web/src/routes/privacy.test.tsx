@@ -6,8 +6,8 @@ import {
   RouterProvider,
 } from '@tanstack/react-router';
 import { render, screen } from '@testing-library/react';
-import { PRIVACY_COPY } from '../../../../pages/Privacy/constants';
-import { Route } from '../../../../routes/privacy';
+import { PRIVACY_COPY } from '../pages/Privacy/constants';
+import { Route } from './privacy';
 
 describe('privacy route', () => {
   it('renders the privacy notice', async () => {
