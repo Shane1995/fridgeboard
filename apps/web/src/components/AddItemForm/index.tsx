@@ -1,5 +1,6 @@
 import { Plus } from 'lucide-react';
 import { ITEM_NAME_MAX_LENGTH } from '../../services/shoppingList/constants';
+import { useAutoFocus } from '../../hooks/useAutoFocus';
 import { ShopPicker } from '../ShopPicker';
 import { ADD_ITEM_COPY } from './constants';
 import { useAddItemForm } from './hooks/useAddItemForm';
@@ -18,6 +19,7 @@ export const AddItemForm = ({ focusedShopId }: AddItemFormProps) => {
     isAdding,
     handleSubmit,
   } = useAddItemForm(focusedShopId);
+  const inputRef = useAutoFocus<HTMLInputElement>();
 
   return (
     <div className="relative">
@@ -26,7 +28,7 @@ export const AddItemForm = ({ focusedShopId }: AddItemFormProps) => {
         className="flex items-center gap-2 rounded-xl border border-foreground/10 bg-white p-1.5 pl-3 shadow-sm focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 md:rounded-2xl md:p-2 md:pl-4"
       >
         <input
-          autoFocus
+          ref={inputRef}
           aria-label={ADD_ITEM_COPY.inputLabel}
           placeholder={ADD_ITEM_COPY.placeholder}
           maxLength={ITEM_NAME_MAX_LENGTH}
