@@ -3,4 +3,19 @@ export const UNSORTED_SHOP_ID = 'unsorted';
 export const LIST_ITEM_NAME_MAX_LENGTH = 80;
 export const MAX_SHOPS_PER_ITEM = 10;
 export const SHOP_NAME_MAX_LENGTH = 30;
-export const SHOP_COLORS = ['tomato', 'mustard', 'mint', 'sky', 'grape', 'pink', 'slate'] as const;
+export const SHOP_COLORS = [
+  'tomato',
+  'mustard',
+  'mint',
+  'sky',
+  'grape',
+  'pink',
+  'slate',
+  'black',
+  'forest',
+  'lime',
+  'orange',
+  'navy',
+  'cyan',
+  'yellow',
+] as const;
