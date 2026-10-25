@@ -38,6 +38,8 @@ describe('buildCreateTransaction', () => {
       name: 'Home',
       ownerSub: 'sub-1',
       createdAt: params.now,
+      inviteLimit: 4,
+      invitesUsed: 0,
     });
     expect(items[2]?.Put?.Item).toMatchObject({
       PK: 'HH#hh-1',
@@ -49,6 +51,19 @@ describe('buildCreateTransaction', () => {
       PK: 'USER#sub-1',
       SK: 'OWNED_HOUSEHOLD',
       householdId: 'hh-1',
+    });
+  });
+
+  it('leaves an admin household uncapped', () => {
+    const item = buildCreateTransaction({ ...params, isAdmin: true })[1]?.Put?.Item;
+
+    expect(item).toEqual({
+      PK: 'HH#hh-1',
+      SK: 'META',
+      name: 'Home',
+      ownerSub: 'sub-1',
+      createdAt: params.now,
+      invitesUsed: 0,
     });
   });
 });

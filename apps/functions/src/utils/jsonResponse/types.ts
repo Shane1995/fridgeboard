@@ -8,6 +8,8 @@ import type {
   ICreateHouseholdResponse,
   IHouseholdMembersResponse,
   IHouseholdsResponse,
+  IInviteErrorResponse,
+  IInviteResponse,
 } from '@fridgeboard/contract/households';
 import type {
   IShop,
@@ -36,6 +38,8 @@ export type ResponseBody =
   | ICreateHouseholdErrorResponse
   | IHouseholdsResponse
   | IHouseholdMembersResponse
+  | IInviteResponse
+  | IInviteErrorResponse
   | IListItem
   | IListItemsResponse
   | IShop

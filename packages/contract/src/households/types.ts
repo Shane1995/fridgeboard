@@ -15,3 +15,16 @@ export type ICreateHouseholdErrorResponse = {
 export type IHouseholdMember = { id: string; username?: string; role: HouseholdRole };
 
 export type IHouseholdMembersResponse = { members: IHouseholdMember[] };
+
+export type IInviteRequest = { email: string };
+
+export type IInviteResponse = { email: string; verified: boolean };
+
+export type IInviteErrorResponse = {
+  reason:
+    | 'invalid-email'
+    | 'not-found'
+    | 'limit-reached'
+    | 'already-invited'
+    | 'verification-failed';
+};

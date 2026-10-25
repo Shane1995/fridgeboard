@@ -13,6 +13,7 @@ export enum WebFeatureFlag {
 export const WEB_FEATURE_FLAGS: readonly string[] = Object.values(WebFeatureFlag);
 
 export enum WebService {
+  householdInvites = 'householdInvites',
   householdMembers = 'householdMembers',
   listShop = 'listShop',
   listShops = 'listShops',

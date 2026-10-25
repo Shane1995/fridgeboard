@@ -7,6 +7,7 @@ const api = {
     onboardingSkip: '/api/v2/me/onboarding/{sectionId}/skip',
     username: '/api/v2/profile/name',
     households: '/api/v2/households',
+    householdInvites: '/api/v2/households/{householdId}/invites',
     householdMembers: '/api/v2/households/{householdId}/members',
     listShop: '/api/v2/households/{householdId}/lists/{listId}/shops/{shopId}',
     listShops: '/api/v2/households/{householdId}/lists/{listId}/shops',
@@ -49,6 +50,7 @@ describe('buildRoutes', () => {
         'DELETE /api/v2/households/{householdId}/lists/{listId}/shops/{shopId}',
         'GET /api/v2/households/{householdId}/lists/{listId}/history',
         'GET /api/v2/households/{householdId}/members',
+        'POST /api/v2/households/{householdId}/invites',
       ]),
     );
   });

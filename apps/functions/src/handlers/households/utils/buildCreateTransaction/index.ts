@@ -6,6 +6,7 @@ import { HouseholdRole } from '../../../../utils/isHouseholdRole/constants.ts';
 import { profileKey } from '../../../../utils/keys/profileKey/index.ts';
 import {
   CAN_CREATE_CONDITION,
+  INVITE_LIMIT,
   NOT_EXISTS_CONDITION,
   PROFILE_EXISTS_CONDITION,
 } from '../../constants.ts';
@@ -30,7 +31,14 @@ export const buildCreateTransaction = ({
   {
     Put: {
       TableName,
-      Item: { ...householdMetaKey(id), name, ownerSub: sub, createdAt: now },
+      Item: {
+        ...householdMetaKey(id),
+        name,
+        ownerSub: sub,
+        createdAt: now,
+        ...(isAdmin ? {} : { inviteLimit: INVITE_LIMIT }),
+        invitesUsed: 0,
+      },
       ConditionExpression: NOT_EXISTS_CONDITION,
     },
   },

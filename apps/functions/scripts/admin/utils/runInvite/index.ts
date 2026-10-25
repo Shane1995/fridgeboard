@@ -1,6 +1,6 @@
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import { normaliseEmail } from '../../../../src/utils/normaliseEmail/index.ts';
-import { buildInvite } from '../buildInvite/index.ts';
+import { buildInvite } from '../../../../src/utils/buildInvite/index.ts';
 import { TABLE_NAME } from '../clients/constants.ts';
 import { doc } from '../clients/index.ts';
 import { joinLink } from '../joinLink/index.ts';
