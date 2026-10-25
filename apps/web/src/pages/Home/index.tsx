@@ -8,6 +8,7 @@ import { ShopFilter } from '../../components/ShopFilter';
 import { ShopCard } from '../../components/ShopCard';
 import { ShopSection } from '../../components/ShopSection';
 import { ItemDragPreview } from '../../components/ItemDragPreview';
+import { ShopDragPreview } from '../../components/ShopDragPreview';
 import { ItemRow } from '../../components/ItemRow';
 import { detectShopCollisions } from '../../utils/detectShopCollisions';
 import { restrictShopDragToVerticalAxis } from '../../utils/restrictShopDragToVerticalAxis';
@@ -34,6 +35,7 @@ export const Home = () => {
     handleDragEnd,
     handleDragCancel,
     activeItem,
+    activeShop,
     canDragItems,
     allShops,
     isEmpty,
@@ -81,6 +83,7 @@ export const Home = () => {
           </SortableContext>
           <DragOverlay>
             {activeItem && <ItemDragPreview item={activeItem} shops={allShops} />}
+            {activeShop && <ShopDragPreview section={activeShop} />}
           </DragOverlay>
         </DndContext>
       ) : (
