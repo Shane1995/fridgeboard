@@ -53,6 +53,8 @@ const toggleShop = async (name: string) => {
   const item = await screen.findByRole('menuitemcheckbox', { name });
   fireEvent.keyDown(item, { key: 'Enter' });
   fireEvent.keyUp(item, { key: 'Enter' });
+  fireEvent.keyDown(screen.getByRole('menu'), { key: 'Escape' });
+  await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument());
 };
 
 const renderHome = (config = TEST_WEB_CONFIGURATION) => {
