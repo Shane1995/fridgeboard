@@ -56,6 +56,36 @@ describe('ItemRow', () => {
     expect(screen.getByRole('menuitem', { name: ITEM_ROW_COPY.delete })).toBeInTheDocument();
   });
 
+  describe('choosing shops from the item menu', () => {
+    const ALDI: Shop = { id: 'b2', name: 'Aldi', color: ShopColor.Pink, order: 1 };
+
+    const choose = (item: HTMLElement) => {
+      fireEvent.keyDown(item, { key: 'Enter' });
+      fireEvent.keyUp(item, { key: 'Enter' });
+    };
+
+    const openShops = async () => {
+      const Wrapper = createShoppingListWrapper();
+      render(
+        <Wrapper>
+          <ul>
+            <ItemRow item={ITEM} shops={[EXPRESS, ALDI]} />
+          </ul>
+        </Wrapper>,
+      );
+      fireEvent.click(screen.getByRole('button', { name: ITEM_ROW_COPY.menu }));
+      choose(await screen.findByRole('menuitem', { name: ITEM_ROW_COPY.shops }));
+    };
+
+    it('keeps the shop list open after one shop is ticked, so several can be chosen', async () => {
+      await openShops();
+
+      choose(await screen.findByRole('menuitemcheckbox', { name: 'Express' }));
+
+      expect(screen.getByRole('menuitemcheckbox', { name: 'Aldi' })).toBeInTheDocument();
+    });
+  });
+
   describe('where else the item can be got', () => {
     const SAINSBURYS: Shop = { id: 'b3', name: 'Sainsburys', color: ShopColor.Mustard, order: 2 };
     const ALDI: Shop = { id: 'b4', name: 'Aldi', color: ShopColor.Pink, order: 3 };

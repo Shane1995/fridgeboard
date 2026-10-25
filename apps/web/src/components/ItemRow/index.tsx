@@ -125,6 +125,7 @@ export const ItemRow = ({
                   <Dropdown.Menu
                     aria-label={ITEM_ROW_COPY.shops}
                     selectionMode="multiple"
+                    shouldCloseOnSelect={false}
                     selectedKeys={new Set(item.shopIds)}
                     onSelectionChange={(keys) =>
                       setShops({ shopIds: keys instanceof Set ? [...keys].map(String) : [] })

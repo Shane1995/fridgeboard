@@ -25,6 +25,8 @@ const renderForm = async () => {
 const pick = async (name: string) => {
   fireEvent.click(await screen.findByRole('button', { name: /^Assign to shops/ }));
   choose(await screen.findByRole('menuitemcheckbox', { name }));
+  fireEvent.keyDown(screen.getByRole('menu'), { key: 'Escape' });
+  await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument());
 };
 
 describe('AddItemForm', () => {
