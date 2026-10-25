@@ -2,18 +2,16 @@ import { MAX_SHOPS_PER_ITEM, UNSORTED_SHOP_ID } from '@fridgeboard/contract/list
 import { shopExists } from '../shopExists/index.ts';
 import type { ReadShopIdsOptions, ReadShopIdsResult } from './types.ts';
 
-// The shops of an item from a request body: `shopIds` (a list, empty meaning General), or the
-// single `shopId` that tabs on an older build still send.
+// The shops of an item from a request body: `shopIds`, a list where empty means Unassigned.
 export const readShopIds = async ({
   fields,
   table,
   scope,
 }: ReadShopIdsOptions): Promise<ReadShopIdsResult> => {
-  const requested =
-    'shopIds' in fields ? fields.shopIds : 'shopId' in fields ? [fields.shopId] : undefined;
-  if (requested === undefined) {
+  if (!('shopIds' in fields)) {
     return { status: 'absent' };
   }
+  const requested = fields.shopIds;
   if (!Array.isArray(requested) || !requested.every((id) => typeof id === 'string')) {
     return { status: 'invalid' };
   }

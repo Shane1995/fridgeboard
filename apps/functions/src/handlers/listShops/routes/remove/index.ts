@@ -4,7 +4,6 @@ import { shopKey } from '../../../../utils/keys/shopKey/index.ts';
 import { HOUSEHOLD_PK_PREFIX } from '../../../../utils/keys/constants.ts';
 import { itemKey } from '../../../../utils/keys/itemKey/index.ts';
 import { itemPrefix } from '../../../../utils/keys/itemPrefix/index.ts';
-import { shopIdsOf } from '../../../../utils/shopIdsOf/index.ts';
 import type { ShopRouteOptions } from '../../../../utils/resolveList/types.ts';
 
 export const removeListShop = async ({ context: { table, scope }, shopId }: ShopRouteOptions) => {
@@ -21,11 +20,11 @@ export const removeListShop = async ({ context: { table, scope }, shopId }: Shop
   );
   await Promise.all(
     items
-      .filter((item) => shopIdsOf(item).includes(shopId))
+      .filter((item) => (item.shopIds ?? []).includes(shopId))
       .map((item) =>
         table.update({
           key: itemKey({ householdId, listId, itemId: item.id }),
-          parts: { set: { shopIds: shopIdsOf(item).filter((id) => id !== shopId) } },
+          parts: { set: { shopIds: (item.shopIds ?? []).filter((id) => id !== shopId) } },
           schema: ListItemSchema,
         }),
       ),

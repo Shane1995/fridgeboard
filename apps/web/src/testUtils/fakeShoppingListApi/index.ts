@@ -4,7 +4,6 @@ import { TEST_HOUSEHOLD_ID } from '../fakeShoppingList/constants';
 import type { FakeShoppingListState } from './types';
 
 const BASE = `/api/v1/households/${TEST_HOUSEHOLD_ID}/lists/main`;
-const UNSORTED = 'unsorted';
 const SUB = 'sub-1';
 
 const emptyState = (): FakeShoppingListState => ({
@@ -37,11 +36,9 @@ const remember = ({ name, shopIds }: { name: string; shopIds: string[] }) => {
   );
   state.current.history =
     known === undefined
-      ? [...state.current.history, { name, shopIds, shopId: shopIds[0] ?? UNSORTED, count: 1 }]
+      ? [...state.current.history, { name, shopIds, count: 1 }]
       : state.current.history.map((entry) =>
-          entry === known
-            ? { name, shopIds, shopId: shopIds[0] ?? UNSORTED, count: entry.count + 1 }
-            : entry,
+          entry === known ? { name, shopIds, count: entry.count + 1 } : entry,
         );
 };
 
@@ -57,7 +54,6 @@ const handleItems = (method: string, init: RequestInit) => {
     id: nextId('item'),
     name: String(body.name),
     shopIds,
-    shopId: shopIds[0] ?? UNSORTED,
     checked: false,
     createdAt: state.current.counter,
     addedBy: SUB,
@@ -78,7 +74,7 @@ const handleItem = (id: string, method: string, init: RequestInit) => {
   }
   const changes = readBody(init);
   const shopIds = Array.isArray(changes.shopIds) ? changes.shopIds.map(String) : current.shopIds;
-  const updated = { ...current, ...changes, shopIds, shopId: shopIds[0] ?? UNSORTED };
+  const updated = { ...current, ...changes, shopIds };
   state.current.items = state.current.items.map((item) => (item.id === id ? updated : item));
   return json(200, updated);
 };
@@ -117,7 +113,7 @@ const handleShop = (id: string, method: string, init: RequestInit) => {
     state.current.shops = state.current.shops.filter((shop) => shop.id !== id);
     state.current.items = state.current.items.map((item) => {
       const shopIds = item.shopIds.filter((shopId) => shopId !== id);
-      return { ...item, shopIds, shopId: shopIds[0] ?? UNSORTED };
+      return { ...item, shopIds };
     });
     return json(204);
   }

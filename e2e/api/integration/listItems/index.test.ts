@@ -59,13 +59,11 @@ describe('list items handler against DynamoDB Local', () => {
       'oat milk',
     ]);
     expect(listed.items[0]).toMatchObject({
-      shopId: 'unsorted',
+      shopIds: [],
       checked: false,
       addedBy: member.sub,
     });
-    expect(history.entries).toEqual([
-      { name: 'oat milk', shopIds: [], shopId: 'unsorted', count: 2 },
-    ]);
+    expect(history.entries).toEqual([{ name: 'oat milk', shopIds: [], count: 2 }]);
     expect(
       await getItem(
         historyKey({ householdId: member.householdId, listId: 'main', name: 'Oat Milk' }),
@@ -96,12 +94,12 @@ describe('list items handler against DynamoDB Local', () => {
       member,
       'PATCH',
       `/items/${id}`,
-      { checked: true, name: 'Free eggs', shopId },
+      { checked: true, name: 'Free eggs', shopIds: [shopId] },
       id,
     );
 
     expect(updated.statusCode).toBe(200);
-    expect(json(updated)).toMatchObject({ checked: true, name: 'Free eggs', shopId });
+    expect(json(updated)).toMatchObject({ checked: true, name: 'Free eggs', shopIds: [shopId] });
     expect(
       await getItem(itemKey({ householdId: member.householdId, listId: 'main', itemId: id })),
     ).toMatchObject({
@@ -130,7 +128,7 @@ describe('list items handler against DynamoDB Local', () => {
     );
     const { id } = json(await call(member, 'POST', '/items', { name: 'Eggs' }));
 
-    await call(member, 'PATCH', `/items/${id}`, { shopId: 'b1' }, id);
+    await call(member, 'PATCH', `/items/${id}`, { shopIds: ['b1'] }, id);
 
     expect(
       await getItem(historyKey({ householdId: member.householdId, listId: 'main', name: 'Eggs' })),
@@ -141,7 +139,7 @@ describe('list items handler against DynamoDB Local', () => {
     const member = await seedMember();
     const { id } = json(await call(member, 'POST', '/items', { name: 'Eggs' }));
 
-    const unknownShop = await call(member, 'POST', '/items', { name: 'Tea', shopId: 'nope' });
+    const unknownShop = await call(member, 'POST', '/items', { name: 'Tea', shopIds: ['nope'] });
     const emptyName = await call(member, 'POST', '/items', { name: '   ' });
     const emptyPatch = await call(member, 'PATCH', `/items/${id}`, {}, id);
 
@@ -197,7 +195,7 @@ describe('list items handler against DynamoDB Local', () => {
     );
   };
 
-  it('puts an item in two shops and keeps the single shopId for older builds', async () => {
+  it('puts an item in two shops, once each', async () => {
     const member = await seedMember();
     await seedShop(member, 'express');
     await seedShop(member, 'ms');
@@ -209,25 +207,24 @@ describe('list items handler against DynamoDB Local', () => {
       }),
     );
 
-    expect(created).toMatchObject({ shopIds: ['express', 'ms'], shopId: 'express' });
+    expect(created).toMatchObject({ shopIds: ['express', 'ms'] });
+    expect(created).not.toHaveProperty('shopId');
     expect(json(await call(member, 'GET', '/history')).entries).toEqual([
-      { name: 'Hummus', shopIds: ['express', 'ms'], shopId: 'express', count: 1 },
+      { name: 'Hummus', shopIds: ['express', 'ms'], count: 1 },
     ]);
   });
 
-  it('changes the shops of an item with a list, and with the single shopId of an older build', async () => {
+  it('changes the shops of an item with a list', async () => {
     const member = await seedMember();
     await seedShop(member, 'express');
     await seedShop(member, 'ms');
     const { id } = json(await call(member, 'POST', '/items', { name: 'Eggs' }));
 
     const both = await call(member, 'PATCH', `/items/${id}`, { shopIds: ['express', 'ms'] }, id);
-    const legacy = await call(member, 'PATCH', `/items/${id}`, { shopId: 'ms' }, id);
     const none = await call(member, 'PATCH', `/items/${id}`, { shopIds: [] }, id);
 
     expect(json(both).shopIds).toEqual(['express', 'ms']);
-    expect(json(legacy)).toMatchObject({ shopIds: ['ms'], shopId: 'ms' });
-    expect(json(none)).toMatchObject({ shopIds: [], shopId: 'unsorted' });
+    expect(json(none)).toMatchObject({ shopIds: [] });
   });
 
   it('refuses an unknown shop, a list that is not a list, and too many shops', async () => {
@@ -250,7 +247,7 @@ describe('list items handler against DynamoDB Local', () => {
     expect(json(unknown)).toEqual({ reason: 'invalid-shop' });
   });
 
-  it('reads a row written before items could have several shops', async () => {
+  it('treats a row that only has the old single shop as being in no shop', async () => {
     const member = await seedMember();
     await seedShop(member, 'express');
     await client.send(
@@ -268,9 +265,8 @@ describe('list items handler against DynamoDB Local', () => {
       }),
     );
 
-    expect(json(await call(member, 'GET', '/items')).items[0]).toMatchObject({
-      shopIds: ['express'],
-      shopId: 'express',
-    });
+    const [item] = json(await call(member, 'GET', '/items')).items;
+    expect(item).toMatchObject({ shopIds: [] });
+    expect(item).not.toHaveProperty('shopId');
   });
 });

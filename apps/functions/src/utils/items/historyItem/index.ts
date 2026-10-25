@@ -4,6 +4,5 @@ import * as z from 'zod/mini';
 export const HistoryItemSchema = z.looseObject({
   name: z.string(),
   shopIds: z.optional(z.array(z.string())),
-  shopId: z.optional(z.string()),
   count: z.number(),
 });

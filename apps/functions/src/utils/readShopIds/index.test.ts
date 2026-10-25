@@ -35,9 +35,8 @@ describe('readShopIds', () => {
     expect(await read({ shopIds: ['unsorted'] })).toEqual({ status: 'ok', shopIds: [] });
   });
 
-  it('still reads the single shop an older build sends', async () => {
-    expect(await read({ shopId: 's1' })).toEqual({ status: 'ok', shopIds: ['s1'] });
-    expect(await read({ shopId: 'unsorted' })).toEqual({ status: 'ok', shopIds: [] });
+  it('no longer reads the single shop an older build sent', async () => {
+    expect(await read({ shopId: 's1' })).toEqual({ status: 'absent' });
   });
 
   it.each([

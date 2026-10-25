@@ -106,10 +106,14 @@ describe('list shops handler against DynamoDB Local', () => {
           method: 'POST',
           path: `/api/v1/households/${member.householdId}/lists/main/items`,
           pathParameters: { householdId: member.householdId, listId: 'main' },
-          body: { name: 'Eggs', shopId },
+          body: { name: 'Eggs', shopIds: [shopId] },
         }),
       ),
     );
+
+    expect(
+      await getItem(itemKey({ householdId: member.householdId, listId: 'main', itemId: itemId })),
+    ).toMatchObject({ shopIds: [shopId] });
 
     const removed = await call(member, 'DELETE', `/${shopId}`, undefined, shopId);
 

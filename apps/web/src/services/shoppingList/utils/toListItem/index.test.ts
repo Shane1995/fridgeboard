@@ -6,7 +6,6 @@ describe('toListItem', () => {
       id: 'i1',
       name: 'Milk',
       shopIds: [],
-      shopId: 'unsorted',
       checked: false,
       createdAt: 5,
       addedBy: 'sub-1',
