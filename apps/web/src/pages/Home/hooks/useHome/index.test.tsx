@@ -14,6 +14,20 @@ describe('useHome', () => {
     expect(result.current.hasItems).toBe(false);
   });
 
+  it('stops loading once the list has arrived, and says when it is empty', async () => {
+    const { result } = renderHook(() => useHome(), { wrapper: createShoppingListWrapper() });
+
+    await waitFor(() => expect(result.current.isEmpty).toBe(true));
+    expect(result.current.isLoading).toBe(false);
+    expect(result.current.hasError).toBe(false);
+  });
+
+  it('does not call the list empty while it is still loading', () => {
+    const { result } = renderHook(() => useHome(), { wrapper: createShoppingListWrapper() });
+
+    expect(result.current.isEmpty).toBe(false);
+  });
+
   it('groups items by shop and offers General as a move target', async () => {
     const shop = await fakeShoppingList.createShop({
       name: 'Express',

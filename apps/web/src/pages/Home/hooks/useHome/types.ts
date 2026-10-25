@@ -21,6 +21,7 @@ export type HomeState = {
   allShops: Shop[];
   hasItems: boolean;
   isLoading: boolean;
+  isEmpty: boolean;
   hasError: boolean;
   newShopDialog: UseOverlayStateReturn;
   isClearing: boolean;

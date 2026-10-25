@@ -21,3 +21,10 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans);
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton,
+  .skeleton::after {
+    animation: none;
+  }
+}
