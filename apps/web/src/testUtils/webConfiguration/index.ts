@@ -5,6 +5,7 @@ import { WebFeatureFlag } from '../../services/configuration/schema/constants';
 export const TEST_WEB_CONFIGURATION: WebConfiguration = {
   featureFlags: {
     [WebFeatureFlag.ENABLE_ADMIN_INVITES]: false,
+    [WebFeatureFlag.ENABLE_HOUSEHOLD_INVITES]: false,
     [WebFeatureFlag.ENABLE_PASSKEYS]: false,
   },
   mutations: { default: { retry: 0, timeoutMs: 10_000 } },

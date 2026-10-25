@@ -206,7 +206,11 @@ describe('web configuration schema', () => {
   };
 
   const VALID = {
-    featureFlags: { ENABLE_ADMIN_INVITES: false, ENABLE_PASSKEYS: true },
+    featureFlags: {
+      ENABLE_ADMIN_INVITES: false,
+      ENABLE_HOUSEHOLD_INVITES: false,
+      ENABLE_PASSKEYS: true,
+    },
     mutations: { default: { retry: 0, timeoutMs: 10_000 } },
     queries: {
       default: {

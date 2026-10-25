@@ -1,4 +1,4 @@
-import type { IHouseholdSummary } from '@fridgeboard/contract/households';
+import type { IHouseholdMember, IHouseholdSummary } from '@fridgeboard/contract/households';
 import type { IMeResponse } from '@fridgeboard/contract/me';
 
 export type ProfileState = {
@@ -6,4 +6,7 @@ export type ProfileState = {
   households: readonly IHouseholdSummary[];
   isLoadingHouseholds: boolean;
   hasHouseholdsError: boolean;
+  showMembers: boolean;
+  members: readonly IHouseholdMember[];
+  hasMembersError: boolean;
 };

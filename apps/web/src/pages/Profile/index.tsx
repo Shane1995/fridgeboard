@@ -7,7 +7,15 @@ import { PROFILE_COPY } from './constants';
 import { useProfile } from './hooks/useProfile';
 
 export const Profile = () => {
-  const { me, households, isLoadingHouseholds, hasHouseholdsError } = useProfile();
+  const {
+    me,
+    households,
+    isLoadingHouseholds,
+    hasHouseholdsError,
+    showMembers,
+    members,
+    hasMembersError,
+  } = useProfile();
 
   return (
     <main className="mx-auto flex max-w-md flex-col gap-6 p-6">
@@ -44,6 +52,33 @@ export const Profile = () => {
           ))}
         </ul>
       </section>
+      {showMembers && (
+        <section aria-label={PROFILE_COPY.members} className="flex flex-col gap-3">
+          <Typography variant={TypographyVariant.Heading3} as="h2">
+            {PROFILE_COPY.members}
+          </Typography>
+          {hasMembersError && <Typography>{PROFILE_COPY.membersLoadFailed}</Typography>}
+          <ul aria-label={PROFILE_COPY.members} className="flex flex-col gap-2">
+            {members.map(({ id, username, role }) => (
+              <li
+                key={id}
+                className="flex items-center justify-between rounded-2xl bg-white/70 px-4 py-3 shadow-sm"
+              >
+                <Typography variant={TypographyVariant.Strong} as="span">
+                  {username ?? PROFILE_COPY.unnamedMember}
+                  {id === me?.sub && (
+                    <Typography variant={TypographyVariant.Caption} as="span">
+                      {' '}
+                      {PROFILE_COPY.you}
+                    </Typography>
+                  )}
+                </Typography>
+                <Chip size="sm">{PROFILE_COPY.roles[role]}</Chip>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       <BuildInfo />
     </main>
   );

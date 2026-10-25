@@ -29,8 +29,8 @@ describe('useFeatureFlag', () => {
     vi.mocked(getConfiguration).mockResolvedValue({
       ...TEST_WEB_CONFIGURATION,
       featureFlags: {
+        ...TEST_WEB_CONFIGURATION.featureFlags,
         [WebFeatureFlag.ENABLE_ADMIN_INVITES]: true,
-        [WebFeatureFlag.ENABLE_PASSKEYS]: false,
       },
     });
     const { result } = renderHook(() => useFeatureFlag(WebFeatureFlag.ENABLE_ADMIN_INVITES), {
