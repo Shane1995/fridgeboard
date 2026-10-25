@@ -18,6 +18,7 @@ const VALID = {
   services: {
     api: {
       endpoints: {
+        householdInvites: '/api/v1/households/{householdId}/invites',
         householdMembers: '/api/v1/households/{householdId}/members',
         households: '/api/v1/households',
         listHistory: '/api/v1/households/{householdId}/lists/{listId}/history',

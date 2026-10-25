@@ -127,7 +127,7 @@ describe('households handler', () => {
       ExpressionAttributeValues: { ':allowed': true },
     });
     expect(items?.[1]?.Put).toMatchObject({
-      Item: { PK: 'HH#hh-1', SK: 'META', name: 'Our home', ownerSub: 'sub-1' },
+      Item: { PK: 'HH#hh-1', SK: 'META', name: 'Our home', ownerSub: 'sub-1', invitesUsed: 0 },
       ConditionExpression: 'attribute_not_exists(PK)',
     });
     expect(items?.[2]?.Put).toMatchObject({

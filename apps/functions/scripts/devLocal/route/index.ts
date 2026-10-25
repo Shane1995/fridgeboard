@@ -22,6 +22,7 @@ const DEFINITIONS: RouteDefinition[] = [
   { method: 'GET', service: WebService.households, jwt: true, handler: households },
   { method: 'POST', service: WebService.households, jwt: true, handler: households },
   { method: 'GET', service: WebService.householdMembers, jwt: true, handler: households },
+  { method: 'POST', service: WebService.householdInvites, jwt: true, handler: households },
   { method: 'GET', service: WebService.listItems, jwt: true, handler: listItems },
   { method: 'POST', service: WebService.listItems, jwt: true, handler: listItems },
   { method: 'GET', service: WebService.listItem, jwt: true, handler: listItems },

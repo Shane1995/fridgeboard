@@ -1,5 +1,5 @@
-import { inviteKey } from '../../../../src/utils/keys/inviteKey/index.ts';
-import { InviteType, type Invite, type TableKey } from '../../../../src/utils/keys/types.ts';
+import { inviteKey } from '../keys/inviteKey/index.ts';
+import { InviteType, type Invite, type TableKey } from '../keys/types.ts';
 import { INVITE_TTL_SECONDS } from './constants.ts';
 import type { BuildInviteInput } from './types.ts';
 
