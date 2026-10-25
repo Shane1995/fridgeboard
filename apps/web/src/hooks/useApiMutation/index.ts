@@ -7,6 +7,7 @@ import { useMutation } from '../useMutation';
 import type { MutationResult } from '../useMutation/types';
 import { useRemoteConfigContext } from '../useRemoteConfigContext';
 import { useSessionContext } from '../useSessionContext';
+import { useToast } from '../useToast';
 import type { ApiMutationOptions } from './types';
 
 // A signed-in JSON request to one API service. The URL and timeout come from the remote
@@ -21,6 +22,7 @@ export const useApiMutation = <TVariables, TResponse, TReason extends string, TC
   toParams,
   reasons,
   onSuccess,
+  failureMessage,
   optimistic,
 }: ApiMutationOptions<TVariables, TResponse, TReason, TCache>): MutationResult<
   ApiResult<TResponse, TReason>,
@@ -29,6 +31,12 @@ export const useApiMutation = <TVariables, TResponse, TReason extends string, TC
   const { services, mutations } = useRemoteConfigContext();
   const { apiFetch } = useSessionContext();
   const queryClient = useQueryClient();
+  const toast = useToast();
+  const reportFailure = () => {
+    if (failureMessage !== undefined) {
+      toast.error(failureMessage);
+    }
+  };
   return useMutation({
     mutationKey: [name],
     mutationFn: async (variables: TVariables) => {
@@ -64,12 +72,14 @@ export const useApiMutation = <TVariables, TResponse, TReason extends string, TC
         apiFetch,
       ).catch((error: unknown) => {
         restore();
+        reportFailure();
         throw error;
       });
       if (result.ok) {
         onSuccess?.(result.data, variables);
       } else {
         restore();
+        reportFailure();
       }
       return result;
     },

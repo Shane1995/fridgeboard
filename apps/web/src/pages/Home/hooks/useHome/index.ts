@@ -1,14 +1,15 @@
 import { KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
+import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useOverlayState } from '@heroui/react';
-import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useShopsQuery } from '../../../../hooks/useShopsQuery';
-import { SHOPS_QUERY_KEY } from '../../../../hooks/useShopsQuery/constants';
 import { useActiveHousehold } from '../../../../hooks/useActiveHousehold';
 import { useHouseholdsQuery } from '../../../../hooks/useHouseholdsQuery';
 import { useClearCheckedMutation } from '../../../../hooks/useClearCheckedMutation';
+import { useFeatureFlag } from '../../../../hooks/useFeatureFlag';
+import { useListCache } from '../../../../hooks/useListCache';
+import { useMoveItem } from '../../../../hooks/useMoveItem';
 import { useReorderShopsMutation } from '../../../../hooks/useReorderShopsMutation';
 import { useLocalStorage } from '../../../../hooks/useLocalStorage';
 import { useItemsQuery } from '../../../../hooks/useItemsQuery';
@@ -16,12 +17,14 @@ import {
   FOCUS_SHOP_STORAGE_KEY,
   UNSORTED_SHOP_ID,
 } from '../../../../services/shoppingList/constants';
-import type { Shop } from '../../../../services/shoppingList/types';
+import { WebFeatureFlag } from '../../../../services/configuration/schema/constants';
+import type { ListItem } from '../../../../services/shoppingList/types';
 import {
   groupItemsByShop,
   UNSORTED_SHOP,
 } from '../../../../services/shoppingList/utils/groupItemsByShop';
 import { inShop } from '../../../../services/shoppingList/utils/inShop';
+import { readDraggedItem, readDropShopId } from '../../../../utils/readDragData';
 import { HOME_COPY } from '../../constants';
 import type { HomeState } from './types';
 
@@ -34,7 +37,10 @@ export const useHome = (): HomeState => {
   const clear = useClearCheckedMutation();
   const [storedFocus, setFocus] = useLocalStorage(FOCUS_SHOP_STORAGE_KEY);
   const reorder = useReorderShopsMutation();
-  const queryClient = useQueryClient();
+  const { updateShops } = useListCache();
+  const moveItem = useMoveItem();
+  const dragFlag = useFeatureFlag(WebFeatureFlag.ENABLE_ITEM_DRAG);
+  const [activeItem, setActiveItem] = useState<ListItem | undefined>();
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
@@ -61,15 +67,39 @@ export const useHome = (): HomeState => {
       ? grouped.checked
       : grouped.checked.filter((item) => inShop({ item, shopId: focusedId, shops: shopList }));
 
-  const handleDragEnd = ({ active, over }: DragEndEvent) => {
+  const allShops = [UNSORTED_SHOP, ...shopList];
+
+  const handleDragStart = ({ active }: DragStartEvent) =>
+    setActiveItem(readDraggedItem(active.data.current)?.item);
+
+  const handleDragCancel = () => setActiveItem(undefined);
+
+  const dropItem = ({ active, over }: DragEndEvent) => {
+    const dragged = readDraggedItem(active.data.current);
+    const toShopId = readDropShopId(over?.data.current);
+    const from = allShops.find(({ id }) => id === dragged?.fromShopId);
+    const to = allShops.find(({ id }) => id === toShopId);
+    if (dragged !== undefined && from !== undefined && to !== undefined) {
+      const latest = itemList.find(({ id }) => id === dragged.item.id) ?? dragged.item;
+      moveItem({ item: latest, from, to });
+    }
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveItem(undefined);
+    if (readDraggedItem(active.data.current) !== undefined) {
+      dropItem(event);
+      return;
+    }
     if (over === null || active.id === over.id) {
       return;
     }
     const ids = shopList.map(({ id }) => id);
     const reordered = arrayMove(ids, ids.indexOf(String(active.id)), ids.indexOf(String(over.id)));
-    queryClient.setQueryData<Shop[]>([SHOPS_QUERY_KEY], (current) =>
-      reordered.flatMap((id) => current?.find((shop) => shop.id === id) ?? []),
-    );
+    updateShops({
+      update: (current) => reordered.flatMap((id) => current.find((shop) => shop.id === id) ?? []),
+    });
     reorder.mutate(reordered);
   };
 
@@ -83,8 +113,12 @@ export const useHome = (): HomeState => {
     reorderable: grouped.sections.filter(({ shop }) => shop.id !== UNSORTED_SHOP_ID),
     unsorted: grouped.sections.find(({ shop }) => shop.id === UNSORTED_SHOP_ID),
     sensors,
+    handleDragStart,
     handleDragEnd,
-    allShops: [UNSORTED_SHOP, ...shopList],
+    handleDragCancel,
+    activeItem,
+    canDragItems: dragFlag && focusedId === undefined,
+    allShops,
     hasItems: itemList.length > 0,
     isLoading: isPending && !hasSettled,
     isEmpty: shops.isSuccess && items.isSuccess && itemList.length === 0,

@@ -1,5 +1,3 @@
-import { UNSORTED_SHOP_ID } from '@fridgeboard/contract/lists/constants';
-import { shopIdsOf } from '../../../../utils/shopIdsOf/index.ts';
 import { HistoryItemSchema } from '../../../../utils/items/historyItem/index.ts';
 import { jsonResponse } from '../../../../utils/jsonResponse/index.ts';
 import { HOUSEHOLD_PK_PREFIX } from '../../../../utils/keys/constants.ts';
@@ -19,10 +17,7 @@ export const listHistory = async ({ table, scope }: ListRouteContext) => {
   );
   return jsonResponse(200, {
     entries: entries
-      .map(({ name, shopIds, shopId, count }) => {
-        const shops = shopIdsOf({ shopIds, shopId });
-        return { name, shopIds: shops, shopId: shops[0] ?? UNSORTED_SHOP_ID, count };
-      })
+      .map(({ name, shopIds, count }) => ({ name, shopIds: shopIds ?? [], count }))
       .sort((a, b) => b.count - a.count),
   });
 };

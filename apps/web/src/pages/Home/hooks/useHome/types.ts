@@ -1,4 +1,4 @@
-import type { DragEndEvent, SensorDescriptor, SensorOptions } from '@dnd-kit/core';
+import type { DragEndEvent, DragStartEvent, SensorDescriptor, SensorOptions } from '@dnd-kit/core';
 import type { UseOverlayStateReturn } from '@heroui/react';
 import type {
   Shop,
@@ -17,7 +17,11 @@ export type HomeState = {
   reorderable: ShopSectionData[];
   unsorted: ShopSectionData | undefined;
   sensors: SensorDescriptor<SensorOptions>[];
+  handleDragStart: (event: DragStartEvent) => void;
   handleDragEnd: (event: DragEndEvent) => void;
+  handleDragCancel: () => void;
+  activeItem: ListItem | undefined;
+  canDragItems: boolean;
   allShops: Shop[];
   hasItems: boolean;
   isLoading: boolean;

@@ -3,6 +3,7 @@ import type { ApiResult } from '../../services/api/sendJson/types';
 import { MutationName, WebService } from '../../services/configuration/schema/constants';
 import { PATCH } from '../../services/session/constants';
 import type { ItemChanges } from '../../services/shoppingList/types';
+import { ITEM_FAILURE_COPY } from '../../services/shoppingList/constants';
 import { useApiMutation } from '../useApiMutation';
 import { useInvalidateQueries } from '../useInvalidateQueries';
 import { ITEMS_QUERY_KEY } from '../useItemsQuery/constants';
@@ -24,6 +25,7 @@ export const useUpdateItemMutation = (): MutationResult<ApiResult<IListItem, nev
     toBody: ({ changes }: Variables) => changes,
     toParams: ({ id }) => paramsFor({ itemId: id }),
     reasons: [],
+    failureMessage: ITEM_FAILURE_COPY.update,
     onSuccess: (saved) => {
       updateItems({
         update: (items) => items.map((item) => (item.id === saved.id ? saved : item)),

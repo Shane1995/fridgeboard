@@ -1,7 +1,8 @@
+import { Checkbox, Label } from '@heroui/react';
 import { Plus } from 'lucide-react';
 import { ITEM_NAME_MAX_LENGTH } from '../../services/shoppingList/constants';
 import { useAutoFocus } from '../../hooks/useAutoFocus';
-import { ShopPicker } from '../ShopPicker';
+import { ShopAssigner } from '../ShopAssigner';
 import { ADD_ITEM_COPY } from './constants';
 import { useAddItemForm } from './hooks/useAddItemForm';
 
@@ -13,8 +14,11 @@ export const AddItemForm = ({ focusedShopId }: AddItemFormProps) => {
     setName,
     highlighted,
     handleKeyDown,
-    shopId,
-    setShopId,
+    shopIds,
+    setShopIds,
+    canSeparate,
+    separate,
+    setSeparate,
     shops,
     suggestions,
     pickSuggestion,
@@ -39,7 +43,7 @@ export const AddItemForm = ({ focusedShopId }: AddItemFormProps) => {
           onKeyDown={handleKeyDown}
           className="min-w-0 flex-1 bg-transparent py-1 text-base outline-none placeholder:opacity-40 md:py-2 md:text-lg"
         />
-        <ShopPicker shops={shops} shopId={shopId} onChange={setShopId} />
+        <ShopAssigner shops={shops} selectedIds={shopIds} onChange={setShopIds} />
         <button
           type="submit"
           aria-label={ADD_ITEM_COPY.submit}
@@ -49,6 +53,19 @@ export const AddItemForm = ({ focusedShopId }: AddItemFormProps) => {
           <Plus aria-hidden size={18} />
         </button>
       </form>
+      {canSeparate && (
+        <div className="mt-3 flex flex-col gap-1">
+          <Checkbox isSelected={separate} onChange={setSeparate}>
+            <Checkbox.Control>
+              <Checkbox.Indicator />
+            </Checkbox.Control>
+            <Checkbox.Content>
+              <Label>{ADD_ITEM_COPY.separate}</Label>
+            </Checkbox.Content>
+          </Checkbox>
+          <span className="text-xs opacity-60">{ADD_ITEM_COPY.separateHint}</span>
+        </div>
+      )}
       {suggestions.length > 0 && (
         <ul
           aria-label={ADD_ITEM_COPY.suggestions}

@@ -3,5 +3,7 @@ export const ADD_ITEM_COPY = {
   placeholder: 'Add an item',
   shopLabel: 'Shop',
   submit: 'Add',
+  separate: 'Separate item for each shop',
+  separateHint: 'Off: one item that ticks off in every shop.',
   suggestions: 'Suggestions',
 } as const;

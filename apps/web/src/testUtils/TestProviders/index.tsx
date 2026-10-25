@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { RemoteConfigContext } from '../../Context/RemoteConfig/context';
 import { SessionContext } from '../../Context/Session';
+import { ToastProvider } from '../../Context/Toast';
 import { TEST_WEB_CONFIGURATION } from '../webConfiguration';
 import type { TestProvidersProps } from './types';
 
@@ -15,7 +16,9 @@ export const TestProviders = ({
   return (
     <RemoteConfigContext.Provider value={config}>
       <SessionContext.Provider value={session}>
-        <QueryClientProvider client={client ?? ownClient}>{children}</QueryClientProvider>
+        <QueryClientProvider client={client ?? ownClient}>
+          <ToastProvider>{children}</ToastProvider>
+        </QueryClientProvider>
       </SessionContext.Provider>
     </RemoteConfigContext.Provider>
   );

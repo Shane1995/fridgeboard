@@ -14,7 +14,6 @@ const ITEM = {
   id: 'i1',
   name: 'Milk',
   shopIds: [],
-  shopId: 'unsorted',
   checked: false,
   createdAt: 1,
   addedBy: 'sub-1',

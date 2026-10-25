@@ -18,6 +18,9 @@ const { session } = createSession(SessionStatus.SignedOut);
 const stubDisplayMode = (standalone: boolean) =>
   vi.stubGlobal('matchMedia', (query: string) => ({
     matches: standalone && query.includes('standalone'),
+    media: query,
+    addEventListener: () => undefined,
+    removeEventListener: () => undefined,
   }));
 
 const renderJoin = () => {

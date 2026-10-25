@@ -1,7 +1,6 @@
 import type { ApiResult } from '../../services/api/sendJson/types';
 import { MutationName, WebService } from '../../services/configuration/schema/constants';
 import { DELETE } from '../../services/session/constants';
-import { UNSORTED_SHOP_ID } from '../../services/shoppingList/constants';
 import { useApiMutation } from '../useApiMutation';
 import { useListCache } from '../useListCache';
 import { useListParams } from '../useListParams';
@@ -26,7 +25,6 @@ export const useDeleteShopMutation = (): MutationResult<ApiResult<undefined, nev
               ? {
                   ...item,
                   shopIds: item.shopIds.filter((shopId) => shopId !== id),
-                  shopId: item.shopIds.find((shopId) => shopId !== id) ?? UNSORTED_SHOP_ID,
                 }
               : item,
           ),

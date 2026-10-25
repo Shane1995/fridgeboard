@@ -28,7 +28,7 @@ export const SortableShop = ({ id, name, children }: SortableShopProps) => {
         ref={setActivatorNodeRef}
         type="button"
         aria-label={`${SORTABLE_SHOP_COPY.handle}: ${name}`}
-        className="absolute top-0.5 right-12 flex size-11 cursor-grab touch-none items-center justify-center rounded-full opacity-40 outline-none hover:opacity-100 active:cursor-grabbing"
+        className="absolute top-1 right-12 flex size-11 cursor-grab touch-none items-center justify-center rounded-full opacity-40 outline-none hover:opacity-100 active:cursor-grabbing"
         {...attributes}
         {...listeners}
       >

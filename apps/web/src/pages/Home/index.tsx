@@ -1,13 +1,16 @@
-import { closestCenter, DndContext } from '@dnd-kit/core';
+import { DndContext, DragOverlay } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Button } from '@heroui/react';
 import { Plus } from 'lucide-react';
 import { AddItemForm } from '../../components/AddItemForm';
 import { ShopDialog } from '../../components/ShopDialog';
 import { ShopFilter } from '../../components/ShopFilter';
+import { ShopCard } from '../../components/ShopCard';
 import { ShopSection } from '../../components/ShopSection';
+import { ItemDragPreview } from '../../components/ItemDragPreview';
 import { ItemRow } from '../../components/ItemRow';
-import { restrictToVerticalAxis } from '../../utils/restrictToVerticalAxis';
+import { detectShopCollisions } from '../../utils/detectShopCollisions';
+import { restrictShopDragToVerticalAxis } from '../../utils/restrictShopDragToVerticalAxis';
 import { SortableShop } from '../../components/SortableShop';
 import { PageHeader } from '../../components/PageHeader';
 import { Typography } from '../../components/Typography';
@@ -27,7 +30,11 @@ export const Home = () => {
     reorderable,
     unsorted,
     sensors,
+    handleDragStart,
     handleDragEnd,
+    handleDragCancel,
+    activeItem,
+    canDragItems,
     allShops,
     isEmpty,
     isLoading,
@@ -51,28 +58,31 @@ export const Home = () => {
       {hasError && <Typography>{HOME_COPY.loadFailed}</Typography>}
       {isEmpty && <Typography>{HOME_COPY.empty}</Typography>}
       {focusedId === undefined ? (
-        <>
-          {unsorted && <ShopSection section={unsorted} allShops={allShops} />}
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            modifiers={[restrictToVerticalAxis]}
-            onDragEnd={handleDragEnd}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={detectShopCollisions}
+          modifiers={[restrictShopDragToVerticalAxis]}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onDragCancel={handleDragCancel}
+        >
+          {unsorted && <ShopCard section={unsorted} allShops={allShops} draggable={canDragItems} />}
+          <SortableContext
+            items={reorderable.map(({ shop }) => shop.id)}
+            strategy={verticalListSortingStrategy}
           >
-            <SortableContext
-              items={reorderable.map(({ shop }) => shop.id)}
-              strategy={verticalListSortingStrategy}
-            >
-              <div className="flex flex-col gap-7">
-                {reorderable.map((section) => (
-                  <SortableShop key={section.shop.id} id={section.shop.id} name={section.shop.name}>
-                    <ShopSection section={section} allShops={allShops} />
-                  </SortableShop>
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
-        </>
+            <div className="flex flex-col gap-7">
+              {reorderable.map((section) => (
+                <SortableShop key={section.shop.id} id={section.shop.id} name={section.shop.name}>
+                  <ShopCard section={section} allShops={allShops} draggable={canDragItems} />
+                </SortableShop>
+              ))}
+            </div>
+          </SortableContext>
+          <DragOverlay>
+            {activeItem && <ItemDragPreview item={activeItem} shops={allShops} />}
+          </DragOverlay>
+        </DndContext>
       ) : (
         <>
           {visibleSections.map((section) => (

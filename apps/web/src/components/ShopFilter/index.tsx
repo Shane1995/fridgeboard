@@ -1,5 +1,5 @@
 import type { ShopSectionData } from '../../services/shoppingList/types';
-import { SHOP_COLOR_CLASSES } from '../ShopSwatch/constants';
+import { ShopSwatch } from '../ShopSwatch';
 import { SHOP_FILTER_COPY } from './constants';
 
 type ShopFilterProps = {
@@ -43,7 +43,7 @@ export const ShopFilter = ({ sections, focusedId, onSelect }: ShopFilterProps) =
           onClick={() => onSelect(shop.id)}
           className={chipClass(focusedId === shop.id)}
         >
-          <span aria-hidden className={`size-2.5 rounded-full ${SHOP_COLOR_CLASSES[shop.color]}`} />
+          <ShopSwatch color={shop.color} name={shop.name} />
           {shop.name}
           <span className="opacity-60">{items.length}</span>
         </button>

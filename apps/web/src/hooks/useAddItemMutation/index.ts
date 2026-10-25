@@ -3,6 +3,7 @@ import type { ApiResult } from '../../services/api/sendJson/types';
 import { MutationName, WebService } from '../../services/configuration/schema/constants';
 import { POST } from '../../services/session/constants';
 import type { NewItem } from '../../services/shoppingList/types';
+import { ITEM_FAILURE_COPY } from '../../services/shoppingList/constants';
 import { useApiMutation } from '../useApiMutation';
 import { useInvalidateQueries } from '../useInvalidateQueries';
 import { useListCache } from '../useListCache';
@@ -21,6 +22,7 @@ export const useAddItemMutation = (): MutationResult<ApiResult<IListItem, never>
     toBody: ({ name, shopIds }: NewItem) => ({ name, shopIds }),
     toParams: () => paramsFor(),
     reasons: [],
+    failureMessage: ITEM_FAILURE_COPY.add,
     onSuccess: (added) => {
       updateItems({ update: (items) => [...items, added] });
       void invalidate({ keys: [SUGGESTIONS_QUERY_KEY], refetchType: 'none' });

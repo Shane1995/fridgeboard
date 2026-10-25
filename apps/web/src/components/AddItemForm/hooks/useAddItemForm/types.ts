@@ -6,8 +6,11 @@ export type AddItemFormState = {
   setName: (name: string) => void;
   highlighted: number;
   handleKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
-  shopId: string;
-  setShopId: (shopId: string) => void;
+  shopIds: string[];
+  setShopIds: (shopIds: string[]) => void;
+  canSeparate: boolean;
+  separate: boolean;
+  setSeparate: (separate: boolean) => void;
   shops: Shop[];
   suggestions: HistoryEntry[];
   pickSuggestion: (suggestion: HistoryEntry) => void;
