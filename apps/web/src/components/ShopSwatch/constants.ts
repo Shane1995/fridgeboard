@@ -10,10 +10,11 @@ export const SHOP_COLOR_CLASSES: Record<ShopColor, string> = {
   [ShopColor.Slate]: 'bg-[#6b7885]',
 };
 
-export type SwatchSize = 'sm' | 'lg';
+export type SwatchSize = 'sm' | 'md' | 'lg';
 
 export const SWATCH_SIZE_CLASSES: Record<SwatchSize, string> = {
   sm: 'size-3',
+  md: 'size-5',
   lg: 'size-8',
 };
 

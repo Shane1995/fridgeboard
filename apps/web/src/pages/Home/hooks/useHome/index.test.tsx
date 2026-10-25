@@ -1,7 +1,12 @@
-import { act, renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, screen, waitFor } from '@testing-library/react';
 import { ShopColor, UNSORTED_SHOP_ID } from '../../../../services/shoppingList/constants';
+import { WebFeatureFlag } from '../../../../services/configuration/schema/constants';
+import type { ListItem } from '../../../../services/shoppingList/types';
 import { fakeShoppingList } from '../../../../testUtils/fakeShoppingList';
-import { createShoppingListWrapper } from '../../../../testUtils/createShoppingListWrapper';
+import {
+  createShoppingListWrapper,
+  renderHookWithHousehold,
+} from '../../../../testUtils/createShoppingListWrapper';
 import { useHome } from './index';
 
 describe('useHome', () => {
@@ -59,7 +64,12 @@ describe('useHome', () => {
     const { result } = renderHook(() => useHome(), { wrapper: createShoppingListWrapper() });
     await waitFor(() => expect(result.current.reorderable).toHaveLength(2));
 
-    act(() => result.current.handleDragEnd({ active: { id: a.id }, over: { id: b.id } } as never));
+    act(() =>
+      result.current.handleDragEnd({
+        active: { id: a.id, data: { current: { type: 'shop' } } },
+        over: { id: b.id, data: { current: { type: 'shop' } } },
+      } as never),
+    );
 
     await waitFor(async () =>
       expect((await fakeShoppingList.listShops()).map(({ name }) => name)).toEqual(['B', 'A']),
@@ -73,8 +83,117 @@ describe('useHome', () => {
     const { result } = renderHook(() => useHome(), { wrapper: createShoppingListWrapper() });
     await waitFor(() => expect(result.current.reorderable).toHaveLength(2));
 
-    act(() => result.current.handleDragEnd({ active: { id: a.id }, over: null } as never));
+    act(() =>
+      result.current.handleDragEnd({
+        active: { id: a.id, data: { current: { type: 'shop' } } },
+        over: null,
+      } as never),
+    );
 
     expect(result.current.reorderable.map(({ shop }) => shop.name)).toEqual(['A', 'B']);
+  });
+
+  describe('dragging an item', () => {
+    const DRAG = { [WebFeatureFlag.ENABLE_ITEM_DRAG]: true };
+
+    const dragged = (item: ListItem, fromShopId: string) => ({
+      id: `item:${item.id}:${fromShopId}`,
+      data: { current: { type: 'item', item, fromShopId } },
+    });
+    const zone = (shopId: string) => ({
+      id: `drop:${shopId}`,
+      data: { current: { type: 'shop-drop', shopId } },
+    });
+
+    const setUp = async () => {
+      const tesco = await fakeShoppingList.createShop({ name: 'Tesco', color: ShopColor.Sky });
+      const aldi = await fakeShoppingList.createShop({ name: 'Aldi', color: ShopColor.Pink });
+      const tape = await fakeShoppingList.addItem({ name: 'Tape', shopIds: [] });
+      const apples = await fakeShoppingList.addItem({ name: 'Apples', shopIds: [tesco.id] });
+      const { result } = await renderHookWithHousehold(() => useHome(), { flags: DRAG });
+      await waitFor(() => expect(result.current.hasItems).toBe(true));
+      return { tesco, aldi, tape, apples, result };
+    };
+
+    it('only allows it when the flag is on and no single shop is being viewed', async () => {
+      const { result, tesco } = await setUp();
+      expect(result.current.canDragItems).toBe(true);
+
+      act(() => result.current.setFocus(tesco.id));
+
+      expect(result.current.canDragItems).toBe(false);
+    });
+
+    it('is off without the flag', async () => {
+      await fakeShoppingList.addItem({ name: 'Tape', shopIds: [] });
+      const { result } = await renderHookWithHousehold(() => useHome());
+      await waitFor(() => expect(result.current.hasItems).toBe(true));
+
+      expect(result.current.canDragItems).toBe(false);
+    });
+
+    it('remembers the item being dragged, and forgets it when the drag ends or is cancelled', async () => {
+      const { result, tape } = await setUp();
+
+      act(() => result.current.handleDragStart({ active: dragged(tape, 'unsorted') } as never));
+      expect(result.current.activeItem?.id).toBe(tape.id);
+      act(() => result.current.handleDragCancel());
+      expect(result.current.activeItem).toBeUndefined();
+
+      act(() => result.current.handleDragStart({ active: dragged(tape, 'unsorted') } as never));
+      act(() =>
+        result.current.handleDragEnd({ active: dragged(tape, 'unsorted'), over: null } as never),
+      );
+      expect(result.current.activeItem).toBeUndefined();
+    });
+
+    it('assigns an unassigned item to the shop it is dropped on', async () => {
+      const { result, tape, tesco } = await setUp();
+
+      act(() =>
+        result.current.handleDragEnd({
+          active: dragged(tape, 'unsorted'),
+          over: zone(tesco.id),
+        } as never),
+      );
+
+      await waitFor(async () =>
+        expect(
+          (await fakeShoppingList.listItems()).find(({ id }) => id === tape.id)?.shopIds,
+        ).toEqual([tesco.id]),
+      );
+    });
+
+    it('asks what to do when an item is dropped on a different shop', async () => {
+      const { result, apples, tesco, aldi } = await setUp();
+
+      act(() =>
+        result.current.handleDragEnd({
+          active: dragged(apples, tesco.id),
+          over: zone(aldi.id),
+        } as never),
+      );
+
+      expect(await screen.findByText('Apples is in Tesco')).toBeInTheDocument();
+    });
+
+    it('does nothing when dropped outside every card, or on a shop reorder target', async () => {
+      const { result, tape, tesco } = await setUp();
+
+      act(() =>
+        result.current.handleDragEnd({ active: dragged(tape, 'unsorted'), over: null } as never),
+      );
+      act(() =>
+        result.current.handleDragEnd({
+          active: dragged(tape, 'unsorted'),
+          over: { id: tesco.id, data: { current: { type: 'shop' } } },
+        } as never),
+      );
+
+      expect(
+        (await fakeShoppingList.listItems()).find(({ id }) => id === tape.id)?.shopIds,
+      ).toEqual([]);
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
   });
 });

@@ -9,8 +9,11 @@ export const ToastProvider = ({ children }: PropsWithChildren) => {
   const [queue] = useState(() => new ToastQueue<ToastContent>());
   const api = useMemo<ToastApi>(
     () => ({
-      success: (title) => {
-        queue.add({ title, variant: 'success' }, { timeout: TOAST_TIMEOUT_MS.success });
+      success: (title, action) => {
+        queue.add(
+          { title, variant: 'success', actions: action === undefined ? undefined : [action] },
+          { timeout: action === undefined ? TOAST_TIMEOUT_MS.success : TOAST_TIMEOUT_MS.undo },
+        );
       },
       error: (title) => {
         queue.add({ title, variant: 'danger' }, { timeout: TOAST_TIMEOUT_MS.error });

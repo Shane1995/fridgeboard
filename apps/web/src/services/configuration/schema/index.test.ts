@@ -209,6 +209,7 @@ describe('web configuration schema', () => {
     featureFlags: {
       ENABLE_ADMIN_INVITES: false,
       ENABLE_HOUSEHOLD_INVITES: false,
+      ENABLE_ITEM_DRAG: false,
       ENABLE_PASSKEYS: true,
     },
     mutations: { default: { retry: 0, timeoutMs: 10_000 } },

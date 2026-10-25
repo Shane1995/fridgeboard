@@ -1,5 +1,7 @@
 import { Checkbox, Dropdown } from '@heroui/react';
 import { Ellipsis } from 'lucide-react';
+import type { ReactNode, Ref } from 'react';
+import { UNSORTED_SHOP_ID } from '../../services/shoppingList/constants';
 import type { Shop, ListItem } from '../../services/shoppingList/types';
 import { ItemInfoDialog } from '../ItemInfoDialog';
 import { ShopSwatch } from '../ShopSwatch';
@@ -9,14 +11,29 @@ import {
   EDIT_MAX_LENGTH,
   INFO_ACTION,
   ITEM_ROW_COPY,
+  MAX_SHOP_BADGES,
   SHOPS_ACTION,
   SPLIT_ACTION,
 } from './constants';
 import { useItemRow } from './hooks/useItemRow';
 
-type ItemRowProps = { item: ListItem; shops: readonly Shop[] };
+type ItemRowProps = {
+  item: ListItem;
+  shops: readonly Shop[];
+  shopId?: string;
+  rowRef?: Ref<HTMLLIElement>;
+  handle?: ReactNode;
+  isDragging?: boolean;
+};
 
-export const ItemRow = ({ item, shops }: ItemRowProps) => {
+export const ItemRow = ({
+  item,
+  shops,
+  shopId,
+  rowRef,
+  handle,
+  isDragging = false,
+}: ItemRowProps) => {
   const {
     infoDialog,
     isEditing,
@@ -31,9 +48,15 @@ export const ItemRow = ({ item, shops }: ItemRowProps) => {
     duplicateCount,
     handleMenuAction,
   } = useItemRow(item);
+  const elsewhere = shops.filter(
+    ({ id }) => id !== UNSORTED_SHOP_ID && id !== shopId && item.shopIds.includes(id),
+  );
 
   return (
-    <li className="flex items-center gap-3 py-3 text-base">
+    <li
+      ref={rowRef}
+      className={`flex items-center gap-3 py-3 text-base ${isDragging ? 'opacity-40' : ''}`}
+    >
       <Checkbox aria-label={item.name} isSelected={item.checked} onChange={toggle}>
         <Checkbox.Content>
           <Checkbox.Control>
@@ -63,6 +86,23 @@ export const ItemRow = ({ item, shops }: ItemRowProps) => {
           {item.name}
         </button>
       )}
+      {elsewhere.length > 0 && (
+        <span
+          role="img"
+          aria-label={ITEM_ROW_COPY.alsoIn(elsewhere.map(({ name }) => name))}
+          className="flex shrink-0 items-center -space-x-1"
+        >
+          {elsewhere.slice(0, MAX_SHOP_BADGES).map(({ id, name, color }) => (
+            <span key={id} className="rounded-full ring-2 ring-white">
+              <ShopSwatch color={color} name={name} />
+            </span>
+          ))}
+          {elsewhere.length > MAX_SHOP_BADGES && (
+            <span className="pl-2 text-xs opacity-60">+{elsewhere.length - MAX_SHOP_BADGES}</span>
+          )}
+        </span>
+      )}
+      {handle}
       <Dropdown>
         <Dropdown.Trigger
           aria-label={ITEM_ROW_COPY.menu}
@@ -92,7 +132,7 @@ export const ItemRow = ({ item, shops }: ItemRowProps) => {
                   >
                     {shops.map(({ id, name, color }) => (
                       <Dropdown.Item key={id} id={id} textValue={name}>
-                        <ShopSwatch color={color} />
+                        <ShopSwatch color={color} name={name} />
                         {name}
                         <Dropdown.ItemIndicator />
                       </Dropdown.Item>

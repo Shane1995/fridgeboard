@@ -19,7 +19,7 @@ describe('ShopSectionSkeleton', () => {
     const tagged = render(<ShopSectionSkeleton rows={1} tagged />).container;
 
     expect(tagged.querySelectorAll('.skeleton').length).toBe(
-      plain.querySelectorAll('.skeleton').length + 1,
+      plain.querySelectorAll('.skeleton').length + 2,
     );
   });
 

@@ -14,6 +14,10 @@ import { createSession } from '../../testUtils/createSession';
 import { TEST_HOUSEHOLD_ID } from '../../testUtils/fakeShoppingList/constants';
 import { answerHouseholds } from '../../testUtils/createShoppingListWrapper';
 import { TestProviders } from '../../testUtils/TestProviders';
+import { fakeShoppingList } from '../../testUtils/fakeShoppingList';
+import { ShopColor } from '../../services/shoppingList/constants';
+import { WebFeatureFlag } from '../../services/configuration/schema/constants';
+import { TEST_WEB_CONFIGURATION } from '../../testUtils/webConfiguration';
 import { SessionStatus } from '../../services/session/constants';
 
 const fixture = createSession(SessionStatus.SignedIn);
@@ -36,6 +40,14 @@ const answerHouseholdsThen = (listAnswer: () => Promise<Response>) =>
 
 const SKELETON_ROWS = 3;
 
+const withDragFlag = (enabled: boolean) => ({
+  ...TEST_WEB_CONFIGURATION,
+  featureFlags: {
+    ...TEST_WEB_CONFIGURATION.featureFlags,
+    [WebFeatureFlag.ENABLE_ITEM_DRAG]: enabled,
+  },
+});
+
 const toggleShop = async (name: string) => {
   fireEvent.click(screen.getByRole('button', { name: /^Assign to shops/ }));
   const item = await screen.findByRole('menuitemcheckbox', { name });
@@ -43,7 +55,7 @@ const toggleShop = async (name: string) => {
   fireEvent.keyUp(item, { key: 'Enter' });
 };
 
-const renderHome = () => {
+const renderHome = (config = TEST_WEB_CONFIGURATION) => {
   const rootRoute = createRootRoute();
   const homeRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: Home });
   const signInRoute = createRoute({
@@ -56,7 +68,7 @@ const renderHome = () => {
     history: createMemoryHistory({ initialEntries: ['/'] }),
   });
   render(
-    <TestProviders session={session} client={queryClient}>
+    <TestProviders session={session} client={queryClient} config={config}>
       <RouterProvider router={router} />
     </TestProviders>,
   );
@@ -138,6 +150,52 @@ describe('Home', () => {
       await screen.findByText(HOME_COPY.loadFailed, undefined, { timeout: 4000 }),
     ).toBeInTheDocument();
     expect(screen.queryByRole('status', { name: HOME_COPY.loading })).not.toBeInTheDocument();
+  });
+
+  describe('dragging items between shops', () => {
+    const seed = async () => {
+      const tesco = await fakeShoppingList.createShop({ name: 'Tesco', color: ShopColor.Sky });
+      await fakeShoppingList.addItem({ name: 'Tape', shopIds: [] });
+      await fakeShoppingList.addItem({ name: 'Apples', shopIds: [tesco.id] });
+      const milk = await fakeShoppingList.addItem({ name: 'Milk', shopIds: [] });
+      await fakeShoppingList.updateItem({ id: milk.id, changes: { checked: true } });
+    };
+
+    it('puts a grip handle on every item still to get, but not on ticked ones', async () => {
+      await seed();
+      renderHome(withDragFlag(true));
+
+      expect(await screen.findAllByTestId('item-drag-handle')).toHaveLength(2);
+    });
+
+    it('has no grip handles while the flag is off', async () => {
+      await seed();
+      renderHome(withDragFlag(false));
+
+      await screen.findByRole('checkbox', { name: 'Tape' });
+      expect(screen.queryByTestId('item-drag-handle')).not.toBeInTheDocument();
+    });
+
+    it('has no grip handles while a single shop is being viewed', async () => {
+      await seed();
+      renderHome(withDragFlag(true));
+      fireEvent.click(await screen.findByRole('button', { name: 'Tesco, 1' }));
+
+      await screen.findByRole('checkbox', { name: 'Apples' });
+      expect(screen.queryByTestId('item-drag-handle')).not.toBeInTheDocument();
+    });
+
+    it('shows an item in a second shop on both cards, with where else it can be got', async () => {
+      const tesco = await fakeShoppingList.createShop({ name: 'Tesco', color: ShopColor.Sky });
+      const aldi = await fakeShoppingList.createShop({ name: 'Aldi', color: ShopColor.Pink });
+      await fakeShoppingList.addItem({ name: 'Apples', shopIds: [tesco.id, aldi.id] });
+      renderHome(withDragFlag(true));
+
+      await screen.findByRole('region', { name: 'Tesco' });
+      expect(screen.getAllByRole('checkbox', { name: 'Apples' })).toHaveLength(2);
+      expect(screen.getByRole('img', { name: 'Also in Aldi' })).toBeInTheDocument();
+      expect(screen.getByRole('img', { name: 'Also in Tesco' })).toBeInTheDocument();
+    });
   });
 
   it('removes the skeleton once the list has loaded', async () => {

@@ -2,11 +2,13 @@ import { QueryClient } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { useActiveHousehold } from '../../hooks/useActiveHousehold';
+import { WebFeatureFlag } from '../../services/configuration/schema/constants';
 import { SessionStatus } from '../../services/session/constants';
 import { createSession } from '../createSession';
 import { fakeShoppingListApi } from '../fakeShoppingListApi';
 import { TEST_HOUSEHOLD_ID } from '../fakeShoppingList/constants';
 import { TestProviders } from '../TestProviders';
+import { TEST_WEB_CONFIGURATION } from '../webConfiguration';
 
 export const answerHouseholds = (apiFetch: { mockImplementation: (fn: never) => unknown }) =>
   apiFetch.mockImplementation((async (
@@ -28,9 +30,15 @@ export const answerHouseholds = (apiFetch: { mockImplementation: (fn: never) => 
     return fakeShoppingListApi(endpoint, init);
   }) as never);
 
-type ShoppingListWrapperOptions = { failMethod?: string };
+type ShoppingListWrapperOptions = {
+  failMethod?: string;
+  flags?: Partial<Record<WebFeatureFlag, boolean>>;
+};
 
-export const createShoppingListWrapper = ({ failMethod }: ShoppingListWrapperOptions = {}) => {
+export const createShoppingListWrapper = ({
+  failMethod,
+  flags = {},
+}: ShoppingListWrapperOptions = {}) => {
   const client = new QueryClient();
   const { session, apiFetch } = createSession(SessionStatus.SignedIn);
   answerHouseholds(apiFetch);
@@ -41,8 +49,12 @@ export const createShoppingListWrapper = ({ failMethod }: ShoppingListWrapperOpt
         ? new Response('{}', { status: 500 })
         : answer?.(endpoint as never, init)) as never);
   }
+  const config = {
+    ...TEST_WEB_CONFIGURATION,
+    featureFlags: { ...TEST_WEB_CONFIGURATION.featureFlags, ...flags },
+  };
   const wrapper = ({ children }: { children: ReactNode }) => (
-    <TestProviders session={session} client={client}>
+    <TestProviders session={session} client={client} config={config}>
       {children}
     </TestProviders>
   );

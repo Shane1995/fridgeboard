@@ -6,12 +6,14 @@ export const DELETE_ACTION = 'delete';
 export const SPLIT_ACTION = 'split';
 export const COMBINE_ACTION = 'combine';
 export const EDIT_MAX_LENGTH = ITEM_NAME_MAX_LENGTH;
+export const MAX_SHOP_BADGES = 3;
 
 export const ITEM_ROW_COPY = {
   menu: 'Item options',
   edit: 'Edit item',
   info: 'Info',
   shops: 'Shops',
+  alsoIn: (names: string[]) => `Also in ${names.join(', ')}`,
   split: 'Split by shop',
   combine: (others: number) => `Combine with ${others} other${others === 1 ? '' : 's'}`,
   delete: 'Delete',

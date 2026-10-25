@@ -56,6 +56,63 @@ describe('ItemRow', () => {
     expect(screen.getByRole('menuitem', { name: ITEM_ROW_COPY.delete })).toBeInTheDocument();
   });
 
+  describe('where else the item can be got', () => {
+    const SAINSBURYS: Shop = { id: 'b3', name: 'Sainsburys', color: ShopColor.Mustard, order: 2 };
+    const ALDI: Shop = { id: 'b4', name: 'Aldi', color: ShopColor.Pink, order: 3 };
+    const TESCO: Shop = { id: 'b5', name: 'Tesco', color: ShopColor.Grape, order: 4 };
+    const MARKET: Shop = { id: 'b2', name: 'Market', color: ShopColor.Sky, order: 1 };
+    const ALL = [EXPRESS, MARKET, SAINSBURYS, ALDI, TESCO];
+
+    const renderIn = (item: ListItem, shopId?: string) => {
+      const Wrapper = createShoppingListWrapper();
+      render(
+        <Wrapper>
+          <ul>
+            <ItemRow item={item} shops={ALL} {...(shopId === undefined ? {} : { shopId })} />
+          </ul>
+        </Wrapper>,
+      );
+    };
+
+    it('shows the other shops an item is in, not the one it is listed under', () => {
+      renderIn({ ...ITEM, shopIds: ['b1', 'b2'] }, 'b1');
+
+      expect(
+        screen.getByRole('img', { name: ITEM_ROW_COPY.alsoIn(['Market']) }),
+      ).toBeInTheDocument();
+    });
+
+    it('shows nothing extra for an item that is only in the shop it is listed under', () => {
+      renderIn({ ...ITEM, shopIds: ['b1'] }, 'b1');
+
+      expect(screen.queryByRole('img')).not.toBeInTheDocument();
+    });
+
+    it('shows every shop when the row is not listed under one, like the ticked list', () => {
+      renderIn({ ...ITEM, shopIds: ['b1', 'b2'] });
+
+      expect(
+        screen.getByRole('img', { name: ITEM_ROW_COPY.alsoIn(['Express', 'Market']) }),
+      ).toBeInTheDocument();
+    });
+
+    it('shows a count for the shops that do not fit', () => {
+      renderIn({ ...ITEM, shopIds: ['b1', 'b2', 'b3', 'b4', 'b5'] }, 'b1');
+
+      expect(
+        screen.getByRole('img', {
+          name: ITEM_ROW_COPY.alsoIn(['Market', 'Sainsburys', 'Aldi', 'Tesco']),
+        }),
+      ).toHaveTextContent('+1');
+    });
+
+    it('ignores a shop that no longer exists', () => {
+      renderIn({ ...ITEM, shopIds: ['b1', 'gone'] }, 'b1');
+
+      expect(screen.queryByRole('img')).not.toBeInTheDocument();
+    });
+  });
+
   describe('splitting and combining', () => {
     const MARKET: Shop = { id: 'b2', name: 'Market', color: ShopColor.Sky, order: 1 };
 

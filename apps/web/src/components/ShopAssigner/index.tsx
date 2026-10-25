@@ -21,8 +21,10 @@ export const ShopAssigner = ({ shops, selectedIds, onChange }: ShopAssignerProps
         {picked.length === 0 && <Store aria-hidden size={16} className="shrink-0 opacity-60" />}
         {picked.length > 0 && (
           <span className="flex shrink-0 -space-x-1">
-            {picked.slice(0, MAX_SWATCHES).map(({ id, color }) => (
-              <ShopSwatch key={id} color={color} />
+            {picked.slice(0, MAX_SWATCHES).map(({ id, color, name }) => (
+              <span key={id} className="rounded-full ring-2 ring-white">
+                <ShopSwatch color={color} name={name} />
+              </span>
             ))}
           </span>
         )}
@@ -47,7 +49,7 @@ export const ShopAssigner = ({ shops, selectedIds, onChange }: ShopAssignerProps
           ) : (
             shops.map(({ id, name, color }) => (
               <Dropdown.Item key={id} id={id} textValue={name}>
-                <ShopSwatch color={color} />
+                <ShopSwatch color={color} name={name} />
                 {name}
                 <Dropdown.ItemIndicator />
               </Dropdown.Item>

@@ -14,7 +14,7 @@ export type ConfirmOptions = {
 };
 
 export type ToastApi = {
-  success: (message: string) => void;
+  success: (message: string, action?: ToastAction) => void;
   error: (message: string) => void;
   confirm: (options: ConfirmOptions) => void;
 };
