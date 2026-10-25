@@ -6,6 +6,13 @@ export enum ShopColor {
   Grape = 'grape',
   Pink = 'pink',
   Slate = 'slate',
+  Black = 'black',
+  Forest = 'forest',
+  Lime = 'lime',
+  Orange = 'orange',
+  Navy = 'navy',
+  Cyan = 'cyan',
+  Yellow = 'yellow',
 }
 
 export const UNSORTED_SHOP_ID = 'unsorted';
