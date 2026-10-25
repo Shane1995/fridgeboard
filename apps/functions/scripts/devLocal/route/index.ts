@@ -17,6 +17,7 @@ import type { RouteDefinition, RouteEntry } from './types.ts';
 const DEFINITIONS: RouteDefinition[] = [
   { method: 'GET', service: WebService.me, jwt: true, handler: me },
   { method: 'GET', service: WebService.onboarding, jwt: true, handler: onboarding },
+  { method: 'POST', service: WebService.onboardingSkip, jwt: true, handler: onboarding },
   { method: 'PUT', service: WebService.username, jwt: true, handler: username },
   { method: 'GET', service: WebService.households, jwt: true, handler: households },
   { method: 'POST', service: WebService.households, jwt: true, handler: households },

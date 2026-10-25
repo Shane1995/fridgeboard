@@ -22,6 +22,7 @@ export enum WebService {
   listItems = 'listItems',
   me = 'me',
   onboarding = 'onboarding',
+  onboardingSkip = 'onboardingSkip',
   households = 'households',
   passkeyStart = 'passkeyStart',
   passkeyVerify = 'passkeyVerify',

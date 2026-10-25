@@ -1,6 +1,11 @@
 import type { IOnboardingSection } from '@fridgeboard/contract/onboarding';
-import { OnboardingSectionId } from './constants.ts';
+import { OnboardingSectionId, SKIPPABLE_SECTIONS } from './constants.ts';
 import type { OnboardingInput } from './types.ts';
+
+const toSection = (id: OnboardingSectionId): IOnboardingSection => ({
+  id,
+  skippable: SKIPPABLE_SECTIONS.has(id),
+});
 
 // The sections the user still has to complete, in order. Add a rule here to require a new setup step.
 export const buildOnboarding = ({
@@ -8,11 +13,15 @@ export const buildOnboarding = ({
   canCreateHousehold,
   isAdmin,
   hasHousehold,
+  skippedSections,
 }: OnboardingInput): IOnboardingSection[] => {
   const mayCreate = canCreateHousehold || isAdmin;
-  return [
-    ...(username === null ? [{ id: OnboardingSectionId.Username }] : []),
-    ...(mayCreate && !hasHousehold ? [{ id: OnboardingSectionId.Household }] : []),
-    ...(!mayCreate && !hasHousehold ? [{ id: OnboardingSectionId.NeedsInvite }] : []),
+  const pending = [
+    ...(username === null ? [OnboardingSectionId.Username] : []),
+    ...(mayCreate && !hasHousehold ? [OnboardingSectionId.Household] : []),
+    ...(!mayCreate && !hasHousehold ? [OnboardingSectionId.NeedsInvite] : []),
   ];
+  return pending
+    .map(toSection)
+    .filter(({ id, skippable }) => !(skippable && skippedSections.includes(id)));
 };

@@ -27,8 +27,8 @@ describe('onboarding handler against DynamoDB Local', () => {
     await put({ ...profileKey(sub), email: 'a@x.com', canCreateHousehold: true });
 
     expect(await getSections(sub)).toEqual([
-      { id: OnboardingSectionId.Username },
-      { id: OnboardingSectionId.Household },
+      { id: OnboardingSectionId.Username, skippable: false },
+      { id: OnboardingSectionId.Household, skippable: true },
     ]);
   });
 
@@ -46,7 +46,10 @@ describe('onboarding handler against DynamoDB Local', () => {
     const sub = randomUUID();
     await put({ ...profileKey(sub), email: 'a@x.com', canCreateHousehold: false });
 
-    expect(await getSections(sub)).toContainEqual({ id: OnboardingSectionId.NeedsInvite });
+    expect(await getSections(sub)).toContainEqual({
+      id: OnboardingSectionId.NeedsInvite,
+      skippable: false,
+    });
   });
 
   it('returns 404 when the profile does not exist', async () => {
@@ -55,5 +58,49 @@ describe('onboarding handler against DynamoDB Local', () => {
     );
 
     expect(result.statusCode).toBe(404);
+  });
+
+  describe('skipping the household step', () => {
+    const skip = (sub: string, sectionId: string) =>
+      handler(
+        buildEvent({
+          claims: { sub },
+          method: 'POST',
+          path: `/api/v1/me/onboarding/${sectionId}/skip`,
+          pathParameters: { sectionId },
+        }),
+      );
+
+    it('keeps it skipped on the next read', async () => {
+      const sub = randomUUID();
+      await put({
+        ...profileKey(sub),
+        email: 'a@x.com',
+        username: 'jess',
+        canCreateHousehold: true,
+      });
+      expect(await getSections(sub)).toEqual([
+        { id: OnboardingSectionId.Household, skippable: true },
+      ]);
+
+      const result = await skip(sub, OnboardingSectionId.Household);
+
+      expect(result.statusCode).toBe(200);
+      expect(JSON.parse(String(result.body)).sections).toEqual([]);
+      expect(await getSections(sub)).toEqual([]);
+    });
+
+    it('does not let the username be skipped', async () => {
+      const sub = randomUUID();
+      await put({ ...profileKey(sub), email: 'a@x.com', canCreateHousehold: true });
+
+      const result = await skip(sub, OnboardingSectionId.Username);
+
+      expect(result.statusCode).toBe(400);
+      expect(await getSections(sub)).toContainEqual({
+        id: OnboardingSectionId.Username,
+        skippable: false,
+      });
+    });
   });
 });

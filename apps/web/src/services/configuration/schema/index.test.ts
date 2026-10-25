@@ -192,6 +192,7 @@ describe('web configuration schema', () => {
     listItems: '/api/v1/households/{householdId}/lists/{listId}/items',
     me: '/api/v1/me',
     onboarding: '/api/v1/me/onboarding',
+    onboardingSkip: '/api/v1/me/onboarding/{sectionId}/skip',
     passkeyStart: '/api/v1/auth/passkey/start',
     passkeyVerify: '/api/v1/auth/passkey/verify',
     passkeysComplete: '/api/v1/auth/passkeys/complete',

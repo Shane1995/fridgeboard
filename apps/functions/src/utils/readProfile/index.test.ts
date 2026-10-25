@@ -26,7 +26,14 @@ describe('readProfile', () => {
       email: 'jess@example.com',
       username: null,
       canCreateHousehold: false,
+      skippedSections: [],
     });
+  });
+
+  it('reads the skipped sections', async () => {
+    ddbMock.on(GetCommand).resolves({ Item: { email: 'a@x.com', skippedSections: ['household'] } });
+
+    expect(await readProfile(table, 'sub-1')).toMatchObject({ skippedSections: ['household'] });
   });
 
   it('reads the username and flag and asks for a consistent read', async () => {

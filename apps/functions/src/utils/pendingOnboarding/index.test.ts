@@ -9,7 +9,12 @@ import { pendingOnboarding } from './index.ts';
 const ddbMock = mockClient(DynamoDBDocumentClient);
 const client = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const table = createTable(client, 'fridgeboard');
-const profile = { email: 'a@x.com', username: null, canCreateHousehold: true };
+const profile = {
+  email: 'a@x.com',
+  username: null,
+  canCreateHousehold: true,
+  skippedSections: [],
+};
 
 describe('pendingOnboarding', () => {
   beforeEach(() => {
@@ -20,8 +25,8 @@ describe('pendingOnboarding', () => {
     ddbMock.on(QueryCommand).resolves({ Items: [] });
 
     expect(await pendingOnboarding(table, { sub: 's', profile, isAdmin: false })).toEqual([
-      { id: OnboardingSectionId.Username },
-      { id: OnboardingSectionId.Household },
+      { id: OnboardingSectionId.Username, skippable: false },
+      { id: OnboardingSectionId.Household, skippable: true },
     ]);
   });
 
@@ -31,7 +36,19 @@ describe('pendingOnboarding', () => {
     });
 
     expect(await pendingOnboarding(table, { sub: 's', profile, isAdmin: false })).toEqual([
-      { id: OnboardingSectionId.Username },
+      { id: OnboardingSectionId.Username, skippable: false },
     ]);
+  });
+
+  it('leaves out a skipped household section', async () => {
+    ddbMock.on(QueryCommand).resolves({ Items: [] });
+
+    expect(
+      await pendingOnboarding(table, {
+        sub: 's',
+        profile: { ...profile, username: 'jess', skippedSections: [OnboardingSectionId.Household] },
+        isAdmin: false,
+      }),
+    ).toEqual([]);
   });
 });

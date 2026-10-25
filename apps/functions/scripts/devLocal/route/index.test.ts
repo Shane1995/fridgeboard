@@ -4,6 +4,7 @@ const api = {
   endpoints: {
     me: '/api/v2/me',
     onboarding: '/api/v2/me/onboarding',
+    onboardingSkip: '/api/v2/me/onboarding/{sectionId}/skip',
     username: '/api/v2/profile/name',
     households: '/api/v2/households',
     householdMembers: '/api/v2/households/{householdId}/members',

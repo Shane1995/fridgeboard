@@ -3,3 +3,7 @@ export enum OnboardingSectionId {
   Household = 'household',
   NeedsInvite = 'needs-invite',
 }
+
+export const SKIPPABLE_SECTIONS: ReadonlySet<OnboardingSectionId> = new Set([
+  OnboardingSectionId.Household,
+]);

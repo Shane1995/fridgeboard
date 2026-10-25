@@ -18,9 +18,12 @@ import { TEST_WEB_CONFIGURATION } from '../../testUtils/webConfiguration';
 import { endpoint } from '../../testUtils/endpoint';
 const { session, signOut, apiFetch } = createSession(SessionStatus.SignedIn);
 
-const CREATOR: IOnboardingResponse['sections'] = [{ id: 'username' }, { id: 'household' }];
+const CREATOR: IOnboardingResponse['sections'] = [
+  { id: 'username', skippable: false },
+  { id: 'household', skippable: true },
+];
 
-const HOUSEHOLD_PENDING: IOnboardingResponse['sections'] = [{ id: 'household' }];
+const HOUSEHOLD_PENDING: IOnboardingResponse['sections'] = [{ id: 'household', skippable: true }];
 
 const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status });
 
@@ -76,7 +79,7 @@ describe('Onboarding', () => {
   });
 
   it('shows an invited joiner only the username step', async () => {
-    respond([{ id: 'username' }]);
+    respond([{ id: 'username', skippable: false }]);
     renderPage();
 
     expect(await screen.findByRole('heading', { name: USERNAME.title })).toBeInTheDocument();
@@ -151,7 +154,7 @@ describe('Onboarding', () => {
 
   it('asks for an invite when the user cannot create a household, and can sign out', async () => {
     signOut.mockResolvedValue(undefined);
-    respond([{ id: 'needs-invite' }]);
+    respond([{ id: 'needs-invite', skippable: false }]);
     renderPage();
 
     expect(
