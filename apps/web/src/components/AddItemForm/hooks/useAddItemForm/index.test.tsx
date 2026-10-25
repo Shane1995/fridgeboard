@@ -1,35 +1,41 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
-import {
-  ShopColor,
-  LAST_SHOP_STORAGE_KEY,
-  UNSORTED_SHOP_ID,
-} from '../../../../services/shoppingList/constants';
+import { ShopColor } from '../../../../services/shoppingList/constants';
 import { fakeShoppingList } from '../../../../testUtils/fakeShoppingList';
-import { createShoppingListWrapper } from '../../../../testUtils/createShoppingListWrapper';
+import {
+  createShoppingListWrapper,
+  renderHookWithHousehold,
+} from '../../../../testUtils/createShoppingListWrapper';
 import { useAddItemForm } from './index';
 
 describe('useAddItemForm', () => {
   beforeEach(() => window.localStorage.clear());
 
-  it('offers General first and defaults to it', async () => {
-    await fakeShoppingList.createShop({ name: 'Express', color: ShopColor.Mint });
+  it('offers the real shops and starts with none picked, so an item goes to Unassigned', async () => {
+    const shop = await fakeShoppingList.createShop({ name: 'Express', color: ShopColor.Mint });
     const { result } = renderHook(() => useAddItemForm(), { wrapper: createShoppingListWrapper() });
 
-    await waitFor(() => expect(result.current.shops).toHaveLength(2));
-    expect(result.current.shops[0]?.id).toBe(UNSORTED_SHOP_ID);
-    expect(result.current.shopId).toBe(UNSORTED_SHOP_ID);
+    await waitFor(() => expect(result.current.shops.map(({ id }) => id)).toEqual([shop.id]));
+    expect(result.current.shopIds).toEqual([]);
   });
 
-  it('adds the trimmed name to the chosen shop, clears the input and remembers the shop', async () => {
-    const shop = await fakeShoppingList.createShop({
-      name: 'Express',
-      color: ShopColor.Mint,
-    });
+  it('adds an item with no shop when none is picked', async () => {
+    const { result } = await renderHookWithHousehold(() => useAddItemForm());
+
+    act(() => result.current.setName('Milk'));
+    act(() => result.current.handleSubmit({ preventDefault: vi.fn() } as never));
+
+    await waitFor(() => expect(result.current.name).toBe(''));
+    expect((await fakeShoppingList.listItems())[0]).toMatchObject({ name: 'Milk', shopIds: [] });
+  });
+
+  it('adds an item to every shop picked and keeps the picks for the next item', async () => {
+    const express = await fakeShoppingList.createShop({ name: 'Express', color: ShopColor.Mint });
+    const market = await fakeShoppingList.createShop({ name: 'Market', color: ShopColor.Sky });
     const { result } = renderHook(() => useAddItemForm(), { wrapper: createShoppingListWrapper() });
     await waitFor(() => expect(result.current.shops).toHaveLength(2));
 
     act(() => {
-      result.current.setShopId(shop.id);
+      result.current.setShopIds([express.id, market.id]);
       result.current.setName('  Milk ');
     });
     act(() => result.current.handleSubmit({ preventDefault: vi.fn() } as never));
@@ -37,17 +43,46 @@ describe('useAddItemForm', () => {
     await waitFor(() => expect(result.current.name).toBe(''));
     expect((await fakeShoppingList.listItems())[0]).toMatchObject({
       name: 'Milk',
-      shopId: shop.id,
+      shopIds: [express.id, market.id],
     });
-    expect(window.localStorage.getItem(LAST_SHOP_STORAGE_KEY)).toBe(shop.id);
+    expect(result.current.shopIds).toEqual([express.id, market.id]);
   });
 
-  it('suggests remembered names and brings back their shop when picked', async () => {
+  it('starts on the shop being viewed and follows the view when it changes', async () => {
+    const express = await fakeShoppingList.createShop({ name: 'Express', color: ShopColor.Mint });
+    const market = await fakeShoppingList.createShop({ name: 'Market', color: ShopColor.Sky });
+    const initialProps: { focus: string | undefined } = { focus: express.id };
+    const { result, rerender } = renderHook(
+      ({ focus }: { focus: string | undefined }) => useAddItemForm(focus),
+      { wrapper: createShoppingListWrapper(), initialProps },
+    );
+    await waitFor(() => expect(result.current.shops).toHaveLength(2));
+
+    expect(result.current.shopIds).toEqual([express.id]);
+    act(() => result.current.setShopIds([express.id, market.id]));
+    rerender({ focus: market.id });
+    expect(result.current.shopIds).toEqual([market.id]);
+    rerender({ focus: undefined });
+    expect(result.current.shopIds).toEqual([]);
+  });
+
+  it('drops a picked shop that no longer exists', async () => {
+    const express = await fakeShoppingList.createShop({ name: 'Express', color: ShopColor.Mint });
+    const { result } = renderHook(() => useAddItemForm(), { wrapper: createShoppingListWrapper() });
+    await waitFor(() => expect(result.current.shops).toHaveLength(1));
+
+    act(() => result.current.setShopIds([express.id, 'deleted-shop']));
+
+    expect(result.current.shopIds).toEqual([express.id]);
+  });
+
+  it('suggests remembered names and brings back all their shops when picked', async () => {
     const shop = await fakeShoppingList.createShop({
       name: 'Express',
       color: ShopColor.Mint,
     });
-    const bought = await fakeShoppingList.addItem({ name: 'Milk', shopIds: [shop.id] });
+    const market = await fakeShoppingList.createShop({ name: 'Market', color: ShopColor.Sky });
+    const bought = await fakeShoppingList.addItem({ name: 'Milk', shopIds: [shop.id, market.id] });
     await fakeShoppingList.updateItem({ id: bought.id, changes: { checked: true } });
     const { result } = renderHook(() => useAddItemForm(), { wrapper: createShoppingListWrapper() });
     await waitFor(() => expect(result.current.shops).toHaveLength(2));
@@ -59,7 +94,7 @@ describe('useAddItemForm', () => {
     act(() => result.current.pickSuggestion(result.current.suggestions[0]!));
 
     expect(result.current.name).toBe('Milk');
-    expect(result.current.shopId).toBe(shop.id);
+    expect(result.current.shopIds).toEqual([shop.id, market.id]);
     await waitFor(() => expect(result.current.suggestions).toEqual([]));
   });
 
@@ -98,7 +133,7 @@ describe('useAddItemForm', () => {
         await fakeShoppingList.updateItem({ id: bought.id, changes: { checked: true } });
       }
       const hook = renderHook(() => useAddItemForm(), { wrapper: createShoppingListWrapper() });
-      await waitFor(() => expect(hook.result.current.shops).toHaveLength(2));
+      await waitFor(() => expect(hook.result.current.shops).toHaveLength(1));
       act(() => hook.result.current.setName('mi'));
       await waitFor(() => expect(hook.result.current.suggestions).toHaveLength(2));
       return hook.result;

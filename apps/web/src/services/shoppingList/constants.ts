@@ -9,8 +9,7 @@ export enum ShopColor {
 }
 
 export const UNSORTED_SHOP_ID = 'unsorted';
-export const UNSORTED_SHOP_NAME = 'General';
-export const LAST_SHOP_STORAGE_KEY = 'fridgeboard.lastShop';
+export const UNSORTED_SHOP_NAME = 'Unassigned';
 export const FOCUS_SHOP_STORAGE_KEY = 'fridgeboard.focusShop';
 
 export const ITEM_NAME_MAX_LENGTH = 80;

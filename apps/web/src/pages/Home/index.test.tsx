@@ -19,9 +19,9 @@ const fixture = createSession(SessionStatus.SignedIn);
 const { apiFetch } = fixture;
 const session = fixture.session;
 
-const pickShop = async (name: string) => {
-  fireEvent.click(screen.getByRole('button', { name: /^Shop:/ }));
-  const item = await screen.findByRole('menuitemradio', { name });
+const toggleShop = async (name: string) => {
+  fireEvent.click(screen.getByRole('button', { name: /^Assign to shops/ }));
+  const item = await screen.findByRole('menuitemcheckbox', { name });
   fireEvent.keyDown(item, { key: 'Enter' });
   fireEvent.keyUp(item, { key: 'Enter' });
 };
@@ -96,12 +96,12 @@ describe('Home', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'Create shop' }));
     await screen.findByRole('region', { name: 'Express' });
-    await pickShop('Express');
+    await toggleShop('Express');
     fireEvent.change(screen.getByRole('textbox', { name: 'Item' }), { target: { value: 'Milk' } });
     fireEvent.click(screen.getByRole('button', { name: 'Add' }));
     await screen.findByRole('checkbox', { name: 'Milk' });
     fireEvent.change(screen.getByRole('textbox', { name: 'Item' }), { target: { value: 'Tape' } });
-    await pickShop(UNSORTED_SHOP_NAME);
+    await toggleShop('Express');
     fireEvent.click(screen.getByRole('button', { name: 'Add' }));
     await screen.findByRole('checkbox', { name: 'Tape' });
 
