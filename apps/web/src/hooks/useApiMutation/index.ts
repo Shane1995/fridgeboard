@@ -67,7 +67,7 @@ export const useApiMutation = <TVariables, TResponse, TReason extends string, TC
         throw error;
       });
       if (result.ok) {
-        onSuccess(result.data, variables);
+        onSuccess?.(result.data, variables);
       } else {
         restore();
       }

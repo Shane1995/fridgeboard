@@ -55,6 +55,7 @@ export enum MutationName {
   signOut = 'signOut',
   setUsername = 'setUsername',
   createHousehold = 'createHousehold',
+  inviteToHousehold = 'inviteToHousehold',
   addItem = 'addItem',
   updateItem = 'updateItem',
   deleteItem = 'deleteItem',

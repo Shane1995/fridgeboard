@@ -50,6 +50,29 @@ describe('useApiMutation', () => {
     expect(onSuccess).toHaveBeenCalledWith({ username: 'jess' }, 'jess');
   });
 
+  it('works without an onSuccess handler', async () => {
+    const { session, apiFetch } = createSession(SessionStatus.SignedIn);
+    apiFetch.mockResolvedValue(new Response(JSON.stringify({ username: 'jess' }), { status: 200 }));
+    const { result } = renderHook(
+      () =>
+        useApiMutation({
+          name: MutationName.setUsername,
+          service: WebService.username,
+          method: 'PUT',
+          toBody: (username: string) => ({ username }),
+          reasons: REASONS,
+        }),
+      { wrapper: createSessionWrapper(session, new QueryClient()) },
+    );
+
+    await act(async () => {
+      await expect(result.current.mutateAsync('jess')).resolves.toEqual({
+        ok: true,
+        data: { username: 'jess' },
+      });
+    });
+  });
+
   it('returns a known failure reason without calling onSuccess', async () => {
     const { result, onSuccess } = setup(
       new Response(JSON.stringify({ reason: 'taken' }), { status: 409 }),
