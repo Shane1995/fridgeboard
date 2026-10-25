@@ -1,6 +1,7 @@
 {
   "featureFlags": {
     "ENABLE_ADMIN_INVITES": false,
+    "ENABLE_HOUSEHOLD_INVITES": true,
     "ENABLE_PASSKEYS": true
   },
   "mutations": {
