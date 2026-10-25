@@ -1,4 +1,9 @@
-import { DynamoDBDocumentClient, GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
+import {
+  DynamoDBDocumentClient,
+  GetCommand,
+  QueryCommand,
+  UpdateCommand,
+} from '@aws-sdk/lib-dynamodb';
 import type { APIGatewayProxyEventV2WithJWTAuthorizer } from 'aws-lambda';
 import { mockClient } from 'aws-sdk-client-mock';
 import { HouseholdRole } from '../../utils/isHouseholdRole/constants.ts';
@@ -9,27 +14,29 @@ const ddbMock = mockClient(DynamoDBDocumentClient);
 
 const buildEvent = (
   claims: Record<string, string> = { sub: 'sub-1' },
+  { method = 'GET', sectionId }: { method?: string; sectionId?: string } = {},
 ): APIGatewayProxyEventV2WithJWTAuthorizer => ({
   version: '2.0',
-  routeKey: 'GET /api/v1/me/onboarding',
+  routeKey: `${method} /api/v1/me/onboarding`,
   rawPath: '/api/v1/me/onboarding',
   rawQueryString: '',
   headers: { 'x-api-origin-verify': 'origin-secret' },
   isBase64Encoded: false,
+  ...(sectionId !== undefined && { pathParameters: { sectionId } }),
   requestContext: {
     accountId: '123',
     apiId: 'api',
     domainName: 'app.fridgeboard.uk',
     domainPrefix: 'app',
     http: {
-      method: 'GET',
+      method,
       path: '/api/v1/me/onboarding',
       protocol: 'HTTP/1.1',
       sourceIp: '127.0.0.1',
       userAgent: 'test',
     },
     requestId: 'req-1',
-    routeKey: 'GET /api/v1/me/onboarding',
+    routeKey: `${method} /api/v1/me/onboarding`,
     stage: '$default',
     time: '',
     timeEpoch: 0,
@@ -72,8 +79,8 @@ describe('onboarding handler', () => {
 
     expect(result.statusCode).toBe(200);
     expect(sectionsOf(result.body)).toEqual([
-      { id: OnboardingSectionId.Username },
-      { id: OnboardingSectionId.Household },
+      { id: OnboardingSectionId.Username, skippable: false },
+      { id: OnboardingSectionId.Household, skippable: true },
     ]);
   });
 
@@ -95,7 +102,10 @@ describe('onboarding handler', () => {
 
     const result = await handler(buildEvent({ sub: 'sub-1', 'cognito:groups': '[admin]' }));
 
-    expect(sectionsOf(result.body)).toContainEqual({ id: OnboardingSectionId.Household });
+    expect(sectionsOf(result.body)).toContainEqual({
+      id: OnboardingSectionId.Household,
+      skippable: true,
+    });
   });
 
   it('tells an uninvited user with no household to ask for an invite', async () => {
@@ -103,6 +113,70 @@ describe('onboarding handler', () => {
 
     const result = await handler(buildEvent());
 
-    expect(sectionsOf(result.body)).toContainEqual({ id: OnboardingSectionId.NeedsInvite });
+    expect(sectionsOf(result.body)).toContainEqual({
+      id: OnboardingSectionId.NeedsInvite,
+      skippable: false,
+    });
+  });
+
+  describe('skipping a section', () => {
+    const skip = (sectionId: string) => buildEvent({ sub: 'sub-1' }, { method: 'POST', sectionId });
+
+    beforeEach(() => {
+      ddbMock.on(UpdateCommand).resolves({ Attributes: { email: 'a@x.com' } });
+      ddbMock
+        .on(GetCommand)
+        .resolves({ Item: { email: 'a@x.com', username: 'jess', canCreateHousehold: true } });
+    });
+
+    it('records the skip on the profile and returns what is left', async () => {
+      const result = await handler(skip(OnboardingSectionId.Household));
+
+      expect(result.statusCode).toBe(200);
+      expect(sectionsOf(result.body)).toEqual([]);
+      expect(ddbMock.commandCalls(UpdateCommand)[0]?.args[0].input).toMatchObject({
+        Key: { PK: 'USER#sub-1', SK: 'PROFILE' },
+        ExpressionAttributeValues: { ':v0': [OnboardingSectionId.Household] },
+      });
+    });
+
+    it('does not write again when the section was already skipped', async () => {
+      ddbMock.on(GetCommand).resolves({
+        Item: {
+          email: 'a@x.com',
+          username: 'jess',
+          canCreateHousehold: true,
+          skippedSections: [OnboardingSectionId.Household],
+        },
+      });
+
+      const result = await handler(skip(OnboardingSectionId.Household));
+
+      expect(result.statusCode).toBe(200);
+      expect(ddbMock.commandCalls(UpdateCommand)).toHaveLength(0);
+    });
+
+    it.each([OnboardingSectionId.Username, OnboardingSectionId.NeedsInvite, 'unknown'])(
+      'refuses to skip %s',
+      async (sectionId) => {
+        const result = await handler(skip(sectionId));
+
+        expect(result.statusCode).toBe(400);
+        expect(JSON.parse(result.body ?? '')).toEqual({ reason: 'not-skippable' });
+        expect(ddbMock.commandCalls(UpdateCommand)).toHaveLength(0);
+      },
+    );
+
+    it('returns 404 when the profile is missing', async () => {
+      ddbMock.on(GetCommand).resolves({});
+
+      expect((await handler(skip(OnboardingSectionId.Household))).statusCode).toBe(404);
+    });
+
+    it('returns 405 for other methods', async () => {
+      expect((await handler(buildEvent({ sub: 'sub-1' }, { method: 'DELETE' }))).statusCode).toBe(
+        405,
+      );
+    });
   });
 });

@@ -3,4 +3,5 @@ export type OnboardingInput = {
   canCreateHousehold: boolean;
   isAdmin: boolean;
   hasHousehold: boolean;
+  skippedSections: readonly string[];
 };

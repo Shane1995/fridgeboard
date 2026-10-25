@@ -71,9 +71,9 @@ describe('RequireOnboarding', () => {
   beforeEach(() => vi.resetAllMocks());
 
   it.each([
-    ['the username is pending', [{ id: 'username' }]],
-    ['the household is pending', [{ id: 'household' }]],
-    ['the user needs an invite', [{ id: 'needs-invite' }]],
+    ['the username is pending', [{ id: 'username', skippable: false }]],
+    ['the household is pending', [{ id: 'household', skippable: true }]],
+    ['the user needs an invite', [{ id: 'needs-invite', skippable: false }]],
   ] as const)('redirects to onboarding when %s', async (_label, sections) => {
     respondWith({ hasOnboarding: true, sections: [...sections] });
 

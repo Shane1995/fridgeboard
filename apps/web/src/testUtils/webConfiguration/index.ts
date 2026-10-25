@@ -30,6 +30,7 @@ export const TEST_WEB_CONFIGURATION: WebConfiguration = {
         [WebService.listItems]: '/api/v1/households/{householdId}/lists/{listId}/items',
         [WebService.me]: '/api/v1/me',
         [WebService.onboarding]: '/api/v1/me/onboarding',
+        [WebService.onboardingSkip]: '/api/v1/me/onboarding/{sectionId}/skip',
         [WebService.passkeyStart]: '/api/v1/auth/passkey/start',
         [WebService.passkeyVerify]: '/api/v1/auth/passkey/verify',
         [WebService.passkeysComplete]: '/api/v1/auth/passkeys/complete',

@@ -11,5 +11,6 @@ export const readProfile = async (table: Table, sub: string): Promise<Profile | 
         email: item.email,
         username: item.username ?? null,
         canCreateHousehold: item.canCreateHousehold === true,
+        skippedSections: item.skippedSections ?? [],
       };
 };

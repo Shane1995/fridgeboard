@@ -14,4 +14,5 @@ export const pendingOnboarding = async (
     canCreateHousehold: profile.canCreateHousehold,
     isAdmin,
     hasHousehold: householdRoles(await fetchMemberships(table, sub)).size > 0,
+    skippedSections: profile.skippedSections,
   });

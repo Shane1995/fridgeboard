@@ -17,7 +17,10 @@ import type {
   IListItem,
   IListItemsResponse,
 } from '@fridgeboard/contract/lists';
-import type { IOnboardingResponse } from '@fridgeboard/contract/onboarding';
+import type {
+  IOnboardingErrorResponse,
+  IOnboardingResponse,
+} from '@fridgeboard/contract/onboarding';
 import type { IPasskeyStartResponse, IPasskeysStartResponse } from '@fridgeboard/contract/auth';
 import type { IMeResponse } from '@fridgeboard/contract/me';
 import type { IUsernameErrorResponse, IUsernameResponse } from '@fridgeboard/contract/username';
@@ -40,5 +43,6 @@ export type ResponseBody =
   | IHistoryResponse
   | IListErrorResponse
   | IOnboardingResponse
+  | IOnboardingErrorResponse
   | IPasskeyStartResponse
   | IPasskeysStartResponse;

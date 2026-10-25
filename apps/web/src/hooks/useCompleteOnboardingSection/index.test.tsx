@@ -29,16 +29,21 @@ const setup = (sections: IOnboardingResponse['sections'], withMe = true) => {
 
 describe('useCompleteOnboardingSection', () => {
   it('removes the section and keeps hasOnboarding while others remain', () => {
-    const { client, result } = setup([{ id: 'username' }, { id: 'household' }]);
+    const { client, result } = setup([
+      { id: 'username', skippable: false },
+      { id: 'household', skippable: true },
+    ]);
 
     result.current(OnboardingSectionId.Username);
 
-    expect(client.getQueryData(['onboarding'])).toEqual({ sections: [{ id: 'household' }] });
+    expect(client.getQueryData(['onboarding'])).toEqual({
+      sections: [{ id: 'household', skippable: true }],
+    });
     expect(client.getQueryData<IMeResponse>(['me'])?.hasOnboarding).toBe(true);
   });
 
   it('clears hasOnboarding when the last section is done', () => {
-    const { client, result } = setup([{ id: 'household' }]);
+    const { client, result } = setup([{ id: 'household', skippable: true }]);
 
     result.current(OnboardingSectionId.Household);
 

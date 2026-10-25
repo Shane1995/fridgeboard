@@ -28,6 +28,7 @@ const VALID = {
         listShopsOrder: '/api/v1/households/{householdId}/lists/{listId}/shops/order',
         me: '/api/v1/me',
         onboarding: '/api/v1/me/onboarding',
+        onboardingSkip: '/api/v1/me/onboarding/{sectionId}/skip',
         passkeyStart: '/api/v1/auth/passkey/start',
         passkeyVerify: '/api/v1/auth/passkey/verify',
         passkeysComplete: '/api/v1/auth/passkeys/complete',

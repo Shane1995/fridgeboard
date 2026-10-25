@@ -5,4 +5,5 @@ export const ProfileItemSchema = z.looseObject({
   email: z.string(),
   username: z.optional(z.string()),
   canCreateHousehold: z.optional(z.boolean()),
+  skippedSections: z.optional(z.array(z.string())),
 });
