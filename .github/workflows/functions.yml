@@ -1,0 +1,143 @@
+name: Functions
+
+on:
+  workflow_call:
+    inputs:
+      deploy:
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      dynamodb:
+        image: amazon/dynamodb-local:3.3.2@sha256:6ada631ec7aa5fc83446855eb17233e3dad184fec47477e8140c6c569cfe0c86
+        ports:
+          - 8000:8000
+        options: >-
+          --health-cmd "curl -s -o /dev/null http://localhost:8000"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: node scripts/checkReexports/index.ts
+      - run: pnpm turbo run format:check lint typecheck test build --filter=@fridgeboard/functions... --filter=@fridgeboard/e2e
+      - run: pnpm exec vitest run
+      - run: pnpm --filter @fridgeboard/e2e test:integration
+      - run: pnpm --filter @fridgeboard/configuration validate
+      - run: pnpm --filter @fridgeboard/functions smoke
+      - run: npx fallow@2.89.0 dead-code --production --fail-on-issues
+      - if: inputs.deploy
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: api-dist
+          path: apps/functions/dist
+          retention-days: 7
+
+  deploy:
+    if: inputs.deploy
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: production
+      url: https://app.fridgeboard.uk
+    concurrency:
+      group: deploy-functions
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: api-dist
+          path: api-dist
+      - uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: eu-west-2
+      - name: Deploy API Lambdas
+        run: |
+          set -euo pipefail
+          : > "$RUNNER_TEMP/flipped"
+          specs=()
+          for bundle in api-dist/*/index.mjs; do
+            dir=$(basename "$(dirname "$bundle")")
+            name=$(sed -E 's/([a-z0-9])([A-Z])/\1-\2/g' <<< "$dir" | tr '[:upper:]' '[:lower:]')
+            case "$dir" in
+              preSignUp) kind=pre-sign-up ;;
+              postConfirmation) kind=post-confirmation ;;
+              subscribeGuard) kind=subscribe-guard ;;
+              *) kind=wrapped ;;
+            esac
+            specs+=("$dir:fridgeboard-$name:$kind")
+          done
+          for spec in "${specs[@]}"; do
+            IFS=: read -r dir fn kind <<< "$spec"
+            aws lambda get-function-configuration --function-name "$fn" > /dev/null || {
+              echo "built $dir has no deployed function $fn: add it in Terraform first"
+              exit 1
+            }
+          done
+          deploy_one() {
+            local dir="$1" fn="$2" kind="$3"
+            zip -j "$RUNNER_TEMP/$dir.zip" "api-dist/$dir/index.mjs"
+            aws lambda update-function-code --function-name "$fn" --zip-file "fileb://$RUNNER_TEMP/$dir.zip" > /dev/null
+            aws lambda wait function-updated --function-name "$fn"
+            local new prev
+            new=$(aws lambda publish-version --function-name "$fn" --query Version --output text)
+            .github/scripts/smoke-version.sh "$fn" "$new" "$kind"
+            prev=$(aws lambda get-alias --function-name "$fn" --name live --query FunctionVersion --output text)
+            aws lambda update-alias --function-name "$fn" --name live --function-version "$new" --description "prev=$prev" > /dev/null
+            echo "$fn $prev" >> "$RUNNER_TEMP/flipped"
+          }
+          pids=()
+          for spec in "${specs[@]}"; do
+            IFS=: read -r dir fn kind <<< "$spec"
+            deploy_one "$dir" "$fn" "$kind" > "$RUNNER_TEMP/$dir.log" 2>&1 &
+            pids+=("$!")
+          done
+          failed=0
+          for i in "${!pids[@]}"; do
+            IFS=: read -r dir fn kind <<< "${specs[$i]}"
+            wait "${pids[$i]}" || failed=1
+            echo "::group::$fn"
+            cat "$RUNNER_TEMP/$dir.log"
+            echo "::endgroup::"
+          done
+          exit "$failed"
+      - name: Smoke check
+        run: |
+          set -euo pipefail
+          for i in 1 2 3 4 5; do
+            out=$(curl -s -o /dev/null -w '%{http_code} %{content_type}' https://app.fridgeboard.uk/api/v1/me || true)
+            case "$out" in "401 application/json"*) exit 0 ;; esac
+            sleep 5
+          done
+          echo "unexpected /api/v1/me response: $out"
+          exit 1
+      - name: Roll back aliases
+        if: failure()
+        run: |
+          while read -r fn prev; do
+            aws lambda update-alias --function-name "$fn" --name live --function-version "$prev" --description "prev=$prev" > /dev/null
+          done < "$RUNNER_TEMP/flipped"
