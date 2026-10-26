@@ -15,6 +15,7 @@ import {
   MAX_SHOP_BADGES,
   SHOPS_ACTION,
   SPLIT_ACTION,
+  SPLIT_OUT_ACTION,
 } from './constants';
 import { useItemRow } from './hooks/useItemRow';
 
@@ -45,11 +46,13 @@ export const ItemRow = ({
     cancel,
     toggle,
     setShops,
-    canSplit,
+    canSplitOut,
+    canSplitAll,
     duplicateCount,
     handleMenuAction,
-  } = useItemRow(item);
+  } = useItemRow({ item, shopId });
   const pending = isPendingItem(item);
+  const splitOutLabel = ITEM_ROW_COPY.splitOut(shops.find(({ id }) => id === shopId)?.name ?? '');
   const elsewhere = shops.filter(
     ({ id }) => id !== UNSORTED_SHOP_ID && id !== shopId && item.shopIds.includes(id),
   );
@@ -154,9 +157,14 @@ export const ItemRow = ({
                   </Dropdown.Popover>
                 </Dropdown.SubmenuTrigger>
               )}
-              {canSplit && (
-                <Dropdown.Item id={SPLIT_ACTION} textValue={ITEM_ROW_COPY.split}>
-                  {ITEM_ROW_COPY.split}
+              {canSplitOut && (
+                <Dropdown.Item id={SPLIT_OUT_ACTION} textValue={splitOutLabel}>
+                  {splitOutLabel}
+                </Dropdown.Item>
+              )}
+              {canSplitAll && (
+                <Dropdown.Item id={SPLIT_ACTION} textValue={ITEM_ROW_COPY.splitAll}>
+                  {ITEM_ROW_COPY.splitAll}
                 </Dropdown.Item>
               )}
               {duplicateCount > 0 && (

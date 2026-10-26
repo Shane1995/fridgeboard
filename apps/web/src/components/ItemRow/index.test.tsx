@@ -156,13 +156,13 @@ describe('ItemRow', () => {
       return isSuccess ? <span data-testid="list-loaded" /> : null;
     };
 
-    const renderStored = async (stored: ListItem, shops: Shop[]) => {
+    const renderStored = async (stored: ListItem, shops: Shop[], shopId?: string) => {
       const Wrapper = createShoppingListWrapper();
       render(
         <Wrapper>
           <LoadedMarker />
           <ul>
-            <ItemRow item={stored} shops={shops} />
+            <ItemRow item={stored} shops={shops} {...(shopId === undefined ? {} : { shopId })} />
           </ul>
         </Wrapper>,
       );
@@ -171,19 +171,21 @@ describe('ItemRow', () => {
       await screen.findByRole('menuitem', { name: ITEM_ROW_COPY.info });
     };
 
-    it('offers Split by shop only for an item in two or more shops', async () => {
+    it('offers Split into every shop for an item in two shops when no shop is in context', async () => {
       await renderStored({ ...ITEM, shopIds: ['b1', 'b2'] }, [EXPRESS, MARKET]);
 
-      expect(screen.getByRole('menuitem', { name: ITEM_ROW_COPY.split })).toBeInTheDocument();
+      expect(screen.getByRole('menuitem', { name: ITEM_ROW_COPY.splitAll })).toBeInTheDocument();
     });
 
     it('leaves Split out for an item in one shop', async () => {
       await renderStored({ ...ITEM, shopIds: ['b1'] }, [EXPRESS, MARKET]);
 
-      expect(screen.queryByRole('menuitem', { name: ITEM_ROW_COPY.split })).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('menuitem', { name: ITEM_ROW_COPY.splitAll }),
+      ).not.toBeInTheDocument();
     });
 
-    it('makes one item for each shop when Split by shop is chosen', async () => {
+    it('makes one item for each shop when Split into every shop is chosen', async () => {
       const express = await fakeShoppingList.createShop({ name: 'Express', color: ShopColor.Mint });
       const market = await fakeShoppingList.createShop({ name: 'Market', color: ShopColor.Sky });
       const apples = await fakeShoppingList.addItem({
@@ -195,9 +197,53 @@ describe('ItemRow', () => {
         [express, market].map((shop, order) => ({ ...shop, order })),
       );
 
-      choose(screen.getByRole('menuitem', { name: ITEM_ROW_COPY.split }));
+      choose(screen.getByRole('menuitem', { name: ITEM_ROW_COPY.splitAll }));
 
       await waitFor(async () => expect(await fakeShoppingList.listItems()).toHaveLength(2));
+    });
+
+    it('offers only Split out of this shop for an item in two shops, viewed from one of them', async () => {
+      await renderStored({ ...ITEM, shopIds: ['b1', 'b2'] }, [EXPRESS, MARKET], 'b1');
+
+      expect(
+        screen.getByRole('menuitem', { name: ITEM_ROW_COPY.splitOut('Express') }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole('menuitem', { name: ITEM_ROW_COPY.splitAll }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('offers both Split out of this shop and Split into every shop for an item in three', async () => {
+      const third: Shop = { id: 'b3', name: 'Aldi', color: ShopColor.Pink, order: 2 };
+      await renderStored({ ...ITEM, shopIds: ['b1', 'b2', 'b3'] }, [EXPRESS, MARKET, third], 'b1');
+
+      expect(
+        screen.getByRole('menuitem', { name: ITEM_ROW_COPY.splitOut('Express') }),
+      ).toBeInTheDocument();
+      expect(screen.getByRole('menuitem', { name: ITEM_ROW_COPY.splitAll })).toBeInTheDocument();
+    });
+
+    it('splits the item out of the shop it is viewed from and leaves the other shop on the original', async () => {
+      const express = await fakeShoppingList.createShop({ name: 'Express', color: ShopColor.Mint });
+      const market = await fakeShoppingList.createShop({ name: 'Market', color: ShopColor.Sky });
+      const apples = await fakeShoppingList.addItem({
+        name: 'Apples',
+        shopIds: [express.id, market.id],
+      });
+      await renderStored(
+        apples,
+        [express, market].map((shop, order) => ({ ...shop, order })),
+        express.id,
+      );
+
+      choose(screen.getByRole('menuitem', { name: ITEM_ROW_COPY.splitOut('Express') }));
+
+      await waitFor(async () =>
+        expect((await fakeShoppingList.listItems()).map(({ shopIds }) => shopIds).sort()).toEqual([
+          [express.id],
+          [market.id],
+        ]),
+      );
     });
 
     it('offers Combine when another unticked item has the same name', async () => {

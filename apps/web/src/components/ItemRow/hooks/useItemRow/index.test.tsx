@@ -10,7 +10,7 @@ const setup = async () => {
     name: 'Milk',
     shopIds: [],
   });
-  const { result } = await renderHookWithHousehold(() => useItemRow(item));
+  const { result } = await renderHookWithHousehold(() => useItemRow({ item }));
   return { item, result };
 };
 

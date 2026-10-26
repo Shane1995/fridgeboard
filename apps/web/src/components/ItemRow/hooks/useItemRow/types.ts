@@ -11,7 +11,8 @@ export type ItemRowState = {
   cancel: () => void;
   toggle: (checked: boolean) => void;
   setShops: (change: { shopIds: string[] }) => void;
-  canSplit: boolean;
+  canSplitOut: boolean;
+  canSplitAll: boolean;
   duplicateCount: number;
   handleMenuAction: (key: string | number) => void;
 };
