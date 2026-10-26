@@ -13,6 +13,7 @@ export const createSession = (
   const signOut: Mock = vi.fn();
   const refresh: Mock = vi.fn();
   const apiFetch: Mock = vi.fn();
+  const getToken: Mock = vi.fn();
   const session: SessionContextValue = {
     status,
     startSignIn,
@@ -23,6 +24,7 @@ export const createSession = (
     signOut,
     refresh,
     apiFetch,
+    getToken,
   };
   return {
     session,
@@ -33,5 +35,6 @@ export const createSession = (
     signOut,
     refresh,
     apiFetch,
+    getToken,
   };
 };

@@ -218,6 +218,14 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
     [refresh],
   );
 
+  const getToken = useCallback(async (): Promise<string | undefined> => {
+    const state = runtime.current;
+    if (state.token === undefined && !state.noSession) {
+      await refresh();
+    }
+    return state.token;
+  }, [refresh]);
+
   const value = useMemo<SessionContextValue>(
     () => ({
       status,
@@ -229,6 +237,7 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
       signOut,
       refresh,
       apiFetch,
+      getToken,
     }),
     [
       status,
@@ -240,6 +249,7 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
       signOut,
       refresh,
       apiFetch,
+      getToken,
     ],
   );
 

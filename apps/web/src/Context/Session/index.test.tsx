@@ -562,6 +562,21 @@ describe('SessionProvider', () => {
     });
   });
 
+  describe('getToken', () => {
+    it('returns the access token of the signed-in session', async () => {
+      const { result } = await renderSession();
+
+      expect(await act(() => result.current.getToken())).toBe('token-1');
+    });
+
+    it('returns nothing when there is no session', async () => {
+      fetchMock.mockResolvedValue(respond(401));
+      const { result } = await renderSession();
+
+      expect(await act(() => result.current.getToken())).toBeUndefined();
+    });
+  });
+
   describe('apiFetch', () => {
     it('adds the bearer token', async () => {
       const { result } = await renderSession();

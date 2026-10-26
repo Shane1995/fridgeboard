@@ -1,5 +1,6 @@
 import { getJson } from '../../services/api/getJson';
 import { resolveEndpoint } from '../../services/configuration/resolveEndpoint';
+import { withQuery } from '../../services/configuration/withQuery';
 import { mergedEntry } from '../../utils/mergedEntry';
 import { SessionStatus } from '../../services/session/constants';
 import { useQuery } from '../useQuery';
@@ -13,6 +14,7 @@ export const useApiQuery = <TResponse, TData = TResponse>({
   name,
   service,
   params,
+  query,
   enabled = true,
   select,
 }: ApiQueryOptions<TResponse, TData>): QueryResult<TData> => {
@@ -22,11 +24,14 @@ export const useApiQuery = <TResponse, TData = TResponse>({
     queryKey: params === undefined ? [name] : [name, params],
     queryFn: () =>
       getJson<TResponse>(
-        resolveEndpoint({
-          api: services.api,
-          service,
-          timeoutMs: mergedEntry(queries, name).timeoutMs,
-          ...(params === undefined ? {} : { params }),
+        withQuery({
+          endpoint: resolveEndpoint({
+            api: services.api,
+            service,
+            timeoutMs: mergedEntry(queries, name).timeoutMs,
+            ...(params === undefined ? {} : { params }),
+          }),
+          query: query?.() ?? {},
         }),
         (endpoint) => apiFetch(endpoint),
       ),
