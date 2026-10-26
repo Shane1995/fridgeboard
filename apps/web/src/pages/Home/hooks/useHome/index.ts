@@ -1,9 +1,13 @@
-import { KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { KeyboardSensor, MouseSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useOverlayState } from '@heroui/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import {
+  TOUCH_DRAG_DELAY_MS,
+  TOUCH_DRAG_TOLERANCE_PX,
+} from '../../../../utils/touchDragListeners/constants';
 import { useShopsQuery } from '../../../../hooks/useShopsQuery';
 import { useActiveHousehold } from '../../../../hooks/useActiveHousehold';
 import { useHouseholdsQuery } from '../../../../hooks/useHouseholdsQuery';
@@ -47,7 +51,10 @@ export const useHome = (): HomeState => {
   const [activeItem, setActiveItem] = useState<ListItem | undefined>();
   const [activeShopId, setActiveShopId] = useState<string | undefined>();
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: TOUCH_DRAG_DELAY_MS, tolerance: TOUCH_DRAG_TOLERANCE_PX },
+    }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
@@ -76,6 +83,7 @@ export const useHome = (): HomeState => {
 
   const handleDragStart = ({ active }: DragStartEvent) => {
     const item = readDraggedItem(active.data.current)?.item;
+    navigator.vibrate?.(10);
     setActiveItem(item);
     setActiveShopId(item === undefined ? String(active.id) : undefined);
   };

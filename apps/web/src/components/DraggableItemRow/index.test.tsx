@@ -42,4 +42,10 @@ describe('DraggableItemRow', () => {
     expect(handle).toHaveAttribute('aria-hidden', 'true');
     expect(handle).toHaveAttribute('tabindex', '-1');
   });
+
+  it('hides the handle on touch screens, where holding the row drags it', () => {
+    renderRow();
+
+    expect(screen.getByTestId('item-drag-handle').className).toContain('pointer-coarse:hidden');
+  });
 });

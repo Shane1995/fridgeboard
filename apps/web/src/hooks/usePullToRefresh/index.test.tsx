@@ -1,4 +1,5 @@
 import { act, fireEvent, renderHook } from '@testing-library/react';
+import { TOUCH_DRAG_DELAY_MS } from '../../utils/touchDragListeners/constants';
 import { usePullToRefresh } from './index';
 
 const touch = (clientY: number) => ({ touches: [{ clientY }] });
@@ -49,6 +50,19 @@ describe('usePullToRefresh', () => {
     await act(async () => finish());
 
     expect(result.current.isRefreshing).toBe(false);
+  });
+
+  it('ignores a held touch, which is a drag rather than a pull', () => {
+    vi.useFakeTimers();
+    const onRefresh = vi.fn();
+    const { result } = renderHook(() => usePullToRefresh({ onRefresh, enabled: true }));
+
+    fireEvent.touchStart(document, touch(0));
+    vi.advanceTimersByTime(TOUCH_DRAG_DELAY_MS + 50);
+    fireEvent.touchMove(document, touch(200));
+    vi.useRealTimers();
+
+    expect(result.current.distance).toBe(0);
   });
 
   it('does nothing for a short pull', () => {

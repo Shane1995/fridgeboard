@@ -1,6 +1,6 @@
 import { Checkbox, Dropdown } from '@heroui/react';
 import { Ellipsis } from 'lucide-react';
-import type { ReactNode, Ref } from 'react';
+import type { HTMLAttributes, ReactNode, Ref } from 'react';
 import { UNSORTED_SHOP_ID } from '../../services/shoppingList/constants';
 import type { Shop, ListItem } from '../../services/shoppingList/types';
 import { isPendingItem } from '../../services/shoppingList/utils/isPendingItem';
@@ -24,6 +24,7 @@ type ItemRowProps = {
   shops: readonly Shop[];
   shopId?: string;
   rowRef?: Ref<HTMLLIElement>;
+  rowProps?: HTMLAttributes<HTMLLIElement>;
   handle?: ReactNode;
   isDragging?: boolean;
 };
@@ -33,6 +34,7 @@ export const ItemRow = ({
   shops,
   shopId,
   rowRef,
+  rowProps,
   handle,
   isDragging = false,
 }: ItemRowProps) => {
@@ -60,7 +62,8 @@ export const ItemRow = ({
   return (
     <li
       ref={rowRef}
-      className={`flex items-center gap-3 py-3 text-base ${isDragging ? 'opacity-40' : ''} ${pending ? 'opacity-60' : ''}`}
+      {...rowProps}
+      className={`flex items-center gap-3 py-3 text-base pointer-coarse:select-none pointer-coarse:[-webkit-touch-callout:none] ${isDragging ? 'opacity-40' : ''} ${pending ? 'opacity-60' : ''}`}
     >
       <Checkbox
         aria-label={item.name}
