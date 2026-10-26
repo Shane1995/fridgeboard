@@ -176,6 +176,21 @@ describe('useHome', () => {
       expect(result.current.canQuickAdd).toBe(false);
     });
 
+    it('refreshes the list only when its flag is on', async () => {
+      await fakeShoppingList.addItem({ name: 'Tape', shopIds: [] });
+      const on = await renderHookWithHousehold(() => useHome(), {
+        flags: { [WebFeatureFlag.ENABLE_PULL_TO_REFRESH]: true },
+      });
+      await waitFor(() => expect(on.result.current.hasItems).toBe(true));
+      expect(on.result.current.canPullToRefresh).toBe(true);
+      await act(async () => on.result.current.refresh());
+      expect(on.result.current.hasItems).toBe(true);
+
+      const off = await renderHookWithHousehold(() => useHome());
+      await waitFor(() => expect(off.result.current.hasItems).toBe(true));
+      expect(off.result.current.canPullToRefresh).toBe(false);
+    });
+
     it('is off without the flag', async () => {
       await fakeShoppingList.addItem({ name: 'Tape', shopIds: [] });
       const { result } = await renderHookWithHousehold(() => useHome());

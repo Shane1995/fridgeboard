@@ -24,6 +24,8 @@ export type HomeState = {
   activeShop: ShopSectionData | undefined;
   canDragItems: boolean;
   canQuickAdd: boolean;
+  canPullToRefresh: boolean;
+  refresh: () => Promise<unknown>;
   allShops: Shop[];
   hasItems: boolean;
   isLoading: boolean;

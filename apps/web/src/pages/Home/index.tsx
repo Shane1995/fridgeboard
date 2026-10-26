@@ -13,6 +13,7 @@ import { ItemRow } from '../../components/ItemRow';
 import { detectShopCollisions } from '../../utils/detectShopCollisions';
 import { restrictShopDragToVerticalAxis } from '../../utils/restrictShopDragToVerticalAxis';
 import { SortableShop } from '../../components/SortableShop';
+import { PullToRefresh } from '../../components/PullToRefresh';
 import { PageHeader } from '../../components/PageHeader';
 import { Typography } from '../../components/Typography';
 import { TypographyVariant } from '../../components/Typography/constants';
@@ -38,6 +39,8 @@ export const Home = () => {
     activeShop,
     canDragItems,
     canQuickAdd,
+    canPullToRefresh,
+    refresh,
     allShops,
     isEmpty,
     isLoading,
@@ -53,6 +56,7 @@ export const Home = () => {
 
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-7 p-6">
+      <PullToRefresh onRefresh={refresh} enabled={canPullToRefresh} />
       <PageHeader title={title} />
       <AddItemForm focusedShopId={focusedId} />
       {grouped.sections.length > 0 && (
