@@ -4,6 +4,7 @@ import { UNSORTED_SHOP_ID } from '../../services/shoppingList/constants';
 import type { Shop, ShopSectionData } from '../../services/shoppingList/types';
 import { isPendingItem } from '../../services/shoppingList/utils/isPendingItem';
 import { DraggableItemRow } from '../DraggableItemRow';
+import { ShopQuickAdd } from '../ShopQuickAdd';
 import { ShopDialog } from '../ShopDialog';
 import { SHOP_COLOR_CLASSES, SHOP_TEXT_CLASSES } from '../ShopSwatch/constants';
 import { ItemRow } from '../ItemRow';
@@ -15,12 +16,14 @@ type ShopSectionProps = {
   section: ShopSectionData;
   allShops: readonly Shop[];
   draggable?: boolean;
+  quickAdd?: boolean;
 };
 
 export const ShopSection = ({
   section: { shop, items },
   allShops,
   draggable = false,
+  quickAdd = false,
 }: ShopSectionProps) => {
   const editDialog = useOverlayState();
   const isEditable = shop.id !== UNSORTED_SHOP_ID;
@@ -65,6 +68,7 @@ export const ShopSection = ({
           )}
         </ul>
       )}
+      {quickAdd && <ShopQuickAdd shop={shop} />}
       {isEditable && <ShopDialog state={editDialog} shop={shop} />}
     </section>
   );

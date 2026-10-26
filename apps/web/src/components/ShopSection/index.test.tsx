@@ -64,6 +64,27 @@ describe('ShopSection', () => {
     expect(UNSORTED_SHOP.id).toBe(UNSORTED_SHOP_ID);
   });
 
+  it('shows the quick add row only when asked', () => {
+    const Wrapper = createShoppingListWrapper();
+    const { rerender } = render(
+      <Wrapper>
+        <DndContext>
+          <ShopSection section={{ shop: TESCO, items: [] }} allShops={[TESCO]} quickAdd />
+        </DndContext>
+      </Wrapper>,
+    );
+    expect(screen.getByRole('button', { name: 'Add to Tesco' })).toBeInTheDocument();
+
+    rerender(
+      <Wrapper>
+        <DndContext>
+          <ShopSection section={{ shop: TESCO, items: [] }} allShops={[TESCO]} />
+        </DndContext>
+      </Wrapper>,
+    );
+    expect(screen.queryByRole('button', { name: 'Add to Tesco' })).not.toBeInTheDocument();
+  });
+
   it('says so when the shop has no items', () => {
     renderSection({ shop: TESCO, items: [] });
 

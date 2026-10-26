@@ -37,6 +37,7 @@ export const Home = () => {
     activeItem,
     activeShop,
     canDragItems,
+    canQuickAdd,
     allShops,
     isEmpty,
     isLoading,
@@ -68,7 +69,14 @@ export const Home = () => {
           onDragEnd={handleDragEnd}
           onDragCancel={handleDragCancel}
         >
-          {unsorted && <ShopCard section={unsorted} allShops={allShops} draggable={canDragItems} />}
+          {unsorted && (
+            <ShopCard
+              section={unsorted}
+              allShops={allShops}
+              draggable={canDragItems}
+              quickAdd={canQuickAdd}
+            />
+          )}
           <SortableContext
             items={reorderable.map(({ shop }) => shop.id)}
             strategy={verticalListSortingStrategy}
@@ -76,7 +84,12 @@ export const Home = () => {
             <div className="flex flex-col gap-7">
               {reorderable.map((section) => (
                 <SortableShop key={section.shop.id} id={section.shop.id} name={section.shop.name}>
-                  <ShopCard section={section} allShops={allShops} draggable={canDragItems} />
+                  <ShopCard
+                    section={section}
+                    allShops={allShops}
+                    draggable={canDragItems}
+                    quickAdd={canQuickAdd}
+                  />
                 </SortableShop>
               ))}
             </div>

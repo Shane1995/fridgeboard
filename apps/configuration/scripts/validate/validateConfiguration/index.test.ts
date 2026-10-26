@@ -9,6 +9,7 @@ const VALID = {
     ENABLE_HOUSEHOLD_INVITES: false,
     ENABLE_ITEM_DRAG: false,
     ENABLE_PASSKEYS: true,
+    ENABLE_SHOP_QUICK_ADD: false,
   },
   mutations: { default: { retry: 0, timeoutMs: 10000 } },
   queries: {

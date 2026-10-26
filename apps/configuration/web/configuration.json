@@ -3,7 +3,8 @@
     "ENABLE_ADMIN_INVITES": false,
     "ENABLE_HOUSEHOLD_INVITES": true,
     "ENABLE_ITEM_DRAG": true,
-    "ENABLE_PASSKEYS": true
+    "ENABLE_PASSKEYS": true,
+    "ENABLE_SHOP_QUICK_ADD": true
   },
   "mutations": {
     "default": {

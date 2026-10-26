@@ -39,6 +39,7 @@ export const useHome = (): HomeState => {
   const reorder = useReorderShopsMutation();
   const { updateShops } = useListCache();
   const moveItem = useMoveItem();
+  const quickAddFlag = useFeatureFlag(WebFeatureFlag.ENABLE_SHOP_QUICK_ADD);
   const dragFlag = useFeatureFlag(WebFeatureFlag.ENABLE_ITEM_DRAG);
   const [activeItem, setActiveItem] = useState<ListItem | undefined>();
   const [activeShopId, setActiveShopId] = useState<string | undefined>();
@@ -126,6 +127,7 @@ export const useHome = (): HomeState => {
     activeItem,
     activeShop: grouped.sections.find(({ shop }) => shop.id === activeShopId),
     canDragItems: dragFlag && focusedId === undefined,
+    canQuickAdd: quickAddFlag && focusedId === undefined,
     allShops,
     hasItems: itemList.length > 0,
     isLoading: isPending && !hasSettled,

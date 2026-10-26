@@ -23,6 +23,7 @@ export type HomeState = {
   activeItem: ListItem | undefined;
   activeShop: ShopSectionData | undefined;
   canDragItems: boolean;
+  canQuickAdd: boolean;
   allShops: Shop[];
   hasItems: boolean;
   isLoading: boolean;

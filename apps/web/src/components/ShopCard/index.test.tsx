@@ -16,7 +16,7 @@ const renderCard = (draggable: boolean) => {
   render(
     <Wrapper>
       <DndContext>
-        <ShopCard section={SECTION} allShops={[TESCO]} draggable={draggable} />
+        <ShopCard section={SECTION} allShops={[TESCO]} draggable={draggable} quickAdd={false} />
       </DndContext>
     </Wrapper>,
   );

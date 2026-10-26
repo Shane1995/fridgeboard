@@ -4,4 +4,5 @@ export type ShopCardProps = {
   section: ShopSectionData;
   allShops: readonly Shop[];
   draggable: boolean;
+  quickAdd: boolean;
 };
