@@ -107,4 +107,38 @@ describe('ShopQuickAdd', () => {
 
     expect(await screen.findByText(ITEM_FAILURE_COPY.add('Apples'))).toBeInTheDocument();
   });
+
+  it('adds what was typed when the keyboard Done key dismisses the field', async () => {
+    await renderQuickAdd({ shop: TESCO });
+    const input = screen.getByRole('textbox');
+    fireEvent.change(input, { target: { value: 'Apples' } });
+
+    fireEvent.blur(input);
+
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    await waitFor(async () => {
+      const items = await fakeShoppingList.listItems();
+      expect(items.map(({ name }) => name)).toEqual(['Apples']);
+    });
+  });
+
+  it('adds nothing when the field is dismissed empty', async () => {
+    await renderQuickAdd({ shop: TESCO });
+
+    fireEvent.blur(screen.getByRole('textbox'));
+
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    expect(await fakeShoppingList.listItems()).toEqual([]);
+  });
+
+  it('does not add what was typed when Escape discards it', async () => {
+    await renderQuickAdd({ shop: TESCO });
+    const input = screen.getByRole('textbox');
+    fireEvent.change(input, { target: { value: 'Apples' } });
+
+    fireEvent.keyDown(input, { key: 'Escape' });
+    fireEvent.blur(input);
+
+    expect(await fakeShoppingList.listItems()).toEqual([]);
+  });
 });
