@@ -28,8 +28,8 @@ export const RealtimeProvider = ({ children }: PropsWithChildren) => {
   const { status, getToken } = useSessionContext();
   const { householdId } = useListParams();
   const [bus] = useState(() => createEventBus<ChangeType, ChangeEvent>());
-  const sinceRef = useRef<number | undefined>(undefined);
-  const { refetch } = useChangesQuery({ householdId, getSince: () => sinceRef.current });
+  const [seen] = useState<{ since: number | undefined }>(() => ({ since: undefined }));
+  const { refetch } = useChangesQuery({ householdId, getSince: () => seen.since });
   const invalidateQueries = useInvalidateQueries();
   const latest = useRef({ getToken, refetch, invalidateQueries });
   useEffect(() => {
@@ -64,7 +64,7 @@ export const RealtimeProvider = ({ children }: PropsWithChildren) => {
       getToken: () => latest.current.getToken(),
       openChannel,
       fetchChanges: async ({ since }) => {
-        sinceRef.current = since;
+        seen.since = since;
         const { data, error } = await latest.current.refetch();
         if (data === undefined) {
           throw error ?? new Error(CHANGES_FAILED);
@@ -88,7 +88,7 @@ export const RealtimeProvider = ({ children }: PropsWithChildren) => {
       document.removeEventListener(VISIBILITY_EVENT, resume);
       window.removeEventListener(ONLINE_EVENT, resume);
     };
-  }, [enabled, realtimeHost, httpHost, householdId, status, bus]);
+  }, [enabled, realtimeHost, httpHost, householdId, status, bus, seen]);
 
   const api = useMemo<RealtimeApi>(
     () => ({ subscribe: bus.subscribe, invalidate: ({ keys }) => coalescer.add(keys) }),
