@@ -97,15 +97,15 @@ export const ItemRow = ({
         <span
           role="img"
           aria-label={ITEM_ROW_COPY.alsoIn(elsewhere.map(({ name }) => name))}
-          className="flex shrink-0 items-center -space-x-1"
+          className="flex shrink-0 items-center gap-1"
         >
           {elsewhere.slice(0, MAX_SHOP_BADGES).map(({ id, name, color }) => (
-            <span key={id} className="rounded-full ring-2 ring-white">
+            <span key={id} className="rounded-full">
               <ShopSwatch color={color} name={name} />
             </span>
           ))}
           {elsewhere.length > MAX_SHOP_BADGES && (
-            <span className="pl-2 text-xs opacity-60">+{elsewhere.length - MAX_SHOP_BADGES}</span>
+            <span className="text-xs opacity-60">+{elsewhere.length - MAX_SHOP_BADGES}</span>
           )}
         </span>
       )}
