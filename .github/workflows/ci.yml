@@ -19,8 +19,104 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  checks:
+  # Works out which parts of the repo changed, so only those are checked and deployed.
+  #   config  apps/configuration           -> validate and lint the JSON, deploy the config
+  #   web     apps/web                     -> check and deploy the web app
+  #   api     apps/functions, e2e          -> check and deploy the Lambdas
+  # Shared code (contract, lockfile, root tooling) checks and deploys both apps. A change to the
+  # workflow itself checks everything and deploys nothing.
+  scope:
     if: github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      web: ${{ steps.diff.outputs.web }}
+      api: ${{ steps.diff.outputs.api }}
+      config: ${{ steps.diff.outputs.config }}
+      deploy_web: ${{ steps.diff.outputs.deploy_web }}
+      deploy_api: ${{ steps.diff.outputs.deploy_api }}
+      deploy_config: ${{ steps.diff.outputs.deploy_config }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - id: diff
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          set -euo pipefail
+          if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+            files=$(printf '%s\n' packages/force apps/web/force apps/functions/force apps/configuration/force)
+          else
+            files=$(git diff --name-only "$BASE" "$GITHUB_SHA")
+          fi
+          has() { if grep -qE "$1" <<< "$files"; then echo true; else echo false; fi; }
+          any() { for value in "$@"; do if [ "$value" = true ]; then echo true; return; fi; done; echo false; }
+          shared=$(has '^(packages/|pnpm-lock\.yaml$|package\.json$|pnpm-workspace\.yaml$|turbo\.json$|tsconfig|\.oxlintrc\.json$|\.oxfmtrc\.json$|\.fallowrc\.json$|vitest\.config|scripts/|commitlint)')
+          tooling=$(has '^(\.github/|compose\.yaml$)')
+          web_code=$(has '^apps/web/')
+          api_code=$(has '^apps/functions/')
+          e2e=$(has '^e2e/')
+          config=$(has '^apps/configuration/')
+          {
+            echo "web=$(any "$shared" "$tooling" "$web_code")"
+            echo "api=$(any "$shared" "$tooling" "$api_code" "$e2e")"
+            echo "config=$(any "$shared" "$tooling" "$config")"
+            echo "deploy_web=$(any "$shared" "$web_code")"
+            echo "deploy_api=$(any "$shared" "$api_code")"
+            echo "deploy_config=$config"
+          } >> "$GITHUB_OUTPUT"
+          cat "$GITHUB_OUTPUT"
+
+  check-config:
+    needs: scope
+    if: needs.scope.outputs.config == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo run format:check lint --filter=@fridgeboard/configuration
+      - run: pnpm --filter @fridgeboard/configuration validate
+
+  check-web:
+    needs: scope
+    if: needs.scope.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: node scripts/checkReexports/index.ts
+      - run: pnpm turbo run format:check lint typecheck test build --filter=@fridgeboard/web...
+      - run: pnpm exec vitest run
+      - run: pnpm --filter @fridgeboard/configuration validate
+      - run: npx fallow@2.89.0 dead-code --production --fail-on-issues
+      - if: github.event_name == 'push'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: web-dist
+          path: apps/web/dist
+          retention-days: 7
+
+  check-api:
+    needs: scope
+    if: needs.scope.outputs.api == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     services:
@@ -43,21 +139,13 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm format:check
-      - run: pnpm lint
-      - run: pnpm typecheck
-      - run: pnpm test
+      - run: node scripts/checkReexports/index.ts
+      - run: pnpm turbo run format:check lint typecheck test build --filter=@fridgeboard/functions... --filter=@fridgeboard/e2e
+      - run: pnpm exec vitest run
       - run: pnpm --filter @fridgeboard/e2e test:integration
       - run: pnpm --filter @fridgeboard/configuration validate
-      - run: pnpm build
       - run: pnpm --filter @fridgeboard/functions smoke
       - run: npx fallow@2.89.0 dead-code --production --fail-on-issues
-      - if: github.event_name == 'push'
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: web-dist
-          path: apps/web/dist
-          retention-days: 7
       - if: github.event_name == 'push'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -65,27 +153,24 @@ jobs:
           path: apps/functions/dist
           retention-days: 7
 
-  changes:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  # The one required status check. It passes when every check that was needed passed; a check that
+  # was not needed counts as passing.
+  checks:
+    if: always() && github.event_name != 'workflow_dispatch'
+    needs: [scope, check-config, check-web, check-api]
     runs-on: ubuntu-latest
     timeout-minutes: 2
-    outputs:
-      app: ${{ steps.diff.outputs.app }}
+    env:
+      NEEDS: ${{ toJSON(needs) }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-          fetch-depth: 2
-      - id: diff
-        run: |
-          set -euo pipefail
-          files=$(git diff --name-only HEAD^ HEAD || echo "force-app")
-          if grep -vqE '^apps/configuration/(lambda|web)/' <<< "$files"; then app=true; else app=false; fi
-          echo "app=$app" >> "$GITHUB_OUTPUT"
+      - run: |
+          echo "$NEEDS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          echo "$NEEDS" | jq -e '.scope.result == "success"' > /dev/null
+          echo "$NEEDS" | jq -e 'all(.[]; .result == "success" or .result == "skipped")' > /dev/null
 
-  deploy:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.changes.outputs.app == 'true'
-    needs: [checks, changes]
+  deploy-api:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.scope.outputs.deploy_api == 'true'
+    needs: [scope, checks]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     environment:
@@ -97,18 +182,11 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    env:
-      BUCKET: ${{ vars.WEB_BUCKET }}
-      DISTRIBUTION_ID: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           sparse-checkout: .github/scripts
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: web-dist
-          path: dist
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: api-dist
@@ -167,18 +245,60 @@ jobs:
           while read -r fn prev; do
             aws lambda update-alias --function-name "$fn" --name live --function-version "$prev" --description "prev=$prev" > /dev/null
           done < "$RUNNER_TEMP/flipped"
+
+  deploy-web:
+    if: >-
+      always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+      && needs.scope.outputs.deploy_web == 'true' && needs.checks.result == 'success'
+      && needs.deploy-api.result != 'failure' && needs.deploy-api.result != 'cancelled'
+    needs: [scope, checks, deploy-api]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: production
+      url: https://app.fridgeboard.uk
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      BUCKET: ${{ vars.WEB_BUCKET }}
+      DISTRIBUTION_ID: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: web-dist
+          path: dist
+      - uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: eu-west-2
       - name: Upload hashed assets (cached for a year)
         run: aws s3 sync dist/assets "s3://$BUCKET/webapp/assets" --cache-control "public,max-age=31536000,immutable"
       - name: Upload everything else (always revalidated)
         run: aws s3 sync dist "s3://$BUCKET/webapp" --exclude "assets/*" --cache-control "no-cache" --delete
       - name: Invalidate CloudFront
         run: aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths "/*" > /dev/null
+      - name: Smoke check
+        run: |
+          set -euo pipefail
+          for i in 1 2 3 4 5; do
+            out=$(curl -s -o /dev/null -w '%{http_code} %{content_type}' https://app.fridgeboard.uk/ || true)
+            case "$out" in "200 text/html"*) exit 0 ;; esac
+            sleep 5
+          done
+          echo "unexpected / response: $out"
+          exit 1
 
   config-lambda:
     if: >-
-      always() && needs.checks.result == 'success' && needs.changes.result == 'success'
-      && needs.deploy.result != 'failure' && needs.deploy.result != 'cancelled'
-    needs: [checks, changes, deploy]
+      always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+      && needs.scope.outputs.deploy_config == 'true' && needs.checks.result == 'success'
+      && needs.deploy-api.result != 'failure' && needs.deploy-api.result != 'cancelled'
+      && needs.deploy-web.result != 'failure' && needs.deploy-web.result != 'cancelled'
+    needs: [scope, checks, deploy-api, deploy-web]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     environment:
@@ -218,10 +338,12 @@ jobs:
 
   config-web:
     if: >-
-      always() && needs.checks.result == 'success' && needs.changes.result == 'success'
-      && needs.deploy.result != 'failure' && needs.deploy.result != 'cancelled'
+      always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+      && needs.scope.outputs.deploy_config == 'true' && needs.checks.result == 'success'
+      && needs.deploy-api.result != 'failure' && needs.deploy-api.result != 'cancelled'
+      && needs.deploy-web.result != 'failure' && needs.deploy-web.result != 'cancelled'
       && needs.config-lambda.result != 'failure' && needs.config-lambda.result != 'cancelled'
-    needs: [checks, changes, deploy, config-lambda]
+    needs: [scope, checks, deploy-api, deploy-web, config-lambda]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     environment:
@@ -302,7 +424,8 @@ jobs:
           done
 
   fallow-report:
-    if: github.event_name == 'pull_request'
+    needs: scope
+    if: github.event_name == 'pull_request' && (needs.scope.outputs.web == 'true' || needs.scope.outputs.api == 'true')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
