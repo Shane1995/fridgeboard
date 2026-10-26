@@ -22,7 +22,6 @@ export const AddItemForm = ({ focusedShopId }: AddItemFormProps) => {
     shops,
     suggestions,
     pickSuggestion,
-    isAdding,
     handleSubmit,
   } = useAddItemForm(focusedShopId);
   const inputRef = useAutoFocus<HTMLInputElement>();
@@ -47,8 +46,8 @@ export const AddItemForm = ({ focusedShopId }: AddItemFormProps) => {
         <button
           type="submit"
           aria-label={ADD_ITEM_COPY.submit}
-          disabled={isAdding}
-          className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-lg md:size-11 md:rounded-xl bg-accent text-white transition-transform active:scale-95 disabled:opacity-60"
+          onMouseDown={(event) => event.preventDefault()}
+          className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-lg md:size-11 md:rounded-xl bg-accent text-white transition-transform active:scale-95"
         >
           <Plus aria-hidden size={18} />
         </button>

@@ -209,10 +209,13 @@ describe('useApiMutation', () => {
 describe('useApiMutation failure message', () => {
   const FAILED = 'Could not save the username.';
 
-  const setUp = (
-    { failureMessage }: { failureMessage?: string },
-    answer: () => Promise<Response>,
-  ) => {
+  type Extra = {
+    failureMessage?: string | ((username: string) => string);
+    onStart?: (username: string) => void;
+    onFailure?: (username: string) => void;
+  };
+
+  const setUp = (extra: Extra, answer: () => Promise<Response>) => {
     const { session, apiFetch } = createSession(SessionStatus.SignedIn);
     apiFetch.mockImplementation(answer);
     const Base = createSessionWrapper(session, new QueryClient());
@@ -229,7 +232,7 @@ describe('useApiMutation failure message', () => {
           method: 'PUT',
           toBody: (username: string) => ({ username }),
           reasons: REASONS,
-          ...(failureMessage === undefined ? {} : { failureMessage }),
+          ...extra,
         }),
       { wrapper },
     );
@@ -280,5 +283,68 @@ describe('useApiMutation failure message', () => {
     });
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('builds the message from the request when given a function', async () => {
+    const result = setUp(
+      { failureMessage: (username) => `Could not save ${username}.` },
+      async () => new Response('{}', { status: 409 }),
+    );
+
+    await act(async () => {
+      await result.current.mutateAsync('jess');
+    });
+
+    expect(await screen.findByText('Could not save jess.')).toBeInTheDocument();
+  });
+
+  it('calls onStart before the request goes out', async () => {
+    const order: string[] = [];
+    const result = setUp({ onStart: () => order.push('start') }, async () => {
+      order.push('request');
+      return new Response(JSON.stringify({ username: 'jess' }), { status: 200 });
+    });
+
+    await act(async () => {
+      await result.current.mutateAsync('jess');
+    });
+
+    expect(order).toEqual(['start', 'request']);
+  });
+
+  it('calls onFailure when the server answers with a failure', async () => {
+    const onFailure = vi.fn();
+    const result = setUp({ onFailure }, async () => new Response('{}', { status: 409 }));
+
+    await act(async () => {
+      await result.current.mutateAsync('jess');
+    });
+
+    expect(onFailure).toHaveBeenCalledWith('jess');
+  });
+
+  it('calls onFailure when the request itself throws', async () => {
+    const onFailure = vi.fn();
+    const result = setUp({ onFailure }, () => Promise.reject(new Error('offline')));
+
+    await act(async () => {
+      await result.current.mutateAsync('jess').catch(() => undefined);
+    });
+
+    expect(onFailure).toHaveBeenCalledWith('jess');
+  });
+
+  it('does not call onFailure when the request works', async () => {
+    const onFailure = vi.fn();
+    const result = setUp(
+      { onFailure },
+      async () => new Response(JSON.stringify({ username: 'jess' }), { status: 200 }),
+    );
+
+    await act(async () => {
+      await result.current.mutateAsync('jess');
+    });
+
+    expect(onFailure).not.toHaveBeenCalled();
   });
 });

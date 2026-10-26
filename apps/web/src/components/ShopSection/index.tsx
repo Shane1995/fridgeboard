@@ -2,6 +2,7 @@ import { useOverlayState } from '@heroui/react';
 import { Pencil } from 'lucide-react';
 import { UNSORTED_SHOP_ID } from '../../services/shoppingList/constants';
 import type { Shop, ShopSectionData } from '../../services/shoppingList/types';
+import { isPendingItem } from '../../services/shoppingList/utils/isPendingItem';
 import { DraggableItemRow } from '../DraggableItemRow';
 import { ShopDialog } from '../ShopDialog';
 import { SHOP_COLOR_CLASSES, SHOP_TEXT_CLASSES } from '../ShopSwatch/constants';
@@ -56,7 +57,7 @@ export const ShopSection = ({
       ) : (
         <ul className="flex flex-col divide-y divide-foreground/5">
           {items.map((item) =>
-            draggable ? (
+            draggable && !isPendingItem(item) ? (
               <DraggableItemRow key={item.id} item={item} shops={allShops} shopId={shop.id} />
             ) : (
               <ItemRow key={item.id} item={item} shops={allShops} shopId={shop.id} />

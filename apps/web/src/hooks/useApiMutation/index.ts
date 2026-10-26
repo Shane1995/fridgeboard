@@ -23,6 +23,8 @@ export const useApiMutation = <TVariables, TResponse, TReason extends string, TC
   reasons,
   onSuccess,
   failureMessage,
+  onStart,
+  onFailure,
   optimistic,
 }: ApiMutationOptions<TVariables, TResponse, TReason, TCache>): MutationResult<
   ApiResult<TResponse, TReason>,
@@ -32,9 +34,12 @@ export const useApiMutation = <TVariables, TResponse, TReason extends string, TC
   const { apiFetch } = useSessionContext();
   const queryClient = useQueryClient();
   const toast = useToast();
-  const reportFailure = () => {
+  const reportFailure = (variables: TVariables) => {
+    onFailure?.(variables);
     if (failureMessage !== undefined) {
-      toast.error(failureMessage);
+      toast.error(
+        typeof failureMessage === 'function' ? failureMessage(variables) : failureMessage,
+      );
     }
   };
   return useMutation({
@@ -64,6 +69,7 @@ export const useApiMutation = <TVariables, TResponse, TReason extends string, TC
           optimistic.update({ current: snapshot, variables }),
         );
       }
+      onStart?.(variables);
       const result = await sendJson<TResponse, TReason>(
         endpoint,
         method,
@@ -72,14 +78,14 @@ export const useApiMutation = <TVariables, TResponse, TReason extends string, TC
         apiFetch,
       ).catch((error: unknown) => {
         restore();
-        reportFailure();
+        reportFailure(variables);
         throw error;
       });
       if (result.ok) {
         onSuccess?.(result.data, variables);
       } else {
         restore();
-        reportFailure();
+        reportFailure(variables);
       }
       return result;
     },

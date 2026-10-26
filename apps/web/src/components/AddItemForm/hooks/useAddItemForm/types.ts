@@ -14,6 +14,5 @@ export type AddItemFormState = {
   shops: Shop[];
   suggestions: HistoryEntry[];
   pickSuggestion: (suggestion: HistoryEntry) => void;
-  isAdding: boolean;
   handleSubmit: (event: FormEvent) => void;
 };
