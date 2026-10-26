@@ -6,6 +6,7 @@ import { createShoppingListWrapper } from '../createShoppingListWrapper';
 export const renderShoppingListMutation = async <T,>(
   useMutationUnderTest: () => T,
   itemCount: number,
+  options: { failMethod?: string } = {},
 ) => {
   const { result } = renderHook(
     () => ({
@@ -13,7 +14,7 @@ export const renderShoppingListMutation = async <T,>(
       items: useItemsQuery(),
       shops: useShopsQuery(),
     }),
-    { wrapper: createShoppingListWrapper() },
+    { wrapper: createShoppingListWrapper(options) },
   );
   await waitFor(() => expect(result.current.items.data).toHaveLength(itemCount));
   return result;

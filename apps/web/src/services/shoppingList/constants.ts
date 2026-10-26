@@ -19,6 +19,12 @@ export const UNSORTED_SHOP_ID = 'unsorted';
 export const UNSORTED_SHOP_NAME = 'Unassigned';
 export const FOCUS_SHOP_STORAGE_KEY = 'fridgeboard.focusShop';
 
+export const SHOP_FAILURE_COPY = {
+  create: 'Could not add the shop. Try again.',
+  update: 'Could not save the shop. Try again.',
+  remove: 'Could not delete the shop. Try again.',
+} as const;
+
 export const ITEM_FAILURE_COPY = {
   add: (name: string) => `Could not add ${name}. Try again.`,
   update: 'Could not save the change. Try again.',
