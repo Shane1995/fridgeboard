@@ -8,27 +8,26 @@ const publishChange = vi.hoisted(() => vi.fn());
 vi.mock('../commitChange/index.ts', () => ({ commitChange }));
 vi.mock('../publishChange/index.ts', () => ({ publishChange }));
 
-const CHANGE = { id: 'abc', rev: 3, type: 'item' as const };
+const CHANGES = [{ id: 'abc', rev: 3, type: 'item' as const }];
 const OPTIONS = {
   table: createTable(DynamoDBDocumentClient.from(new DynamoDBClient({})), 'fridgeboard'),
   householdId: 'hh-1',
-  type: 'item' as const,
-  id: 'abc',
+  changes: [{ type: 'item' as const, id: 'abc' }] as const,
   items: [],
 };
 
 describe('recordChange', () => {
   beforeEach(() => {
-    commitChange.mockReset().mockResolvedValue(CHANGE);
+    commitChange.mockReset().mockResolvedValue(CHANGES);
     publishChange.mockReset().mockResolvedValue(undefined);
   });
 
   it('commits the change and then announces it to the household', async () => {
-    const change = await recordChange(OPTIONS);
+    const changes = await recordChange(OPTIONS);
 
-    expect(change).toEqual(CHANGE);
+    expect(changes).toEqual(CHANGES);
     expect(commitChange).toHaveBeenCalledWith(OPTIONS);
-    expect(publishChange).toHaveBeenCalledWith({ householdId: 'hh-1', change: CHANGE });
+    expect(publishChange).toHaveBeenCalledWith({ householdId: 'hh-1', changes: CHANGES });
   });
 
   it('announces nothing when the commit fails', async () => {

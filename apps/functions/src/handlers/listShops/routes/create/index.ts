@@ -28,8 +28,7 @@ export const createListShop = async ({ user, table, scope }: ListRouteContext) =
   await recordChange({
     table,
     householdId: scope.householdId,
-    type: 'shop',
-    id: shop.id,
+    changes: [{ type: 'shop', id: shop.id }],
     items: [{ put: { ...shopKey({ ...scope, shopId: shop.id }), ...shop } }],
   });
   return jsonResponse(201, shop);

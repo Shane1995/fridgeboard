@@ -10,7 +10,7 @@ import {
 } from './constants.ts';
 import type { PublishChangeOptions } from './types.ts';
 
-export const publishChange = async ({ householdId, change }: PublishChangeOptions) => {
+export const publishChange = async ({ householdId, changes }: PublishChangeOptions) => {
   try {
     const { services } = await getConfiguration();
     const host = services[APPSYNC_EVENTS_SERVICE]?.url;
@@ -20,7 +20,7 @@ export const publishChange = async ({ householdId, change }: PublishChangeOption
     const url = `${host}${EVENT_PATH}`;
     const body = JSON.stringify({
       channel: `${CHANNEL_PREFIX}${householdId}`,
-      events: [JSON.stringify(change)],
+      events: changes.map((change) => JSON.stringify(change)),
     });
     const response = await fetch(url, {
       method: 'POST',

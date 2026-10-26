@@ -30,7 +30,7 @@ describe('publishChange', () => {
   });
 
   it('posts the change to the household channel, signed for AppSync', async () => {
-    await publishChange({ householdId: 'hh-1', change: CHANGE });
+    await publishChange({ householdId: 'hh-1', changes: [CHANGE] });
 
     const [url, init] = fetchMock.mock.calls[0] ?? [];
     expect(url).toBe(`${HOST}/event`);
@@ -44,10 +44,22 @@ describe('publishChange', () => {
     expect(init.headers['x-amz-security-token']).toBe('token');
   });
 
+  it('sends several changes as several events in one request', async () => {
+    const other = { id: 'xyz', rev: 44, type: 'shop' as const };
+
+    await publishChange({ householdId: 'hh-1', changes: [CHANGE, other] });
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    expect(JSON.parse(fetchMock.mock.calls[0]?.[1].body).events).toEqual([
+      JSON.stringify(CHANGE),
+      JSON.stringify(other),
+    ]);
+  });
+
   it('does nothing when no AppSync host is configured', async () => {
     getConfiguration.mockResolvedValue({ services: {} });
 
-    await publishChange({ householdId: 'hh-1', change: CHANGE });
+    await publishChange({ householdId: 'hh-1', changes: [CHANGE] });
 
     expect(fetchMock).not.toHaveBeenCalled();
   });
@@ -55,14 +67,18 @@ describe('publishChange', () => {
   it('logs and carries on when AppSync refuses the event', async () => {
     fetchMock.mockResolvedValue({ ok: false, status: 403 });
 
-    await expect(publishChange({ householdId: 'hh-1', change: CHANGE })).resolves.toBeUndefined();
+    await expect(
+      publishChange({ householdId: 'hh-1', changes: [CHANGE] }),
+    ).resolves.toBeUndefined();
     expect(console.error).toHaveBeenCalledWith('publishChange failed', 403);
   });
 
   it('logs and carries on when the request cannot be sent', async () => {
     fetchMock.mockRejectedValue(new TypeError('network down'));
 
-    await expect(publishChange({ householdId: 'hh-1', change: CHANGE })).resolves.toBeUndefined();
+    await expect(
+      publishChange({ householdId: 'hh-1', changes: [CHANGE] }),
+    ).resolves.toBeUndefined();
     expect(console.error).toHaveBeenCalledWith('publishChange failed', 'TypeError');
   });
 
@@ -72,7 +88,7 @@ describe('publishChange', () => {
     delete process.env['AWS_ACCESS_KEY_ID'];
     delete process.env['AWS_SECRET_ACCESS_KEY'];
 
-    await publishChange({ householdId: 'hh-1', change: CHANGE });
+    await publishChange({ householdId: 'hh-1', changes: [CHANGE] });
 
     expect(fetchMock).not.toHaveBeenCalled();
     expect(console.error).toHaveBeenCalled();

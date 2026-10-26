@@ -34,8 +34,7 @@ export const createListItem = async ({ user, table, scope }: ListRouteContext) =
   await recordChange({
     table,
     householdId: scope.householdId,
-    type: 'item',
-    id: stored.id,
+    changes: [{ type: 'item', id: stored.id }],
     items: [
       { put: { ...itemKey({ ...scope, itemId: stored.id }), ...stored } },
       {
