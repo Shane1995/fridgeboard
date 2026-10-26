@@ -12,6 +12,7 @@ export default defineConfig({
           name: 'integration',
           include: ['api/integration/**/*.test.ts'],
           globalSetup: ['./api/integration/dynamodbLocal/globalSetup/index.ts'],
+          setupFiles: ['./api/integration/dynamodbLocal/setup/index.ts'],
           env: HANDLER_ENV,
           testTimeout: 15_000,
         },
