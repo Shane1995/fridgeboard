@@ -134,25 +134,66 @@ describe('RealtimeProvider', () => {
       vi.useRealTimers();
     });
 
-    it('merges many requests for the same list into one refresh', () => {
+    const refreshes = (spy: { mock: { calls: unknown[][] } }) =>
+      spy.mock.calls.map(([filters]) => (filters as { queryKey: unknown }).queryKey);
+
+    it('refreshes a list when one of its kinds changes, once for a burst of changes', () => {
       const client = new QueryClient();
       const spy = vi.spyOn(client, 'invalidateQueries').mockResolvedValue();
       const { result } = render({ client });
+      result.current.invalidateOn({ types: ['item', 'shop'], keys: ['items'] });
+      result.current.invalidateOn({ types: ['shop'], keys: ['shops'] });
 
-      Array.from({ length: 17 }).forEach(() => result.current.invalidate({ keys: ['items'] }));
-      result.current.invalidate({ keys: ['shops', 'items'] });
+      options().onChanges([
+        { type: 'item', id: 'a' },
+        { type: 'item', id: 'b' },
+        { type: 'shop', id: 's' },
+      ]);
       expect(spy).not.toHaveBeenCalled();
       vi.advanceTimersByTime(150);
 
-      expect(spy.mock.calls.map(([filters]) => filters?.queryKey)).toEqual([['items'], ['shops']]);
+      expect(refreshes(spy)).toEqual([['items'], ['shops']]);
+    });
+
+    it('listens once however many components ask for the same list', () => {
+      const client = new QueryClient();
+      const spy = vi.spyOn(client, 'invalidateQueries').mockResolvedValue();
+      const { result } = render({ client });
+      const unregister = Array.from({ length: 17 }, () =>
+        result.current.invalidateOn({ types: ['item'], keys: ['items'] }),
+      );
+
+      unregister.slice(0, 16).forEach((stop) => stop());
+      options().onChanges([{ type: 'item', id: 'a' }]);
+      vi.advanceTimersByTime(150);
+      expect(refreshes(spy)).toEqual([['items']]);
+
+      unregister[16]?.();
+      spy.mockClear();
+      options().onChanges([{ type: 'item', id: 'b' }]);
+      vi.advanceTimersByTime(150);
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('does not refresh a list for a kind it does not use', () => {
+      const client = new QueryClient();
+      const spy = vi.spyOn(client, 'invalidateQueries').mockResolvedValue();
+      const { result } = render({ client });
+      result.current.invalidateOn({ types: ['shop'], keys: ['shops'] });
+
+      options().onChanges([{ type: 'item', id: 'a' }]);
+      vi.advanceTimersByTime(500);
+
+      expect(spy).not.toHaveBeenCalled();
     });
 
     it('drops a pending refresh when it goes away', () => {
       const client = new QueryClient();
       const spy = vi.spyOn(client, 'invalidateQueries').mockResolvedValue();
       const { result, unmount } = render({ client });
+      result.current.invalidateOn({ types: ['item'], keys: ['items'] });
 
-      result.current.invalidate({ keys: ['items'] });
+      options().onChanges([{ type: 'item', id: 'a' }]);
       unmount();
       vi.advanceTimersByTime(500);
 
