@@ -4,4 +4,5 @@ import * as z from 'zod/mini';
 export const HouseholdMetaItemSchema = z.looseObject({
   PK: z.string(),
   name: z.string(),
+  rev: z.optional(z.number()),
 });

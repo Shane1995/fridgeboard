@@ -7,6 +7,7 @@ const api = {
     onboardingSkip: '/api/v2/me/onboarding/{sectionId}/skip',
     username: '/api/v2/profile/name',
     households: '/api/v2/households',
+    householdChanges: '/api/v2/households/{householdId}/changes',
     householdInvites: '/api/v2/households/{householdId}/invites',
     householdMembers: '/api/v2/households/{householdId}/members',
     listShop: '/api/v2/households/{householdId}/lists/{listId}/shops/{shopId}',
@@ -33,6 +34,7 @@ describe('buildRoutes', () => {
     expect(routes.get('GET /api/v2/me')?.jwt).toBe(true);
     expect(routes.get('GET /api/v2/me/onboarding')?.jwt).toBe(true);
     expect(routes.get('GET /api/v2/households')?.jwt).toBe(true);
+    expect(routes.get('GET /api/v2/households/{householdId}/changes')?.jwt).toBe(true);
     expect(routes.get('PUT /api/v2/profile/name')?.jwt).toBe(true);
     expect(routes.get('POST /api/v2/households')?.jwt).toBe(true);
     expect(routes.get('POST /api/v2/auth/start')?.jwt).toBe(false);

@@ -1,0 +1,2 @@
+export const SIGNING_SERVICE = 'appsync';
+export const MISSING_CREDENTIALS_ERROR = 'MISSING_AWS_CREDENTIALS';

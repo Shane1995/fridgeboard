@@ -114,11 +114,31 @@ export const createTable = (client: DynamoDBDocumentClient, TableName: string): 
   transactWrite: async (items) => {
     await client.send(
       new TransactWriteCommand({
-        TransactItems: items.map((item) =>
-          'put' in item
-            ? { Put: { TableName, Item: item.put } }
-            : { Update: { TableName, Key: item.update, ...buildUpdate(item.parts) } },
-        ),
+        TransactItems: items.map((item) => {
+          if ('put' in item) {
+            return { Put: { TableName, Item: item.put } };
+          }
+          if ('delete' in item) {
+            return { Delete: { TableName, Key: item.delete } };
+          }
+          const update = buildUpdate(item.parts);
+          return {
+            Update: {
+              TableName,
+              Key: item.update,
+              UpdateExpression: update.UpdateExpression,
+              ExpressionAttributeNames: {
+                ...update.ExpressionAttributeNames,
+                ...item.condition?.names,
+              },
+              ExpressionAttributeValues: {
+                ...update.ExpressionAttributeValues,
+                ...item.condition?.values,
+              },
+              ...(item.condition && { ConditionExpression: item.condition.expression }),
+            },
+          };
+        }),
       }),
     );
   },

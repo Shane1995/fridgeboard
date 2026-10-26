@@ -3,6 +3,7 @@
     "ENABLE_ADMIN_INVITES": false,
     "ENABLE_HOUSEHOLD_INVITES": true,
     "ENABLE_ITEM_DRAG": true,
+    "ENABLE_LIVE_SYNC": false,
     "ENABLE_PASSKEYS": true,
     "ENABLE_PULL_TO_REFRESH": true,
     "ENABLE_SHOP_QUICK_ADD": true
@@ -25,6 +26,7 @@
   "services": {
     "api": {
       "endpoints": {
+        "householdChanges": "/api/v1/households/{householdId}/changes",
         "householdInvites": "/api/v1/households/{householdId}/invites",
         "householdMembers": "/api/v1/households/{householdId}/members",
         "households": "/api/v1/households",
@@ -47,6 +49,10 @@
         "username": "/api/v1/me/username",
         "verify": "/api/v1/auth/verify"
       }
+    },
+    "realtime": {
+      "httpHost": "rxjwllofmvfqzoblifc7kakrau.appsync-api.eu-west-2.amazonaws.com",
+      "realtimeHost": "rxjwllofmvfqzoblifc7kakrau.appsync-realtime-api.eu-west-2.amazonaws.com"
     }
   },
   "settings": {

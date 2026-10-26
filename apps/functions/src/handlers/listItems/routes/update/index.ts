@@ -1,61 +1,64 @@
-import { LIST_ITEM_NAME_MAX_LENGTH } from '@fridgeboard/contract/lists/constants';
+import { isConditionFailedAt } from '../../../../utils/isConditionFailedAt/index.ts';
 import { HistoryItemSchema } from '../../../../utils/items/historyItem/index.ts';
 import { ListItemSchema } from '../../../../utils/items/listItem/index.ts';
 import { jsonResponse } from '../../../../utils/jsonResponse/index.ts';
 import { historyKey } from '../../../../utils/keys/historyKey/index.ts';
 import { itemKey } from '../../../../utils/keys/itemKey/index.ts';
 import { readJsonBody } from '../../../../utils/readJsonBody/index.ts';
-import { readShopIds } from '../../../../utils/readShopIds/index.ts';
-import { readText } from '../../../../utils/readText/index.ts';
+import { recordChange } from '../../../../utils/recordChange/index.ts';
 import type { ItemRouteOptions } from '../../../../utils/resolveList/types.ts';
+import type { TransactType } from '../../../../utils/table/types.ts';
+import { EXISTS_CONDITION } from '../../constants.ts';
+import { readItemChanges } from '../../utils/readItemChanges/index.ts';
 import { toListItem } from '../../utils/toListItem/index.ts';
 
 export const updateListItem = async ({
   context: { user, table, scope },
   itemId,
 }: ItemRouteOptions) => {
-  const body = readJsonBody(user.event);
-  const fields = typeof body === 'object' && body !== null ? (body as Record<string, unknown>) : {};
-  const set: Record<string, unknown> = {};
-
-  if ('name' in fields) {
-    const name = readText({ value: fields.name, maxLength: LIST_ITEM_NAME_MAX_LENGTH });
-    if (name === undefined) {
-      return jsonResponse(400, { reason: 'invalid-name' });
-    }
-    set.name = name;
-  }
-  const shops = await readShopIds({ fields, table, scope });
-  if (shops.status === 'invalid') {
-    return jsonResponse(400, { reason: 'invalid-shop' });
-  }
-  if (shops.status === 'ok') {
-    set.shopIds = shops.shopIds;
-  }
-  if ('checked' in fields) {
-    if (typeof fields.checked !== 'boolean') {
-      return jsonResponse(400, { reason: 'invalid-request' });
-    }
-    set.checked = fields.checked;
-  }
-  if (Object.keys(set).length === 0) {
-    return jsonResponse(400, { reason: 'invalid-request' });
-  }
-
-  const updated = await table.update({
-    key: itemKey({ ...scope, itemId }),
-    parts: { set },
-    schema: ListItemSchema,
-  });
-  if (updated === undefined) {
+  const key = itemKey({ ...scope, itemId });
+  const current = await table.get(key, ListItemSchema);
+  if (current === undefined) {
     return jsonResponse(404, { reason: 'not-found' });
   }
-  if (shops.status === 'ok') {
-    await table.update({
-      key: historyKey({ ...scope, name: updated.name }),
-      parts: { set: { shopIds: shops.shopIds } },
-      schema: HistoryItemSchema,
+
+  const body = readJsonBody(user.event);
+  const fields = typeof body === 'object' && body !== null ? (body as Record<string, unknown>) : {};
+  const changes = await readItemChanges({ fields, table, scope });
+  if (changes.status === 'invalid') {
+    return jsonResponse(400, { reason: changes.reason });
+  }
+
+  const { set, shopsChanged } = changes;
+  const updated = { ...current, ...set };
+  const history = shopsChanged ? historyKey({ ...scope, name: updated.name }) : undefined;
+  const historyItems: TransactType[] =
+    history !== undefined && (await table.get(history, HistoryItemSchema)) !== undefined
+      ? [
+          {
+            update: history,
+            parts: { set: { shopIds: updated.shopIds } },
+            condition: { expression: EXISTS_CONDITION },
+          },
+        ]
+      : [];
+
+  try {
+    await recordChange({
+      table,
+      householdId: scope.householdId,
+      type: 'item',
+      id: itemId,
+      items: [
+        { update: key, parts: { set }, condition: { expression: EXISTS_CONDITION } },
+        ...historyItems,
+      ],
     });
+  } catch (error) {
+    if (isConditionFailedAt({ error, index: 0 })) {
+      return jsonResponse(404, { reason: 'not-found' });
+    }
+    throw error;
   }
   return jsonResponse(200, toListItem(updated));
 };

@@ -1,6 +1,10 @@
 {
   "featureFlags": {},
-  "services": {},
+  "services": {
+    "appsyncEvents": {
+      "url": "https://rxjwllofmvfqzoblifc7kakrau.appsync-api.eu-west-2.amazonaws.com"
+    }
+  },
   "settings": {
     "flowTtlMs": 180000,
     "usernameMaxLength": 20,

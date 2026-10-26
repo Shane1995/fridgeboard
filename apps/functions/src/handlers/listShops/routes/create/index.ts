@@ -5,6 +5,7 @@ import { shopKey } from '../../../../utils/keys/shopKey/index.ts';
 import { newId } from '../../../../utils/newId/index.ts';
 import { readJsonBody } from '../../../../utils/readJsonBody/index.ts';
 import { readText } from '../../../../utils/readText/index.ts';
+import { recordChange } from '../../../../utils/recordChange/index.ts';
 import type { ListRouteContext } from '../../../../utils/resolveList/types.ts';
 import { queryShops } from '../../utils/queryShops/index.ts';
 import { readColor } from '../../utils/readColor/index.ts';
@@ -24,6 +25,12 @@ export const createListShop = async ({ user, table, scope }: ListRouteContext) =
   const existing = await queryShops({ table, scope });
   const order = existing.reduce((highest, shop) => Math.max(highest, shop.order), -1) + 1;
   const shop: IShop = { id: newId(), name, color, order };
-  await table.put({ ...shopKey({ ...scope, shopId: shop.id }), ...shop });
+  await recordChange({
+    table,
+    householdId: scope.householdId,
+    type: 'shop',
+    id: shop.id,
+    items: [{ put: { ...shopKey({ ...scope, shopId: shop.id }), ...shop } }],
+  });
   return jsonResponse(201, shop);
 };

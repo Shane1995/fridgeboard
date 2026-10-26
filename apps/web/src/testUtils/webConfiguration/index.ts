@@ -7,6 +7,7 @@ export const TEST_WEB_CONFIGURATION: WebConfiguration = {
     [WebFeatureFlag.ENABLE_ADMIN_INVITES]: false,
     [WebFeatureFlag.ENABLE_HOUSEHOLD_INVITES]: false,
     [WebFeatureFlag.ENABLE_ITEM_DRAG]: false,
+    [WebFeatureFlag.ENABLE_LIVE_SYNC]: false,
     [WebFeatureFlag.ENABLE_PASSKEYS]: false,
     [WebFeatureFlag.ENABLE_PULL_TO_REFRESH]: false,
     [WebFeatureFlag.ENABLE_SHOP_QUICK_ADD]: false,
@@ -24,6 +25,7 @@ export const TEST_WEB_CONFIGURATION: WebConfiguration = {
   services: {
     api: {
       endpoints: {
+        [WebService.householdChanges]: '/api/v1/households/{householdId}/changes',
         [WebService.householdInvites]: '/api/v1/households/{householdId}/invites',
         [WebService.householdMembers]: '/api/v1/households/{householdId}/members',
         [WebService.households]: '/api/v1/households',

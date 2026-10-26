@@ -128,6 +128,7 @@ jobs:
             case "$dir" in
               preSignUp) kind=pre-sign-up ;;
               postConfirmation) kind=post-confirmation ;;
+              subscribeGuard) kind=subscribe-guard ;;
               *) kind=wrapped ;;
             esac
             specs+=("$dir:fridgeboard-$name:$kind")

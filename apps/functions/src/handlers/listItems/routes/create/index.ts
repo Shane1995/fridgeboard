@@ -6,6 +6,7 @@ import { newId } from '../../../../utils/newId/index.ts';
 import { readJsonBody } from '../../../../utils/readJsonBody/index.ts';
 import { readShopIds } from '../../../../utils/readShopIds/index.ts';
 import { readText } from '../../../../utils/readText/index.ts';
+import { recordChange } from '../../../../utils/recordChange/index.ts';
 import type { ListRouteContext } from '../../../../utils/resolveList/types.ts';
 import { toListItem } from '../../utils/toListItem/index.ts';
 
@@ -30,12 +31,18 @@ export const createListItem = async ({ user, table, scope }: ListRouteContext) =
     createdAt: Date.now(),
     addedBy: user.sub,
   };
-  await table.transactWrite([
-    { put: { ...itemKey({ ...scope, itemId: stored.id }), ...stored } },
-    {
-      update: historyKey({ ...scope, name }),
-      parts: { set: { name, shopIds }, add: { count: 1 } },
-    },
-  ]);
+  await recordChange({
+    table,
+    householdId: scope.householdId,
+    type: 'item',
+    id: stored.id,
+    items: [
+      { put: { ...itemKey({ ...scope, itemId: stored.id }), ...stored } },
+      {
+        update: historyKey({ ...scope, name }),
+        parts: { set: { name, shopIds }, add: { count: 1 } },
+      },
+    ],
+  });
   return jsonResponse(201, toListItem(stored));
 };

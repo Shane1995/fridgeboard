@@ -4,5 +4,6 @@ export type BuildEventOptions = {
   method?: string;
   path?: string;
   pathParameters?: Record<string, string>;
+  query?: Record<string, string>;
   headers?: Record<string, string>;
 };

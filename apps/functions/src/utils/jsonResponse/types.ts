@@ -1,3 +1,4 @@
+import type { IChangesResponse } from '@fridgeboard/contract/changes';
 import type {
   IAuthErrorResponse,
   ITokenResponse,
@@ -28,6 +29,7 @@ import type { IMeResponse } from '@fridgeboard/contract/me';
 import type { IUsernameErrorResponse, IUsernameResponse } from '@fridgeboard/contract/username';
 
 export type ResponseBody =
+  | IChangesResponse
   | IMeResponse
   | IAuthErrorResponse
   | ITokenResponse

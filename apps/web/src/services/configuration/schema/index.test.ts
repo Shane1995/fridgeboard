@@ -183,6 +183,7 @@ describe('web settings schema', () => {
 describe('web configuration schema', () => {
   const ENDPOINTS = {
     households: '/api/v1/households',
+    householdChanges: '/api/v1/households/{householdId}/changes',
     householdInvites: '/api/v1/households/{householdId}/invites',
     householdMembers: '/api/v1/households/{householdId}/members',
     listShop: '/api/v1/households/{householdId}/lists/{listId}/shops/{shopId}',
@@ -210,6 +211,7 @@ describe('web configuration schema', () => {
       ENABLE_ADMIN_INVITES: false,
       ENABLE_HOUSEHOLD_INVITES: false,
       ENABLE_ITEM_DRAG: false,
+      ENABLE_LIVE_SYNC: false,
       ENABLE_PASSKEYS: true,
       ENABLE_PULL_TO_REFRESH: false,
       ENABLE_SHOP_QUICK_ADD: false,
@@ -246,6 +248,39 @@ describe('web configuration schema', () => {
   describe('WebConfigurationSchema', () => {
     it('accepts a complete configuration', () => {
       expect(WebConfigurationSchema.safeParse(VALID).success).toBe(true);
+    });
+
+    describe('realtime service', () => {
+      const REALTIME = {
+        httpHost: 'abc123.appsync-api.eu-west-2.amazonaws.com',
+        realtimeHost: 'abc123.appsync-realtime-api.eu-west-2.amazonaws.com',
+      };
+      const withRealtime = (realtime: object) => ({
+        ...VALID,
+        services: { ...VALID.services, realtime },
+      });
+
+      it('accepts the AppSync hosts and works without the service', () => {
+        expect(WebConfigurationSchema.safeParse(withRealtime(REALTIME)).success).toBe(true);
+        expect(WebConfigurationSchema.safeParse(VALID).success).toBe(true);
+      });
+
+      it.each([
+        ['a host that is not AppSync', { ...REALTIME, realtimeHost: 'evil.example.com' }],
+        ['a realtime host in the http slot', { ...REALTIME, httpHost: REALTIME.realtimeHost }],
+        [
+          'a url instead of a host',
+          { ...REALTIME, httpHost: 'https://abc123.appsync-api.eu-west-2.amazonaws.com' },
+        ],
+        ['a missing host', { httpHost: REALTIME.httpHost }],
+        ['an unknown key', { ...REALTIME, extra: 'x' }],
+      ])('rejects %s', (_name, realtime) => {
+        expect(WebConfigurationSchema.safeParse(withRealtime(realtime)).success).toBe(false);
+      });
+
+      it('lets an older build ignore the service', () => {
+        expect(LenientWebConfigurationSchema.safeParse(withRealtime(REALTIME)).success).toBe(true);
+      });
     });
 
     it('accepts named entries, endpoint overrides and the maximum me stale time', () => {
