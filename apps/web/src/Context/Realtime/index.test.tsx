@@ -26,11 +26,15 @@ const configuration = ({ flag = true, realtime = true } = {}) => ({
   services: { ...TEST_WEB_CONFIGURATION.services, ...(realtime ? { realtime: REALTIME } : {}) },
 });
 
-const render = ({ config = configuration(), status = SessionStatus.SignedIn } = {}) => {
+const render = ({
+  config = configuration(),
+  status = SessionStatus.SignedIn,
+  client = new QueryClient(),
+} = {}) => {
   const created = createSession(status);
   created.getToken.mockResolvedValue('token-1');
   const wrapper = ({ children }: { children: ReactNode }) => (
-    <TestProviders session={created.session} client={new QueryClient()} config={config}>
+    <TestProviders session={created.session} client={client} config={config}>
       <RealtimeProvider>{children}</RealtimeProvider>
     </TestProviders>
   );
@@ -119,6 +123,82 @@ describe('RealtimeProvider', () => {
     expect(items).toHaveBeenCalledWith({ type: 'item', id: 'a' });
     expect(shops).toHaveBeenCalledWith({ type: 'shop', id: undefined });
     expect(items).toHaveBeenCalledTimes(1);
+  });
+
+  describe('refreshing lists', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    const refreshes = (spy: { mock: { calls: unknown[][] } }) =>
+      spy.mock.calls.map(([filters]) => (filters as { queryKey: unknown }).queryKey);
+
+    it('refreshes a list when one of its kinds changes, once for a burst of changes', () => {
+      const client = new QueryClient();
+      const spy = vi.spyOn(client, 'invalidateQueries').mockResolvedValue();
+      const { result } = render({ client });
+      result.current.invalidateOn({ types: ['item', 'shop'], keys: ['items'] });
+      result.current.invalidateOn({ types: ['shop'], keys: ['shops'] });
+
+      options().onChanges([
+        { type: 'item', id: 'a' },
+        { type: 'item', id: 'b' },
+        { type: 'shop', id: 's' },
+      ]);
+      expect(spy).not.toHaveBeenCalled();
+      vi.advanceTimersByTime(150);
+
+      expect(refreshes(spy)).toEqual([['items'], ['shops']]);
+    });
+
+    it('listens once however many components ask for the same list', () => {
+      const client = new QueryClient();
+      const spy = vi.spyOn(client, 'invalidateQueries').mockResolvedValue();
+      const { result } = render({ client });
+      const unregister = Array.from({ length: 17 }, () =>
+        result.current.invalidateOn({ types: ['item'], keys: ['items'] }),
+      );
+
+      unregister.slice(0, 16).forEach((stop) => stop());
+      options().onChanges([{ type: 'item', id: 'a' }]);
+      vi.advanceTimersByTime(150);
+      expect(refreshes(spy)).toEqual([['items']]);
+
+      unregister[16]?.();
+      spy.mockClear();
+      options().onChanges([{ type: 'item', id: 'b' }]);
+      vi.advanceTimersByTime(150);
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('does not refresh a list for a kind it does not use', () => {
+      const client = new QueryClient();
+      const spy = vi.spyOn(client, 'invalidateQueries').mockResolvedValue();
+      const { result } = render({ client });
+      result.current.invalidateOn({ types: ['shop'], keys: ['shops'] });
+
+      options().onChanges([{ type: 'item', id: 'a' }]);
+      vi.advanceTimersByTime(500);
+
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('drops a pending refresh when it goes away', () => {
+      const client = new QueryClient();
+      const spy = vi.spyOn(client, 'invalidateQueries').mockResolvedValue();
+      const { result, unmount } = render({ client });
+      result.current.invalidateOn({ types: ['item'], keys: ['items'] });
+
+      options().onChanges([{ type: 'item', id: 'a' }]);
+      unmount();
+      vi.advanceTimersByTime(500);
+
+      expect(spy).not.toHaveBeenCalled();
+    });
   });
 
   it('asks the changes endpoint of the household, with the rev the app has seen', async () => {
