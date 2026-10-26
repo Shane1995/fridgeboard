@@ -12,7 +12,9 @@
     "./households": "./src/households/types.ts",
     "./households/constants": "./src/households/constants.ts",
     "./onboarding": "./src/onboarding/types.ts",
-    "./username": "./src/username/types.ts"
+    "./username": "./src/username/types.ts",
+    "./changes": "./src/changes/types.ts",
+    "./changes/constants": "./src/changes/constants.ts"
   },
   "scripts": {
     "typecheck": "tsc -b",

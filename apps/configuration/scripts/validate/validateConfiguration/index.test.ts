@@ -8,6 +8,7 @@ const VALID = {
     ENABLE_ADMIN_INVITES: false,
     ENABLE_HOUSEHOLD_INVITES: false,
     ENABLE_ITEM_DRAG: false,
+    ENABLE_LIVE_SYNC: false,
     ENABLE_PASSKEYS: true,
     ENABLE_PULL_TO_REFRESH: false,
     ENABLE_SHOP_QUICK_ADD: false,
@@ -25,6 +26,7 @@ const VALID = {
   services: {
     api: {
       endpoints: {
+        householdChanges: '/api/v1/households/{householdId}/changes',
         householdInvites: '/api/v1/households/{householdId}/invites',
         householdMembers: '/api/v1/households/{householdId}/members',
         households: '/api/v1/households',

@@ -5,6 +5,7 @@ export type ItemSchema = z.ZodMiniType;
 
 export type QueryParams = {
   IndexName?: string;
+  ConsistentRead?: boolean;
   KeyConditionExpression: string;
   ExpressionAttributeValues: Record<string, string>;
 };
@@ -14,9 +15,16 @@ export type UpdateParts = {
   add?: Record<string, number>;
 };
 
-export type TransactItem =
+export type UpdateCondition = {
+  expression: string;
+  names?: Record<string, string>;
+  values?: Record<string, unknown>;
+};
+
+export type TransactType =
   | { put: TableKey & Record<string, unknown> }
-  | { update: TableKey; parts: UpdateParts };
+  | { update: TableKey; parts: UpdateParts; condition?: UpdateCondition }
+  | { delete: TableKey };
 
 export type Table = {
   get: <TSchema extends ItemSchema>(
@@ -38,5 +46,5 @@ export type Table = {
     schema: TSchema;
   }) => Promise<z.infer<TSchema> | undefined>;
   remove: (key: TableKey) => Promise<boolean>;
-  transactWrite: (items: TransactItem[]) => Promise<void>;
+  transactWrite: (items: TransactType[]) => Promise<void>;
 };

@@ -11,3 +11,5 @@ export const OWNED_HOUSEHOLD_SK = 'OWNED_HOUSEHOLD';
 export const ITEM_SK_PREFIX = 'ITEM#';
 export const SHOP_SK_PREFIX = 'SHOP#';
 export const HISTORY_SK_PREFIX = 'HIST#';
+export const CHANGE_SK_PREFIX = 'CHG#';
+export const CHANGE_REV_WIDTH = 10;

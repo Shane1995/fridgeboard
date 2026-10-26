@@ -3,8 +3,10 @@ import { dropUnknownKeys } from '../dropUnknownKeys';
 import {
   API_URL_PATTERN,
   ENDPOINT_PATH_PATTERN,
+  EVENTS_HTTP_HOST_PATTERN,
   MUTATION_BOUNDS,
   QUERY_BOUNDS,
+  REALTIME_HOST_PATTERN,
   REQUEST_TIMEOUT_BOUNDS,
   SAFE_URL_PATTERN,
   SETTING_BOUNDS,
@@ -82,6 +84,11 @@ export const createWebConfigurationSchemas = ({ strict }: CreateWebConfiguration
     ),
   });
 
+  const RealtimeServiceSchema = object({
+    realtimeHost: z.string().check(z.regex(REALTIME_HOST_PATTERN)),
+    httpHost: z.string().check(z.regex(EVENTS_HTTP_HOST_PATTERN)),
+  });
+
   const WebSettingsSchema = object({
     refreshLeadMs: inRange(SETTING_BOUNDS.refreshLeadMs),
     refreshMinIntervalMs: inRange(SETTING_BOUNDS.refreshMinIntervalMs),
@@ -96,7 +103,7 @@ export const createWebConfigurationSchemas = ({ strict }: CreateWebConfiguration
     ),
     mutations: MutationEntriesSchema,
     queries: QueryEntriesSchema,
-    services: object({ api: ApiServiceSchema }),
+    services: object({ api: ApiServiceSchema, realtime: z.optional(RealtimeServiceSchema) }),
     settings: WebSettingsSchema,
     version: z.literal(WEB_CONFIGURATION_VERSION),
   });
@@ -107,6 +114,7 @@ export const createWebConfigurationSchemas = ({ strict }: CreateWebConfiguration
     QueryEntrySchema,
     QueryEntriesSchema,
     ApiServiceSchema,
+    RealtimeServiceSchema,
     WebSettingsSchema,
     WebConfigurationSchema,
   };

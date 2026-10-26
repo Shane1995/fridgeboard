@@ -6,6 +6,7 @@ export const {
   QueryEntrySchema,
   QueryEntriesSchema,
   ApiServiceSchema,
+  RealtimeServiceSchema,
   WebSettingsSchema,
   WebConfigurationSchema,
 } = createWebConfigurationSchemas({ strict: true });

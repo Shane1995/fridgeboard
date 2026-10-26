@@ -8,6 +8,7 @@ export const buildEvent = ({
   method = 'GET',
   path = '/',
   pathParameters,
+  query,
   headers = { 'x-api-origin-verify': ORIGIN_SECRET },
 }: BuildEventOptions): APIGatewayProxyEventV2WithJWTAuthorizer => ({
   version: '2.0',
@@ -15,6 +16,7 @@ export const buildEvent = ({
   rawPath: path,
   rawQueryString: '',
   ...(pathParameters === undefined ? {} : { pathParameters }),
+  ...(query === undefined ? {} : { queryStringParameters: query }),
   headers,
   ...(body === undefined ? {} : { body: JSON.stringify(body) }),
   isBase64Encoded: false,

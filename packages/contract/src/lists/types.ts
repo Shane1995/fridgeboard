@@ -36,5 +36,11 @@ export type IHistoryEntry = { name: string; shopIds: string[]; count: number };
 export type IHistoryResponse = { entries: IHistoryEntry[] };
 
 export type IListErrorResponse = {
-  reason: 'not-found' | 'invalid-name' | 'invalid-shop' | 'invalid-color' | 'invalid-request';
+  reason:
+    | 'not-found'
+    | 'invalid-name'
+    | 'invalid-shop'
+    | 'invalid-color'
+    | 'invalid-request'
+    | 'too-many-items';
 };

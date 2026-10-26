@@ -214,5 +214,55 @@ describe('createTable', () => {
         ],
       });
     });
+
+    it('sends a delete in the transaction', async () => {
+      ddbMock.on(TransactWriteCommand).resolves({});
+
+      await table.transactWrite([{ delete: KEY }]);
+
+      expect(ddbMock.commandCalls(TransactWriteCommand)[0]?.args[0].input).toEqual({
+        TransactItems: [{ Delete: { TableName: 'fridgeboard', Key: KEY } }],
+      });
+    });
+
+    it('adds the condition of an update next to its own names and values', async () => {
+      ddbMock.on(TransactWriteCommand).resolves({});
+
+      await table.transactWrite([
+        {
+          update: KEY,
+          parts: { set: { rev: 8 } },
+          condition: {
+            expression: '#rev = :current',
+            names: { '#rev': 'rev' },
+            values: { ':current': 7 },
+          },
+        },
+      ]);
+
+      expect(ddbMock.commandCalls(TransactWriteCommand)[0]?.args[0].input).toEqual({
+        TransactItems: [
+          {
+            Update: {
+              TableName: 'fridgeboard',
+              Key: KEY,
+              UpdateExpression: 'SET #a0 = :v0',
+              ConditionExpression: '#rev = :current',
+              ExpressionAttributeNames: { '#a0': 'rev', '#rev': 'rev' },
+              ExpressionAttributeValues: { ':v0': 8, ':current': 7 },
+            },
+          },
+        ],
+      });
+    });
+
+    it('sends an update without a condition expression when it has none', async () => {
+      ddbMock.on(TransactWriteCommand).resolves({});
+
+      await table.transactWrite([{ update: KEY, parts: { add: { count: 1 } } }]);
+
+      const sent = ddbMock.commandCalls(TransactWriteCommand)[0]?.args[0].input.TransactItems;
+      expect(sent?.[0]?.Update).not.toHaveProperty('ConditionExpression');
+    });
   });
 });

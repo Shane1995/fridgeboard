@@ -13,3 +13,4 @@ export const MEMBER_EXISTS_CONDITION = 'attribute_exists(PK)';
 export const INVITE_ROOM_CONDITION =
   'attribute_exists(PK) AND (attribute_not_exists(inviteLimit) OR invitesUsed < inviteLimit)';
 export const INVITE_SLOT_CONDITION = 'attribute_not_exists(PK) OR expiresAt <= :now';
+export const CHANGES_PATH_SUFFIX = '/changes';

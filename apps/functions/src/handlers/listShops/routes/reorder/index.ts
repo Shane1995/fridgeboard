@@ -1,8 +1,9 @@
-import { ShopItemSchema } from '../../../../utils/items/shopItem/index.ts';
 import { jsonResponse } from '../../../../utils/jsonResponse/index.ts';
 import { shopKey } from '../../../../utils/keys/shopKey/index.ts';
 import { readJsonBody } from '../../../../utils/readJsonBody/index.ts';
+import { recordChange } from '../../../../utils/recordChange/index.ts';
 import type { ListRouteContext } from '../../../../utils/resolveList/types.ts';
+import { REORDER_ID } from '../../constants.ts';
 import { queryShops } from '../../utils/queryShops/index.ts';
 
 export const reorderListShops = async ({ user, table, scope }: ListRouteContext) => {
@@ -25,16 +26,20 @@ export const reorderListShops = async ({ user, table, scope }: ListRouteContext)
   const reordered = [...existing]
     .sort((a, b) => rank(a.id) - rank(b.id) || a.order - b.order)
     .map((shop, order) => ({ ...shop, order }));
-  await Promise.all(
-    reordered
-      .filter((shop, index) => existing.find(({ id }) => id === shop.id)?.order !== index)
-      .map((shop) =>
-        table.update({
-          key: shopKey({ ...scope, shopId: shop.id }),
-          parts: { set: { order: shop.order } },
-          schema: ShopItemSchema,
-        }),
-      ),
+  const moved = reordered.filter(
+    (shop, index) => existing.find(({ id }) => id === shop.id)?.order !== index,
   );
+  if (moved.length > 0) {
+    await recordChange({
+      table,
+      householdId: scope.householdId,
+      type: 'shop',
+      id: REORDER_ID,
+      items: moved.map((shop) => ({
+        update: shopKey({ ...scope, shopId: shop.id }),
+        parts: { set: { order: shop.order } },
+      })),
+    });
+  }
   return jsonResponse(200, { shops: reordered });
 };

@@ -4,6 +4,7 @@ import { handler as itemsHandler } from '../../../../apps/functions/src/handlers
 import { handler } from '../../../../apps/functions/src/handlers/listShops/index.ts';
 import { HouseholdRole } from '../../../../apps/functions/src/utils/isHouseholdRole/constants.ts';
 import { itemKey } from '../../../../apps/functions/src/utils/keys/itemKey/index.ts';
+import { householdMetaKey } from '../../../../apps/functions/src/utils/keys/householdMetaKey/index.ts';
 import { membershipKey } from '../../../../apps/functions/src/utils/keys/membershipKey/index.ts';
 import { buildEvent } from '../dynamodbLocal/buildEvent/index.ts';
 import { client } from '../dynamodbLocal/client/index.ts';
@@ -19,6 +20,12 @@ const seedMember = async (): Promise<Member> => {
     new PutCommand({
       TableName: TABLE_NAME,
       Item: { ...membershipKey(householdId, sub), role: HouseholdRole.Member },
+    }),
+  );
+  await client.send(
+    new PutCommand({
+      TableName: TABLE_NAME,
+      Item: { ...householdMetaKey(householdId), name: 'Home' },
     }),
   );
   return { sub, householdId };
@@ -157,5 +164,61 @@ describe('list shops handler against DynamoDB Local', () => {
     expect(
       await getItem(itemKey({ householdId: member.householdId, listId: 'main', itemId })),
     ).toMatchObject({ shopIds: [lidl] });
+  });
+
+  it('records a numbered change for each write', async () => {
+    const member = await seedMember();
+    const { id } = await createShop(member, 'Aldi');
+    await call(member, 'PATCH', `/${id}`, { name: 'Aldi Local' }, id);
+    await call(member, 'DELETE', `/${id}`, undefined, id);
+
+    expect((await getItem(householdMetaKey(member.householdId)))?.rev).toBe(3);
+    expect(await getItem({ PK: `HH#${member.householdId}`, SK: 'CHG#0000000003' })).toMatchObject({
+      rev: 3,
+      type: 'shop',
+      id,
+    });
+  });
+
+  it('records no change for a shop that does not exist', async () => {
+    const member = await seedMember();
+
+    expect((await call(member, 'PATCH', '/missing', { name: 'x' }, 'missing')).statusCode).toBe(
+      404,
+    );
+    expect((await call(member, 'DELETE', '/missing', undefined, 'missing')).statusCode).toBe(404);
+
+    expect((await getItem(householdMetaKey(member.householdId)))?.rev).toBeUndefined();
+  });
+
+  it('refuses to delete a shop that too many items belong to', async () => {
+    const member = await seedMember();
+    const { id: shopId } = await createShop(member, 'Aldi');
+    await Promise.all(
+      Array.from({ length: 98 }, (_, index) =>
+        client.send(
+          new PutCommand({
+            TableName: TABLE_NAME,
+            Item: {
+              ...itemKey({ householdId: member.householdId, listId: 'main', itemId: `i${index}` }),
+              id: `i${index}`,
+              name: `Item ${index}`,
+              shopIds: [shopId],
+              checked: false,
+              createdAt: 1,
+              addedBy: member.sub,
+            },
+          }),
+        ),
+      ),
+    );
+
+    const result = await call(member, 'DELETE', `/${shopId}`, undefined, shopId);
+
+    expect(result.statusCode).toBe(409);
+    expect(json(result)).toEqual({ reason: 'too-many-items' });
+    expect(
+      await getItem({ PK: `HH#${member.householdId}`, SK: `SHOP#main#${shopId}` }),
+    ).toBeDefined();
   });
 });

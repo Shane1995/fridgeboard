@@ -3,7 +3,9 @@ import { DEFAULT_LAMBDA_FLAGS } from '../flags/constants.ts';
 import { DEFAULT_LAMBDA_SETTINGS } from '../settings/constants.ts';
 import type { LambdaConfiguration } from './types.ts';
 
-export const ALLOWED_SERVICE_HOSTS: readonly string[] = [];
+export const ALLOWED_SERVICE_HOSTS: readonly string[] = [
+  'rxjwllofmvfqzoblifc7kakrau.appsync-api.eu-west-2.amazonaws.com',
+];
 
 export const DEFAULT_LAMBDA_CONFIGURATION: LambdaConfiguration = {
   version: CONFIGURATION_VERSION,

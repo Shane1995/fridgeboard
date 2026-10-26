@@ -2,6 +2,9 @@ const UNSAFE_URL_PATTERN = /\.\.|[%?#\\\s]|\/\//;
 export const API_URL_PATTERN = /^\/api\//;
 export const SAFE_URL_PATTERN = new RegExp(`^(?!.*(?:${UNSAFE_URL_PATTERN.source})).*$`);
 export const ENDPOINT_PATH_PATTERN = /^\/(?!\/)[A-Za-z0-9/_{}-]*$/;
+export const REALTIME_HOST_PATTERN =
+  /^[a-z0-9]+\.appsync-realtime-api\.[a-z0-9-]+\.amazonaws\.com$/;
+export const EVENTS_HTTP_HOST_PATTERN = /^[a-z0-9]+\.appsync-api\.[a-z0-9-]+\.amazonaws\.com$/;
 
 export const WEB_CONFIGURATION_VERSION = 2;
 
@@ -9,6 +12,7 @@ export enum WebFeatureFlag {
   ENABLE_ADMIN_INVITES = 'ENABLE_ADMIN_INVITES',
   ENABLE_HOUSEHOLD_INVITES = 'ENABLE_HOUSEHOLD_INVITES',
   ENABLE_ITEM_DRAG = 'ENABLE_ITEM_DRAG',
+  ENABLE_LIVE_SYNC = 'ENABLE_LIVE_SYNC',
   ENABLE_PASSKEYS = 'ENABLE_PASSKEYS',
   ENABLE_PULL_TO_REFRESH = 'ENABLE_PULL_TO_REFRESH',
   ENABLE_SHOP_QUICK_ADD = 'ENABLE_SHOP_QUICK_ADD',
@@ -17,6 +21,7 @@ export enum WebFeatureFlag {
 export const WEB_FEATURE_FLAGS: readonly string[] = Object.values(WebFeatureFlag);
 
 export enum WebService {
+  householdChanges = 'householdChanges',
   householdInvites = 'householdInvites',
   householdMembers = 'householdMembers',
   listShop = 'listShop',

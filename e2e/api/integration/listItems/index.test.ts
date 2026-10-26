@@ -5,6 +5,7 @@ import { HouseholdRole } from '../../../../apps/functions/src/utils/isHouseholdR
 import { shopKey } from '../../../../apps/functions/src/utils/keys/shopKey/index.ts';
 import { historyKey } from '../../../../apps/functions/src/utils/keys/historyKey/index.ts';
 import { itemKey } from '../../../../apps/functions/src/utils/keys/itemKey/index.ts';
+import { householdMetaKey } from '../../../../apps/functions/src/utils/keys/householdMetaKey/index.ts';
 import { membershipKey } from '../../../../apps/functions/src/utils/keys/membershipKey/index.ts';
 import { buildEvent } from '../dynamodbLocal/buildEvent/index.ts';
 import { client } from '../dynamodbLocal/client/index.ts';
@@ -20,6 +21,12 @@ const seedMember = async (): Promise<{ sub: string; householdId: string }> => {
     new PutCommand({
       TableName: TABLE_NAME,
       Item: { ...membershipKey(householdId, sub), role: HouseholdRole.Member },
+    }),
+  );
+  await client.send(
+    new PutCommand({
+      TableName: TABLE_NAME,
+      Item: { ...householdMetaKey(householdId), name: 'Home' },
     }),
   );
   return { sub, householdId };
@@ -268,5 +275,20 @@ describe('list items handler against DynamoDB Local', () => {
     const [item] = json(await call(member, 'GET', '/items')).items;
     expect(item).toMatchObject({ shopIds: [] });
     expect(item).not.toHaveProperty('shopId');
+  });
+
+  it('records a numbered change for each write and none for a missing item', async () => {
+    const member = await seedMember();
+    const { id } = json(await call(member, 'POST', '', { name: 'Milk' }));
+    await call(member, 'PATCH', `/${id}`, { checked: true }, id);
+    await call(member, 'DELETE', `/${id}`, undefined, id);
+    await call(member, 'DELETE', '/missing', undefined, 'missing');
+
+    expect((await getItem(householdMetaKey(member.householdId)))?.rev).toBe(3);
+    expect(await getItem({ PK: `HH#${member.householdId}`, SK: 'CHG#0000000002' })).toMatchObject({
+      rev: 2,
+      type: 'item',
+      id,
+    });
   });
 });
