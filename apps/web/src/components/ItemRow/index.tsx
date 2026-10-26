@@ -3,6 +3,7 @@ import { Ellipsis } from 'lucide-react';
 import type { ReactNode, Ref } from 'react';
 import { UNSORTED_SHOP_ID } from '../../services/shoppingList/constants';
 import type { Shop, ListItem } from '../../services/shoppingList/types';
+import { isPendingItem } from '../../services/shoppingList/utils/isPendingItem';
 import { ItemInfoDialog } from '../ItemInfoDialog';
 import { ShopSwatch } from '../ShopSwatch';
 import {
@@ -48,6 +49,7 @@ export const ItemRow = ({
     duplicateCount,
     handleMenuAction,
   } = useItemRow(item);
+  const pending = isPendingItem(item);
   const elsewhere = shops.filter(
     ({ id }) => id !== UNSORTED_SHOP_ID && id !== shopId && item.shopIds.includes(id),
   );
@@ -55,9 +57,14 @@ export const ItemRow = ({
   return (
     <li
       ref={rowRef}
-      className={`flex items-center gap-3 py-3 text-base ${isDragging ? 'opacity-40' : ''}`}
+      className={`flex items-center gap-3 py-3 text-base ${isDragging ? 'opacity-40' : ''} ${pending ? 'opacity-60' : ''}`}
     >
-      <Checkbox aria-label={item.name} isSelected={item.checked} onChange={toggle}>
+      <Checkbox
+        aria-label={item.name}
+        isSelected={item.checked}
+        isDisabled={pending}
+        onChange={toggle}
+      >
         <Checkbox.Content>
           <Checkbox.Control>
             <Checkbox.Indicator />
@@ -102,62 +109,71 @@ export const ItemRow = ({
           )}
         </span>
       )}
-      {handle}
-      <Dropdown>
-        <Dropdown.Trigger
-          aria-label={ITEM_ROW_COPY.menu}
-          className="flex size-10 cursor-pointer items-center justify-center rounded-full outline-none hover:bg-foreground/5"
-        >
-          <Ellipsis aria-hidden size={18} />
-        </Dropdown.Trigger>
-        <Dropdown.Popover>
-          <Dropdown.Menu aria-label={ITEM_ROW_COPY.menu} onAction={handleMenuAction}>
-            <Dropdown.Item id={INFO_ACTION} textValue={ITEM_ROW_COPY.info}>
-              {ITEM_ROW_COPY.info}
-            </Dropdown.Item>
-            {shops.length > 0 && (
-              <Dropdown.SubmenuTrigger>
-                <Dropdown.Item id={SHOPS_ACTION} textValue={ITEM_ROW_COPY.shops}>
-                  {ITEM_ROW_COPY.shops}
-                  <Dropdown.SubmenuIndicator />
+      {!pending && handle}
+      {pending ? (
+        <span aria-hidden className="size-10 shrink-0" />
+      ) : (
+        <Dropdown>
+          <Dropdown.Trigger
+            aria-label={ITEM_ROW_COPY.menu}
+            className="flex size-10 cursor-pointer items-center justify-center rounded-full outline-none hover:bg-foreground/5"
+          >
+            <Ellipsis aria-hidden size={18} />
+          </Dropdown.Trigger>
+          <Dropdown.Popover>
+            <Dropdown.Menu aria-label={ITEM_ROW_COPY.menu} onAction={handleMenuAction}>
+              <Dropdown.Item id={INFO_ACTION} textValue={ITEM_ROW_COPY.info}>
+                {ITEM_ROW_COPY.info}
+              </Dropdown.Item>
+              {shops.length > 0 && (
+                <Dropdown.SubmenuTrigger>
+                  <Dropdown.Item id={SHOPS_ACTION} textValue={ITEM_ROW_COPY.shops}>
+                    {ITEM_ROW_COPY.shops}
+                    <Dropdown.SubmenuIndicator />
+                  </Dropdown.Item>
+                  <Dropdown.Popover>
+                    <Dropdown.Menu
+                      aria-label={ITEM_ROW_COPY.shops}
+                      selectionMode="multiple"
+                      shouldCloseOnSelect={false}
+                      selectedKeys={new Set(item.shopIds)}
+                      onSelectionChange={(keys) =>
+                        setShops({
+                          shopIds: keys instanceof Set ? [...keys].map(String) : [],
+                        })
+                      }
+                    >
+                      {shops.map(({ id, name, color }) => (
+                        <Dropdown.Item key={id} id={id} textValue={name}>
+                          <ShopSwatch color={color} name={name} />
+                          {name}
+                          <Dropdown.ItemIndicator />
+                        </Dropdown.Item>
+                      ))}
+                    </Dropdown.Menu>
+                  </Dropdown.Popover>
+                </Dropdown.SubmenuTrigger>
+              )}
+              {canSplit && (
+                <Dropdown.Item id={SPLIT_ACTION} textValue={ITEM_ROW_COPY.split}>
+                  {ITEM_ROW_COPY.split}
                 </Dropdown.Item>
-                <Dropdown.Popover>
-                  <Dropdown.Menu
-                    aria-label={ITEM_ROW_COPY.shops}
-                    selectionMode="multiple"
-                    shouldCloseOnSelect={false}
-                    selectedKeys={new Set(item.shopIds)}
-                    onSelectionChange={(keys) =>
-                      setShops({ shopIds: keys instanceof Set ? [...keys].map(String) : [] })
-                    }
-                  >
-                    {shops.map(({ id, name, color }) => (
-                      <Dropdown.Item key={id} id={id} textValue={name}>
-                        <ShopSwatch color={color} name={name} />
-                        {name}
-                        <Dropdown.ItemIndicator />
-                      </Dropdown.Item>
-                    ))}
-                  </Dropdown.Menu>
-                </Dropdown.Popover>
-              </Dropdown.SubmenuTrigger>
-            )}
-            {canSplit && (
-              <Dropdown.Item id={SPLIT_ACTION} textValue={ITEM_ROW_COPY.split}>
-                {ITEM_ROW_COPY.split}
+              )}
+              {duplicateCount > 0 && (
+                <Dropdown.Item
+                  id={COMBINE_ACTION}
+                  textValue={ITEM_ROW_COPY.combine(duplicateCount)}
+                >
+                  {ITEM_ROW_COPY.combine(duplicateCount)}
+                </Dropdown.Item>
+              )}
+              <Dropdown.Item id={DELETE_ACTION} textValue={ITEM_ROW_COPY.delete} variant="danger">
+                {ITEM_ROW_COPY.delete}
               </Dropdown.Item>
-            )}
-            {duplicateCount > 0 && (
-              <Dropdown.Item id={COMBINE_ACTION} textValue={ITEM_ROW_COPY.combine(duplicateCount)}>
-                {ITEM_ROW_COPY.combine(duplicateCount)}
-              </Dropdown.Item>
-            )}
-            <Dropdown.Item id={DELETE_ACTION} textValue={ITEM_ROW_COPY.delete} variant="danger">
-              {ITEM_ROW_COPY.delete}
-            </Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown.Popover>
-      </Dropdown>
+            </Dropdown.Menu>
+          </Dropdown.Popover>
+        </Dropdown>
+      )}
       <ItemInfoDialog item={item} state={infoDialog} />
     </li>
   );

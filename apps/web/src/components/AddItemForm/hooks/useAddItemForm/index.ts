@@ -42,27 +42,21 @@ export const useAddItemForm = (focusedShopId?: string): AddItemFormState => {
 
   const canSeparate = shopIds.length > 1;
 
-  const submit = async (trimmed: string) => {
+  const submit = (trimmed: string) => {
     const groups = separate && canSeparate ? shopIds.map((id) => [id]) : [shopIds];
-    try {
-      const results = await Promise.all(
-        groups.map((ids) => addItem.mutateAsync({ name: trimmed, shopIds: ids })),
-      );
-      if (results.every(({ ok }) => ok)) {
-        setName('');
-      }
-    } catch {
-      return;
-    }
+    setName('');
+    groups.forEach((ids) => {
+      addItem.mutate({ name: trimmed, shopIds: ids });
+    });
   };
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
     const trimmed = name.trim();
-    if (trimmed === '' || addItem.isPending) {
+    if (trimmed === '') {
       return;
     }
-    void submit(trimmed);
+    submit(trimmed);
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -92,7 +86,6 @@ export const useAddItemForm = (focusedShopId?: string): AddItemFormState => {
     shops,
     suggestions,
     pickSuggestion,
-    isAdding: addItem.isPending,
     handleSubmit,
   };
 };

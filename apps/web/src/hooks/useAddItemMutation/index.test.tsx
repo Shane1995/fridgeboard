@@ -27,7 +27,7 @@ describe('useAddItemMutation', () => {
   it('tells the user when the item could not be added', async () => {
     const result = await renderAdd({ failMethod: 'POST' });
 
-    expect(await screen.findByText(ITEM_FAILURE_COPY.add)).toBeInTheDocument();
+    expect(await screen.findByText(ITEM_FAILURE_COPY.add('Milk'))).toBeInTheDocument();
     expect(result.current.items.data).toEqual([]);
   });
 

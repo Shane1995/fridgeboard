@@ -20,12 +20,13 @@ export const UNSORTED_SHOP_NAME = 'Unassigned';
 export const FOCUS_SHOP_STORAGE_KEY = 'fridgeboard.focusShop';
 
 export const ITEM_FAILURE_COPY = {
-  add: 'Could not add the item. Try again.',
+  add: (name: string) => `Could not add ${name}. Try again.`,
   update: 'Could not save the change. Try again.',
   remove: 'Could not delete the item. Try again.',
   clearTicked: 'Could not clear the ticked items. Try again.',
 } as const;
 
+export const PENDING_ITEM_PREFIX = 'pending-';
 export const ITEM_NAME_MAX_LENGTH = 80;
 export const SHOP_NAME_MAX_LENGTH = 30;
 

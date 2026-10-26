@@ -1,5 +1,5 @@
-import { act, renderHook, waitFor } from '@testing-library/react';
-import { ShopColor } from '../../../../services/shoppingList/constants';
+import { act, renderHook, screen, waitFor } from '@testing-library/react';
+import { ITEM_FAILURE_COPY, ShopColor } from '../../../../services/shoppingList/constants';
 import { fakeShoppingList } from '../../../../testUtils/fakeShoppingList';
 import {
   createShoppingListWrapper,
@@ -88,7 +88,7 @@ describe('useAddItemForm', () => {
     expect(await fakeShoppingList.listItems()).toHaveLength(1);
   });
 
-  it('keeps the name when an item cannot be added', async () => {
+  it('clears the name straight away and tells the user when an item cannot be added', async () => {
     const { result } = await renderHookWithHousehold(() => useAddItemForm(), {
       failMethod: 'POST',
     });
@@ -96,7 +96,8 @@ describe('useAddItemForm', () => {
     act(() => result.current.setName('Apples'));
     await act(async () => result.current.handleSubmit({ preventDefault: vi.fn() } as never));
 
-    expect(result.current.name).toBe('Apples');
+    expect(result.current.name).toBe('');
+    expect(await screen.findByText(ITEM_FAILURE_COPY.add('Apples'))).toBeInTheDocument();
   });
 
   it('starts on the shop being viewed and follows the view when it changes', async () => {

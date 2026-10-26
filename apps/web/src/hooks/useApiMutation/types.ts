@@ -13,6 +13,8 @@ export type ApiMutationOptions<TVariables, TResponse, TReason extends string, TC
   toParams?: (variables: TVariables) => Record<string, string>;
   reasons: readonly TReason[];
   onSuccess?: (response: TResponse, variables: TVariables) => void;
-  failureMessage?: string;
+  failureMessage?: string | ((variables: TVariables) => string);
+  onStart?: (variables: TVariables) => void;
+  onFailure?: (variables: TVariables) => void;
   optimistic?: OptimisticChange<TVariables, TCache>;
 };
