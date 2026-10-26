@@ -26,11 +26,15 @@ const configuration = ({ flag = true, realtime = true } = {}) => ({
   services: { ...TEST_WEB_CONFIGURATION.services, ...(realtime ? { realtime: REALTIME } : {}) },
 });
 
-const render = ({ config = configuration(), status = SessionStatus.SignedIn } = {}) => {
+const render = ({
+  config = configuration(),
+  status = SessionStatus.SignedIn,
+  client = new QueryClient(),
+} = {}) => {
   const created = createSession(status);
   created.getToken.mockResolvedValue('token-1');
   const wrapper = ({ children }: { children: ReactNode }) => (
-    <TestProviders session={created.session} client={new QueryClient()} config={config}>
+    <TestProviders session={created.session} client={client} config={config}>
       <RealtimeProvider>{children}</RealtimeProvider>
     </TestProviders>
   );
@@ -119,6 +123,41 @@ describe('RealtimeProvider', () => {
     expect(items).toHaveBeenCalledWith({ type: 'item', id: 'a' });
     expect(shops).toHaveBeenCalledWith({ type: 'shop', id: undefined });
     expect(items).toHaveBeenCalledTimes(1);
+  });
+
+  describe('refreshing lists', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('merges many requests for the same list into one refresh', () => {
+      const client = new QueryClient();
+      const spy = vi.spyOn(client, 'invalidateQueries').mockResolvedValue();
+      const { result } = render({ client });
+
+      Array.from({ length: 17 }).forEach(() => result.current.invalidate({ keys: ['items'] }));
+      result.current.invalidate({ keys: ['shops', 'items'] });
+      expect(spy).not.toHaveBeenCalled();
+      vi.advanceTimersByTime(150);
+
+      expect(spy.mock.calls.map(([filters]) => filters?.queryKey)).toEqual([['items'], ['shops']]);
+    });
+
+    it('drops a pending refresh when it goes away', () => {
+      const client = new QueryClient();
+      const spy = vi.spyOn(client, 'invalidateQueries').mockResolvedValue();
+      const { result, unmount } = render({ client });
+
+      result.current.invalidate({ keys: ['items'] });
+      unmount();
+      vi.advanceTimersByTime(500);
+
+      expect(spy).not.toHaveBeenCalled();
+    });
   });
 
   it('asks the changes endpoint of the household, with the rev the app has seen', async () => {

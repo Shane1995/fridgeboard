@@ -3,20 +3,23 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 import { useChangesQuery } from '../../hooks/useChangesQuery';
 import { useFeatureFlag } from '../../hooks/useFeatureFlag';
+import { useInvalidateQueries } from '../../hooks/useInvalidateQueries';
 import { useListParams } from '../../hooks/useListParams';
 import { useRemoteConfigContext } from '../../hooks/useRemoteConfigContext';
 import { useSessionContext } from '../../hooks/useSessionContext';
 import { WebFeatureFlag } from '../../services/configuration/schema/constants';
+import { createCoalescer } from '../../services/coalescer/createCoalescer';
 import { createEventBus } from '../../services/eventBus/createEventBus';
 import { createLiveSync } from '../../services/realtime/createLiveSync';
 import { openChannel } from '../../services/realtime/openChannel';
 import type { ChangeEvent } from '../../services/realtime/types';
 import { SessionStatus, VISIBILITY_EVENT, VISIBLE } from '../../services/session/constants';
-import { CHANGES_FAILED, ONLINE_EVENT } from './constants';
+import { CHANGES_FAILED, INVALIDATE_DELAY_MS, ONLINE_EVENT } from './constants';
 import { RealtimeContext } from './context';
 import type { RealtimeApi } from './types';
 
 // Holds the one connection to the household's channel and tells whoever is listening what changed.
+// Several screens can ask for the same list to be refreshed at once; those asks are merged into one.
 // A feature does not open its own connection: it calls `useOnChange` for the kinds of change it
 // cares about.
 export const RealtimeProvider = ({ children }: PropsWithChildren) => {
@@ -27,10 +30,20 @@ export const RealtimeProvider = ({ children }: PropsWithChildren) => {
   const [bus] = useState(() => createEventBus<ChangeType, ChangeEvent>());
   const sinceRef = useRef<number | undefined>(undefined);
   const { refetch } = useChangesQuery({ householdId, getSince: () => sinceRef.current });
-  const latest = useRef({ getToken, refetch });
+  const invalidateQueries = useInvalidateQueries();
+  const latest = useRef({ getToken, refetch, invalidateQueries });
   useEffect(() => {
-    latest.current = { getToken, refetch };
+    latest.current = { getToken, refetch, invalidateQueries };
   });
+  const [coalescer] = useState(() =>
+    createCoalescer({
+      delayMs: INVALIDATE_DELAY_MS,
+      flush: (keys) => {
+        void latest.current.invalidateQueries({ keys });
+      },
+    }),
+  );
+  useEffect(() => () => coalescer.cancel(), [coalescer]);
   const realtimeHost = services.realtime?.realtimeHost;
   const httpHost = services.realtime?.httpHost;
 
@@ -77,7 +90,10 @@ export const RealtimeProvider = ({ children }: PropsWithChildren) => {
     };
   }, [enabled, realtimeHost, httpHost, householdId, status, bus]);
 
-  const api = useMemo<RealtimeApi>(() => ({ subscribe: bus.subscribe }), [bus]);
+  const api = useMemo<RealtimeApi>(
+    () => ({ subscribe: bus.subscribe, invalidate: ({ keys }) => coalescer.add(keys) }),
+    [bus, coalescer],
+  );
 
   return <RealtimeContext.Provider value={api}>{children}</RealtimeContext.Provider>;
 };

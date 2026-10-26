@@ -4,4 +4,5 @@ import type { ChangeEvent } from '../../services/realtime/types';
 
 export type RealtimeApi = {
   subscribe: (options: SubscribeOptions<ChangeType, ChangeEvent>) => () => void;
+  invalidate: (options: { keys: readonly string[] }) => void;
 };

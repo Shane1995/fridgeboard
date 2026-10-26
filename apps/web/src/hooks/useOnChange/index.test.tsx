@@ -13,7 +13,9 @@ const setup = () => {
     (_options: SubscribeOptions<'item' | 'shop', ChangeEvent>) => unsubscribe,
   );
   const wrapper = ({ children }: { children: ReactNode }) => (
-    <RealtimeContext.Provider value={{ subscribe }}>{children}</RealtimeContext.Provider>
+    <RealtimeContext.Provider value={{ subscribe, invalidate: vi.fn() }}>
+      {children}
+    </RealtimeContext.Provider>
   );
   return { subscribe, unsubscribe, wrapper };
 };
