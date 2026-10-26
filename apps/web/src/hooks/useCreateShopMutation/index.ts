@@ -3,6 +3,7 @@ import type { ApiResult } from '../../services/api/sendJson/types';
 import { MutationName, WebService } from '../../services/configuration/schema/constants';
 import { POST } from '../../services/session/constants';
 import type { NewShop } from '../../services/shoppingList/types';
+import { SHOP_FAILURE_COPY } from '../../services/shoppingList/constants';
 import { useApiMutation } from '../useApiMutation';
 import { useListCache } from '../useListCache';
 import { useListParams } from '../useListParams';
@@ -18,6 +19,7 @@ export const useCreateShopMutation = (): MutationResult<ApiResult<IShop, never>,
     toBody: ({ name, color }: NewShop) => ({ name, color }),
     toParams: () => paramsFor(),
     reasons: [],
+    failureMessage: SHOP_FAILURE_COPY.create,
     onSuccess: (created) => updateShops({ update: (shops) => [...shops, created] }),
   });
 };
