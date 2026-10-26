@@ -5,7 +5,7 @@ import { useQuickAdd } from './hooks/useQuickAdd';
 import type { ShopQuickAddProps } from './types';
 
 export const ShopQuickAdd = ({ shop }: ShopQuickAddProps) => {
-  const { isOpen, name, open, close, setName, handleSubmit, handleKeyDown } = useQuickAdd({
+  const { isOpen, name, open, setName, handleSubmit, handleKeyDown, handleBlur } = useQuickAdd({
     shopId: shop.id,
   });
   const isUnassigned = shop.id === UNSORTED_SHOP_ID;
@@ -42,7 +42,7 @@ export const ShopQuickAdd = ({ shop }: ShopQuickAddProps) => {
         value={name}
         onChange={(event) => setName(event.target.value)}
         onKeyDown={handleKeyDown}
-        onBlur={close}
+        onBlur={handleBlur}
         className="min-w-0 flex-1 bg-transparent py-2 text-base outline-none placeholder:opacity-40"
       />
     </form>

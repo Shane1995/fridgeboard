@@ -7,5 +7,6 @@ export type QuickAddState = {
   close: () => void;
   setName: (value: string) => void;
   handleSubmit: (event: FormEvent) => void;
+  handleBlur: () => void;
   handleKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
 };
