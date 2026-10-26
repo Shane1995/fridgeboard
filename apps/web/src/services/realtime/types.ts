@@ -1,4 +1,5 @@
 import type { ChangeType, IChange, IChangesResponse } from '@fridgeboard/contract/changes';
+import type { SubscribeOptions } from '../eventBus/createEventBus/types';
 import type { MessageType } from './constants';
 
 export type RealtimeMessage =
@@ -46,4 +47,23 @@ export type LiveSyncState = {
   socket: { close: () => void } | undefined;
   timer: ReturnType<typeof setTimeout> | undefined;
   catchingUp: Promise<void> | undefined;
+};
+
+export type InvalidateOnOptions = {
+  types: readonly ChangeType[];
+  keys: readonly string[];
+};
+
+export type Registration = { count: number; unsubscribes: (() => void)[] };
+
+export type CreateChangeHubOptions = {
+  delayMs: number;
+  invalidate: (keys: readonly string[]) => void;
+};
+
+export type ChangeHub = {
+  emit: (events: readonly ChangeEvent[]) => void;
+  subscribe: (options: SubscribeOptions<ChangeType, ChangeEvent>) => () => void;
+  invalidateOn: (options: InvalidateOnOptions) => () => void;
+  dispose: () => void;
 };

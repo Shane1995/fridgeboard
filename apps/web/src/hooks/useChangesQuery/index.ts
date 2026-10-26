@@ -5,18 +5,15 @@ import type { QueryResult } from '../useQuery/types';
 import type { UseChangesQueryOptions } from './types';
 
 // Never fetched by itself: live sync calls `refetch` when it needs to know what it missed, and
-// `getSince` supplies the rev the app has seen at that moment.
+// `since` holds the rev the app has seen, read at the moment of the request.
 export const useChangesQuery = ({
   householdId,
-  getSince,
+  since,
 }: UseChangesQueryOptions): QueryResult<IChangesResponse> =>
   useApiQuery<IChangesResponse>({
     name: QueryName.changes,
     service: WebService.householdChanges,
     params: householdId === undefined ? {} : { householdId },
-    query: () => {
-      const since = getSince();
-      return since === undefined ? {} : { since: String(since) };
-    },
+    query: () => (since.current === undefined ? {} : { since: String(since.current) }),
     enabled: false,
   });
