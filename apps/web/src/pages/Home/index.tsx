@@ -106,7 +106,12 @@ export const Home = () => {
       ) : (
         <>
           {visibleSections.map((section) => (
-            <ShopSection key={section.shop.id} section={section} allShops={allShops} />
+            <ShopSection
+              key={section.shop.id}
+              section={section}
+              allShops={allShops}
+              quickAdd={canQuickAdd}
+            />
           ))}
           {visibleSections.length === 0 && visibleChecked.length === 0 && (
             <Typography>{HOME_COPY.focusEmpty}</Typography>
