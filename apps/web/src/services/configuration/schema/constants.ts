@@ -48,6 +48,7 @@ export enum WebService {
 export const WEB_SERVICES = Object.values(WebService);
 
 export enum QueryName {
+  changes = 'changes',
   me = 'me',
   onboarding = 'onboarding',
   households = 'households',

@@ -13,6 +13,7 @@ export type SessionContextValue = {
   signOut: () => Promise<void>;
   refresh: () => Promise<boolean>;
   apiFetch: (endpoint: Endpoint, init?: RequestInit) => Promise<Response>;
+  getToken: () => Promise<string | undefined>;
 };
 
 export type SessionRuntime = {
