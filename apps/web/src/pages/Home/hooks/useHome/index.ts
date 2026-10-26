@@ -130,7 +130,7 @@ export const useHome = (): HomeState => {
     activeItem,
     activeShop: grouped.sections.find(({ shop }) => shop.id === activeShopId),
     canDragItems: dragFlag && focusedId === undefined,
-    canQuickAdd: quickAddFlag && focusedId === undefined,
+    canQuickAdd: quickAddFlag,
     canPullToRefresh: pullFlag,
     refresh: () => queryClient.invalidateQueries(),
     allShops,

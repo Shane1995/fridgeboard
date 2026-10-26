@@ -187,6 +187,21 @@ describe('Home', () => {
       expect(screen.queryByTestId('item-drag-handle')).not.toBeInTheDocument();
     });
 
+    it('offers a quick add row for the shop being viewed', async () => {
+      await seed();
+      renderHome({
+        ...TEST_WEB_CONFIGURATION,
+        featureFlags: {
+          ...TEST_WEB_CONFIGURATION.featureFlags,
+          [WebFeatureFlag.ENABLE_SHOP_QUICK_ADD]: true,
+        },
+      });
+      fireEvent.click(await screen.findByRole('button', { name: 'Tesco, 1' }));
+
+      await screen.findByRole('checkbox', { name: 'Apples' });
+      expect(screen.getAllByRole('button', { name: 'Add to Tesco' })).toHaveLength(1);
+    });
+
     it('shows an item in a second shop on both cards, with where else it can be got', async () => {
       const tesco = await fakeShoppingList.createShop({ name: 'Tesco', color: ShopColor.Sky });
       const aldi = await fakeShoppingList.createShop({ name: 'Aldi', color: ShopColor.Pink });

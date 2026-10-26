@@ -163,7 +163,7 @@ describe('useHome', () => {
       expect(result.current.canDragItems).toBe(false);
     });
 
-    it('allows quick add only with its flag and no single shop being viewed', async () => {
+    it('allows quick add with its flag, in every view', async () => {
       await fakeShoppingList.addItem({ name: 'Tape', shopIds: [] });
       const { result } = await renderHookWithHousehold(() => useHome(), {
         flags: { [WebFeatureFlag.ENABLE_SHOP_QUICK_ADD]: true },
@@ -173,7 +173,7 @@ describe('useHome', () => {
 
       act(() => result.current.setFocus(UNSORTED_SHOP_ID));
 
-      expect(result.current.canQuickAdd).toBe(false);
+      expect(result.current.canQuickAdd).toBe(true);
     });
 
     it('refreshes the list only when its flag is on', async () => {
