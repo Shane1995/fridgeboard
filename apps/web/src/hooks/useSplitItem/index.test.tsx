@@ -31,10 +31,10 @@ const namesAndShops = async () =>
   }));
 
 describe('useSplitItem', () => {
-  it('turns an item in several shops into one item for each shop', async () => {
+  it('with no shop given, turns an item in several shops into one item for each shop', async () => {
     const { ids, apples, result } = await setUp({ inShops: 3 });
 
-    await act(async () => result.current(apples));
+    await act(async () => result.current({ item: apples }));
 
     await waitFor(async () =>
       expect(await namesAndShops()).toEqual(
@@ -46,7 +46,7 @@ describe('useSplitItem', () => {
   it('says how many items there are now', async () => {
     const { apples, result } = await setUp({ inShops: 2 });
 
-    await act(async () => result.current(apples));
+    await act(async () => result.current({ item: apples }));
 
     expect(await screen.findByText(SPLIT_ITEM_COPY.done('Apples', 2))).toBeInTheDocument();
   });
@@ -56,8 +56,8 @@ describe('useSplitItem', () => {
     const none = await fakeShoppingList.addItem({ name: 'Tape', shopIds: [] });
 
     await act(async () => {
-      await result.current(apples);
-      await result.current(none);
+      await result.current({ item: apples });
+      await result.current({ item: none });
     });
 
     expect(await namesAndShops()).toHaveLength(2);
@@ -67,10 +67,39 @@ describe('useSplitItem', () => {
   it('leaves the original untouched when a new item cannot be added', async () => {
     const { ids, apples, result } = await setUp({ inShops: 2, failMethod: 'POST' });
 
-    await act(async () => result.current(apples));
+    await act(async () => result.current({ item: apples }));
 
     expect(await namesAndShops()).toEqual([
       { name: 'Apples', shopIds: ids.slice(0, 2), checked: false },
     ]);
+  });
+
+  it('splits an item out of one shop and leaves the others on the original', async () => {
+    const { ids, apples, result } = await setUp({ inShops: 3 });
+
+    await act(async () => result.current({ item: apples, fromShopId: ids[1] as string }));
+
+    await waitFor(async () =>
+      expect(await namesAndShops()).toEqual([
+        { name: 'Apples', shopIds: [ids[0], ids[2]], checked: false },
+        { name: 'Apples', shopIds: [ids[1]], checked: false },
+      ]),
+    );
+  });
+
+  it('says which shop the item was split out of', async () => {
+    const { ids, apples, result } = await setUp({ inShops: 2 });
+
+    await act(async () => result.current({ item: apples, fromShopId: ids[0] as string }));
+
+    expect(await screen.findByText(SPLIT_ITEM_COPY.out('Apples', 'Tesco'))).toBeInTheDocument();
+  });
+
+  it('leaves the original untouched when the split out item cannot be added', async () => {
+    const { ids, apples, result } = await setUp({ inShops: 3, failMethod: 'POST' });
+
+    await act(async () => result.current({ item: apples, fromShopId: ids[0] as string }));
+
+    expect(await namesAndShops()).toEqual([{ name: 'Apples', shopIds: ids, checked: false }]);
   });
 });

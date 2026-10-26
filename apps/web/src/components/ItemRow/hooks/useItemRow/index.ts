@@ -8,10 +8,22 @@ import { useSplitItem } from '../../../../hooks/useSplitItem';
 import { useUpdateItemMutation } from '../../../../hooks/useUpdateItemMutation';
 import { findDuplicates } from '../../../../services/shoppingList/utils/findDuplicates';
 import type { ListItem } from '../../../../services/shoppingList/types';
-import { COMBINE_ACTION, DELETE_ACTION, INFO_ACTION, SPLIT_ACTION } from '../../constants';
+import {
+  COMBINE_ACTION,
+  DELETE_ACTION,
+  INFO_ACTION,
+  SPLIT_ACTION,
+  SPLIT_OUT_ACTION,
+} from '../../constants';
 import type { ItemRowState } from './types';
 
-export const useItemRow = (item: ListItem): ItemRowState => {
+export const useItemRow = ({
+  item,
+  shopId,
+}: {
+  item: ListItem;
+  shopId?: string | undefined;
+}): ItemRowState => {
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState(item.name);
   const infoDialog = useOverlayState();
@@ -21,6 +33,9 @@ export const useItemRow = (item: ListItem): ItemRowState => {
   const split = useSplitItem();
   const combine = useCombineItems();
   const duplicates = findDuplicates({ item, items: items.data ?? [] });
+
+  const canSplitOut =
+    shopId !== undefined && item.shopIds.length >= 2 && item.shopIds.includes(shopId);
 
   const startEditing = () => {
     setDraft(item.name);
@@ -47,7 +62,9 @@ export const useItemRow = (item: ListItem): ItemRowState => {
     } else if (action === DELETE_ACTION) {
       remove.mutate(item.id);
     } else if (action === SPLIT_ACTION) {
-      void split(item);
+      void split({ item });
+    } else if (action === SPLIT_OUT_ACTION) {
+      void split({ item, ...(shopId === undefined ? {} : { fromShopId: shopId }) });
     } else if (action === COMBINE_ACTION) {
       void combine({ keeper: item, duplicates });
     }
@@ -66,7 +83,8 @@ export const useItemRow = (item: ListItem): ItemRowState => {
     cancel,
     toggle,
     setShops,
-    canSplit: item.shopIds.length >= 2,
+    canSplitOut,
+    canSplitAll: item.shopIds.length >= 3 || (item.shopIds.length === 2 && !canSplitOut),
     duplicateCount: duplicates.length,
     handleMenuAction,
   };
