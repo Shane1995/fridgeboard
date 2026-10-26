@@ -218,17 +218,33 @@ jobs:
               exit 1
             }
           done
-          for spec in "${specs[@]}"; do
-            IFS=: read -r dir fn kind <<< "$spec"
+          deploy_one() {
+            local dir="$1" fn="$2" kind="$3"
             zip -j "$RUNNER_TEMP/$dir.zip" "api-dist/$dir/index.mjs"
             aws lambda update-function-code --function-name "$fn" --zip-file "fileb://$RUNNER_TEMP/$dir.zip" > /dev/null
             aws lambda wait function-updated --function-name "$fn"
+            local new prev
             new=$(aws lambda publish-version --function-name "$fn" --query Version --output text)
             .github/scripts/smoke-version.sh "$fn" "$new" "$kind"
             prev=$(aws lambda get-alias --function-name "$fn" --name live --query FunctionVersion --output text)
             aws lambda update-alias --function-name "$fn" --name live --function-version "$new" --description "prev=$prev" > /dev/null
             echo "$fn $prev" >> "$RUNNER_TEMP/flipped"
+          }
+          pids=()
+          for spec in "${specs[@]}"; do
+            IFS=: read -r dir fn kind <<< "$spec"
+            deploy_one "$dir" "$fn" "$kind" > "$RUNNER_TEMP/$dir.log" 2>&1 &
+            pids+=("$!")
           done
+          failed=0
+          for i in "${!pids[@]}"; do
+            IFS=: read -r dir fn kind <<< "${specs[$i]}"
+            wait "${pids[$i]}" || failed=1
+            echo "::group::$fn"
+            cat "$RUNNER_TEMP/$dir.log"
+            echo "::endgroup::"
+          done
+          exit "$failed"
       - name: Smoke check
         run: |
           set -euo pipefail
