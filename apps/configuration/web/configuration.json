@@ -4,6 +4,7 @@
     "ENABLE_HOUSEHOLD_INVITES": true,
     "ENABLE_ITEM_DRAG": true,
     "ENABLE_PASSKEYS": true,
+    "ENABLE_PULL_TO_REFRESH": true,
     "ENABLE_SHOP_QUICK_ADD": true
   },
   "mutations": {

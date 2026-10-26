@@ -2,6 +2,7 @@ import { KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/c
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useOverlayState } from '@heroui/react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useShopsQuery } from '../../../../hooks/useShopsQuery';
 import { useActiveHousehold } from '../../../../hooks/useActiveHousehold';
@@ -39,6 +40,8 @@ export const useHome = (): HomeState => {
   const reorder = useReorderShopsMutation();
   const { updateShops } = useListCache();
   const moveItem = useMoveItem();
+  const pullFlag = useFeatureFlag(WebFeatureFlag.ENABLE_PULL_TO_REFRESH);
+  const queryClient = useQueryClient();
   const quickAddFlag = useFeatureFlag(WebFeatureFlag.ENABLE_SHOP_QUICK_ADD);
   const dragFlag = useFeatureFlag(WebFeatureFlag.ENABLE_ITEM_DRAG);
   const [activeItem, setActiveItem] = useState<ListItem | undefined>();
@@ -128,6 +131,8 @@ export const useHome = (): HomeState => {
     activeShop: grouped.sections.find(({ shop }) => shop.id === activeShopId),
     canDragItems: dragFlag && focusedId === undefined,
     canQuickAdd: quickAddFlag && focusedId === undefined,
+    canPullToRefresh: pullFlag,
+    refresh: () => queryClient.invalidateQueries(),
     allShops,
     hasItems: itemList.length > 0,
     isLoading: isPending && !hasSettled,
