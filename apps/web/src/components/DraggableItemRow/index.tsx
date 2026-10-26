@@ -1,6 +1,7 @@
 import { useDraggable } from '@dnd-kit/core';
 import { GripVertical } from 'lucide-react';
 import { ItemRow } from '../ItemRow';
+import { touchDragListeners } from '../../utils/touchDragListeners';
 import type { DraggableItemRowProps } from './types';
 
 export const DraggableItemRow = ({ item, shops, shopId }: DraggableItemRowProps) => {
@@ -15,6 +16,7 @@ export const DraggableItemRow = ({ item, shops, shopId }: DraggableItemRowProps)
       shops={shops}
       shopId={shopId}
       rowRef={setNodeRef}
+      rowProps={touchDragListeners({ listeners })}
       isDragging={isDragging}
       handle={
         <button
@@ -23,8 +25,8 @@ export const DraggableItemRow = ({ item, shops, shopId }: DraggableItemRowProps)
           tabIndex={-1}
           aria-hidden="true"
           data-testid="item-drag-handle"
-          onPointerDown={(event) => listeners?.onPointerDown?.(event)}
-          className="flex size-9 shrink-0 cursor-grab touch-none items-center justify-center rounded-full opacity-40 outline-none select-none hover:opacity-100 active:cursor-grabbing"
+          onMouseDown={(event) => listeners?.onMouseDown?.(event)}
+          className="flex size-9 shrink-0 cursor-grab items-center justify-center rounded-full opacity-40 outline-none select-none hover:opacity-100 active:cursor-grabbing pointer-coarse:hidden"
         >
           <GripVertical aria-hidden size={18} />
         </button>

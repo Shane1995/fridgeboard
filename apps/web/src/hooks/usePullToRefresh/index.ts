@@ -5,6 +5,7 @@ import {
   PULL_RESISTANCE,
   PULL_THRESHOLD_PX,
 } from './constants';
+import { TOUCH_DRAG_DELAY_MS } from '../../utils/touchDragListeners/constants';
 import type { PullToRefreshOptions, PullToRefreshState } from './types';
 
 export const usePullToRefresh = ({
@@ -21,6 +22,7 @@ export const usePullToRefresh = ({
       return undefined;
     }
     let startY: number | undefined;
+    let startedAt = 0;
     let pulled = 0;
     let busy = false;
 
@@ -38,11 +40,16 @@ export const usePullToRefresh = ({
         blocked || window.scrollY > 0 || target?.closest(PULL_IGNORED_SELECTOR)
           ? undefined
           : touch.clientY;
+      startedAt = Date.now();
     };
 
     const handleMove = (event: TouchEvent) => {
       const touch = event.touches[0];
       if (startY === undefined || touch === undefined) {
+        return;
+      }
+      if (pulled === 0 && Date.now() - startedAt > TOUCH_DRAG_DELAY_MS) {
+        reset();
         return;
       }
       const delta = touch.clientY - startY;
