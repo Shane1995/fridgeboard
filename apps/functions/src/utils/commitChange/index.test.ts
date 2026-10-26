@@ -12,8 +12,7 @@ const ITEM_PUT = { PK: 'HH#hh-1', SK: 'ITEM#main#abc', name: 'Milk' };
 const OPTIONS = {
   table,
   householdId: 'hh-1',
-  type: 'item' as const,
-  id: 'abc',
+  changes: [{ type: 'item' as const, id: 'abc' }] as const,
   items: [{ put: ITEM_PUT }],
 };
 
@@ -43,7 +42,7 @@ describe('commitChange', () => {
 
     const change = await commitChange(OPTIONS);
 
-    expect(change).toEqual({ id: 'abc', rev: 1, type: 'item' });
+    expect(change).toEqual([{ id: 'abc', rev: 1, type: 'item' }]);
     const [input] = sent();
     expect(input?.TransactItems).toEqual([
       { Put: { TableName: 'fridgeboard', Item: ITEM_PUT } },
@@ -79,7 +78,7 @@ describe('commitChange', () => {
 
     const change = await commitChange(OPTIONS);
 
-    expect(change.rev).toBe(42);
+    expect(change[0]?.rev).toBe(42);
     const update = sent()[0]?.TransactItems?.[1]?.Update;
     expect(update?.ConditionExpression).toBe('#rev = :current');
     expect(update?.ExpressionAttributeValues).toEqual({ ':v0': 42, ':current': 41 });
@@ -94,7 +93,7 @@ describe('commitChange', () => {
 
     const change = await commitChange(OPTIONS);
 
-    expect(change.rev).toBe(43);
+    expect(change[0]?.rev).toBe(43);
     expect(sent()).toHaveLength(2);
   });
 
@@ -130,6 +129,29 @@ describe('commitChange', () => {
 
     await expect(commitChange(OPTIONS)).rejects.toBeInstanceOf(TransactionCanceledException);
     expect(sent()).toHaveLength(1);
+  });
+
+  it('records several changes in one transaction, one rev each', async () => {
+    ddbMock.on(GetCommand).resolves({ Item: { PK: 'HH#hh-1', SK: 'META', name: 'Home', rev: 10 } });
+    ddbMock.on(TransactWriteCommand).resolves({});
+
+    const recorded = await commitChange({
+      ...OPTIONS,
+      changes: [
+        { type: 'shop', id: 's1' },
+        { type: 'item', id: 's1' },
+      ],
+    });
+
+    expect(recorded).toEqual([
+      { id: 's1', rev: 11, type: 'shop' },
+      { id: 's1', rev: 12, type: 'item' },
+    ]);
+    const items = sent()[0]?.TransactItems;
+    expect(items).toHaveLength(4);
+    expect(items?.[1]?.Update?.ExpressionAttributeValues).toEqual({ ':v0': 12, ':current': 10 });
+    expect(items?.[2]?.Put?.Item).toMatchObject({ SK: 'CHG#0000000011', rev: 11, type: 'shop' });
+    expect(items?.[3]?.Put?.Item).toMatchObject({ SK: 'CHG#0000000012', rev: 12, type: 'item' });
   });
 
   it('stops at once when the household does not exist', async () => {

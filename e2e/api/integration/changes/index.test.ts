@@ -34,8 +34,7 @@ const change = ({ householdId, id }: { householdId: string; id: string }) =>
   commitChange({
     table,
     householdId,
-    type: 'item',
-    id,
+    changes: [{ type: 'item', id }],
     items: [{ put: { PK: `HH#${householdId}`, SK: `ITEM#main#${id}`, name: id } }],
   });
 

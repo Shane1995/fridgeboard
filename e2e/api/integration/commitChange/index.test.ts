@@ -25,8 +25,7 @@ const write = ({ householdId, id }: { householdId: string; id: string }) =>
   commitChange({
     table,
     householdId,
-    type: 'item',
-    id,
+    changes: [{ type: 'item', id }],
     items: [{ put: { PK: `HH#${householdId}`, SK: `ITEM#main#${id}`, name: id } }],
   });
 
@@ -37,7 +36,7 @@ describe('commitChange against DynamoDB Local', () => {
     const first = await write({ householdId, id: 'a' });
     const second = await write({ householdId, id: 'b' });
 
-    expect([first.rev, second.rev]).toEqual([1, 2]);
+    expect([first[0]?.rev, second[0]?.rev]).toEqual([1, 2]);
     expect((await getItem(householdMetaKey(householdId)))?.rev).toBe(2);
     expect(await getItem(changeKey({ householdId, rev: 2 }))).toMatchObject({
       rev: 2,
@@ -56,7 +55,7 @@ describe('commitChange against DynamoDB Local', () => {
     const results = await Promise.allSettled(ids.map((id) => write({ householdId, id })));
 
     const revs = results.flatMap((result) =>
-      result.status === 'fulfilled' ? [result.value.rev] : [],
+      result.status === 'fulfilled' ? [result.value[0]?.rev] : [],
     );
     expect(new Set(revs).size).toBe(revs.length);
     expect(results.every((result) => result.status === 'fulfilled')).toBe(true);

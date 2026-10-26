@@ -71,7 +71,7 @@ describe('createLiveSync', () => {
     });
   });
 
-  it('learns the current rev once subscribed and refreshes everything', async () => {
+  it('learns the current rev once subscribed, without refreshing what was just loaded', async () => {
     const { liveSync, latest, fetchChanges, onChanges } = setup({ rev: 5, snapshot: true });
     liveSync.start();
     await flush();
@@ -80,9 +80,23 @@ describe('createLiveSync', () => {
     await flush();
 
     expect(fetchChanges).toHaveBeenCalledWith({ since: undefined });
+    expect(onChanges).not.toHaveBeenCalled();
+  });
+
+  it('still refreshes what a change that arrived during the first look touched', async () => {
+    const { liveSync, latest, fetchChanges, onChanges } = setup({ rev: 5, snapshot: true });
+    liveSync.start();
+    await flush();
+    fetchChanges.mockResolvedValueOnce({ rev: 5, snapshot: true });
+    fetchChanges.mockResolvedValueOnce({ rev: 7, changes: [change(6), change(7, 'shop')] });
+
+    latest().onSubscribed();
+    latest().onChange(change(7, 'shop'));
+    await flush();
+
     expect(onChanges).toHaveBeenCalledWith([
-      { type: 'item', id: undefined },
-      { type: 'shop', id: undefined },
+      { type: 'item', id: 'id-6' },
+      { type: 'shop', id: 'id-7' },
     ]);
   });
 

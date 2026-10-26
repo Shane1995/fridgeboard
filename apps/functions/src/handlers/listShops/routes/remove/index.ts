@@ -34,8 +34,10 @@ export const removeListShop = async ({ context: { table, scope }, shopId }: Shop
   await recordChange({
     table,
     householdId,
-    type: 'shop',
-    id: shopId,
+    changes: [
+      { type: 'shop', id: shopId },
+      ...(inShop.length > 0 ? [{ type: 'item' as const, id: shopId }] : []),
+    ],
     items: [
       ...inShop.map((item) => ({
         update: itemKey({ householdId, listId, itemId: item.id }),

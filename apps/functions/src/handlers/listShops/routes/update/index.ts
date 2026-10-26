@@ -48,8 +48,7 @@ export const updateListShop = async ({
     await recordChange({
       table,
       householdId: scope.householdId,
-      type: 'shop',
-      id: shopId,
+      changes: [{ type: 'shop', id: shopId }],
       items: [{ update: key, parts: { set }, condition: { expression: EXISTS_CONDITION } }],
     });
   } catch (error) {

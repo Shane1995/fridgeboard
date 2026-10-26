@@ -25,13 +25,16 @@ export const createLiveSync = ({
   };
 
   const catchUpRound = async ({ round }: { round: number }): Promise<void> => {
+    const firstLook = state.rev === undefined;
     const response = await fetchChanges({ since: state.rev });
     state.rev = response.rev;
-    onChanges(
-      'snapshot' in response
-        ? CHANGE_TYPES.map((type) => ({ type, id: undefined }))
-        : response.changes.map(({ type, id }) => ({ type, id })),
-    );
+    if (!firstLook) {
+      onChanges(
+        'snapshot' in response
+          ? CHANGE_TYPES.map((type) => ({ type, id: undefined }))
+          : response.changes.map(({ type, id }) => ({ type, id })),
+      );
+    }
     if (state.seen > state.rev && round < CATCH_UP_ROUNDS) {
       await catchUpRound({ round: round + 1 });
     }

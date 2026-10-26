@@ -33,8 +33,7 @@ export const reorderListShops = async ({ user, table, scope }: ListRouteContext)
     await recordChange({
       table,
       householdId: scope.householdId,
-      type: 'shop',
-      id: REORDER_ID,
+      changes: [{ type: 'shop', id: REORDER_ID }],
       items: moved.map((shop) => ({
         update: shopKey({ ...scope, shopId: shop.id }),
         parts: { set: { order: shop.order } },

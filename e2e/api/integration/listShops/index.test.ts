@@ -221,4 +221,39 @@ describe('list shops handler against DynamoDB Local', () => {
       await getItem({ PK: `HH#${member.householdId}`, SK: `SHOP#main#${shopId}` }),
     ).toBeDefined();
   });
+
+  it('tells other devices about the items too when a deleted shop had items', async () => {
+    const member = await seedMember();
+    const { id: shopId } = await createShop(member, 'Aldi');
+    await itemsHandler(
+      buildEvent({
+        claims: { sub: member.sub },
+        method: 'POST',
+        path: `/api/v1/households/${member.householdId}/lists/main/items`,
+        pathParameters: { householdId: member.householdId, listId: 'main' },
+        body: { name: 'Eggs', shopIds: [shopId] },
+      }),
+    );
+
+    await call(member, 'DELETE', `/${shopId}`, undefined, shopId);
+
+    expect((await getItem(householdMetaKey(member.householdId)))?.rev).toBe(4);
+    expect(await getItem({ PK: `HH#${member.householdId}`, SK: 'CHG#0000000003' })).toMatchObject({
+      type: 'shop',
+      id: shopId,
+    });
+    expect(await getItem({ PK: `HH#${member.householdId}`, SK: 'CHG#0000000004' })).toMatchObject({
+      type: 'item',
+      id: shopId,
+    });
+  });
+
+  it('records only a shop change when a deleted shop had no items', async () => {
+    const member = await seedMember();
+    const { id: shopId } = await createShop(member, 'Aldi');
+
+    await call(member, 'DELETE', `/${shopId}`, undefined, shopId);
+
+    expect((await getItem(householdMetaKey(member.householdId)))?.rev).toBe(2);
+  });
 });

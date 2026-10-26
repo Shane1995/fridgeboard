@@ -17,28 +17,30 @@ import type { CommitChangeOptions } from './types.ts';
 export const commitChange = async ({
   table,
   householdId,
-  type,
-  id,
+  changes,
   items,
-}: CommitChangeOptions): Promise<IChange> => {
+}: CommitChangeOptions): Promise<IChange[]> => {
   const metaKey = householdMetaKey(householdId);
 
-  const run = async ({ attempt }: { attempt: number }): Promise<IChange> => {
+  const run = async ({ attempt }: { attempt: number }): Promise<IChange[]> => {
     const meta = await table.get(metaKey, HouseholdMetaItemSchema);
     if (meta === undefined) {
       throw new Error(HOUSEHOLD_MISSING_ERROR);
     }
     const current = meta.rev ?? 0;
-    const rev = current + 1;
+    const recorded = changes.map(({ type, id }, index) => ({ id, type, rev: current + 1 + index }));
+    const rev = current + changes.length;
     const ttl = Math.floor(Date.now() / 1000) + CHANGE_TTL_SECONDS;
 
     try {
       await table.transactWrite([
         ...items,
         { update: metaKey, parts: { set: { rev } }, condition: buildRevCondition({ current }) },
-        { put: { ...changeKey({ householdId, rev }), rev, type, id, ttl } },
+        ...recorded.map((change) => ({
+          put: { ...changeKey({ householdId, rev: change.rev }), ...change, ttl },
+        })),
       ]);
-      return { id, rev, type };
+      return recorded;
     } catch (error) {
       if (!isRevConflict({ error, index: items.length })) {
         throw error;

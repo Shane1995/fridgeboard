@@ -12,8 +12,7 @@ export const removeListItem = async ({ context: { table, scope }, itemId }: Item
   await recordChange({
     table,
     householdId: scope.householdId,
-    type: 'item',
-    id: itemId,
+    changes: [{ type: 'item', id: itemId }],
     items: [{ delete: key }],
   });
   return { statusCode: 204 };
