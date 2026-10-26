@@ -10,6 +10,7 @@ export enum WebFeatureFlag {
   ENABLE_HOUSEHOLD_INVITES = 'ENABLE_HOUSEHOLD_INVITES',
   ENABLE_ITEM_DRAG = 'ENABLE_ITEM_DRAG',
   ENABLE_PASSKEYS = 'ENABLE_PASSKEYS',
+  ENABLE_SHOP_QUICK_ADD = 'ENABLE_SHOP_QUICK_ADD',
 }
 
 export const WEB_FEATURE_FLAGS: readonly string[] = Object.values(WebFeatureFlag);

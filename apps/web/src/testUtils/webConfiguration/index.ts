@@ -8,6 +8,7 @@ export const TEST_WEB_CONFIGURATION: WebConfiguration = {
     [WebFeatureFlag.ENABLE_HOUSEHOLD_INVITES]: false,
     [WebFeatureFlag.ENABLE_ITEM_DRAG]: false,
     [WebFeatureFlag.ENABLE_PASSKEYS]: false,
+    [WebFeatureFlag.ENABLE_SHOP_QUICK_ADD]: false,
   },
   mutations: { default: { retry: 0, timeoutMs: 10_000 } },
   queries: {
