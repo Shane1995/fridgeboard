@@ -1,7 +1,7 @@
-import type { Recipe, RecipeDraft } from '../../../../../../services/recipes/types';
+import type { RecipeDraft } from '../../../../../../services/recipes/types';
 
 export type UseRecipeFormOptions = {
-  recipe: Recipe | undefined;
+  recipe: RecipeDraft | undefined;
   onSave: (options: { draft: RecipeDraft }) => void;
 };
 

@@ -19,3 +19,22 @@ export type Recipe = {
 };
 
 export type RecipeDraft = Omit<Recipe, 'id' | 'isFavourite'>;
+
+export type RecipeImportStatus = 'parsing' | 'ready' | 'failed';
+
+export type RecipeImport = {
+  id: string;
+  source: string;
+  label: string;
+  status: RecipeImportStatus;
+  draft: RecipeDraft | undefined;
+  reason: string | undefined;
+};
+
+export type RecipeIdea = {
+  id: string;
+  title: string;
+  site: string;
+  snippet: string;
+  url: string;
+};

@@ -1,4 +1,4 @@
-import { fireEvent, screen, within } from '@testing-library/react';
+import { act, fireEvent, screen, within } from '@testing-library/react';
 import { RecipeBookProvider } from '../../Context/RecipeBook';
 import { WebFeatureFlag } from '../../services/configuration/schema/constants';
 import { SessionStatus } from '../../services/session/constants';
@@ -7,6 +7,10 @@ import { renderInRouter } from '../../testUtils/renderInRouter';
 import { TestProviders } from '../../testUtils/TestProviders';
 import { TEST_WEB_CONFIGURATION } from '../../testUtils/webConfiguration';
 import { Recipes } from './index';
+import { MOCK_PARSE_DELAY_MS } from '../../Context/RecipeBook/constants';
+import { IDEAS_DIALOG_COPY } from './components/IdeasDialog/constants';
+import { IMPORT_DIALOG_COPY } from './components/ImportDialog/constants';
+import { IMPORTS_TRAY_COPY } from './components/ImportsTray/constants';
 import { RECIPES_COPY } from './constants';
 
 const { session } = createSession(SessionStatus.SignedIn);
@@ -109,5 +113,94 @@ describe('Recipes', () => {
       await screen.findByRole('searchbox', { name: RECIPES_COPY.searchLabel }),
     ).toBeInTheDocument();
     expect(screen.queryByText('Chocolate brownies')).not.toBeInTheDocument();
+  });
+
+  describe('importing', () => {
+    beforeEach(() => vi.useFakeTimers({ shouldAdvanceTime: true }));
+    afterEach(() => vi.useRealTimers());
+
+    const finishParsing = () =>
+      act(async () => {
+        await vi.advanceTimersByTimeAsync(MOCK_PARSE_DELAY_MS);
+      });
+
+    const importSource = async (source: string) => {
+      fireEvent.click(screen.getByRole('button', { name: RECIPES_COPY.importRecipe }));
+      const dialog = await screen.findByRole('dialog');
+      fireEvent.change(within(dialog).getByRole('textbox', { name: IMPORT_DIALOG_COPY.label }), {
+        target: { value: source },
+      });
+      fireEvent.click(within(dialog).getByRole('button', { name: IMPORT_DIALOG_COPY.submit }));
+    };
+
+    it('imports a link, reviews the draft and saves it as a recipe', async () => {
+      await renderRecipes({ enabled: true });
+      await importSource('https://example.com/recipes/pesto-pasta');
+      expect(
+        await screen.findByText(`${IMPORTS_TRAY_COPY.parsing} example.com`),
+      ).toBeInTheDocument();
+
+      await finishParsing();
+      const tray = screen.getByRole('region', { name: IMPORTS_TRAY_COPY.heading });
+      expect(
+        within(tray).getByText(`${IMPORTS_TRAY_COPY.imported} Pesto Pasta`),
+      ).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole('button', { name: IMPORTS_TRAY_COPY.review }));
+      expect(screen.getByRole('textbox', { name: /^Name/ })).toHaveValue('Pesto Pasta');
+      fireEvent.click(screen.getByRole('button', { name: 'Save recipe' }));
+
+      expect(await screen.findByRole('heading', { name: 'Pesto Pasta' })).toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: RECIPES_COPY.back }));
+      expect(
+        screen.queryByRole('region', { name: IMPORTS_TRAY_COPY.heading }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('shows a failed import with a reason, and lets you retry and discard it', async () => {
+      await renderRecipes({ enabled: true });
+      await importSource('https://example.com/fail');
+      await finishParsing();
+      expect(screen.getByRole('button', { name: IMPORTS_TRAY_COPY.retry })).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole('button', { name: IMPORTS_TRAY_COPY.retry }));
+      expect(screen.getByText(`${IMPORTS_TRAY_COPY.parsing} example.com`)).toBeInTheDocument();
+      await finishParsing();
+
+      fireEvent.click(screen.getByRole('button', { name: IMPORTS_TRAY_COPY.discard }));
+      expect(
+        screen.queryByRole('region', { name: IMPORTS_TRAY_COPY.heading }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('rejects a plain http link', async () => {
+      await renderRecipes({ enabled: true });
+      await importSource('http://example.com/x');
+      expect(await screen.findByText(IMPORT_DIALOG_COPY.httpsOnly)).toBeInTheDocument();
+      expect(
+        screen.queryByRole('region', { name: IMPORTS_TRAY_COPY.heading }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('imports the ideas you tick', async () => {
+      await renderRecipes({ enabled: true });
+      fireEvent.click(screen.getByRole('button', { name: RECIPES_COPY.findIdeas }));
+      const dialog = await screen.findByRole('dialog');
+      fireEvent.change(within(dialog).getByRole('textbox', { name: IDEAS_DIALOG_COPY.label }), {
+        target: { value: 'a chocolate dessert on Wednesday' },
+      });
+      fireEvent.click(within(dialog).getByRole('button', { name: IDEAS_DIALOG_COPY.search }));
+      const results = within(dialog).getByRole('list', { name: IDEAS_DIALOG_COPY.resultsLabel });
+      const boxes = within(results).getAllByRole('checkbox');
+      expect(boxes).toHaveLength(5);
+      fireEvent.click(boxes[0] ?? results);
+      fireEvent.click(boxes[1] ?? results);
+      fireEvent.click(
+        within(dialog).getByRole('button', { name: `${IDEAS_DIALOG_COPY.importSelected} (2)` }),
+      );
+
+      await finishParsing();
+      expect(screen.getAllByRole('button', { name: IMPORTS_TRAY_COPY.review })).toHaveLength(2);
+    });
   });
 });

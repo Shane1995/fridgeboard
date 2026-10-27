@@ -1,3 +1,3 @@
-import type { Recipe } from '../../../../services/recipes/types';
+import type { RecipeDraft } from '../../../../services/recipes/types';
 
-export type ToFormDraftOptions = { recipe: Recipe | undefined };
+export type ToFormDraftOptions = { recipe: RecipeDraft | undefined };

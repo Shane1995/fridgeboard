@@ -1,5 +1,10 @@
 import type { Recipe } from '../../services/recipes/types';
 
+export const MOCK_PARSE_DELAY_MS = 1500;
+export const IMPORT_FAILED_REASON =
+  'We could not read a recipe there. Try another link, or paste the ingredients.';
+export const IMPORTED_TOAST = 'Imported:';
+
 export const MISSING_RECIPE_BOOK_MESSAGE = 'useRecipeBook must be used inside a RecipeBookProvider';
 
 export const MOCK_RECIPES: readonly Recipe[] = [
