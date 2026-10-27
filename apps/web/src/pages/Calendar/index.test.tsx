@@ -1,14 +1,8 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
-import {
-  createMemoryHistory,
-  createRootRoute,
-  createRoute,
-  createRouter,
-  RouterProvider,
-} from '@tanstack/react-router';
+import { fireEvent, screen, within } from '@testing-library/react';
 import { WebFeatureFlag } from '../../services/configuration/schema/constants';
 import { SessionStatus } from '../../services/session/constants';
 import { createSession } from '../../testUtils/createSession';
+import { renderInRouter } from '../../testUtils/renderInRouter';
 import { TestProviders } from '../../testUtils/TestProviders';
 import { TEST_WEB_CONFIGURATION } from '../../testUtils/webConfiguration';
 import { Calendar } from './index';
@@ -27,22 +21,11 @@ const renderCalendar = async (enabled: boolean) => {
       [WebFeatureFlag.ENABLE_CALENDAR]: enabled,
     },
   };
-  const rootRoute = createRootRoute();
-  const page = createRoute({
-    getParentRoute: () => rootRoute,
-    path: '/',
-    component: () => (
-      <TestProviders session={session} config={config}>
-        <Calendar />
-      </TestProviders>
-    ),
-  });
-  const router = createRouter({
-    routeTree: rootRoute.addChildren([page]),
-    history: createMemoryHistory({ initialEntries: ['/'] }),
-  });
-  render(<RouterProvider router={router} />);
-  await screen.findByRole('main');
+  await renderInRouter(
+    <TestProviders session={session} config={config}>
+      <Calendar />
+    </TestProviders>,
+  );
 };
 
 describe('Calendar', () => {
