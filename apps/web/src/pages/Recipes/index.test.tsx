@@ -1,15 +1,9 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
-import {
-  createMemoryHistory,
-  createRootRoute,
-  createRoute,
-  createRouter,
-  RouterProvider,
-} from '@tanstack/react-router';
+import { fireEvent, screen, within } from '@testing-library/react';
 import { RecipeBookProvider } from '../../Context/RecipeBook';
 import { WebFeatureFlag } from '../../services/configuration/schema/constants';
 import { SessionStatus } from '../../services/session/constants';
 import { createSession } from '../../testUtils/createSession';
+import { renderInRouter } from '../../testUtils/renderInRouter';
 import { TestProviders } from '../../testUtils/TestProviders';
 import { TEST_WEB_CONFIGURATION } from '../../testUtils/webConfiguration';
 import { Recipes } from './index';
@@ -25,24 +19,13 @@ const renderRecipes = async ({ enabled }: { enabled: boolean }) => {
       [WebFeatureFlag.ENABLE_RECIPES]: enabled,
     },
   };
-  const rootRoute = createRootRoute();
-  const page = createRoute({
-    getParentRoute: () => rootRoute,
-    path: '/',
-    component: () => (
-      <TestProviders session={session} config={config}>
-        <RecipeBookProvider>
-          <Recipes />
-        </RecipeBookProvider>
-      </TestProviders>
-    ),
-  });
-  const router = createRouter({
-    routeTree: rootRoute.addChildren([page]),
-    history: createMemoryHistory({ initialEntries: ['/'] }),
-  });
-  render(<RouterProvider router={router} />);
-  await screen.findByRole('main');
+  await renderInRouter(
+    <TestProviders session={session} config={config}>
+      <RecipeBookProvider>
+        <Recipes />
+      </RecipeBookProvider>
+    </TestProviders>,
+  );
 };
 
 const openRecipe = (name: string) =>
