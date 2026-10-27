@@ -1,6 +1,7 @@
 {
   "featureFlags": {
     "ENABLE_ADMIN_INVITES": false,
+    "ENABLE_CALENDAR": false,
     "ENABLE_HOUSEHOLD_INVITES": true,
     "ENABLE_ITEM_DRAG": true,
     "ENABLE_LIVE_SYNC": true,
