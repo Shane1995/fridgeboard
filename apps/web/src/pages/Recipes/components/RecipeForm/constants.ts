@@ -1,6 +1,7 @@
 export const RECIPE_FORM_COPY = {
   createTitle: 'New recipe',
   editTitle: 'Edit recipe',
+  reviewTitle: 'Review imported recipe',
   nameLabel: 'Name',
   servingsLabel: 'Servings',
   sourceLabel: 'Link to the original',

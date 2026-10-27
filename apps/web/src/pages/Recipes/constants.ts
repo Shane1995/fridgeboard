@@ -1,4 +1,5 @@
 export const RECIPES_SEARCH_PATTERN = /^[A-Za-z0-9-]{1,64}$/;
+export const RECIPES_URL_MAX_LENGTH = 2000;
 
 export const RECIPES_COPY = {
   title: 'Recipes',
@@ -8,6 +9,8 @@ export const RECIPES_COPY = {
   tagsLabel: 'Filter by tag',
   allTags: 'All',
   newRecipe: 'New recipe',
+  importRecipe: 'Import',
+  findIdeas: 'Find ideas',
   empty: 'No recipes match. Try another search, or add a new recipe.',
   favouriteOn: 'Remove from favourites',
   favouriteOff: 'Add to favourites',

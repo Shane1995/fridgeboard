@@ -8,5 +8,7 @@ export type RecipeLibraryProps = {
   onTagChange: (tag: string | undefined) => void;
   onOpen: (options: { id: string }) => void;
   onNew: () => void;
+  onImport: () => void;
+  onIdeas: () => void;
   onToggleFavourite: (options: { id: string }) => void;
 };

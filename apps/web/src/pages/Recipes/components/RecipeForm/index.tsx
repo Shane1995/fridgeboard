@@ -12,7 +12,7 @@ import { FORM_INPUT_CLASS, RECIPE_FORM_COPY } from './constants';
 import { useRecipeForm } from './hooks/useRecipeForm';
 import type { RecipeFormProps } from './types';
 
-export const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
+export const RecipeForm = ({ title, recipe, onSave, onCancel }: RecipeFormProps) => {
   const {
     form,
     setText,
@@ -29,7 +29,7 @@ export const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
   return (
     <form onSubmit={handleSubmit} className="flex min-w-0 flex-col gap-5">
       <Typography variant={TypographyVariant.Heading2} as="h2">
-        {recipe === undefined ? RECIPE_FORM_COPY.createTitle : RECIPE_FORM_COPY.editTitle}
+        {title}
       </Typography>
       <label className="flex flex-col gap-1 text-sm font-medium">
         {RECIPE_FORM_COPY.nameLabel}

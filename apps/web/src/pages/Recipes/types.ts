@@ -3,7 +3,10 @@ import type { RecipeIngredient } from '../../services/recipes/types';
 export type RecipeScreen =
   | { kind: 'list' }
   | { kind: 'detail'; recipeId: string }
-  | { kind: 'form'; recipeId: string | undefined };
+  | { kind: 'form'; recipeId: string | undefined }
+  | { kind: 'review'; importId: string };
+
+export type RecipesSearch = { recipe?: string; url?: string };
 
 export type FormIngredient = { id: string; quantity: string; unit: string; item: string };
 

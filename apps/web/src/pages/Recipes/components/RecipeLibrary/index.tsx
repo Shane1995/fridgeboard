@@ -1,5 +1,5 @@
 import { Button } from '@heroui/react';
-import { Plus } from 'lucide-react';
+import { Link, Plus, Sparkles } from 'lucide-react';
 import { Typography } from '../../../../components/Typography';
 import { TypographyVariant } from '../../../../components/Typography/constants';
 import { RECIPE_TAGS } from '../../../../services/recipes/constants';
@@ -18,6 +18,8 @@ export const RecipeLibrary = ({
   onTagChange,
   onOpen,
   onNew,
+  onImport,
+  onIdeas,
   onToggleFavourite,
 }: RecipeLibraryProps) => {
   return (
@@ -34,6 +36,16 @@ export const RecipeLibrary = ({
         <Button variant="primary" onPress={onNew}>
           <Plus aria-hidden size={18} />
           {RECIPES_COPY.newRecipe}
+        </Button>
+      </div>
+      <div className="flex gap-2">
+        <Button variant="secondary" onPress={onImport}>
+          <Link aria-hidden size={16} />
+          {RECIPES_COPY.importRecipe}
+        </Button>
+        <Button variant="secondary" onPress={onIdeas}>
+          <Sparkles aria-hidden size={16} />
+          {RECIPES_COPY.findIdeas}
         </Button>
       </div>
       <div role="group" aria-label={RECIPES_COPY.tagsLabel} className="flex flex-wrap gap-2">
