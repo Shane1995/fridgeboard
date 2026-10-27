@@ -13,6 +13,7 @@ export const buildDummyPlanner = ({ weekStartsOn }: BuildDummyPlannerOptions): P
     const id = `day-${weekday}`;
     return {
       id,
+      weekday,
       title: formatWeekdayName({ weekday }),
       lines: toLines({ id, texts: DUMMY_DAY_LINES[weekday] ?? [] }),
     };

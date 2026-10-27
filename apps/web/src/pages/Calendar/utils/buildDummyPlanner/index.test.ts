@@ -7,6 +7,11 @@ describe('buildDummyPlanner', () => {
     expect(buildDummyPlanner({ weekStartsOn: 1 }).days[6]?.title).toBe('Sunday');
   });
 
+  it('tags each day with its weekday number', () => {
+    const days = buildDummyPlanner({ weekStartsOn: 1 }).days;
+    expect(days.map((day) => day.weekday)).toEqual([1, 2, 3, 4, 5, 6, 0]);
+  });
+
   it('gives every section and line a unique id', () => {
     const plan = buildDummyPlanner({ weekStartsOn: 0 });
     const ids = [...plan.days, ...plan.notes].flatMap((section) => [

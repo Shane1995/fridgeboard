@@ -9,6 +9,12 @@ describe('usePlanner', () => {
     expect(result.current.notes.length).toBeGreaterThan(0);
   });
 
+  it('knows which weekday is today', () => {
+    const { result } = renderHook(() => usePlanner());
+    expect(result.current.todayWeekday).toBeGreaterThanOrEqual(0);
+    expect(result.current.todayWeekday).toBeLessThanOrEqual(6);
+  });
+
   it('adds, edits and removes a line on a day', () => {
     const { result } = renderHook(() => usePlanner());
     const sectionId = result.current.days[2]?.id ?? '';

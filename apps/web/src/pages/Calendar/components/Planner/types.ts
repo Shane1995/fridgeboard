@@ -7,10 +7,13 @@ import type {
   UpdateLineOptions,
 } from '../../hooks/usePlanner/types';
 
+export type SectionStyle = { surface: string; border: string };
+
 export type PlannerProps = {
   days: readonly PlannerSection[];
   notes: readonly PlannerSection[];
   focusId: string | undefined;
+  todayWeekday: number;
   onAddLine: (options: AddLineOptions) => void;
   onUpdateLine: (options: UpdateLineOptions) => void;
   onRemoveLine: (options: RemoveLineOptions) => void;
