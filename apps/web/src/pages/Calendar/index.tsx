@@ -6,11 +6,14 @@ import { DayAgenda } from './components/DayAgenda';
 import { EventDialog } from './components/EventDialog';
 import { MonthGrid } from './components/MonthGrid';
 import { OwnerLegend } from './components/OwnerLegend';
+import { Planner } from './components/Planner';
 import { WeekView } from './components/WeekView';
 import { useCalendar } from './hooks/useCalendar';
+import { usePlanner } from './hooks/usePlanner';
 
 export const Calendar = () => {
   const calendar = useCalendar();
+  const planner = usePlanner();
 
   if (!calendar.enabled) {
     return (
@@ -33,7 +36,7 @@ export const Calendar = () => {
         onToday={calendar.goToday}
         onAdd={() => calendar.openCreate({ date: calendar.anchor })}
       />
-      {calendar.view === CalendarView.Month ? (
+      {calendar.view === CalendarView.Month && (
         <>
           <MonthGrid
             cells={calendar.cells}
@@ -48,7 +51,8 @@ export const Calendar = () => {
             onEdit={(event) => calendar.openEdit({ event })}
           />
         </>
-      ) : (
+      )}
+      {calendar.view === CalendarView.Week && (
         <WeekView
           dates={calendar.weekDates}
           today={calendar.today}
@@ -59,7 +63,20 @@ export const Calendar = () => {
           onEdit={(event) => calendar.openEdit({ event })}
         />
       )}
-      <OwnerLegend />
+      {calendar.view === CalendarView.Planner && (
+        <Planner
+          days={planner.days}
+          notes={planner.notes}
+          focusId={planner.focusId}
+          onAddLine={planner.addLine}
+          onUpdateLine={planner.updateLine}
+          onRemoveLine={planner.removeLine}
+          onAddNote={planner.addNote}
+          onRenameNote={planner.renameNote}
+          onDeleteNote={planner.deleteNote}
+        />
+      )}
+      {calendar.view !== CalendarView.Planner && <OwnerLegend />}
       <EventDialog
         key={calendar.editing?.id ?? calendar.anchor}
         state={calendar.dialog}
