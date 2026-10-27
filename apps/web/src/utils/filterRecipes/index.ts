@@ -1,4 +1,4 @@
-import type { Recipe } from '../../../../services/recipes/types';
+import type { Recipe } from '../../services/recipes/types';
 import type { FilterRecipesOptions } from './types';
 
 export const filterRecipes = ({ recipes, query, tag }: FilterRecipesOptions): Recipe[] => {

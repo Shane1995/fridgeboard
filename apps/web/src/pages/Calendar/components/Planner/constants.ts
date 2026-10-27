@@ -10,6 +10,12 @@ export const PLANNER_COPY = {
   deleteNote: 'Delete box',
   noteTitleLabel: 'Box title',
   notesHeading: 'Notes',
+  linkRecipe: 'Link a recipe',
+  openRecipe: 'Open recipe',
+  unlinkRecipe: 'Unlink recipe',
+  pickerTitle: 'Choose a recipe',
+  pickerSearch: 'Search recipes',
+  pickerEmpty: 'No recipes match.',
   emptySection: 'Nothing planned yet.',
   today: 'Today',
 } as const;

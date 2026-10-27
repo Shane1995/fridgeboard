@@ -1,6 +1,5 @@
 import { renderHook } from '@testing-library/react';
 import type { PropsWithChildren } from 'react';
-import { RecipeBookProvider } from '../../../../Context/RecipeBook';
 import { useRecipeBook } from '../../../../hooks/useRecipeBook';
 import { WebFeatureFlag } from '../../../../services/configuration/schema/constants';
 import { SessionStatus } from '../../../../services/session/constants';
@@ -18,7 +17,7 @@ const config = {
 
 const wrapper = ({ children }: PropsWithChildren) => (
   <TestProviders session={session} config={config}>
-    <RecipeBookProvider>{children}</RecipeBookProvider>
+    {children}
   </TestProviders>
 );
 

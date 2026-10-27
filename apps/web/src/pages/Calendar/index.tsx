@@ -72,6 +72,8 @@ export const Calendar = () => {
           onAddLine={planner.addLine}
           onUpdateLine={planner.updateLine}
           onRemoveLine={planner.removeLine}
+          onLinkRecipe={planner.linkRecipe}
+          onUnlinkRecipe={planner.unlinkRecipe}
           onAddNote={planner.addNote}
           onRenameNote={planner.renameNote}
           onDeleteNote={planner.deleteNote}
