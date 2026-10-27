@@ -43,6 +43,7 @@ export const CALENDAR_COPY = {
   month: 'Month',
   week: 'Week',
   viewLabel: 'Calendar view',
+  legendLabel: 'Who is who',
   addEvent: 'Add event',
   noEvents: 'Nothing planned.',
   allDay: 'All day',

@@ -5,6 +5,7 @@ import { CalendarToolbar } from './components/CalendarToolbar';
 import { DayAgenda } from './components/DayAgenda';
 import { EventDialog } from './components/EventDialog';
 import { MonthGrid } from './components/MonthGrid';
+import { OwnerLegend } from './components/OwnerLegend';
 import { WeekView } from './components/WeekView';
 import { useCalendar } from './hooks/useCalendar';
 
@@ -57,6 +58,7 @@ export const Calendar = () => {
           onEdit={(event) => calendar.openEdit({ event })}
         />
       )}
+      <OwnerLegend />
       <EventDialog
         key={calendar.editing?.id ?? calendar.anchor}
         state={calendar.dialog}

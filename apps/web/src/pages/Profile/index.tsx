@@ -4,6 +4,7 @@ import { PageHeader } from '../../components/PageHeader';
 import { Typography } from '../../components/Typography';
 import { TypographyVariant } from '../../components/Typography/constants';
 import { InviteForm } from './components/InviteForm';
+import { RefreshAppButton } from './components/RefreshAppButton';
 import { PROFILE_COPY } from './constants';
 import { useProfile } from './hooks/useProfile';
 
@@ -81,6 +82,7 @@ export const Profile = () => {
           <InviteForm />
         </section>
       )}
+      <RefreshAppButton />
       <BuildInfo />
     </main>
   );
