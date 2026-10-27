@@ -18,7 +18,7 @@ export const EventForm = ({ event, date, onSave, onDelete, onDone }: EventFormPr
   });
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <form onSubmit={handleSubmit} className="flex min-w-0 flex-col gap-4">
       <TextField
         isRequired
         autoFocus
@@ -39,7 +39,7 @@ export const EventForm = ({ event, date, onSave, onDelete, onDone }: EventFormPr
         />
         {EVENT_FORM_COPY.allDayLabel}
       </label>
-      <label className="flex flex-col gap-1 text-sm font-medium">
+      <label className="flex min-w-0 flex-col gap-1 text-sm font-medium">
         {EVENT_FORM_COPY.dateLabel}
         <input
           type="date"
@@ -50,8 +50,8 @@ export const EventForm = ({ event, date, onSave, onDelete, onDone }: EventFormPr
         />
       </label>
       {!draft.allDay && (
-        <div className="grid grid-cols-2 gap-3">
-          <label className="flex flex-col gap-1 text-sm font-medium">
+        <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3">
+          <label className="flex min-w-0 flex-col gap-1 text-sm font-medium">
             {EVENT_FORM_COPY.startLabel}
             <input
               type="time"
@@ -63,7 +63,7 @@ export const EventForm = ({ event, date, onSave, onDelete, onDone }: EventFormPr
               }
             />
           </label>
-          <label className="flex flex-col gap-1 text-sm font-medium">
+          <label className="flex min-w-0 flex-col gap-1 text-sm font-medium">
             {EVENT_FORM_COPY.endLabel}
             <input
               type="time"
@@ -77,7 +77,7 @@ export const EventForm = ({ event, date, onSave, onDelete, onDone }: EventFormPr
           </label>
         </div>
       )}
-      <label className="flex flex-col gap-1 text-sm font-medium">
+      <label className="flex min-w-0 flex-col gap-1 text-sm font-medium">
         {EVENT_FORM_COPY.ownerLabel}
         <select
           className={FIELD_CLASS}
