@@ -1,4 +1,27 @@
+export const RECIPES_SEARCH_PATTERN = /^[A-Za-z0-9-]{1,64}$/;
+
 export const RECIPES_COPY = {
   title: 'Recipes',
   placeholder: 'Coming soon: your recipes.',
+  searchLabel: 'Search recipes',
+  searchPlaceholder: 'Search by name or ingredient',
+  tagsLabel: 'Filter by tag',
+  allTags: 'All',
+  newRecipe: 'New recipe',
+  empty: 'No recipes match. Try another search, or add a new recipe.',
+  favouriteOn: 'Remove from favourites',
+  favouriteOff: 'Add to favourites',
+  open: 'Open',
+  back: 'Back to recipes',
+  edit: 'Edit',
+  delete: 'Delete',
+  source: 'Open the original recipe',
+  serves: 'Serves',
+  ingredients: 'Ingredients',
+  method: 'Method',
+  notes: 'Notes',
+  confirmTitle: 'Delete this recipe?',
+  confirmBody: 'Planner lines that use it keep the name as plain text.',
+  confirmDelete: 'Delete recipe',
+  confirmCancel: 'Keep it',
 } as const;
