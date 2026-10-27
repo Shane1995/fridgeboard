@@ -1,3 +1,5 @@
+import type { ShopColor } from '../shoppingList/constants';
+
 export type RecipeIngredient = {
   id: string;
   quantity: number | undefined;
@@ -29,6 +31,14 @@ export type RecipeImport = {
   status: RecipeImportStatus;
   draft: RecipeDraft | undefined;
   reason: string | undefined;
+};
+
+export type RecipeShop = { id: string; name: string; color: ShopColor };
+
+export type ShopSuggestion = {
+  shopId: string;
+  alternativeShopIds: string[];
+  isStaple: boolean;
 };
 
 export type RecipeIdea = {

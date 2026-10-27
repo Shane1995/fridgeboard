@@ -5,7 +5,7 @@ import { useRecipeBook } from '../../../../hooks/useRecipeBook';
 import { WebFeatureFlag } from '../../../../services/configuration/schema/constants';
 import type { RecipeDraft } from '../../../../services/recipes/types';
 import type { RecipeScreen } from '../../types';
-import { filterRecipes } from '../../utils/filterRecipes';
+import { filterRecipes } from '../../../../utils/filterRecipes';
 import type { UseRecipesOptions } from './types';
 
 export const useRecipes = ({ initialRecipeId, initialUrl }: UseRecipesOptions) => {
@@ -13,6 +13,7 @@ export const useRecipes = ({ initialRecipeId, initialUrl }: UseRecipesOptions) =
   const book = useRecipeBook();
   const importDialog = useOverlayState();
   const ideasDialog = useOverlayState();
+  const addToListDialog = useOverlayState();
   const [screen, setScreen] = useState<RecipeScreen>(() =>
     initialRecipeId === undefined
       ? { kind: 'list' }
@@ -81,6 +82,7 @@ export const useRecipes = ({ initialRecipeId, initialUrl }: UseRecipesOptions) =
     setTag,
     importDialog,
     ideasDialog,
+    addToListDialog,
     showList,
     openRecipe,
     startNew,

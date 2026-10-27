@@ -8,8 +8,10 @@ import { NEW_NOTE_TITLE } from './constants';
 import type {
   AddLineOptions,
   DeleteNoteOptions,
+  LinkRecipeOptions,
   RemoveLineOptions,
   RenameNoteOptions,
+  UnlinkRecipeOptions,
   UpdateLineOptions,
 } from './types';
 
@@ -61,6 +63,28 @@ export const usePlanner = () => {
       }),
     });
 
+  const linkRecipe = ({ sectionId, lineId, recipeId, name }: LinkRecipeOptions) =>
+    change({
+      sectionId,
+      update: (section) => ({
+        ...section,
+        lines: section.lines.map((line) =>
+          line.id === lineId ? { ...line, recipeId, text: name } : line,
+        ),
+      }),
+    });
+
+  const unlinkRecipe = ({ sectionId, lineId }: UnlinkRecipeOptions) =>
+    change({
+      sectionId,
+      update: (section) => ({
+        ...section,
+        lines: section.lines.map((line) =>
+          line.id === lineId ? { ...line, recipeId: undefined } : line,
+        ),
+      }),
+    });
+
   const addNote = () => {
     const id = crypto.randomUUID();
     setPlan((current) => ({
@@ -86,6 +110,8 @@ export const usePlanner = () => {
     addLine,
     updateLine,
     removeLine,
+    linkRecipe,
+    unlinkRecipe,
     addNote,
     renameNote,
     deleteNote,

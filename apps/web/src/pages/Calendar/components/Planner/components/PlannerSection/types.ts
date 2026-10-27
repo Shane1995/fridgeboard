@@ -2,6 +2,7 @@ import type { ShopColor } from '../../../../../../services/shoppingList/constant
 import type { PlannerSection as Section } from '../../../../types';
 import type {
   AddLineOptions,
+  UnlinkRecipeOptions,
   DeleteNoteOptions,
   RemoveLineOptions,
   RenameNoteOptions,
@@ -16,6 +17,9 @@ export type PlannerSectionProps = {
   onAddLine: (options: AddLineOptions) => void;
   onUpdateLine: (options: UpdateLineOptions) => void;
   onRemoveLine: (options: RemoveLineOptions) => void;
+  knownRecipeIds: ReadonlySet<string>;
+  onPickRecipe: (options: { sectionId: string; lineId: string }) => void;
+  onUnlinkRecipe: (options: UnlinkRecipeOptions) => void;
   onRename?: (options: RenameNoteOptions) => void;
   onDelete?: (options: DeleteNoteOptions) => void;
 };

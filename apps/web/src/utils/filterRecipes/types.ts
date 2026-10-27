@@ -1,4 +1,4 @@
-import type { Recipe } from '../../../../services/recipes/types';
+import type { Recipe } from '../../services/recipes/types';
 
 export type FilterRecipesOptions = {
   recipes: readonly Recipe[];

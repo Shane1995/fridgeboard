@@ -1,5 +1,5 @@
 import { Button, Modal, useOverlayState } from '@heroui/react';
-import { ArrowLeft, ExternalLink, Star } from 'lucide-react';
+import { ArrowLeft, ExternalLink, ShoppingBasket, Star } from 'lucide-react';
 import { Typography } from '../../../../components/Typography';
 import { TypographyVariant } from '../../../../components/Typography/constants';
 import { RECIPES_COPY } from '../../constants';
@@ -9,6 +9,7 @@ import type { RecipeDetailProps } from './types';
 export const RecipeDetail = ({
   recipe,
   onBack,
+  onAddToList,
   onEdit,
   onDelete,
   onToggleFavourite,
@@ -83,6 +84,10 @@ export const RecipeDetail = ({
           <Typography>{recipe.notes}</Typography>
         </section>
       )}
+      <Button variant="primary" fullWidth onPress={onAddToList}>
+        <ShoppingBasket aria-hidden size={18} />
+        {RECIPES_COPY.addToList}
+      </Button>
       <div className="flex gap-2">
         <Button variant="secondary" onPress={() => onEdit({ id: recipe.id })}>
           {RECIPES_COPY.edit}

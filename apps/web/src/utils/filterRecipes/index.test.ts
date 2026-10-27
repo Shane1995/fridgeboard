@@ -1,4 +1,4 @@
-import { MOCK_RECIPES } from '../../../../Context/RecipeBook/constants';
+import { MOCK_RECIPES } from '../../Context/RecipeBook/constants';
 import { filterRecipes } from '.';
 
 describe('filterRecipes', () => {

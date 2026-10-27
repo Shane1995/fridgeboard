@@ -1,5 +1,4 @@
 import { act, fireEvent, screen, within } from '@testing-library/react';
-import { RecipeBookProvider } from '../../Context/RecipeBook';
 import { WebFeatureFlag } from '../../services/configuration/schema/constants';
 import { SessionStatus } from '../../services/session/constants';
 import { createSession } from '../../testUtils/createSession';
@@ -8,6 +7,7 @@ import { TestProviders } from '../../testUtils/TestProviders';
 import { TEST_WEB_CONFIGURATION } from '../../testUtils/webConfiguration';
 import { Recipes } from './index';
 import { MOCK_PARSE_DELAY_MS } from '../../Context/RecipeBook/constants';
+import { ADD_TO_LIST_COPY } from './components/AddToListDialog/constants';
 import { IDEAS_DIALOG_COPY } from './components/IdeasDialog/constants';
 import { IMPORT_DIALOG_COPY } from './components/ImportDialog/constants';
 import { IMPORTS_TRAY_COPY } from './components/ImportsTray/constants';
@@ -25,9 +25,7 @@ const renderRecipes = async ({ enabled }: { enabled: boolean }) => {
   };
   await renderInRouter(
     <TestProviders session={session} config={config}>
-      <RecipeBookProvider>
-        <Recipes />
-      </RecipeBookProvider>
+      <Recipes />
     </TestProviders>,
   );
 };
@@ -113,6 +111,61 @@ describe('Recipes', () => {
       await screen.findByRole('searchbox', { name: RECIPES_COPY.searchLabel }),
     ).toBeInTheDocument();
     expect(screen.queryByText('Chocolate brownies')).not.toBeInTheDocument();
+  });
+
+  describe('adding to the Chop list', () => {
+    const openAddToList = async (name: string) => {
+      openRecipe(name);
+      fireEvent.click(screen.getByRole('button', { name: RECIPES_COPY.addToList }));
+      return screen.findByRole('dialog');
+    };
+
+    it('ticks what is needed, flags what is already on the list and scales servings', async () => {
+      await renderRecipes({ enabled: true });
+      const dialog = await openAddToList('Spaghetti bolognese');
+      expect(within(dialog).getByRole('checkbox', { name: 'Add 500 g beef mince' })).toBeChecked();
+      expect(
+        within(dialog).getByRole('checkbox', { name: 'Add 2 tbsp olive oil' }),
+      ).not.toBeChecked();
+      expect(within(dialog).getByRole('checkbox', { name: 'Add 2 onions' })).toBeDisabled();
+      expect(within(dialog).getByText(ADD_TO_LIST_COPY.onList)).toBeInTheDocument();
+
+      fireEvent.click(within(dialog).getByRole('button', { name: ADD_TO_LIST_COPY.more }));
+      expect(within(dialog).getByRole('checkbox', { name: 'Add 625 g beef mince' })).toBeChecked();
+      expect(
+        within(dialog).getByRole('button', { name: ADD_TO_LIST_COPY.submit(4) }),
+      ).toBeEnabled();
+    });
+
+    it('swaps a suggested shop with one tap', async () => {
+      await renderRecipes({ enabled: true });
+      const dialog = await openAddToList('Spaghetti bolognese');
+      const shops = within(dialog).getByRole('group', { name: 'Shops for beef mince' });
+      expect(within(shops).getByRole('button', { name: "Sainsbury's order" })).toHaveAttribute(
+        'aria-pressed',
+        'true',
+      );
+
+      fireEvent.click(
+        within(dialog).getAllByRole('button', { name: `${ADD_TO_LIST_COPY.swapTo} Express` })[0] ??
+          dialog,
+      );
+      expect(within(shops).getByRole('button', { name: 'Express' })).toHaveAttribute(
+        'aria-pressed',
+        'true',
+      );
+      expect(within(shops).getByRole('button', { name: "Sainsbury's order" })).toHaveAttribute(
+        'aria-pressed',
+        'false',
+      );
+    });
+
+    it('adds the ticked items and closes', async () => {
+      await renderRecipes({ enabled: true });
+      const dialog = await openAddToList('Spaghetti bolognese');
+      fireEvent.click(within(dialog).getByRole('button', { name: ADD_TO_LIST_COPY.submit(4) }));
+      expect(await screen.findByText(ADD_TO_LIST_COPY.added(4))).toBeInTheDocument();
+    });
   });
 
   describe('importing', () => {

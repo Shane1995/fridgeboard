@@ -32,6 +32,30 @@ describe('usePlanner', () => {
     expect(result.current.days[2]?.lines).toHaveLength(before);
   });
 
+  it('links a line to a recipe and unlinks it, keeping the name', () => {
+    const { result } = renderHook(() => usePlanner());
+    const sectionId = result.current.days[3]?.id ?? '';
+    act(() => result.current.addLine({ sectionId }));
+    const lineId = result.current.days[3]?.lines.at(-1)?.id ?? '';
+
+    act(() =>
+      result.current.linkRecipe({
+        sectionId,
+        lineId,
+        recipeId: 'mock-soup',
+        name: 'Butternut squash soup',
+      }),
+    );
+    expect(result.current.days[3]?.lines.at(-1)).toMatchObject({
+      recipeId: 'mock-soup',
+      text: 'Butternut squash soup',
+    });
+
+    act(() => result.current.unlinkRecipe({ sectionId, lineId }));
+    expect(result.current.days[3]?.lines.at(-1)?.recipeId).toBeUndefined();
+    expect(result.current.days[3]?.lines.at(-1)?.text).toBe('Butternut squash soup');
+  });
+
   it('adds, renames and deletes a notes box', () => {
     const { result } = renderHook(() => usePlanner());
     const before = result.current.notes.length;

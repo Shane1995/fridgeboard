@@ -1,11 +1,15 @@
 import { DAYS_PER_WEEK } from '../../constants';
 import type { PlannerPlan, PlannerSection } from '../../types';
 import { formatWeekdayName } from '../formatWeekdayName';
-import { DUMMY_DAY_LINES, DUMMY_NOTES } from './constants';
+import { DUMMY_DAY_LINES, DUMMY_NOTES, DUMMY_RECIPE_LINKS } from './constants';
 import type { BuildDummyPlannerOptions } from './types';
 
 const toLines = ({ id, texts }: { id: string; texts: readonly string[] }) =>
-  texts.map((text, index) => ({ id: `${id}-line-${index}`, text }));
+  texts.map((text, index) => ({
+    id: `${id}-line-${index}`,
+    text,
+    recipeId: DUMMY_RECIPE_LINKS[text],
+  }));
 
 export const buildDummyPlanner = ({ weekStartsOn }: BuildDummyPlannerOptions): PlannerPlan => ({
   days: Array.from({ length: DAYS_PER_WEEK }, (_, index): PlannerSection => {

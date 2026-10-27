@@ -2,6 +2,7 @@ import { useSearch } from '@tanstack/react-router';
 import { PageHeader } from '../../components/PageHeader';
 import { Typography } from '../../components/Typography';
 import { RECIPES_COPY } from './constants';
+import { AddToListDialog } from './components/AddToListDialog';
 import { IdeasDialog } from './components/IdeasDialog';
 import { ImportDialog } from './components/ImportDialog';
 import { ImportsTray } from './components/ImportsTray';
@@ -54,6 +55,7 @@ export const Recipes = () => {
         <RecipeDetail
           recipe={current}
           onBack={recipes.showList}
+          onAddToList={recipes.addToListDialog.open}
           onEdit={recipes.startEdit}
           onDelete={recipes.removeRecipe}
           onToggleFavourite={recipes.toggleFavourite}
@@ -83,6 +85,9 @@ export const Recipes = () => {
           onSave={recipes.saveRecipe}
           onCancel={recipes.showList}
         />
+      )}
+      {current !== undefined && (
+        <AddToListDialog key={current.id} state={recipes.addToListDialog} recipe={current} />
       )}
       <ImportDialog state={recipes.importDialog} onImport={recipes.startImport} />
       <IdeasDialog state={recipes.ideasDialog} onImport={recipes.startImport} />

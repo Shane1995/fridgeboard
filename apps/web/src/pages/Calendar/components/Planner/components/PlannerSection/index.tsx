@@ -1,5 +1,6 @@
 import { Button } from '@heroui/react';
-import { Plus, Trash2, X } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
+import { BookOpen, Link2, Link2Off, Plus, Trash2, X } from 'lucide-react';
 import {
   SHOP_COLOR_CLASSES,
   SHOP_TEXT_CLASSES,
@@ -23,6 +24,9 @@ export const PlannerSection = ({
   onAddLine,
   onUpdateLine,
   onRemoveLine,
+  knownRecipeIds,
+  onPickRecipe,
+  onUnlinkRecipe,
   onRename,
   onDelete,
 }: PlannerSectionProps) => {
@@ -83,6 +87,37 @@ export const PlannerSection = ({
                 onUpdateLine({ sectionId: section.id, lineId: line.id, text: event.target.value })
               }
             />
+            {line.recipeId !== undefined && knownRecipeIds.has(line.recipeId) ? (
+              <>
+                <Link
+                  to="/recipes"
+                  search={{ recipe: line.recipeId }}
+                  aria-label={`${PLANNER_COPY.openRecipe} ${line.text}`}
+                  className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-accent outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                >
+                  <BookOpen aria-hidden size={18} />
+                </Link>
+                <Button
+                  isIconOnly
+                  size="sm"
+                  variant="ghost"
+                  aria-label={`${PLANNER_COPY.unlinkRecipe} ${line.text}`}
+                  onPress={() => onUnlinkRecipe({ sectionId: section.id, lineId: line.id })}
+                >
+                  <Link2Off aria-hidden size={16} />
+                </Button>
+              </>
+            ) : (
+              <Button
+                isIconOnly
+                size="sm"
+                variant="ghost"
+                aria-label={`${PLANNER_COPY.linkRecipe} ${section.title}`}
+                onPress={() => onPickRecipe({ sectionId: section.id, lineId: line.id })}
+              >
+                <Link2 aria-hidden size={16} />
+              </Button>
+            )}
             <Button
               isIconOnly
               size="sm"

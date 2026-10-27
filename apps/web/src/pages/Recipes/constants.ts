@@ -16,6 +16,7 @@ export const RECIPES_COPY = {
   favouriteOff: 'Add to favourites',
   open: 'Open',
   back: 'Back to recipes',
+  addToList: 'Add to Chop list',
   edit: 'Edit',
   delete: 'Delete',
   source: 'Open the original recipe',
