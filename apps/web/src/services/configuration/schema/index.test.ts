@@ -215,6 +215,7 @@ describe('web configuration schema', () => {
       ENABLE_LIVE_SYNC: false,
       ENABLE_PASSKEYS: true,
       ENABLE_PULL_TO_REFRESH: false,
+      ENABLE_RECIPES: false,
       ENABLE_SHOP_QUICK_ADD: false,
     },
     mutations: { default: { retry: 0, timeoutMs: 10_000 } },

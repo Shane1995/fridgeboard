@@ -11,6 +11,7 @@ export const TEST_WEB_CONFIGURATION: WebConfiguration = {
     [WebFeatureFlag.ENABLE_LIVE_SYNC]: false,
     [WebFeatureFlag.ENABLE_PASSKEYS]: false,
     [WebFeatureFlag.ENABLE_PULL_TO_REFRESH]: false,
+    [WebFeatureFlag.ENABLE_RECIPES]: false,
     [WebFeatureFlag.ENABLE_SHOP_QUICK_ADD]: false,
   },
   mutations: { default: { retry: 0, timeoutMs: 10_000 } },
