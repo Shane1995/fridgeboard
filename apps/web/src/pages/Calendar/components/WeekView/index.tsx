@@ -1,3 +1,5 @@
+import { Button } from '@heroui/react';
+import { Plus } from 'lucide-react';
 import { Typography } from '../../../../components/Typography';
 import { TypographyVariant } from '../../../../components/Typography/constants';
 import { CALENDAR_COPY } from '../../constants';
@@ -11,6 +13,7 @@ export const WeekView = ({
   anchor,
   eventsByDay,
   onSelectDay,
+  onAdd,
   onEdit,
 }: WeekViewProps) => {
   return (
@@ -23,13 +26,24 @@ export const WeekView = ({
             aria-label={formatDayHeading({ date })}
             className={`flex flex-col gap-1 rounded-2xl border p-2 ${date === anchor ? 'border-accent' : 'border-separator'}`}
           >
-            <button
-              type="button"
-              onClick={() => onSelectDay(date)}
-              className={`cursor-pointer self-start rounded-lg px-2 py-1 text-left font-semibold outline-none focus-visible:ring-2 focus-visible:ring-focus ${date === today ? 'text-accent' : ''}`}
-            >
-              {formatDayHeading({ date })}
-            </button>
+            <div className="flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => onSelectDay(date)}
+                className={`cursor-pointer self-start rounded-lg px-2 py-1 text-left font-semibold outline-none focus-visible:ring-2 focus-visible:ring-focus ${date === today ? 'text-accent' : ''}`}
+              >
+                {formatDayHeading({ date })}
+              </button>
+              <Button
+                isIconOnly
+                size="sm"
+                variant="ghost"
+                aria-label={`${CALENDAR_COPY.addEventOn} ${formatDayHeading({ date })}`}
+                onPress={() => onAdd(date)}
+              >
+                <Plus aria-hidden size={18} />
+              </Button>
+            </div>
             {events.length === 0 ? (
               <Typography variant={TypographyVariant.Caption} className="px-2">
                 {CALENDAR_COPY.noEvents}

@@ -12,7 +12,12 @@ import { formatMonthTitle } from '../../utils/formatMonthTitle';
 import { getToday } from '../../utils/getToday';
 import { groupEventsByDay } from '../../utils/groupEventsByDay';
 import { useCalendarEvents } from '../useCalendarEvents';
-import type { EditEventOptions, SaveDraftOptions, SelectDayOptions } from './types';
+import type {
+  EditEventOptions,
+  OpenCreateOptions,
+  SaveDraftOptions,
+  SelectDayOptions,
+} from './types';
 
 export const useCalendar = () => {
   const enabled = useFeatureFlag(WebFeatureFlag.ENABLE_CALENDAR);
@@ -38,7 +43,8 @@ export const useCalendar = () => {
 
   const selectDay = ({ date }: SelectDayOptions) => setAnchor(date);
 
-  const openCreate = () => {
+  const openCreate = ({ date }: OpenCreateOptions) => {
+    setAnchor(date);
     setEditing(undefined);
     dialog.open();
   };

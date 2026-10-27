@@ -6,5 +6,6 @@ export type WeekViewProps = {
   anchor: string;
   eventsByDay: Readonly<Record<string, readonly CalendarEvent[]>>;
   onSelectDay: (date: string) => void;
+  onAdd: (date: string) => void;
   onEdit: (event: CalendarEvent) => void;
 };
