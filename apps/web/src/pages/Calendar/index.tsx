@@ -31,7 +31,7 @@ export const Calendar = () => {
         onPrevious={() => calendar.step({ direction: -1 })}
         onNext={() => calendar.step({ direction: 1 })}
         onToday={calendar.goToday}
-        onAdd={calendar.openCreate}
+        onAdd={() => calendar.openCreate({ date: calendar.anchor })}
       />
       {calendar.view === CalendarView.Month ? (
         <>
@@ -55,6 +55,7 @@ export const Calendar = () => {
           anchor={calendar.anchor}
           eventsByDay={calendar.eventsByDay}
           onSelectDay={(date) => calendar.selectDay({ date })}
+          onAdd={(date) => calendar.openCreate({ date })}
           onEdit={(event) => calendar.openEdit({ event })}
         />
       )}

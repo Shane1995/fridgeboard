@@ -45,6 +45,7 @@ export const CALENDAR_COPY = {
   viewLabel: 'Calendar view',
   legendLabel: 'Who is who',
   addEvent: 'Add event',
+  addEventOn: 'Add event on',
   noEvents: 'Nothing planned.',
   allDay: 'All day',
   nextDaySuffix: ' +1',

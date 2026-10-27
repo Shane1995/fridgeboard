@@ -13,6 +13,7 @@ import { TestProviders } from '../../testUtils/TestProviders';
 import { TEST_WEB_CONFIGURATION } from '../../testUtils/webConfiguration';
 import { Calendar } from './index';
 import { CALENDAR_COPY } from './constants';
+import { addDays } from './utils/addDays';
 import { formatDayHeading } from './utils/formatDayHeading';
 import { getToday } from './utils/getToday';
 
@@ -78,6 +79,16 @@ describe('Calendar', () => {
       fireEvent.click(other);
       expect(screen.queryByRole('region', { name: formatDayHeading({ date: today }) })).toBeNull();
     }
+  });
+
+  it('adds an event on a chosen day from the week view', async () => {
+    await renderCalendar(true);
+    fireEvent.click(screen.getByRole('button', { name: CALENDAR_COPY.week }));
+    const target = addDays({ date: getToday({ now: new Date() }), days: 1 });
+    const heading = formatDayHeading({ date: target });
+    fireEvent.click(screen.getByRole('button', { name: `${CALENDAR_COPY.addEventOn} ${heading}` }));
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByLabelText('Date')).toHaveValue(target);
   });
 
   it('adds an event from the dialog', async () => {
