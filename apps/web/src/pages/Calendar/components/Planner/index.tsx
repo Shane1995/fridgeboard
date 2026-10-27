@@ -2,7 +2,8 @@ import { Button } from '@heroui/react';
 import { Plus } from 'lucide-react';
 import { Typography } from '../../../../components/Typography';
 import { TypographyVariant } from '../../../../components/Typography/constants';
-import { PLANNER_COPY } from './constants';
+import { ShopColor } from '../../../../services/shoppingList/constants';
+import { PLANNER_COPY, PLANNER_DAY_COLORS, PLANNER_NOTE_COLOR } from './constants';
 import { PlannerSection } from './components/PlannerSection';
 import type { PlannerProps } from './types';
 
@@ -10,6 +11,7 @@ export const Planner = ({
   days,
   notes,
   focusId,
+  todayWeekday,
   onAddLine,
   onUpdateLine,
   onRemoveLine,
@@ -24,6 +26,8 @@ export const Planner = ({
           <PlannerSection
             key={day.id}
             section={day}
+            color={PLANNER_DAY_COLORS[day.weekday ?? 0] ?? ShopColor.Slate}
+            isToday={day.weekday === todayWeekday}
             focusId={focusId}
             onAddLine={onAddLine}
             onUpdateLine={onUpdateLine}
@@ -39,6 +43,8 @@ export const Planner = ({
           <PlannerSection
             key={note.id}
             section={note}
+            color={PLANNER_NOTE_COLOR}
+            isToday={false}
             focusId={focusId}
             onAddLine={onAddLine}
             onUpdateLine={onUpdateLine}

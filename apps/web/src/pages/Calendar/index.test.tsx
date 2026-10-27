@@ -106,6 +106,12 @@ describe('Calendar', () => {
     expect(within(sunday).getByDisplayValue('Pancakes')).toBeInTheDocument();
   });
 
+  it('marks exactly one weekday as today in the planner', async () => {
+    await renderCalendar(true);
+    fireEvent.click(screen.getByRole('button', { name: CALENDAR_COPY.planner }));
+    expect(screen.getAllByText('Today')).toHaveLength(1);
+  });
+
   it('keeps planner edits when switching views', async () => {
     await renderCalendar(true);
     fireEvent.click(screen.getByRole('button', { name: CALENDAR_COPY.planner }));

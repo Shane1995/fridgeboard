@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { WEEK_STARTS_ON } from '../../constants';
 import type { PlannerPlan, PlannerSection } from '../../types';
 import { buildDummyPlanner } from '../../utils/buildDummyPlanner';
+import { getToday } from '../../utils/getToday';
 import { updateSection } from '../../utils/updateSection';
 import { NEW_NOTE_TITLE } from './constants';
 import type {
@@ -15,6 +16,9 @@ import type {
 export const usePlanner = () => {
   const [plan, setPlan] = useState<PlannerPlan>(() =>
     buildDummyPlanner({ weekStartsOn: WEEK_STARTS_ON }),
+  );
+  const [todayWeekday] = useState(() =>
+    new Date(`${getToday({ now: new Date() })}T00:00:00Z`).getUTCDay(),
   );
   const [focusId, setFocusId] = useState<string | undefined>(undefined);
 
@@ -78,6 +82,7 @@ export const usePlanner = () => {
     days: plan.days,
     notes: plan.notes,
     focusId,
+    todayWeekday,
     addLine,
     updateLine,
     removeLine,

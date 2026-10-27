@@ -68,6 +68,7 @@ export const Calendar = () => {
           days={planner.days}
           notes={planner.notes}
           focusId={planner.focusId}
+          todayWeekday={planner.todayWeekday}
           onAddLine={planner.addLine}
           onUpdateLine={planner.updateLine}
           onRemoveLine={planner.removeLine}

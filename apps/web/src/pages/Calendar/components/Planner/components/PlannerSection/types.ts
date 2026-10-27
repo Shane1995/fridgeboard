@@ -1,3 +1,4 @@
+import type { ShopColor } from '../../../../../../services/shoppingList/constants';
 import type { PlannerSection as Section } from '../../../../types';
 import type {
   AddLineOptions,
@@ -9,6 +10,8 @@ import type {
 
 export type PlannerSectionProps = {
   section: Section;
+  color: ShopColor;
+  isToday: boolean;
   focusId: string | undefined;
   onAddLine: (options: AddLineOptions) => void;
   onUpdateLine: (options: UpdateLineOptions) => void;
