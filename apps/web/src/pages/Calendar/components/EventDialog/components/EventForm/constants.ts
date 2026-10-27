@@ -12,4 +12,4 @@ export const EVENT_FORM_COPY = {
 } as const;
 
 export const FIELD_CLASS =
-  'w-full rounded-xl border border-separator bg-transparent px-3 py-2 outline-none focus-visible:ring-2 focus-visible:ring-focus';
+  'block w-full min-w-0 max-w-full appearance-none rounded-xl border border-separator bg-transparent px-3 py-2 outline-none focus-visible:ring-2 focus-visible:ring-focus';
