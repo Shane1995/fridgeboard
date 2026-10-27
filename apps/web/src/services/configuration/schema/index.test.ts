@@ -209,6 +209,7 @@ describe('web configuration schema', () => {
   const VALID = {
     featureFlags: {
       ENABLE_ADMIN_INVITES: false,
+      ENABLE_CALENDAR: false,
       ENABLE_HOUSEHOLD_INVITES: false,
       ENABLE_ITEM_DRAG: false,
       ENABLE_LIVE_SYNC: false,
