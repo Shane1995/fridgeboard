@@ -8,6 +8,7 @@ import type { CalendarToolbarProps } from './types';
 const VIEW_OPTIONS = [
   { view: CalendarView.Month, label: CALENDAR_COPY.month },
   { view: CalendarView.Week, label: CALENDAR_COPY.week },
+  { view: CalendarView.Planner, label: CALENDAR_COPY.planner },
 ] as const;
 
 export const CalendarToolbar = ({
@@ -19,29 +20,36 @@ export const CalendarToolbar = ({
   onToday,
   onAdd,
 }: CalendarToolbarProps) => {
+  const isDated = view !== CalendarView.Planner;
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1">
-          <Button
-            isIconOnly
-            variant="ghost"
-            aria-label={CALENDAR_COPY.previous}
-            onPress={onPrevious}
-          >
-            <ChevronLeft aria-hidden size={20} />
-          </Button>
-          <Typography variant={TypographyVariant.Heading3} as="h2" className="min-w-36 text-center">
-            {title}
-          </Typography>
-          <Button isIconOnly variant="ghost" aria-label={CALENDAR_COPY.next} onPress={onNext}>
-            <ChevronRight aria-hidden size={20} />
+      {isDated && (
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1">
+            <Button
+              isIconOnly
+              variant="ghost"
+              aria-label={CALENDAR_COPY.previous}
+              onPress={onPrevious}
+            >
+              <ChevronLeft aria-hidden size={20} />
+            </Button>
+            <Typography
+              variant={TypographyVariant.Heading3}
+              as="h2"
+              className="min-w-36 text-center"
+            >
+              {title}
+            </Typography>
+            <Button isIconOnly variant="ghost" aria-label={CALENDAR_COPY.next} onPress={onNext}>
+              <ChevronRight aria-hidden size={20} />
+            </Button>
+          </div>
+          <Button variant="secondary" onPress={onToday}>
+            {CALENDAR_COPY.today}
           </Button>
         </div>
-        <Button variant="secondary" onPress={onToday}>
-          {CALENDAR_COPY.today}
-        </Button>
-      </div>
+      )}
       <div className="flex items-center justify-between gap-2">
         <div role="group" aria-label={CALENDAR_COPY.viewLabel} className="flex gap-1">
           {VIEW_OPTIONS.map((option) => (
@@ -55,10 +63,12 @@ export const CalendarToolbar = ({
             </Button>
           ))}
         </div>
-        <Button variant="primary" onPress={onAdd}>
-          <Plus aria-hidden size={18} />
-          {CALENDAR_COPY.addEvent}
-        </Button>
+        {isDated && (
+          <Button variant="primary" onPress={onAdd}>
+            <Plus aria-hidden size={18} />
+            {CALENDAR_COPY.addEvent}
+          </Button>
+        )}
       </div>
     </div>
   );

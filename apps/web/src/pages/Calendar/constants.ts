@@ -4,6 +4,7 @@ import type { CalendarMember } from './types';
 export enum CalendarView {
   Month = 'month',
   Week = 'week',
+  Planner = 'planner',
 }
 
 export enum DummyMemberId {
@@ -42,6 +43,7 @@ export const CALENDAR_COPY = {
   today: 'Today',
   month: 'Month',
   week: 'Week',
+  planner: 'Planner',
   viewLabel: 'Calendar view',
   legendLabel: 'Who is who',
   addEvent: 'Add event',
