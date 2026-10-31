@@ -6,11 +6,13 @@ const target = { name: 'web', schema: WebConfigurationSchema };
 const VALID = {
   featureFlags: {
     ENABLE_ADMIN_INVITES: false,
+    ENABLE_CALENDAR: false,
     ENABLE_HOUSEHOLD_INVITES: false,
     ENABLE_ITEM_DRAG: false,
     ENABLE_LIVE_SYNC: false,
     ENABLE_PASSKEYS: true,
     ENABLE_PULL_TO_REFRESH: false,
+    ENABLE_RECIPES: false,
     ENABLE_SHOP_QUICK_ADD: false,
   },
   mutations: { default: { retry: 0, timeoutMs: 10000 } },
