@@ -3,15 +3,22 @@ import { build } from 'esbuild';
 import {
   COMPOSE_FILE,
   DEV_ENV,
-  DYNAMO_SERVICE,
   ESM_REQUIRE_BANNER,
+  LOCALSTACK_SERVICE,
   SERVER_BUNDLE,
   SERVER_ENTRY,
+  TOKEN_HINT,
+  TOKEN_VARIABLE,
 } from './constants.ts';
+
+if (!process.env[TOKEN_VARIABLE]) {
+  console.error(TOKEN_HINT);
+  process.exit(1);
+}
 
 execFileSync(
   'docker',
-  ['compose', '-f', COMPOSE_FILE, 'up', '--detach', '--wait', DYNAMO_SERVICE],
+  ['compose', '-f', COMPOSE_FILE, 'up', '--detach', '--wait', LOCALSTACK_SERVICE],
   { stdio: 'inherit' },
 );
 

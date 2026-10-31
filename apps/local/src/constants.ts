@@ -1,11 +1,14 @@
 export const API_PORT = 3001;
-export const DYNAMO_PORT = 8001;
-export const DYNAMO_SERVICE = 'dynamodb-dev';
+export const LOCALSTACK_PORT = 4566;
+export const LOCALSTACK_SERVICE = 'localstack';
+export const TOKEN_VARIABLE = 'LOCALSTACK_AUTH_TOKEN';
+export const TOKEN_HINT =
+  'Set LOCALSTACK_AUTH_TOKEN first: export LOCALSTACK_AUTH_TOKEN=$(security find-generic-password -s localstack-auth-token -w)';
 export const TABLE_NAME = 'fridgeboard';
 export const REGION = 'eu-west-2';
 export const ORIGIN_SECRET = 'dev-local-origin-secret';
 export const ORIGIN_HEADER = 'x-api-origin-verify';
-export const COMPOSE_FILE = '../../compose.yaml';
+export const COMPOSE_FILE = 'compose.yaml';
 export const SERVER_BUNDLE = 'dist-dev/server.mjs';
 export const SERVER_ENTRY = 'src/server/index.ts';
 export const ESM_REQUIRE_BANNER =
@@ -25,7 +28,7 @@ export const FLOW_MAX_AGE = 600;
 export const REFRESH_MAX_AGE = 2592000;
 export const INVITE_TTL_SECONDS = 604800;
 export const DEV_ENV = {
-  AWS_ENDPOINT_URL_DYNAMODB: `http://127.0.0.1:${DYNAMO_PORT}`,
+  AWS_ENDPOINT_URL: `http://127.0.0.1:${LOCALSTACK_PORT}`,
   AWS_ACCESS_KEY_ID: 'local',
   AWS_SECRET_ACCESS_KEY: 'local',
   AWS_REGION: REGION,
