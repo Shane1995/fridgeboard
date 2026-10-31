@@ -62,6 +62,17 @@ curl -s http://127.0.0.1:3001/api/v1/me -H 'Authorization: Bearer <accessToken>'
 
 The route paths are in http://127.0.0.1:3001/configuration.json. Routes served locally are listed in `src/route/index.ts`; to add one, add one entry and restart.
 
+## Configuration
+
+`dev:local` uses its own copies of the app configuration, so you can change flags and settings here before they go to production:
+
+| File                                   | Used for                                       |
+| -------------------------------------- | ---------------------------------------------- |
+| `apps/local/configuration/web.json`    | Served as `/configuration.json` to the web app |
+| `apps/local/configuration/lambda.json` | Read by the handlers instead of the S3 config  |
+
+They are copies of `apps/configuration/web/configuration.json` and `apps/configuration/lambda/configuration.json` with three local changes: passkeys off, and the live-sync hosts pointing at `127.0.0.1:3001`. Edits are picked up without a restart. A test fails if the local copies drift from production (different flags, settings, endpoints or services), so update both when you add one.
+
 ## Look at the data
 
 ```sh

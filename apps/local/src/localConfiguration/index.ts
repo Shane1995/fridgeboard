@@ -13,11 +13,11 @@ import { mergeSettings } from '../../../functions/src/configuration/settings/mer
 import { stripTopLevelParams } from '../../../functions/src/configuration/stripTopLevelParams/index.ts';
 import { stripUnknownFlags } from '../../../functions/src/configuration/stripUnknownFlags/index.ts';
 import { stripUnknownKeys } from '../../../functions/src/configuration/stripUnknownKeys/index.ts';
-import { API_PORT } from '../constants.ts';
 import { LAMBDA_CONFIGURATION_FILE } from './constants.ts';
+import type { LocalLambdaFile } from './types.ts';
 
 export const getConfiguration = async (): Promise<LambdaConfiguration> => {
-  const raw: Record<string, unknown> = JSON.parse(readFileSync(LAMBDA_CONFIGURATION_FILE, 'utf8'));
+  const raw: LocalLambdaFile = JSON.parse(readFileSync(LAMBDA_CONFIGURATION_FILE, 'utf8'));
   const parsed = LambdaConfigurationSchema.parse(
     stripUnknownKeys(
       stripUnknownFlags(stripTopLevelParams({ ...raw, services: {} }), LAMBDA_FEATURE_FLAGS),
@@ -29,6 +29,6 @@ export const getConfiguration = async (): Promise<LambdaConfiguration> => {
     ...parsed,
     featureFlags: { ...DEFAULT_LAMBDA_FLAGS, ...parsed.featureFlags },
     settings: mergeSettings(DEFAULT_LAMBDA_SETTINGS, parsed.settings),
-    services: { appsyncEvents: { url: `http://127.0.0.1:${API_PORT}` } },
+    services: raw.services,
   };
 };
