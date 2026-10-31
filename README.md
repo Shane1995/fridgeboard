@@ -54,7 +54,7 @@ See the Web layout section in `.claude/CODE_STANDARDS.md` for the full folder ta
 
 ## Local app (Docker)
 
-`pnpm dev:local` starts LocalStack (DynamoDB, SQS, SSM and S3; data is rebuilt and reseeded on every start; needs `LOCALSTACK_AUTH_TOKEN` in the shell or in the gitignored `apps/local/.env`), the real `me`, `username` and `households` Lambdas behind `http://127.0.0.1:3001`, and Vite on `http://localhost:5173` proxying `/api` and `/configuration.json` to it.
+`pnpm dev:local` starts LocalStack (DynamoDB, SQS, SSM and S3; data persists while the container runs, `dev:local:reset` clears it; needs `LOCALSTACK_AUTH_TOKEN` in the shell or in the gitignored `apps/local/.env`), the real `me`, `username` and `households` Lambdas behind `http://127.0.0.1:3001`, and Vite on `http://localhost:5173` proxying `/api` and `/configuration.json` to it.
 
 Sign in with any seeded email and code `000000`:
 
