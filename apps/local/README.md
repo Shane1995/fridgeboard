@@ -44,6 +44,10 @@ Admin-only app invites (`ENABLE_ADMIN_INVITES`) and passkeys are not available l
 
 ## Use Postman or curl
 
+Import `apps/local/postman/fridgeboard-local.postman_collection.json` into Postman. Run Auth > Request code, then Verify code (saves the access token), and the rest work. Change the `email` variable to sign in as someone else. The "Live sync (AppSync Events, prod only)" folder does not work locally.
+
+Or by hand:
+
 Hit the API directly on port 3001.
 
 1. `POST /api/v1/auth/start` with `{"email":"admin@fridgeboard.local"}` returns 204 and sets a cookie (Postman keeps it).

@@ -1,0 +1,730 @@
+{
+  "info": {
+    "name": "Fridgeboard local",
+    "description": "Requests for `pnpm dev:local` (API on http://127.0.0.1:3001). Run Auth > Request code, then Verify code; the access token is saved to the collection and sent as a bearer token on everything else. Change `email` to sign in as another seeded user. Code is always 000000.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:3001"
+    },
+    {
+      "key": "email",
+      "value": "admin@fridgeboard.local"
+    },
+    {
+      "key": "code",
+      "value": "000000"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "householdId",
+      "value": "local-household"
+    },
+    {
+      "key": "listId",
+      "value": "main"
+    },
+    {
+      "key": "shopId",
+      "value": "shop-supermarket"
+    },
+    {
+      "key": "itemId",
+      "value": "item-milk"
+    },
+    {
+      "key": "appsyncHttpHost",
+      "value": "rxjwllofmvfqzoblifc7kakrau.appsync-api.eu-west-2.amazonaws.com"
+    },
+    {
+      "key": "changesRev",
+      "value": "0"
+    },
+    {
+      "key": "awsAccessKeyId",
+      "value": ""
+    },
+    {
+      "key": "awsSecretAccessKey",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Request code",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/start",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "start"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "204 and a flow cookie (kept by Postman). 403 no-invite if the email has no profile or invite."
+          }
+        },
+        {
+          "name": "Verify code",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "verify"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{code}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Saves accessToken to the collection."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set('accessToken', body.accessToken);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "refresh"]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Uses the refresh cookie set by Verify."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set('accessToken', body.accessToken);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sign out",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/sign-out",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "sign-out"]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Me",
+      "item": [
+        {
+          "name": "Get me",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "me"]
+            }
+          }
+        },
+        {
+          "name": "Get onboarding",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/me/onboarding",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "me", "onboarding"]
+            }
+          }
+        },
+        {
+          "name": "Skip onboarding section",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/me/onboarding/household/skip",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "me", "onboarding", "household", "skip"]
+            },
+            "description": "Only the household section is skippable."
+          }
+        },
+        {
+          "name": "Set username",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/me/username",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "me", "username"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"newname\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Households",
+      "item": [
+        {
+          "name": "List households",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/households",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "households"]
+            }
+          }
+        },
+        {
+          "name": "Create household",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/households",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "households"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"My House\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Saves the new id as householdId."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body.id) { pm.collectionVariables.set('householdId', body.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List members",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/households/{{householdId}}/members",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "households", "{{householdId}}", "members"]
+            }
+          }
+        },
+        {
+          "name": "Invite to household",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/households/{{householdId}}/invites",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "households", "{{householdId}}", "invites"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"friend@fridgeboard.local\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Locally answers 502 verification-failed (no SES) but the invite is saved, so that email can sign in."
+          }
+        },
+        {
+          "name": "Changes feed",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/households/{{householdId}}/changes?since={{changesRev}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "households", "{{householdId}}", "changes"],
+              "query": [
+                {
+                  "key": "since",
+                  "value": "{{changesRev}}"
+                }
+              ]
+            },
+            "description": "The feed live sync uses to catch up. Pass the last revision you saw as since."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Shops",
+      "item": [
+        {
+          "name": "List shops",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/households/{{householdId}}/lists/{{listId}}/shops",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "households", "{{householdId}}", "lists", "{{listId}}", "shops"]
+            }
+          }
+        },
+        {
+          "name": "Create shop",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/households/{{householdId}}/lists/{{listId}}/shops",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "households", "{{householdId}}", "lists", "{{listId}}", "shops"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Pharmacy\",\n  \"color\": \"sky\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Saves the new id as shopId. Colours: tomato, mustard, mint, sky, grape, pink, slate, black, forest, lime, orange, navy, cyan, yellow."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body.id) { pm.collectionVariables.set('shopId', body.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update shop",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/households/{{householdId}}/lists/{{listId}}/shops/{{shopId}}",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "v1",
+                "households",
+                "{{householdId}}",
+                "lists",
+                "{{listId}}",
+                "shops",
+                "{{shopId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Renamed\",\n  \"color\": \"grape\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Reorder shops",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/households/{{householdId}}/lists/{{listId}}/shops/order",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "v1",
+                "households",
+                "{{householdId}}",
+                "lists",
+                "{{listId}}",
+                "shops",
+                "order"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ids\": [\n    \"shop-bakery\",\n    \"shop-butcher\",\n    \"shop-greengrocer\",\n    \"shop-supermarket\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete shop",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/households/{{householdId}}/lists/{{listId}}/shops/{{shopId}}",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "v1",
+                "households",
+                "{{householdId}}",
+                "lists",
+                "{{listId}}",
+                "shops",
+                "{{shopId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Items",
+      "item": [
+        {
+          "name": "List items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/households/{{householdId}}/lists/{{listId}}/items",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "households", "{{householdId}}", "lists", "{{listId}}", "items"]
+            }
+          }
+        },
+        {
+          "name": "Create item",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/households/{{householdId}}/lists/{{listId}}/items",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "households", "{{householdId}}", "lists", "{{listId}}", "items"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Butter\",\n  \"shopIds\": [\n    \"shop-supermarket\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Saves the new id as itemId."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body.id) { pm.collectionVariables.set('itemId', body.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get item",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/households/{{householdId}}/lists/{{listId}}/items/{{itemId}}",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "v1",
+                "households",
+                "{{householdId}}",
+                "lists",
+                "{{listId}}",
+                "items",
+                "{{itemId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update item",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/households/{{householdId}}/lists/{{listId}}/items/{{itemId}}",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "v1",
+                "households",
+                "{{householdId}}",
+                "lists",
+                "{{listId}}",
+                "items",
+                "{{itemId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"checked\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Item history",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/households/{{householdId}}/lists/{{listId}}/history",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "v1",
+                "households",
+                "{{householdId}}",
+                "lists",
+                "{{listId}}",
+                "history"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/households/{{householdId}}/lists/{{listId}}/items/{{itemId}}",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "v1",
+                "households",
+                "{{householdId}}",
+                "lists",
+                "{{listId}}",
+                "items",
+                "{{itemId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Live sync (AppSync Events, prod only)",
+      "description": "AppSync is not available on LocalStack, so these do not work against dev:local. Use them against production with the real host. Subscribing is a WebSocket (wss://<realtime host>/event/realtime, subprotocol aws-appsync-event-ws) and is not in this collection; use a Postman WebSocket request for that.",
+      "item": [
+        {
+          "name": "Publish change",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "awsv4",
+              "awsv4": [
+                {
+                  "key": "region",
+                  "value": "eu-west-2",
+                  "type": "string"
+                },
+                {
+                  "key": "service",
+                  "value": "appsync",
+                  "type": "string"
+                },
+                {
+                  "key": "accessKey",
+                  "value": "{{awsAccessKeyId}}",
+                  "type": "string"
+                },
+                {
+                  "key": "secretKey",
+                  "value": "{{awsSecretAccessKey}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "https://{{appsyncHttpHost}}/event",
+              "protocol": "https",
+              "host": ["{{appsyncHttpHost}}"],
+              "path": ["event"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"channel\": \"/hh/{{householdId}}\",\n  \"events\": [\n    \"{\\\"type\\\":\\\"item\\\",\\\"id\\\":\\\"{{itemId}}\\\"}\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "SigV4-signed publish, as the Lambdas do in publishChange. Set awsAccessKeyId and awsSecretAccessKey as collection variables with credentials allowed to publish."
+          }
+        }
+      ]
+    }
+  ]
+}
