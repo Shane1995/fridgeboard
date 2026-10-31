@@ -5,7 +5,7 @@ services:
       - '127.0.0.1:4566:4566'
     environment:
       LOCALSTACK_AUTH_TOKEN: ${LOCALSTACK_AUTH_TOKEN:?run export LOCALSTACK_AUTH_TOKEN first}
-      SERVICES: dynamodb,sqs,ssm,s3
+      SERVICES: dynamodb,sqs,ssm,s3,events
     healthcheck:
       test:
         - CMD

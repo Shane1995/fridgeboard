@@ -86,6 +86,8 @@ They are copies of `apps/configuration/web/configuration.json` and `apps/configu
 
 ## Look at the data
 
+`pnpm db:admin` opens a table browser (dynamodb-admin) for LocalStack's DynamoDB at http://localhost:8001. The LocalStack web app at https://app.localstack.cloud also shows resources for the running container (sign in with your LocalStack account).
+
 ```sh
 export AWS_ENDPOINT_URL=http://127.0.0.1:4566 AWS_ACCESS_KEY_ID=local AWS_SECRET_ACCESS_KEY=local AWS_REGION=eu-west-2
 aws dynamodb scan --table-name fridgeboard
