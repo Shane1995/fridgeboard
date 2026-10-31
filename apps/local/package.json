@@ -21,10 +21,12 @@
     "@fridgeboard/contract": "workspace:*",
     "@types/aws-lambda": "^8.10.164",
     "@types/node": "^26.6.5",
+    "@types/ws": "^8.18.2",
     "aws-sdk-client-mock": "^4.1.0",
     "esbuild": "^0.28.2",
     "typescript": "^7.0.2",
     "vitest": "^5.0.5",
+    "ws": "^8.22.1",
     "zod": "4.6.7"
   }
 }

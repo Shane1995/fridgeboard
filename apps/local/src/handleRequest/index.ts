@@ -5,6 +5,9 @@ import { WebConfigurationSchema } from '../../../web/src/services/configuration/
 import { jsonResponse } from '../../../functions/src/utils/jsonResponse/index.ts';
 import { CONFIGURATION_FILE } from '../constants.ts';
 import { decodeToken } from '../decodeToken/index.ts';
+import { handlePublish } from '../handlePublish/index.ts';
+import { hub } from '../localHub/index.ts';
+import { PUBLISH_PATH } from '../realtime/constants.ts';
 import { readBody } from '../readBody/index.ts';
 import { matchRoute } from '../matchRoute/index.ts';
 import { buildRoutes } from '../route/index.ts';
@@ -18,6 +21,9 @@ const dispatch = async (
   routeKey: string,
   path: string,
 ): Promise<APIGatewayProxyStructuredResultV2> => {
+  if (routeKey === `POST ${PUBLISH_PATH}`) {
+    return handlePublish({ body: await readBody(request), hub });
+  }
   const configuration = readFileSync(CONFIGURATION_FILE, 'utf8');
   if (routeKey === 'GET /configuration.json') {
     return servedConfiguration(configuration);

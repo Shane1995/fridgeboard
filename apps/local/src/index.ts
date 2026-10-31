@@ -1,6 +1,7 @@
 import { execFileSync, spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { build } from 'esbuild';
+import { aliasConfiguration } from './aliasConfiguration/index.ts';
 import {
   COMPOSE_FILE,
   DEV_ENV,
@@ -37,6 +38,7 @@ await build({
   format: 'esm',
   sourcemap: 'inline',
   banner: { js: ESM_REQUIRE_BANNER },
+  plugins: [aliasConfiguration],
 });
 
 const env = { ...process.env, ...DEV_ENV };
