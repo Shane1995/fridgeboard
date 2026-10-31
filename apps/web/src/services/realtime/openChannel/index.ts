@@ -1,12 +1,12 @@
 import {
   DEFAULT_CONNECTION_TIMEOUT_MS,
   MessageType,
-  REALTIME_PATH,
   SUBPROTOCOL,
   SUBSCRIPTION_ID,
 } from '../constants';
 import { buildAuthProtocol } from '../buildAuthProtocol';
 import { parseMessage } from '../parseMessage';
+import { realtimeUrl } from '../realtimeUrl';
 import type { OpenChannel, RealtimeMessage } from '../types';
 
 export const openChannel: OpenChannel = ({
@@ -18,7 +18,7 @@ export const openChannel: OpenChannel = ({
   onChange,
   onClosed,
 }) => {
-  const socket = new WebSocket(`wss://${realtimeHost}${REALTIME_PATH}`, [
+  const socket = new WebSocket(realtimeUrl({ realtimeHost }), [
     SUBPROTOCOL,
     buildAuthProtocol({ token, httpHost }),
   ]);

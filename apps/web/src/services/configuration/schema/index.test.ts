@@ -267,7 +267,17 @@ describe('web configuration schema', () => {
         expect(WebConfigurationSchema.safeParse(VALID).success).toBe(true);
       });
 
+      it('accepts loopback hosts with a port for local development', () => {
+        expect(
+          WebConfigurationSchema.safeParse(
+            withRealtime({ httpHost: '127.0.0.1:3001', realtimeHost: 'localhost:3001' }),
+          ).success,
+        ).toBe(true);
+      });
+
       it.each([
+        ['a loopback host without a port', { ...REALTIME, realtimeHost: '127.0.0.1' }],
+        ['a look-alike loopback host', { ...REALTIME, realtimeHost: '127.0.0.1.evil.com:3001' }],
         ['a host that is not AppSync', { ...REALTIME, realtimeHost: 'evil.example.com' }],
         ['a realtime host in the http slot', { ...REALTIME, httpHost: REALTIME.realtimeHost }],
         [

@@ -29,6 +29,10 @@ const renderCalendar = async (enabled: boolean) => {
 };
 
 describe('Calendar', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('shows the placeholder while the flag is off', async () => {
     await renderCalendar(false);
     expect(screen.getByRole('heading', { name: CALENDAR_COPY.title })).toBeInTheDocument();
@@ -65,6 +69,8 @@ describe('Calendar', () => {
   });
 
   it('adds an event on a chosen day from the week view', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-10-28T12:00:00'));
     await renderCalendar(true);
     fireEvent.click(screen.getByRole('button', { name: CALENDAR_COPY.week }));
     const target = addDays({ date: getToday({ now: new Date() }), days: 1 });

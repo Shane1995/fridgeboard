@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { COMPOSE_SERVICE, ENDPOINT, REGION, TABLE_NAME } from '../constants.ts';
-import { createTable } from '../../../../../apps/functions/scripts/devLocal/createTable/index.ts';
+import { createTable } from '../../../../../apps/local/src/createTable/index.ts';
 
 const isReachable = async (): Promise<boolean> => {
   try {
