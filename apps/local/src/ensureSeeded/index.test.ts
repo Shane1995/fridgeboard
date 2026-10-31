@@ -6,6 +6,7 @@ import {
 import { DynamoDBDocumentClient, GetCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { mockClient } from 'aws-sdk-client-mock';
 import { client } from '../client/index.ts';
+import { SEED_ITEMS, SEED_SHOPS } from '../seed/constants.ts';
 import { ensureSeeded } from './index.ts';
 
 const rawMock = mockClient(DynamoDBClient);
@@ -24,7 +25,9 @@ describe('ensureSeeded', () => {
     ddbMock.on(GetCommand).resolves({});
 
     expect(await ensureSeeded(new DynamoDBClient({}), client)).toBe(true);
-    expect(ddbMock.commandCalls(PutCommand)).toHaveLength(7);
+    expect(ddbMock.commandCalls(PutCommand)).toHaveLength(
+      7 + SEED_SHOPS.length + SEED_ITEMS.length * 2,
+    );
   });
 
   it('keeps existing data when the admin profile exists', async () => {
