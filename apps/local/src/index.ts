@@ -1,6 +1,7 @@
 import { execFileSync, spawn } from 'node:child_process';
 import { build } from 'esbuild';
 import {
+  COMPOSE_FILE,
   DEV_ENV,
   DYNAMO_SERVICE,
   ESM_REQUIRE_BANNER,
@@ -8,9 +9,11 @@ import {
   SERVER_ENTRY,
 } from './constants.ts';
 
-execFileSync('docker', ['compose', 'up', '--detach', '--wait', DYNAMO_SERVICE], {
-  stdio: 'inherit',
-});
+execFileSync(
+  'docker',
+  ['compose', '-f', COMPOSE_FILE, 'up', '--detach', '--wait', DYNAMO_SERVICE],
+  { stdio: 'inherit' },
+);
 
 await build({
   entryPoints: [SERVER_ENTRY],

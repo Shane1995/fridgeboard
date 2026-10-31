@@ -35,7 +35,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: node scripts/checkReexports/index.ts
-      - run: pnpm turbo run format:check lint typecheck test build --filter=@fridgeboard/functions... --filter=@fridgeboard/e2e
+      - run: pnpm turbo run format:check lint typecheck test build --filter=@fridgeboard/functions... --filter=@fridgeboard/e2e --filter=@fridgeboard/local
       - run: pnpm exec vitest run
       - run: pnpm --filter @fridgeboard/e2e test:integration
       - run: pnpm --filter @fridgeboard/configuration validate

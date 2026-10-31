@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs';
 import type { ServerResponse } from 'node:http';
 import type { APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
-import { WebConfigurationSchema } from '../../../../web/src/services/configuration/schema/index.ts';
-import { jsonResponse } from '../../../src/utils/jsonResponse/index.ts';
+import { WebConfigurationSchema } from '../../../web/src/services/configuration/schema/index.ts';
+import { jsonResponse } from '../../../functions/src/utils/jsonResponse/index.ts';
 import { CONFIGURATION_FILE } from '../constants.ts';
 import { decodeToken } from '../decodeToken/index.ts';
 import { readBody } from '../readBody/index.ts';

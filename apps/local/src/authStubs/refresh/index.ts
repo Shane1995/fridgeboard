@@ -1,7 +1,7 @@
 import type { APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
-import type { AuthRequest } from '../../../../src/handlers/auth/types.ts';
-import { readCookie } from '../../../../src/handlers/auth/utils/cookies/readCookie/index.ts';
-import { jsonResponse } from '../../../../src/utils/jsonResponse/index.ts';
+import type { AuthRequest } from '../../../../functions/src/handlers/auth/types.ts';
+import { readCookie } from '../../../../functions/src/handlers/auth/utils/cookies/readCookie/index.ts';
+import { jsonResponse } from '../../../../functions/src/utils/jsonResponse/index.ts';
 import { REFRESH_COOKIE } from '../../constants.ts';
 import { decodeToken } from '../../decodeToken/index.ts';
 import { localCookie } from '../../localCookie/index.ts';

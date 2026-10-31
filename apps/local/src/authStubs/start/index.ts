@@ -1,11 +1,11 @@
 import { GetCommand } from '@aws-sdk/lib-dynamodb';
 import type { APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
-import type { AuthRequest } from '../../../../src/handlers/auth/types.ts';
-import { readBodyField } from '../../../../src/handlers/auth/utils/readBodyField/index.ts';
-import { jsonResponse } from '../../../../src/utils/jsonResponse/index.ts';
-import { inviteKey } from '../../../../src/utils/keys/inviteKey/index.ts';
-import { profileKey } from '../../../../src/utils/keys/profileKey/index.ts';
-import { normaliseEmail } from '../../../../src/utils/normaliseEmail/index.ts';
+import type { AuthRequest } from '../../../../functions/src/handlers/auth/types.ts';
+import { readBodyField } from '../../../../functions/src/handlers/auth/utils/readBodyField/index.ts';
+import { jsonResponse } from '../../../../functions/src/utils/jsonResponse/index.ts';
+import { inviteKey } from '../../../../functions/src/utils/keys/inviteKey/index.ts';
+import { profileKey } from '../../../../functions/src/utils/keys/profileKey/index.ts';
+import { normaliseEmail } from '../../../../functions/src/utils/normaliseEmail/index.ts';
 import { client } from '../../client/index.ts';
 import { FLOW_COOKIE, FLOW_MAX_AGE, TABLE_NAME } from '../../constants.ts';
 import { localCookie } from '../../localCookie/index.ts';

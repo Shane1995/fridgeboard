@@ -1,13 +1,13 @@
 import type { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
-import { HouseholdRole } from '../../../src/utils/isHouseholdRole/constants.ts';
-import { InviteType, type TableKey } from '../../../src/utils/keys/types.ts';
-import { createTable } from '../../../src/utils/table/index.ts';
-import { householdMetaKey } from '../../../src/utils/keys/householdMetaKey/index.ts';
-import { inviteKey } from '../../../src/utils/keys/inviteKey/index.ts';
-import { membershipKey } from '../../../src/utils/keys/membershipKey/index.ts';
-import { ownedHouseholdKey } from '../../../src/utils/keys/ownedHouseholdKey/index.ts';
-import { profileKey } from '../../../src/utils/keys/profileKey/index.ts';
-import { usernameKey } from '../../../src/utils/keys/usernameKey/index.ts';
+import { HouseholdRole } from '../../../functions/src/utils/isHouseholdRole/constants.ts';
+import { InviteType, type TableKey } from '../../../functions/src/utils/keys/types.ts';
+import { createTable } from '../../../functions/src/utils/table/index.ts';
+import { householdMetaKey } from '../../../functions/src/utils/keys/householdMetaKey/index.ts';
+import { inviteKey } from '../../../functions/src/utils/keys/inviteKey/index.ts';
+import { membershipKey } from '../../../functions/src/utils/keys/membershipKey/index.ts';
+import { ownedHouseholdKey } from '../../../functions/src/utils/keys/ownedHouseholdKey/index.ts';
+import { profileKey } from '../../../functions/src/utils/keys/profileKey/index.ts';
+import { usernameKey } from '../../../functions/src/utils/keys/usernameKey/index.ts';
 import {
   ADMIN_EMAIL,
   APP_INVITE_EMAIL,

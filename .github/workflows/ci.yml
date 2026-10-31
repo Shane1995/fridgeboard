@@ -23,6 +23,7 @@ jobs:
   #   config  apps/configuration           -> validate and lint the JSON, deploy the config
   #   web     apps/web                     -> check and deploy the web app
   #   api     apps/functions, e2e          -> check and deploy the Lambdas
+#           apps/local                   -> check only (never deployed)
   # Shared code (contract, lockfile, root tooling) checks and deploys both apps. A change to the
   # workflow itself checks everything and deploys nothing.
   scope:
@@ -58,10 +59,11 @@ jobs:
           web_code=$(has '^apps/web/')
           api_code=$(has '^apps/functions/')
           e2e=$(has '^e2e/')
+          local_dev=$(has '^apps/local/')
           config=$(has '^apps/configuration/')
           {
             echo "web=$(any "$shared" "$tooling" "$web_code")"
-            echo "api=$(any "$shared" "$tooling" "$api_code" "$e2e")"
+            echo "api=$(any "$shared" "$tooling" "$api_code" "$e2e" "$local_dev")"
             echo "config=$(any "$shared" "$tooling" "$config")"
             echo "deploy_web=$(any "$shared" "$web_code")"
             echo "deploy_api=$(any "$shared" "$api_code")"

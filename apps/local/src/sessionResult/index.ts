@@ -1,5 +1,5 @@
 import type { APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
-import { jsonResponse } from '../../../src/utils/jsonResponse/index.ts';
+import { jsonResponse } from '../../../functions/src/utils/jsonResponse/index.ts';
 import { FLOW_COOKIE, REFRESH_COOKIE, REFRESH_MAX_AGE, TOKEN_EXPIRES_IN } from '../constants.ts';
 import { claimsFor } from '../claimsFor/index.ts';
 import { encodeToken } from '../encodeToken/index.ts';

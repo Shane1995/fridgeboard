@@ -1,11 +1,11 @@
 import { GetCommand } from '@aws-sdk/lib-dynamodb';
 import type { APIGatewayProxyStructuredResultV2, PostConfirmationTriggerEvent } from 'aws-lambda';
-import type { AuthRequest } from '../../../../src/handlers/auth/types.ts';
-import { handler as postConfirmation } from '../../../../src/handlers/postConfirmation/index.ts';
-import { readBodyField } from '../../../../src/handlers/auth/utils/readBodyField/index.ts';
-import { readCookie } from '../../../../src/handlers/auth/utils/cookies/readCookie/index.ts';
-import { jsonResponse } from '../../../../src/utils/jsonResponse/index.ts';
-import { profileKey } from '../../../../src/utils/keys/profileKey/index.ts';
+import type { AuthRequest } from '../../../../functions/src/handlers/auth/types.ts';
+import { handler as postConfirmation } from '../../../../functions/src/handlers/postConfirmation/index.ts';
+import { readBodyField } from '../../../../functions/src/handlers/auth/utils/readBodyField/index.ts';
+import { readCookie } from '../../../../functions/src/handlers/auth/utils/cookies/readCookie/index.ts';
+import { jsonResponse } from '../../../../functions/src/utils/jsonResponse/index.ts';
+import { profileKey } from '../../../../functions/src/utils/keys/profileKey/index.ts';
 import { client } from '../../client/index.ts';
 import { FLOW_COOKIE, REGION, SIGN_IN_CODE, TABLE_NAME } from '../../constants.ts';
 import { sessionResult } from '../../sessionResult/index.ts';
