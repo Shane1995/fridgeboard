@@ -1,8 +1,10 @@
 import { execFileSync, spawn } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { build } from 'esbuild';
 import {
   COMPOSE_FILE,
   DEV_ENV,
+  ENV_FILE,
   ESM_REQUIRE_BANNER,
   LOCALSTACK_SERVICE,
   SERVER_BUNDLE,
@@ -10,6 +12,10 @@ import {
   TOKEN_HINT,
   TOKEN_VARIABLE,
 } from './constants.ts';
+
+if (existsSync(ENV_FILE)) {
+  process.loadEnvFile(ENV_FILE);
+}
 
 if (!process.env[TOKEN_VARIABLE]) {
   console.error(TOKEN_HINT);

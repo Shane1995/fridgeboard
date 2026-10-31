@@ -2,8 +2,8 @@ export const API_PORT = 3001;
 export const LOCALSTACK_PORT = 4566;
 export const LOCALSTACK_SERVICE = 'localstack';
 export const TOKEN_VARIABLE = 'LOCALSTACK_AUTH_TOKEN';
-export const TOKEN_HINT =
-  'Set LOCALSTACK_AUTH_TOKEN first: export LOCALSTACK_AUTH_TOKEN=$(security find-generic-password -s localstack-auth-token -w)';
+export const ENV_FILE = '.env';
+export const TOKEN_HINT = `Add ${TOKEN_VARIABLE}=<token> to apps/local/${ENV_FILE} (gitignored), or export it in your shell.`;
 export const TABLE_NAME = 'fridgeboard';
 export const REGION = 'eu-west-2';
 export const ORIGIN_SECRET = 'dev-local-origin-secret';
