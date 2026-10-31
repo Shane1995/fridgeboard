@@ -19,8 +19,7 @@ export const isMember = async ({
   if (!claims || householdId === '' || householdId.includes('/')) {
     return false;
   }
-  const { Item } = await client.send(
-    new GetCommand({ TableName: TABLE_NAME, Key: membershipKey(householdId, claims.sub) }),
-  );
+  const { PK, SK } = membershipKey(householdId, claims.sub);
+  const { Item } = await client.send(new GetCommand({ TableName: TABLE_NAME, Key: { PK, SK } }));
   return Item !== undefined;
 };

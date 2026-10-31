@@ -96,6 +96,24 @@ describe('attachRealtime', () => {
     });
   });
 
+  it('answers a failed membership check with an error and keeps running', async () => {
+    ddbMock.on(GetCommand).rejects(new Error('boom'));
+    const { socket, next } = await start();
+
+    socket.send(
+      JSON.stringify({
+        type: 'subscribe',
+        id: 'household',
+        channel: '/hh/local-household',
+        authorization: { Authorization: token },
+      }),
+    );
+
+    expect(await next('subscribe_error')).toMatchObject({
+      errors: [{ errorType: 'InternalFailure' }],
+    });
+  });
+
   it('sends keep-alive frames', async () => {
     const { next } = await start(20);
 

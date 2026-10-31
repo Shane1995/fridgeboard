@@ -50,7 +50,15 @@ const onConnection =
         return;
       }
       const token = authorization?.Authorization ?? connectionToken;
-      if (!(await isMember({ token, channel }))) {
+      const member = await isMember({ token, channel }).catch((error: unknown) => {
+        console.error('subscribe check failed', error);
+        return undefined;
+      });
+      if (member === undefined) {
+        send(subscribeError({ id, errorType: ErrorType.Internal }));
+        return;
+      }
+      if (!member) {
         send(subscribeError({ id, errorType: ErrorType.Unauthorized }));
         return;
       }

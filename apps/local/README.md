@@ -44,7 +44,7 @@ Admin-only app invites (`ENABLE_ADMIN_INVITES`) and passkeys are not available l
 
 ## Use Postman or curl
 
-Import `apps/local/postman/fridgeboard-local.postman_collection.json` into Postman. Run Auth > Request code, then Verify code (saves the access token), and the rest work. Change the `email` variable to sign in as someone else. The "Live sync (AppSync Events, prod only)" folder does not work locally.
+Import `apps/local/postman/fridgeboard-local.postman_collection.json` into Postman. Run Auth > Request code, then Verify code (saves the access token), and the rest work. Change the `email` variable to sign in as someone else. The "Live sync" folder has a local publish request and a production one.
 
 Or by hand:
 
@@ -61,6 +61,17 @@ curl -s http://127.0.0.1:3001/api/v1/me -H 'Authorization: Bearer <accessToken>'
 ```
 
 The route paths are in http://127.0.0.1:3001/configuration.json. Routes served locally are listed in `src/route/index.ts`; to add one, add one entry and restart.
+
+## Live sync
+
+Open the app in two tabs signed in to the same household: adding, ticking or deleting an item in one shows up in the other without a reload. This uses a local stand-in for AppSync Events that runs inside the API server:
+
+- The handlers' real `publishChange` posts to `http://127.0.0.1:3001/event`.
+- Browsers connect to `ws://127.0.0.1:3001/event/realtime`, speaking the same protocol as production (`connection_init`, `subscribe`, `data`, keep-alives).
+- Only household members can subscribe, like the production `subscribe_guard`.
+- Signatures, Cognito and AppSync limits are not checked.
+
+You can publish by hand with the "Publish change (local)" request in the Postman collection.
 
 ## Configuration
 
@@ -85,7 +96,7 @@ aws s3 ls
 
 ## What is faked
 
-Cognito, the JWT authorizer, API Gateway, SES, Bedrock and AppSync are not available (Cognito, Bedrock and AppSync are not on the LocalStack Community licence), and credentials are dummy, so IAM is not checked. There is no live sync locally. Anything touching those only shows up after a deploy.
+Cognito, the JWT authorizer, API Gateway, SES, Bedrock and AppSync are not available (Cognito, Bedrock and AppSync are not on the LocalStack Community licence), and credentials are dummy, so IAM is not checked. AppSync is replaced by the local stand-in described above. Anything touching those only shows up after a deploy.
 
 ## Troubleshooting
 

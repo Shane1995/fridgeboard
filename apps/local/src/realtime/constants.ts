@@ -26,4 +26,5 @@ export const ServerMessage = {
 export const ErrorType = {
   Unauthorized: 'UnauthorizedException',
   BadRequest: 'BadRequestException',
+  Internal: 'InternalFailure',
 } as const;

@@ -668,11 +668,41 @@
       ]
     },
     {
-      "name": "Live sync (AppSync Events, prod only)",
-      "description": "AppSync is not available on LocalStack, so these do not work against dev:local. Use them against production with the real host. Subscribing is a WebSocket (wss://<realtime host>/event/realtime, subprotocol aws-appsync-event-ws) and is not in this collection; use a Postman WebSocket request for that.",
+      "name": "Live sync (AppSync Events)",
+      "description": "\"Publish change (local)\" works against dev:local: the local stand-in fans the event out to every signed-in browser tab on that household. \"Publish change (production)\" needs the real AppSync host and AWS credentials. Subscribing is a WebSocket (ws://127.0.0.1:3001/event/realtime locally, wss://<realtime host>/event/realtime in production, subprotocols aws-appsync-event-ws and header-<base64url({Authorization, host})>) and is not in this collection; use a Postman WebSocket request.",
       "item": [
         {
-          "name": "Publish change",
+          "name": "Publish change (local)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/event",
+              "host": ["{{baseUrl}}"],
+              "path": ["event"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"channel\": \"/hh/{{householdId}}\",\n  \"events\": [\n    \"{\\\"rev\\\":1,\\\"type\\\":\\\"item\\\",\\\"id\\\":\\\"{{itemId}}\\\"}\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Local stand-in for the AppSync Events publish endpoint. No signature needed. Open the app in a browser tab first; the event reaches it as a live-sync change (a rev above the one the tab knows triggers a catch-up through the Changes feed)."
+          }
+        },
+        {
+          "name": "Publish change (production)",
           "request": {
             "method": "POST",
             "header": [
@@ -721,7 +751,7 @@
                 }
               }
             },
-            "description": "SigV4-signed publish, as the Lambdas do in publishChange. Set awsAccessKeyId and awsSecretAccessKey as collection variables with credentials allowed to publish."
+            "description": "Production only: SigV4-signed publish, as the Lambdas do in publishChange. Set awsAccessKeyId and awsSecretAccessKey as collection variables with credentials allowed to publish."
           }
         }
       ]

@@ -18,6 +18,17 @@ describe('isMember', () => {
     expect(await isMember({ token, channel: '/hh/local-household' })).toBe(true);
   });
 
+  it('reads the membership by its table key only', async () => {
+    ddbMock.on(GetCommand).resolves({ Item: { PK: 'p' } });
+
+    await isMember({ token, channel: '/hh/local-household' });
+
+    expect(Object.keys(ddbMock.commandCalls(GetCommand)[0]?.args[0].input.Key ?? {})).toEqual([
+      'PK',
+      'SK',
+    ]);
+  });
+
   it('rejects a user without a membership', async () => {
     ddbMock.on(GetCommand).resolves({});
 
