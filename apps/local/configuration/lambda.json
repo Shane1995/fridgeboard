@@ -1,0 +1,14 @@
+{
+  "featureFlags": {},
+  "services": {
+    "appsyncEvents": {
+      "url": "http://127.0.0.1:3001"
+    }
+  },
+  "settings": {
+    "flowTtlMs": 180000,
+    "usernameMaxLength": 20,
+    "usernameMinLength": 3
+  },
+  "version": 1
+}

@@ -3,11 +3,6 @@
   "private": true,
   "license": "UNLICENSED",
   "type": "module",
-  "packageManager": "pnpm@9.15.0",
-  "engines": {
-    "node": ">=24.0.0",
-    "pnpm": ">=9.0.0"
-  },
   "scripts": {
     "build": "turbo run build",
     "test": "vitest run && turbo run test",
@@ -16,9 +11,10 @@
     "format:check": "turbo run format:check",
     "typecheck": "turbo run typecheck",
     "dev": "turbo run dev --filter @fridgeboard/web",
-    "dev:local": "pnpm --filter @fridgeboard/functions dev:local",
-    "dev:local:reset": "pnpm --filter @fridgeboard/functions dev:local:reset",
-    "prepare": "husky"
+    "dev:local": "pnpm --filter @fridgeboard/local dev:local",
+    "dev:local:reset": "pnpm --filter @fridgeboard/local dev:local:reset",
+    "prepare": "husky",
+    "db:admin": "pnpm --filter @fridgeboard/local db:admin"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.0.2",
@@ -35,5 +31,10 @@
       "oxfmt",
       "oxlint"
     ]
-  }
+  },
+  "engines": {
+    "node": ">=24.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.0"
 }

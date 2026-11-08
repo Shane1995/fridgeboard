@@ -2,9 +2,13 @@ const UNSAFE_URL_PATTERN = /\.\.|[%?#\\\s]|\/\//;
 export const API_URL_PATTERN = /^\/api\//;
 export const SAFE_URL_PATTERN = new RegExp(`^(?!.*(?:${UNSAFE_URL_PATTERN.source})).*$`);
 export const ENDPOINT_PATH_PATTERN = /^\/(?!\/)[A-Za-z0-9/_{}-]*$/;
-export const REALTIME_HOST_PATTERN =
-  /^[a-z0-9]+\.appsync-realtime-api\.[a-z0-9-]+\.amazonaws\.com$/;
-export const EVENTS_HTTP_HOST_PATTERN = /^[a-z0-9]+\.appsync-api\.[a-z0-9-]+\.amazonaws\.com$/;
+export const LOCAL_HOST_PATTERN = /^(?:127\.0\.0\.1|localhost):\d{1,5}$/;
+export const REALTIME_HOST_PATTERN = new RegExp(
+  `^(?:[a-z0-9]+\\.appsync-realtime-api\\.[a-z0-9-]+\\.amazonaws\\.com|${LOCAL_HOST_PATTERN.source.slice(1, -1)})$`,
+);
+export const EVENTS_HTTP_HOST_PATTERN = new RegExp(
+  `^(?:[a-z0-9]+\\.appsync-api\\.[a-z0-9-]+\\.amazonaws\\.com|${LOCAL_HOST_PATTERN.source.slice(1, -1)})$`,
+);
 
 export const WEB_CONFIGURATION_VERSION = 2;
 
