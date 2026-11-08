@@ -1,9 +1,6 @@
 export const API_PORT = 3001;
-export const LOCALSTACK_PORT = 4566;
-export const LOCALSTACK_SERVICE = 'localstack';
-export const TOKEN_VARIABLE = 'LOCALSTACK_AUTH_TOKEN';
-export const ENV_FILE = '.env';
-export const TOKEN_HINT = `Add ${TOKEN_VARIABLE}=<token> to apps/local/${ENV_FILE} (gitignored), or export it in your shell.`;
+export const DYNAMO_PORT = 8001;
+export const DYNAMO_SERVICE = 'dynamodb';
 export const TABLE_NAME = 'fridgeboard';
 export const REGION = 'eu-west-2';
 export const ORIGIN_SECRET = 'dev-local-origin-secret';
@@ -28,7 +25,7 @@ export const FLOW_MAX_AGE = 600;
 export const REFRESH_MAX_AGE = 2592000;
 export const INVITE_TTL_SECONDS = 604800;
 export const DEV_ENV = {
-  AWS_ENDPOINT_URL: `http://127.0.0.1:${LOCALSTACK_PORT}`,
+  AWS_ENDPOINT_URL_DYNAMODB: `http://127.0.0.1:${DYNAMO_PORT}`,
   AWS_ACCESS_KEY_ID: 'local',
   AWS_SECRET_ACCESS_KEY: 'local',
   AWS_REGION: REGION,

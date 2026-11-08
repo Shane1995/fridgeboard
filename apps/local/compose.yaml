@@ -1,18 +1,17 @@
 services:
-  localstack:
-    image: localstack/localstack-pro:2026.10.4@sha256:2290500d7398e6458544fab2f49aaf170b81a1006ee69067e8e7fc59b810a824
+  dynamodb:
+    image: amazon/dynamodb-local:3.3.2@sha256:6ada631ec7aa5fc83446855eb17233e3dad184fec47477e8140c6c569cfe0c86
+    user: root
+    command: -jar DynamoDBLocal.jar -sharedDb -dbPath /data
     ports:
-      - '127.0.0.1:4566:4566'
-    environment:
-      LOCALSTACK_AUTH_TOKEN: ${LOCALSTACK_AUTH_TOKEN:?run export LOCALSTACK_AUTH_TOKEN first}
-      SERVICES: dynamodb,sqs,ssm,s3,events
+      - '127.0.0.1:8001:8000'
+    volumes:
+      - dynamodb-data:/data
     healthcheck:
-      test:
-        - CMD
-        - python3
-        - -c
-        - import urllib.request; urllib.request.urlopen('http://localhost:4566/_localstack/health')
+      test: ['CMD', 'curl', '-s', '-o', '/dev/null', 'http://localhost:8000']
       interval: 2s
       timeout: 3s
-      retries: 60
-      start_period: 5s
+      retries: 30
+
+volumes:
+  dynamodb-data:
