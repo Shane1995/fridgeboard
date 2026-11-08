@@ -96,7 +96,7 @@ They are copies of `apps/configuration/web/configuration.json` and `apps/configu
 
 ## Look at the data
 
-`pnpm db:admin` opens a table browser (dynamodb-admin) for the local table at http://localhost:8001.
+`pnpm db:admin` opens a table browser (dynamodb-admin) for the local table at http://localhost:8002 (8001 is the database itself, not a web page).
 
 ```sh
 export AWS_ENDPOINT_URL_DYNAMODB=http://127.0.0.1:8001 AWS_ACCESS_KEY_ID=local AWS_SECRET_ACCESS_KEY=local AWS_REGION=eu-west-2
