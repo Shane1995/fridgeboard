@@ -19,21 +19,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Works out which parts of the repo changed, so only those are checked and deployed.
+  # Works out which parts of the repo changed, so only those are checked and deployed. Package
+  # changes come from turbo's dependency graph (`turbo ls --affected`), so a change to one Lambda
+  # picks that Lambda only, and a change to lambda-kit or contract picks every package that
+  # imports it.
   #   config  apps/configuration           -> validate and lint the JSON, deploy the config
   #   web     apps/web                     -> check and deploy the web app
-  #   api     apps/functions, e2e          -> check and deploy the Lambdas
-#           apps/local                   -> check only (never deployed)
-  # Shared code (contract, lockfile, root tooling) checks and deploys both apps. A change to the
-  # workflow itself checks everything and deploys nothing.
+  #   api     apps/functions/*, lambda-*,
+  #           e2e, apps/local              -> check; deploy only the affected Lambdas (never e2e, local)
+  # A change to the workflow itself checks everything and deploys nothing.
   scope:
     if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
-    timeout-minutes: 2
+    timeout-minutes: 5
     outputs:
       web: ${{ steps.diff.outputs.web }}
       api: ${{ steps.diff.outputs.api }}
       config: ${{ steps.diff.outputs.config }}
+      api_packages: ${{ steps.diff.outputs.api_packages }}
+      lambdas: ${{ steps.diff.outputs.lambdas }}
       deploy_web: ${{ steps.diff.outputs.deploy_web }}
       deploy_api: ${{ steps.diff.outputs.deploy_api }}
       deploy_config: ${{ steps.diff.outputs.deploy_config }}
@@ -42,32 +46,55 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --ignore-scripts
       - id: diff
         env:
           BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: |
           set -euo pipefail
           if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
-            files=$(printf '%s\n' packages/force apps/web/force apps/functions/force apps/configuration/force)
+            affected=$(pnpm exec turbo ls --output=json | jq -c '.packages.items')
+            files=$(printf '%s\n' apps/configuration/force)
           else
+            affected=$(TURBO_SCM_BASE="$BASE" TURBO_SCM_HEAD="$GITHUB_SHA" pnpm exec turbo ls --affected --output=json | jq -c '.packages.items')
             files=$(git diff --name-only "$BASE" "$GITHUB_SHA")
           fi
           has() { if grep -qE "$1" <<< "$files"; then echo true; else echo false; fi; }
+          is_affected() { if jq -e --arg name "$1" 'any(.[]; .name == $name)' <<< "$affected" > /dev/null; then echo true; else echo false; fi; }
           any() { for value in "$@"; do if [ "$value" = true ]; then echo true; return; fi; done; echo false; }
-          shared=$(has '^(packages/|pnpm-lock\.yaml$|package\.json$|pnpm-workspace\.yaml$|turbo\.json$|tsconfig|\.oxlintrc\.json$|\.oxfmtrc\.json$|\.fallowrc\.json$|vitest\.config|scripts/|commitlint)')
           tooling=$(has '^(\.github/|compose\.yaml$)')
-          web_code=$(has '^apps/web/')
-          api_code=$(has '^apps/functions/')
-          e2e=$(has '^e2e/')
-          local_dev=$(has '^apps/local/')
-          config=$(has '^apps/configuration/')
+          config_files=$(has '^apps/configuration/')
+          web_affected=$(is_affected @fridgeboard/web)
+          config_affected=$(is_affected @fridgeboard/configuration)
+          if [ "$tooling" = true ]; then
+            api_packages=$(pnpm exec turbo ls --output=json | jq -c '[.packages.items[] | select(.name != "@fridgeboard/web" and .name != "@fridgeboard/configuration") | .name]')
+          else
+            api_packages=$(jq -c '[.[] | select(.name != "@fridgeboard/web" and .name != "@fridgeboard/configuration") | .name]' <<< "$affected")
+          fi
+          api=$(jq -e 'length > 0' <<< "$api_packages" > /dev/null && echo true || echo false)
+          lambdas=$(
+            jq -r '.[] | select(.path | startswith("apps/functions/")) | [.path, .name] | @tsv' <<< "$affected" |
+              while IFS=$'\t' read -r path package; do
+                jq -cn --arg path "$path" --arg package "$package" \
+                  --arg fn "$(tr -d '[:space:]' < "$path/.deployment")" \
+                  --arg kind "$(jq -r '.lambda.kind' "$path/package.json")" \
+                  '{path: $path, package: $package, fn: $fn, kind: $kind}'
+              done | jq -cs .
+          )
           {
-            echo "web=$(any "$shared" "$tooling" "$web_code")"
-            echo "api=$(any "$shared" "$tooling" "$api_code" "$e2e" "$local_dev")"
-            echo "config=$(any "$shared" "$tooling" "$config")"
-            echo "deploy_web=$(any "$shared" "$web_code")"
-            echo "deploy_api=$(any "$shared" "$api_code")"
-            echo "deploy_config=$config"
+            echo "web=$(any "$web_affected" "$tooling")"
+            echo "api=$(any "$api" "$tooling")"
+            echo "config=$(any "$config_affected" "$tooling")"
+            echo "api_packages=$api_packages"
+            echo "lambdas=$lambdas"
+            echo "deploy_web=$web_affected"
+            echo "deploy_api=$(jq -e 'length > 0' <<< "$lambdas" > /dev/null && echo true || echo false)"
+            echo "deploy_config=$config_files"
           } >> "$GITHUB_OUTPUT"
           cat "$GITHUB_OUTPUT"
 
@@ -96,6 +123,8 @@ jobs:
     if: needs.scope.outputs.api == 'true'
     uses: ./.github/workflows/functions.yml
     with:
+      packages: ${{ needs.scope.outputs.api_packages }}
+      lambdas: ${{ needs.scope.outputs.lambdas }}
       deploy: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.scope.outputs.deploy_api == 'true' }}
     permissions:
       contents: read
