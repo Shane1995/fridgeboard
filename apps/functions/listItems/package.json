@@ -21,7 +21,7 @@
     "@aws-sdk/lib-dynamodb": "^3.1152.0",
     "@fridgeboard/contract": "workspace:*",
     "@fridgeboard/lambda-kit": "workspace:*",
-    "@fridgeboard/lambda-tooling": "workspace:*",
+    "@fridgeboard/lambda-cli": "workspace:*",
     "@types/node": "^26.6.5",
     "aws-sdk-client-mock": "^4.1.0",
     "typescript": "^7.0.2",

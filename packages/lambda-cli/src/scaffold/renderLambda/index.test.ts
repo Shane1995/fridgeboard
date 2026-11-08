@@ -28,7 +28,7 @@ describe('renderLambda', () => {
 
     expect(Object.keys(manifest.dependencies)).toEqual(['@aws-sdk/client-s3', 'zod']);
     expect(manifest.devDependencies['@fridgeboard/lambda-kit']).toBe('workspace:*');
-    expect(manifest.devDependencies['@fridgeboard/lambda-tooling']).toBe('workspace:*');
+    expect(manifest.devDependencies['@fridgeboard/lambda-cli']).toBe('workspace:*');
   });
 
   it('writes every supporting file', () => {

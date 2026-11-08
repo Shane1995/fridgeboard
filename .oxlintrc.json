@@ -33,7 +33,7 @@
         "scripts/admin/vitest.config.ts",
         "apps/functions/*/vitest.config.ts",
         "packages/lambda-kit/vitest.config.ts",
-        "packages/lambda-tooling/vitest.config.ts",
+        "packages/lambda-cli/vitest.config.ts",
         "e2e/vitest.config.ts",
         "commitlint.config.cjs"
       ],

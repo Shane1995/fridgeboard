@@ -20,9 +20,9 @@ importers:
       '@commitlint/config-conventional':
         specifier: ^21.0.2
         version: 21.2.3
-      '@fridgeboard/lambda-tooling':
+      '@fridgeboard/lambda-cli':
         specifier: workspace:*
-        version: link:packages/lambda-tooling
+        version: link:packages/lambda-cli
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -77,12 +77,12 @@ importers:
       '@fridgeboard/contract':
         specifier: workspace:*
         version: link:../../../packages/contract
+      '@fridgeboard/lambda-cli':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-cli
       '@fridgeboard/lambda-kit':
         specifier: workspace:*
         version: link:../../../packages/lambda-kit
-      '@fridgeboard/lambda-tooling':
-        specifier: workspace:*
-        version: link:../../../packages/lambda-tooling
       '@types/aws-lambda':
         specifier: ^8.10.164
         version: 8.10.164
@@ -113,12 +113,12 @@ importers:
       '@fridgeboard/contract':
         specifier: workspace:*
         version: link:../../../packages/contract
+      '@fridgeboard/lambda-cli':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-cli
       '@fridgeboard/lambda-kit':
         specifier: workspace:*
         version: link:../../../packages/lambda-kit
-      '@fridgeboard/lambda-tooling':
-        specifier: workspace:*
-        version: link:../../../packages/lambda-tooling
       '@types/aws-lambda':
         specifier: ^8.10.164
         version: 8.10.164
@@ -146,12 +146,12 @@ importers:
       '@fridgeboard/contract':
         specifier: workspace:*
         version: link:../../../packages/contract
+      '@fridgeboard/lambda-cli':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-cli
       '@fridgeboard/lambda-kit':
         specifier: workspace:*
         version: link:../../../packages/lambda-kit
-      '@fridgeboard/lambda-tooling':
-        specifier: workspace:*
-        version: link:../../../packages/lambda-tooling
       '@types/node':
         specifier: ^26.6.5
         version: 26.6.5
@@ -179,12 +179,12 @@ importers:
       '@fridgeboard/contract':
         specifier: workspace:*
         version: link:../../../packages/contract
+      '@fridgeboard/lambda-cli':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-cli
       '@fridgeboard/lambda-kit':
         specifier: workspace:*
         version: link:../../../packages/lambda-kit
-      '@fridgeboard/lambda-tooling':
-        specifier: workspace:*
-        version: link:../../../packages/lambda-tooling
       '@types/node':
         specifier: ^26.6.5
         version: 26.6.5
@@ -209,12 +209,12 @@ importers:
       '@fridgeboard/contract':
         specifier: workspace:*
         version: link:../../../packages/contract
+      '@fridgeboard/lambda-cli':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-cli
       '@fridgeboard/lambda-kit':
         specifier: workspace:*
         version: link:../../../packages/lambda-kit
-      '@fridgeboard/lambda-tooling':
-        specifier: workspace:*
-        version: link:../../../packages/lambda-tooling
       '@types/aws-lambda':
         specifier: ^8.10.164
         version: 8.10.164
@@ -242,12 +242,12 @@ importers:
       '@fridgeboard/contract':
         specifier: workspace:*
         version: link:../../../packages/contract
+      '@fridgeboard/lambda-cli':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-cli
       '@fridgeboard/lambda-kit':
         specifier: workspace:*
         version: link:../../../packages/lambda-kit
-      '@fridgeboard/lambda-tooling':
-        specifier: workspace:*
-        version: link:../../../packages/lambda-tooling
       '@types/aws-lambda':
         specifier: ^8.10.164
         version: 8.10.164
@@ -275,12 +275,12 @@ importers:
       '@aws-sdk/lib-dynamodb':
         specifier: ^3.1152.0
         version: 3.1152.0(@aws-sdk/client-dynamodb@3.1152.0)
+      '@fridgeboard/lambda-cli':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-cli
       '@fridgeboard/lambda-kit':
         specifier: workspace:*
         version: link:../../../packages/lambda-kit
-      '@fridgeboard/lambda-tooling':
-        specifier: workspace:*
-        version: link:../../../packages/lambda-tooling
       '@types/aws-lambda':
         specifier: ^8.10.164
         version: 8.10.164
@@ -305,12 +305,12 @@ importers:
       '@aws-sdk/lib-dynamodb':
         specifier: ^3.1152.0
         version: 3.1152.0(@aws-sdk/client-dynamodb@3.1152.0)
+      '@fridgeboard/lambda-cli':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-cli
       '@fridgeboard/lambda-kit':
         specifier: workspace:*
         version: link:../../../packages/lambda-kit
-      '@fridgeboard/lambda-tooling':
-        specifier: workspace:*
-        version: link:../../../packages/lambda-tooling
       '@types/aws-lambda':
         specifier: ^8.10.164
         version: 8.10.164
@@ -335,12 +335,12 @@ importers:
       '@aws-sdk/lib-dynamodb':
         specifier: ^3.1152.0
         version: 3.1152.0(@aws-sdk/client-dynamodb@3.1152.0)
+      '@fridgeboard/lambda-cli':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-cli
       '@fridgeboard/lambda-kit':
         specifier: workspace:*
         version: link:../../../packages/lambda-kit
-      '@fridgeboard/lambda-tooling':
-        specifier: workspace:*
-        version: link:../../../packages/lambda-tooling
       '@types/node':
         specifier: ^26.6.5
         version: 26.6.5
@@ -365,12 +365,12 @@ importers:
       '@aws-sdk/lib-dynamodb':
         specifier: ^3.1152.0
         version: 3.1152.0(@aws-sdk/client-dynamodb@3.1152.0)
+      '@fridgeboard/lambda-cli':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-cli
       '@fridgeboard/lambda-kit':
         specifier: workspace:*
         version: link:../../../packages/lambda-kit
-      '@fridgeboard/lambda-tooling':
-        specifier: workspace:*
-        version: link:../../../packages/lambda-tooling
       '@types/aws-lambda':
         specifier: ^8.10.164
         version: 8.10.164
@@ -610,6 +610,22 @@ importers:
         specifier: ^7.0.2
         version: 7.0.2
 
+  packages/lambda-cli:
+    dependencies:
+      esbuild:
+        specifier: ^0.28.2
+        version: 0.28.2
+    devDependencies:
+      '@types/node':
+        specifier: ^26.6.5
+        version: 26.6.5
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^5.0.5
+        version: 5.0.5(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
+
   packages/lambda-kit:
     dependencies:
       '@aws-sdk/client-s3':
@@ -658,22 +674,6 @@ importers:
       zod:
         specifier: 4.6.7
         version: 4.6.7
-
-  packages/lambda-tooling:
-    dependencies:
-      esbuild:
-        specifier: ^0.28.2
-        version: 0.28.2
-    devDependencies:
-      '@types/node':
-        specifier: ^26.6.5
-        version: 26.6.5
-      typescript:
-        specifier: ^7.0.2
-        version: 7.0.2
-      vitest:
-        specifier: ^5.0.5
-        version: 5.0.5(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
 
   scripts/admin:
     devDependencies:

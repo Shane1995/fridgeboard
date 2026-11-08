@@ -59,7 +59,7 @@ export const renderLambda = ({
       '',
     ].join('\n'),
     'build.config.ts': [
-      "import type { BuildConfig } from '@fridgeboard/lambda-tooling/build/types.ts';",
+      "import type { BuildConfig } from '@fridgeboard/lambda-cli/build/types.ts';",
       '',
       'export const buildConfig: BuildConfig = {};',
       '',

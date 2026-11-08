@@ -20,7 +20,7 @@
   "devDependencies": {
     "@commitlint/cli": "^21.0.2",
     "@commitlint/config-conventional": "^21.0.2",
-    "@fridgeboard/lambda-tooling": "workspace:*",
+    "@fridgeboard/lambda-cli": "workspace:*",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "oxfmt": "^0.73.0",

@@ -46,7 +46,7 @@ apps/web/            PWA
 apps/functions/<name>/  one package per API Lambda (src/index.ts, .deployment, package.json, build.config.ts)
 scripts/admin/          operator scripts, run by hand (invite, delete or export a user)
 packages/lambda-kit/    code shared by two or more Lambdas
-packages/lambda-tooling/  lambda-build, lambda-smoke and the new-lambda scaffold
+packages/lambda-cli/  lambda-build, lambda-smoke and the new-lambda scaffold
 ```
 
 Each unit lives at `<Name>/index.tsx`, with its `types.ts`, `constants.ts` and `index.test.tsx` beside it.

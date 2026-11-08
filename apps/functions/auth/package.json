@@ -22,7 +22,7 @@
     "@aws-sdk/client-ssm": "^3.1152.0",
     "@fridgeboard/contract": "workspace:*",
     "@fridgeboard/lambda-kit": "workspace:*",
-    "@fridgeboard/lambda-tooling": "workspace:*",
+    "@fridgeboard/lambda-cli": "workspace:*",
     "@types/aws-lambda": "^8.10.164",
     "@types/node": "^26.6.5",
     "aws-sdk-client-mock": "^4.1.0",

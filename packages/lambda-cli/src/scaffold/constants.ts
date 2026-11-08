@@ -12,7 +12,7 @@ export const USAGE =
 export const FUNCTION_PREFIX = 'fridgeboard-';
 export const PACKAGE_PREFIX = '@fridgeboard/fn-';
 export const BASE_DEV_DEPENDENCIES = {
-  '@fridgeboard/lambda-tooling': 'workspace:*',
+  '@fridgeboard/lambda-cli': 'workspace:*',
   '@types/node': '^26.6.5',
   typescript: '^7.0.2',
   vitest: '^5.0.5',
