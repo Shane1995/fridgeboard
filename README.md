@@ -44,7 +44,7 @@ apps/web/            PWA
   src/services/      framework-agnostic I/O (no React or UI-framework imports)
   src/utils/         pure helpers
 apps/functions/<name>/  one package per API Lambda (src/index.ts, .deployment, package.json, build.config.ts)
-apps/functions-admin/   operator scripts (invite, delete or export a user)
+scripts/admin/          operator scripts, run by hand (invite, delete or export a user)
 packages/lambda-kit/    code shared by two or more Lambdas
 packages/lambda-tooling/  lambda-build, lambda-smoke and the new-lambda scaffold
 ```

@@ -9,7 +9,7 @@
     "apps/web/src/hooks/useFeatureFlag/index.ts",
     "apps/functions/*/src/index.ts",
     "apps/functions/*/build.config.ts",
-    "apps/functions-admin/scripts/**/index.ts",
+    "scripts/admin/**/index.ts",
     "packages/lambda-tooling/src/build/index.ts",
     "packages/lambda-tooling/src/smoke/index.ts",
     "packages/lambda-tooling/src/scaffold/index.ts",
@@ -27,7 +27,7 @@
     "e2e/api/integration/dynamodbLocal/**/*.ts"
   ],
   "workspaces": {
-    "packages": ["apps/*", "apps/functions/*", "packages/*", "e2e"]
+    "packages": ["apps/*", "apps/functions/*", "packages/*", "scripts/admin", "e2e"]
   },
   "ignorePatterns": [
     "dist/**",

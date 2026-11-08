@@ -1,6 +1,6 @@
 import { AdminGetUserCommand } from '@aws-sdk/client-cognito-identity-provider';
 import { GetParameterCommand } from '@aws-sdk/client-ssm';
-import { cognitoMock, ssmMock } from './scripts/admin/utils/__mocks__/adminUser.ts';
+import { cognitoMock, ssmMock } from './utils/__mocks__/adminUser.ts';
 
 beforeEach(() => {
   cognitoMock.reset();

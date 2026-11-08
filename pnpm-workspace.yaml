@@ -1,5 +1,6 @@
 packages:
   - 'apps/*'
   - 'apps/functions/*'
+  - 'scripts/admin'
   - 'packages/*'
   - 'e2e'

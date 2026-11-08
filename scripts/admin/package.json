@@ -1,18 +1,18 @@
 {
-  "name": "@fridgeboard/functions-admin",
+  "name": "@fridgeboard/admin",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "admin:invite": "node scripts/admin/invite/index.ts",
-    "admin:delete-user": "node scripts/admin/deleteUser/index.ts",
-    "admin:export-user": "node scripts/admin/exportUser/index.ts",
-    "admin:sign-out-everywhere": "node scripts/admin/signOutEverywhere/index.ts",
+    "admin:invite": "node --experimental-transform-types invite/index.ts",
+    "admin:delete-user": "node --experimental-transform-types deleteUser/index.ts",
+    "admin:export-user": "node --experimental-transform-types exportUser/index.ts",
+    "admin:sign-out-everywhere": "node --experimental-transform-types signOutEverywhere/index.ts",
     "typecheck": "tsc -b",
     "test": "vitest run",
-    "lint": "oxlint --config ../../.oxlintrc.json scripts/",
-    "format": "oxfmt scripts/",
-    "format:check": "oxfmt --check scripts/"
+    "lint": "oxlint --config ../../.oxlintrc.json .",
+    "format": "oxfmt .",
+    "format:check": "oxfmt --check ."
   },
   "devDependencies": {
     "@aws-sdk/client-cognito-identity-provider": "^3.1152.0",
