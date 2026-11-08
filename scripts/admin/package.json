@@ -1,0 +1,30 @@
+{
+  "name": "@fridgeboard/admin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "admin:invite": "tsx invite/index.ts",
+    "admin:delete-user": "tsx deleteUser/index.ts",
+    "admin:export-user": "tsx exportUser/index.ts",
+    "admin:sign-out-everywhere": "tsx signOutEverywhere/index.ts",
+    "typecheck": "tsc -b",
+    "test": "vitest run",
+    "lint": "oxlint --config ../../.oxlintrc.json .",
+    "format": "oxfmt .",
+    "format:check": "oxfmt --check ."
+  },
+  "devDependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.1152.0",
+    "@aws-sdk/client-dynamodb": "^3.1152.0",
+    "@aws-sdk/client-sesv2": "^3.1152.0",
+    "@aws-sdk/client-ssm": "^3.1152.0",
+    "@aws-sdk/lib-dynamodb": "^3.1152.0",
+    "@fridgeboard/lambda-kit": "workspace:*",
+    "@types/node": "^26.6.5",
+    "aws-sdk-client-mock": "^4.1.0",
+    "tsx": "^4.20.6",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  }
+}

@@ -3,12 +3,12 @@ import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import { buildEvent } from '../dynamodbLocal/buildEvent/index.ts';
 import { client } from '../dynamodbLocal/client/index.ts';
 import { TABLE_NAME } from '../dynamodbLocal/constants.ts';
-import { OnboardingSectionId } from '../../../../apps/functions/src/utils/buildOnboarding/constants.ts';
-import { handler } from '../../../../apps/functions/src/handlers/onboarding/index.ts';
-import { HouseholdRole } from '../../../../apps/functions/src/utils/isHouseholdRole/constants.ts';
-import { householdMetaKey } from '../../../../apps/functions/src/utils/keys/householdMetaKey/index.ts';
-import { membershipKey } from '../../../../apps/functions/src/utils/keys/membershipKey/index.ts';
-import { profileKey } from '../../../../apps/functions/src/utils/keys/profileKey/index.ts';
+import { OnboardingSectionId } from '@fridgeboard/lambda-kit/utils/buildOnboarding/constants.ts';
+import { handler } from '@fridgeboard/fn-onboarding/index.ts';
+import { HouseholdRole } from '@fridgeboard/lambda-kit/utils/isHouseholdRole/constants.ts';
+import { householdMetaKey } from '@fridgeboard/lambda-kit/utils/keys/householdMetaKey/index.ts';
+import { membershipKey } from '@fridgeboard/lambda-kit/utils/keys/membershipKey/index.ts';
+import { profileKey } from '@fridgeboard/lambda-kit/utils/keys/profileKey/index.ts';
 
 const put = async (Item: Record<string, unknown>): Promise<void> => {
   await client.send(new PutCommand({ TableName: TABLE_NAME, Item }));

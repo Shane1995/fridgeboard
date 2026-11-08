@@ -1,5 +1,5 @@
 import { resolve } from 'node:path';
-import { LambdaConfigurationSchema } from '../../../functions/src/configuration/lambdaConfigurationSchema/index.ts';
+import { LambdaConfigurationSchema } from '@fridgeboard/lambda-kit/configuration/lambdaConfigurationSchema/index.ts';
 import { WebConfigurationSchema } from '../../../web/src/services/configuration/schema/index.ts';
 import type { ConfigurationTarget } from './types.ts';
 

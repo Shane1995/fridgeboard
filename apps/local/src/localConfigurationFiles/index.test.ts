@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { LambdaConfigurationSchema } from '../../../functions/src/configuration/lambdaConfigurationSchema/index.ts';
+import { LambdaConfigurationSchema } from '@fridgeboard/lambda-kit/configuration/lambdaConfigurationSchema/index.ts';
 import { WebConfigurationSchema } from '../../../web/src/services/configuration/schema/index.ts';
 import { CONFIGURATION_FILE } from '../constants.ts';
 import { LAMBDA_CONFIGURATION_FILE } from '../localConfiguration/constants.ts';

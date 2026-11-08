@@ -4,6 +4,12 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  glob@>=9 <14.0.2: 14.0.2
+  minimatch@>=7 <11.0.1: 11.0.1
+  seroval@<1.6.11: 1.6.11
+  seroval-plugins@<1.6.11: 1.6.11
+
 importers:
 
   .:
@@ -14,6 +20,9 @@ importers:
       '@commitlint/config-conventional':
         specifier: ^21.0.2
         version: 21.2.3
+      '@fridgeboard/lambda-cli':
+        specifier: workspace:*
+        version: link:packages/lambda-cli
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -38,6 +47,9 @@ importers:
       '@fridgeboard/contract':
         specifier: workspace:*
         version: link:../../packages/contract
+      '@fridgeboard/lambda-kit':
+        specifier: workspace:*
+        version: link:../../packages/lambda-kit
       '@types/node':
         specifier: ^26.6.5
         version: 26.6.5
@@ -51,16 +63,9 @@ importers:
         specifier: ^5.0.5
         version: 5.0.5(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
 
-  apps/functions:
-    dependencies:
-      '@aws-sdk/client-s3':
-        specifier: 3.1152.0
-        version: 3.1152.0
+  apps/functions/auth:
     devDependencies:
       '@aws-sdk/client-cognito-identity-provider':
-        specifier: ^3.1152.0
-        version: 3.1152.0
-      '@aws-sdk/client-dynamodb':
         specifier: ^3.1152.0
         version: 3.1152.0
       '@aws-sdk/client-sesv2':
@@ -69,24 +74,15 @@ importers:
       '@aws-sdk/client-ssm':
         specifier: ^3.1152.0
         version: 3.1152.0
-      '@aws-sdk/lib-dynamodb':
-        specifier: ^3.1152.0
-        version: 3.1152.0(@aws-sdk/client-dynamodb@3.1152.0)
       '@fridgeboard/contract':
         specifier: workspace:*
-        version: link:../../packages/contract
-      '@smithy/hash-node':
-        specifier: ^4.5.2
-        version: 4.5.2
-      '@smithy/protocol-http':
-        specifier: ^5.6.2
-        version: 5.6.2
-      '@smithy/signature-v4':
-        specifier: 5.7.4
-        version: 5.7.4
-      '@smithy/util-stream':
-        specifier: ^4.8.2
-        version: 4.8.2
+        version: link:../../../packages/contract
+      '@fridgeboard/lambda-cli':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-cli
+      '@fridgeboard/lambda-kit':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-kit
       '@types/aws-lambda':
         specifier: ^8.10.164
         version: 8.10.164
@@ -96,9 +92,72 @@ importers:
       aws-sdk-client-mock:
         specifier: ^4.1.0
         version: 4.1.0
-      esbuild:
-        specifier: ^0.28.2
-        version: 0.28.2
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^5.0.5
+        version: 5.0.5(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
+
+  apps/functions/households:
+    devDependencies:
+      '@aws-sdk/client-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/client-sesv2':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/lib-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0(@aws-sdk/client-dynamodb@3.1152.0)
+      '@fridgeboard/contract':
+        specifier: workspace:*
+        version: link:../../../packages/contract
+      '@fridgeboard/lambda-cli':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-cli
+      '@fridgeboard/lambda-kit':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-kit
+      '@types/aws-lambda':
+        specifier: ^8.10.164
+        version: 8.10.164
+      '@types/node':
+        specifier: ^26.6.5
+        version: 26.6.5
+      aws-sdk-client-mock:
+        specifier: ^4.1.0
+        version: 4.1.0
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^5.0.5
+        version: 5.0.5(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
+
+  apps/functions/listItems:
+    devDependencies:
+      '@aws-sdk/client-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/lib-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0(@aws-sdk/client-dynamodb@3.1152.0)
+      '@fridgeboard/contract':
+        specifier: workspace:*
+        version: link:../../../packages/contract
+      '@fridgeboard/lambda-cli':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-cli
+      '@fridgeboard/lambda-kit':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-kit
+      '@types/node':
+        specifier: ^26.6.5
+        version: 26.6.5
+      aws-sdk-client-mock:
+        specifier: ^4.1.0
+        version: 4.1.0
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -108,6 +167,225 @@ importers:
       zod:
         specifier: 4.6.7
         version: 4.6.7
+
+  apps/functions/listShops:
+    devDependencies:
+      '@aws-sdk/client-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/lib-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0(@aws-sdk/client-dynamodb@3.1152.0)
+      '@fridgeboard/contract':
+        specifier: workspace:*
+        version: link:../../../packages/contract
+      '@fridgeboard/lambda-cli':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-cli
+      '@fridgeboard/lambda-kit':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-kit
+      '@types/node':
+        specifier: ^26.6.5
+        version: 26.6.5
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^5.0.5
+        version: 5.0.5(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
+      zod:
+        specifier: 4.6.7
+        version: 4.6.7
+
+  apps/functions/me:
+    devDependencies:
+      '@aws-sdk/client-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/lib-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0(@aws-sdk/client-dynamodb@3.1152.0)
+      '@fridgeboard/contract':
+        specifier: workspace:*
+        version: link:../../../packages/contract
+      '@fridgeboard/lambda-cli':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-cli
+      '@fridgeboard/lambda-kit':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-kit
+      '@types/aws-lambda':
+        specifier: ^8.10.164
+        version: 8.10.164
+      '@types/node':
+        specifier: ^26.6.5
+        version: 26.6.5
+      aws-sdk-client-mock:
+        specifier: ^4.1.0
+        version: 4.1.0
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^5.0.5
+        version: 5.0.5(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
+
+  apps/functions/onboarding:
+    devDependencies:
+      '@aws-sdk/client-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/lib-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0(@aws-sdk/client-dynamodb@3.1152.0)
+      '@fridgeboard/contract':
+        specifier: workspace:*
+        version: link:../../../packages/contract
+      '@fridgeboard/lambda-cli':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-cli
+      '@fridgeboard/lambda-kit':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-kit
+      '@types/aws-lambda':
+        specifier: ^8.10.164
+        version: 8.10.164
+      '@types/node':
+        specifier: ^26.6.5
+        version: 26.6.5
+      aws-sdk-client-mock:
+        specifier: ^4.1.0
+        version: 4.1.0
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^5.0.5
+        version: 5.0.5(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
+
+  apps/functions/postConfirmation:
+    devDependencies:
+      '@aws-sdk/client-cognito-identity-provider':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/client-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/lib-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0(@aws-sdk/client-dynamodb@3.1152.0)
+      '@fridgeboard/lambda-cli':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-cli
+      '@fridgeboard/lambda-kit':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-kit
+      '@types/aws-lambda':
+        specifier: ^8.10.164
+        version: 8.10.164
+      '@types/node':
+        specifier: ^26.6.5
+        version: 26.6.5
+      aws-sdk-client-mock:
+        specifier: ^4.1.0
+        version: 4.1.0
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^5.0.5
+        version: 5.0.5(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
+
+  apps/functions/preSignUp:
+    devDependencies:
+      '@aws-sdk/client-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/lib-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0(@aws-sdk/client-dynamodb@3.1152.0)
+      '@fridgeboard/lambda-cli':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-cli
+      '@fridgeboard/lambda-kit':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-kit
+      '@types/aws-lambda':
+        specifier: ^8.10.164
+        version: 8.10.164
+      '@types/node':
+        specifier: ^26.6.5
+        version: 26.6.5
+      aws-sdk-client-mock:
+        specifier: ^4.1.0
+        version: 4.1.0
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^5.0.5
+        version: 5.0.5(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
+
+  apps/functions/subscribeGuard:
+    devDependencies:
+      '@aws-sdk/client-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/lib-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0(@aws-sdk/client-dynamodb@3.1152.0)
+      '@fridgeboard/lambda-cli':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-cli
+      '@fridgeboard/lambda-kit':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-kit
+      '@types/node':
+        specifier: ^26.6.5
+        version: 26.6.5
+      aws-sdk-client-mock:
+        specifier: ^4.1.0
+        version: 4.1.0
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^5.0.5
+        version: 5.0.5(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
+      zod:
+        specifier: 4.6.7
+        version: 4.6.7
+
+  apps/functions/username:
+    devDependencies:
+      '@aws-sdk/client-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/lib-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0(@aws-sdk/client-dynamodb@3.1152.0)
+      '@fridgeboard/lambda-cli':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-cli
+      '@fridgeboard/lambda-kit':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-kit
+      '@types/aws-lambda':
+        specifier: ^8.10.164
+        version: 8.10.164
+      '@types/node':
+        specifier: ^26.6.5
+        version: 26.6.5
+      aws-sdk-client-mock:
+        specifier: ^4.1.0
+        version: 4.1.0
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^5.0.5
+        version: 5.0.5(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
 
   apps/local:
     devDependencies:
@@ -120,6 +398,33 @@ importers:
       '@fridgeboard/contract':
         specifier: workspace:*
         version: link:../../packages/contract
+      '@fridgeboard/fn-auth':
+        specifier: workspace:*
+        version: link:../functions/auth
+      '@fridgeboard/fn-households':
+        specifier: workspace:*
+        version: link:../functions/households
+      '@fridgeboard/fn-list-items':
+        specifier: workspace:*
+        version: link:../functions/listItems
+      '@fridgeboard/fn-list-shops':
+        specifier: workspace:*
+        version: link:../functions/listShops
+      '@fridgeboard/fn-me':
+        specifier: workspace:*
+        version: link:../functions/me
+      '@fridgeboard/fn-onboarding':
+        specifier: workspace:*
+        version: link:../functions/onboarding
+      '@fridgeboard/fn-post-confirmation':
+        specifier: workspace:*
+        version: link:../functions/postConfirmation
+      '@fridgeboard/fn-username':
+        specifier: workspace:*
+        version: link:../functions/username
+      '@fridgeboard/lambda-kit':
+        specifier: workspace:*
+        version: link:../../packages/lambda-kit
       '@types/aws-lambda':
         specifier: ^8.10.164
         version: 8.10.164
@@ -262,6 +567,30 @@ importers:
       '@fridgeboard/contract':
         specifier: workspace:*
         version: link:../packages/contract
+      '@fridgeboard/fn-households':
+        specifier: workspace:*
+        version: link:../apps/functions/households
+      '@fridgeboard/fn-list-items':
+        specifier: workspace:*
+        version: link:../apps/functions/listItems
+      '@fridgeboard/fn-list-shops':
+        specifier: workspace:*
+        version: link:../apps/functions/listShops
+      '@fridgeboard/fn-me':
+        specifier: workspace:*
+        version: link:../apps/functions/me
+      '@fridgeboard/fn-onboarding':
+        specifier: workspace:*
+        version: link:../apps/functions/onboarding
+      '@fridgeboard/fn-post-confirmation':
+        specifier: workspace:*
+        version: link:../apps/functions/postConfirmation
+      '@fridgeboard/fn-username':
+        specifier: workspace:*
+        version: link:../apps/functions/username
+      '@fridgeboard/lambda-kit':
+        specifier: workspace:*
+        version: link:../packages/lambda-kit
       '@types/aws-lambda':
         specifier: ^8.10.164
         version: 8.10.164
@@ -280,6 +609,107 @@ importers:
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
+
+  packages/lambda-cli:
+    dependencies:
+      esbuild:
+        specifier: ^0.28.2
+        version: 0.28.2
+    devDependencies:
+      '@types/node':
+        specifier: ^26.6.5
+        version: 26.6.5
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^5.0.5
+        version: 5.0.5(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
+
+  packages/lambda-kit:
+    dependencies:
+      '@aws-sdk/client-s3':
+        specifier: 3.1152.0
+        version: 3.1152.0
+    devDependencies:
+      '@aws-sdk/client-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/client-sesv2':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/lib-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0(@aws-sdk/client-dynamodb@3.1152.0)
+      '@fridgeboard/contract':
+        specifier: workspace:*
+        version: link:../contract
+      '@smithy/hash-node':
+        specifier: ^4.5.2
+        version: 4.5.2
+      '@smithy/protocol-http':
+        specifier: ^5.6.2
+        version: 5.6.2
+      '@smithy/signature-v4':
+        specifier: 5.7.4
+        version: 5.7.4
+      '@smithy/util-stream':
+        specifier: ^4.8.2
+        version: 4.8.2
+      '@types/aws-lambda':
+        specifier: ^8.10.164
+        version: 8.10.164
+      '@types/node':
+        specifier: ^26.6.5
+        version: 26.6.5
+      aws-sdk-client-mock:
+        specifier: ^4.1.0
+        version: 4.1.0
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^5.0.5
+        version: 5.0.5(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
+      zod:
+        specifier: 4.6.7
+        version: 4.6.7
+
+  scripts/admin:
+    devDependencies:
+      '@aws-sdk/client-cognito-identity-provider':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/client-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/client-sesv2':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/client-ssm':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/lib-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0(@aws-sdk/client-dynamodb@3.1152.0)
+      '@fridgeboard/lambda-kit':
+        specifier: workspace:*
+        version: link:../../packages/lambda-kit
+      '@types/node':
+        specifier: ^26.6.5
+        version: 26.6.5
+      aws-sdk-client-mock:
+        specifier: ^4.1.0
+        version: 4.1.0
+      tsx:
+        specifier: ^4.20.6
+        version: 4.23.15
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^5.0.5
+        version: 5.0.5(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
 
 packages:
 
@@ -1297,9 +1727,8 @@ packages:
   '@internationalized/string@3.2.10':
     resolution: {integrity: sha512-PDx6//vHSpRnHfxqMqto11zQvhsaU74O3mKv2F/0eicGZcl9NLjQmGlbHz/LsJh5tLKp4A4L7ZVTzN1/MmMTvA==}
 
-  '@isaacs/cliui@9.0.0':
-    resolution: {integrity: sha512-AokJm4tuBHillT+FpMtxQ60n8ObyXBatq7jD2/JA9dxbDDokKQm8KMht5ibGzLVU9IJDIKK4TPKgMHEYMn3lMg==}
-    engines: {node: '>=18'}
+  '@isaacs/nonrecursive-glob-match@1.1.0':
+    resolution: {integrity: sha512-GPm/Dbvk5RLmhRnxXIa7nTpK0xtl4E0wj0MslsuNiJ1FIROU+2+9lgUC/dgF7Ey4QCWhfEsgxilMRMCdHPfDfw==}
 
   '@jridgewell/gen-mapping@0.3.13':
     resolution: {integrity: sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==}
@@ -2819,10 +3248,6 @@ packages:
       typescript:
         optional: true
 
-  cross-spawn@7.0.6:
-    resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
-    engines: {node: '>= 8'}
-
   crypto-random-string@2.0.0:
     resolution: {integrity: sha512-v1plID3y9r/lPhviJ1wrXpLeyUIGAZ2SHNYTEapm7/8A9nLPoyvVp3RK/EPFqn5kEznyWgYZNsRtYYIWbuG8KA==}
     engines: {node: '>=8'}
@@ -3028,10 +3453,6 @@ packages:
     resolution: {integrity: sha512-dKx12eRCVIzqCxFGplyFKJMPvLEWgmNtUrpTiJIR5u97zEhRG8ySrtboPHZXx7daLxQVrl643cTzbab2tkQjxg==}
     engines: {node: '>= 0.4'}
 
-  foreground-child@3.3.1:
-    resolution: {integrity: sha512-gIXjKqtFuWEgzFRJA9WCQeSJLZDjgJUOMCMzxtvFq/37KojM1BFGufqsCy0r4qSQmYLsZYMeyRqzIWOMup03sw==}
-    engines: {node: '>=14'}
-
   fs-extra@9.1.0:
     resolution: {integrity: sha512-hcg3ZmepS30/7BSFqRvoo3DOMQu7IjqxO5nCDt+zM9XWjb33Wg7ziNT+Qvqbuc3+gWpzO02JubVyk2G4Zvo1OQ==}
     engines: {node: '>=10'}
@@ -3082,11 +3503,9 @@ packages:
     resolution: {integrity: sha512-w9UMqWwJxHNOvoNzSJ2oPF5wvYcvP7jUvYzhp67yEhTi17ZDBBC1z9pTdGuzjD+EFIqLSYRweZjqfiPzQ06Ebg==}
     engines: {node: '>= 0.4'}
 
-  glob@11.1.0:
-    resolution: {integrity: sha512-vuNwKSaKiqm7g0THUBu2x7ckSs3XJLXE+2ssL7/MfTGPLLcrJQ/4Uq1CjPTtO5cCIiRxqvN6Twy1qOwhL0Xjcw==}
-    engines: {node: 20 || >=22}
-    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
-    hasBin: true
+  glob@14.0.2:
+    resolution: {integrity: sha512-vfMgTR2djMHPUchsJMLpZlYQvtjVL+mHpEr5wPpoCbQs2vr/FBNK+3Gnl9Ara1DSs4Aeg4eG9HiADb5/rkY/ZA==}
+    engines: {node: 18 || 20 || >=22}
 
   global-directory@5.0.0:
     resolution: {integrity: sha512-1pgFdhK3J2LeM+dVf2Pd424yHx2ou338lC0ErNP2hPx4j8eW1Sp0XqSjNxtk6Tc4Kr5wlWtSvz8cn2yb7/SG/w==}
@@ -3296,13 +3715,6 @@ packages:
   isbot@5.2.2:
     resolution: {integrity: sha512-iQcBXcd+Rv/pkubRyGh2utW2j1oPG5hZY6TUhVPpqK4G+o3IbxpJNx04hgksjc/N7GK5pEorUxDeg31cFgEk/w==}
     engines: {node: '>=18'}
-
-  isexe@2.0.0:
-    resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
-
-  jackspeak@4.2.3:
-    resolution: {integrity: sha512-ykkVRwrYvFm1nb2AJfKKYPr0emF6IiXDYUaFx4Zn9ZuIH7MrzEZ3sD5RlqGXNRpHtvUHJyOnCEFxOlNDtGo7wg==}
-    engines: {node: 20 || >=22}
 
   jake@10.9.4:
     resolution: {integrity: sha512-wpHYzhxiVQL+IV05BLE2Xn34zW1S223hvjtqk0+gsPrwd/8JNLXJgZZM/iPFsYc1xyphF+6M6EvdE5E9MBGkDA==}
@@ -3567,8 +3979,8 @@ packages:
     resolution: {integrity: sha512-I9jwMn07Sy/IwOj3zVkVik2JTvgpaykDZEigL6Rx6N9LbMywwUSMtxET+7lVoDLLd3O3IXwJwvuuns8UB/HeAg==}
     engines: {node: '>=4'}
 
-  minimatch@10.2.6:
-    resolution: {integrity: sha512-vpLQEs+VLCr1nU0BXS07maYoFwlDAH0gngQuuttxIwutDFEMHq2blX+8vpgxDdK3J1PwjCJiep77OitTZ4Ll1A==}
+  minimatch@11.0.1:
+    resolution: {integrity: sha512-t+Vn6DX4wPCxS23y03C0uhF7S1jpi1GfqPrnlEipCJaA2ykiNbMkVlDutZtmvLfRcUN6R8AYVlzTsQrT4RZoLQ==}
     engines: {node: 18 || 20 || >=22}
 
   minimatch@5.1.9:
@@ -3661,9 +4073,6 @@ packages:
       vite-plus:
         optional: true
 
-  package-json-from-dist@1.0.1:
-    resolution: {integrity: sha512-UEZIS3/by4OC8vL3P2dTXRETpebLI2NiI5vIrjaD/5UtrkFX/tNbwjTSRAGC/+7CAo2pIcBaRgWmcBBHcsaCIw==}
-
   parent-module@1.0.1:
     resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
     engines: {node: '>=6'}
@@ -3675,15 +4084,11 @@ packages:
   parse5@8.0.1:
     resolution: {integrity: sha512-z1e/HMG90obSGeidlli3hj7cbocou0/wa5HacvI3ASx34PecNjNQeaHNo5WIZpWofN9kgkqV1q5YvXe3F0FoPw==}
 
-  path-key@3.1.1:
-    resolution: {integrity: sha512-ojmeN0qd+y0jszEtoY48r0Peq5dwMEkIlCOu6Q5f41lfkswXuKtYrhgoTpLnyIcHm24Uhqx+5Tqm2InSwLhE6Q==}
-    engines: {node: '>=8'}
-
   path-parse@1.0.7:
     resolution: {integrity: sha512-LDJzPVEEEPR+y48z93A0Ed0yXb8pAByGWo/k5YYdYgpY2/2EsOsksJrq7lOHxryrVOn1ejG6oAp8ahvOIQD8sw==}
 
-  path-scurry@2.0.2:
-    resolution: {integrity: sha512-3O/iVVsJAPsOnpwWIeD+d6z/7PmqApyQePUtCndjatj/9I5LylHvt5qluFaBT3I5h3r1ejfR056c+FCv+NnNXg==}
+  path-scurry@3.0.0:
+    resolution: {integrity: sha512-1pTbQqH1wIwMi/eleQ5leFTTCkzFsPcgXNjwOA8YGGW/W4/kHT3dssE7Z6NH+zuqNLOzOB0uaD61yl7cAcVhgg==}
     engines: {node: 18 || 20 || >=22}
 
   path-to-regexp@8.4.2:
@@ -3872,14 +4277,14 @@ packages:
     resolution: {integrity: sha512-FqlEuoTq/zRmA4Lg6aOqyH3lCHbUtCB0bmHCeFniX2GBdDqMJM3FwdvEhlE5Pim1dlt2FfBdVPmUNNiGhhKqpw==}
     engines: {node: '>=20.0.0'}
 
-  seroval-plugins@1.6.10:
-    resolution: {integrity: sha512-zKlRcrRRgB7zeMQreqDFLn9uT/xqPWP7irZqafeN9UFmbUGdN5lQCjxw/c+ZRLm/A6fgdCbFWdj0dWqgtle77g==}
+  seroval-plugins@1.6.11:
+    resolution: {integrity: sha512-LmB3nd8pL39jKHKvnpTUjcjBtNwR8MLty/ydAR8qbfXt5j6/6KqR1atuw8cVmD2/lDxAkvAwq5tI/HsisD9Fqg==}
     engines: {node: '>=10'}
     peerDependencies:
-      seroval: ^1.0
+      seroval: 1.6.11
 
-  seroval@1.6.10:
-    resolution: {integrity: sha512-GKZbsOHLV6GToR1rNQc9CZ+s8HZTS5X5N9D++z/xUh4SV9UwepLzqc60pKJTEEfEHzGdtWTXHpp+GhLoGLT1UA==}
+  seroval@1.6.11:
+    resolution: {integrity: sha512-hpb6XnMCGN/A+79Uf8V7/iTGkyyyazNn5X0CoCAp7Uy9vT3RT8jZ9GLcnxGoVjg3P8AArbe4ZVHq6C8oT2a0kA==}
     engines: {node: '>=10'}
 
   set-function-length@1.2.2:
@@ -3893,14 +4298,6 @@ packages:
   set-proto@1.0.0:
     resolution: {integrity: sha512-RJRdvCo6IAnPdsvP/7m6bsQqNnn1FCBX5ZNtFL98MmFF/4xAIJTIg1YbHW5DC2W5SKZanrC6i4HsJqlajw/dZw==}
     engines: {node: '>= 0.4'}
-
-  shebang-command@2.0.0:
-    resolution: {integrity: sha512-kHxr2zZpYtdmrN1qDjrrX/Z1rR1kG8Dx+gkpK1G4eXmvXswmcE1hTWBWYUzlraYw1/yZp6YuDY77YtvbN0dmDA==}
-    engines: {node: '>=8'}
-
-  shebang-regex@3.0.0:
-    resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
-    engines: {node: '>=8'}
 
   side-channel-list@1.0.1:
     resolution: {integrity: sha512-mjn/0bi/oUURjc5Xl7IaWi/OJJJumuoJFQJfDDyO46+hBWsfaVM65TBHq2eoZBhzl9EchxOijpkbRC8SVBQU0w==}
@@ -4365,11 +4762,6 @@ packages:
   which-typed-array@1.1.24:
     resolution: {integrity: sha512-wk4Mf4pR5mRP7eYuuTBCIQ9d0ud2Fv2jRLQpfgnRjbOxAFHmjKFValgTpitVKzJJS8ajnYQV2Du1SZ8j6b/EUQ==}
     engines: {node: '>= 0.4'}
-
-  which@2.0.2:
-    resolution: {integrity: sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==}
-    engines: {node: '>= 8'}
-    hasBin: true
 
   why-is-node-running@3.2.1:
     resolution: {integrity: sha512-Tb2FUhB4vUsGQlfSquQLYkApkuPAFQXGFzxWKHHumVz2dK+X1RUm/HnID4+TfIGYJ1kTcwOaCk/buYCEJr6YjQ==}
@@ -5754,7 +6146,7 @@ snapshots:
     dependencies:
       '@swc/helpers': 0.5.23
 
-  '@isaacs/cliui@9.0.0': {}
+  '@isaacs/nonrecursive-glob-match@1.1.0': {}
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
@@ -6518,8 +6910,8 @@ snapshots:
     dependencies:
       '@tanstack/history': 1.162.5
       cookie-es: 3.1.1
-      seroval: 1.6.10
-      seroval-plugins: 1.6.10(seroval@1.6.10)
+      seroval: 1.6.11
+      seroval-plugins: 1.6.11(seroval@1.6.11)
 
   '@tanstack/router-devtools-core@1.168.2(@tanstack/router-core@1.171.38)(csstype@3.2.3)':
     dependencies:
@@ -6994,12 +7386,6 @@ snapshots:
     optionalDependencies:
       typescript: 7.0.2
 
-  cross-spawn@7.0.6:
-    dependencies:
-      path-key: 3.1.1
-      shebang-command: 2.0.0
-      which: 2.0.2
-
   crypto-random-string@2.0.0: {}
 
   css-tree@3.2.1:
@@ -7259,11 +7645,6 @@ snapshots:
     dependencies:
       is-callable: 1.2.7
 
-  foreground-child@3.3.1:
-    dependencies:
-      cross-spawn: 7.0.6
-      signal-exit: 4.1.0
-
   fs-extra@9.1.0:
     dependencies:
       at-least-node: 1.0.0
@@ -7324,14 +7705,11 @@ snapshots:
       es-errors: 1.3.0
       get-intrinsic: 1.3.0
 
-  glob@11.1.0:
+  glob@14.0.2:
     dependencies:
-      foreground-child: 3.3.1
-      jackspeak: 4.2.3
-      minimatch: 10.2.6
+      minimatch: 11.0.1
       minipass: 7.1.3
-      package-json-from-dist: 1.0.1
-      path-scurry: 2.0.2
+      path-scurry: 3.0.0
 
   global-directory@5.0.0:
     dependencies:
@@ -7527,12 +7905,6 @@ snapshots:
   isarray@2.0.5: {}
 
   isbot@5.2.2: {}
-
-  isexe@2.0.0: {}
-
-  jackspeak@4.2.3:
-    dependencies:
-      '@isaacs/cliui': 9.0.0
 
   jake@10.9.4:
     dependencies:
@@ -7757,8 +8129,9 @@ snapshots:
 
   min-indent@1.0.1: {}
 
-  minimatch@10.2.6:
+  minimatch@11.0.1:
     dependencies:
+      '@isaacs/nonrecursive-glob-match': 1.1.0
       brace-expansion: 5.0.12
 
   minimatch@5.1.9:
@@ -7862,8 +8235,6 @@ snapshots:
       '@oxlint/binding-win32-ia32-msvc': 1.88.0
       '@oxlint/binding-win32-x64-msvc': 1.88.0
 
-  package-json-from-dist@1.0.1: {}
-
   parent-module@1.0.1:
     dependencies:
       callsites: 3.1.0
@@ -7879,11 +8250,9 @@ snapshots:
     dependencies:
       entities: 8.1.0
 
-  path-key@3.1.1: {}
-
   path-parse@1.0.7: {}
 
-  path-scurry@2.0.2:
+  path-scurry@3.0.0:
     dependencies:
       lru-cache: 11.5.3
       minipass: 7.1.3
@@ -8135,11 +8504,11 @@ snapshots:
 
   serialize-javascript@7.1.4: {}
 
-  seroval-plugins@1.6.10(seroval@1.6.10):
+  seroval-plugins@1.6.11(seroval@1.6.11):
     dependencies:
-      seroval: 1.6.10
+      seroval: 1.6.11
 
-  seroval@1.6.10: {}
+  seroval@1.6.11: {}
 
   set-function-length@1.2.2:
     dependencies:
@@ -8162,12 +8531,6 @@ snapshots:
       dunder-proto: 1.0.1
       es-errors: 1.3.0
       es-object-atoms: 1.1.2
-
-  shebang-command@2.0.0:
-    dependencies:
-      shebang-regex: 3.0.0
-
-  shebang-regex@3.0.0: {}
 
   side-channel-list@1.0.1:
     dependencies:
@@ -8223,8 +8586,8 @@ snapshots:
   solid-js@1.9.17:
     dependencies:
       csstype: 3.2.3
-      seroval: 1.6.10
-      seroval-plugins: 1.6.10(seroval@1.6.10)
+      seroval: 1.6.11
+      seroval-plugins: 1.6.11(seroval@1.6.11)
 
   solid-presence@0.2.0(solid-js@1.9.17):
     dependencies:
@@ -8635,10 +8998,6 @@ snapshots:
       gopd: 1.2.0
       has-tostringtag: 1.0.2
 
-  which@2.0.2:
-    dependencies:
-      isexe: 2.0.0
-
   why-is-node-running@3.2.1: {}
 
   workbox-background-sync@7.4.1:
@@ -8666,7 +9025,7 @@ snapshots:
       eta: 4.6.0
       fast-json-stable-stringify: 2.1.0
       fs-extra: 9.1.0
-      glob: 11.1.0
+      glob: 14.0.2
       pretty-bytes: 5.6.0
       rollup: 4.65.0
       source-map: 0.8.0

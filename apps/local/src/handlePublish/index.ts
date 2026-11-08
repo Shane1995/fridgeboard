@@ -1,5 +1,5 @@
 import type { APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
-import { JSON_HEADERS } from '../../../functions/src/utils/jsonResponse/constants.ts';
+import { JSON_HEADERS } from '@fridgeboard/lambda-kit/utils/jsonResponse/constants.ts';
 import { CHANNEL_PREFIX, MAX_EVENTS_PER_PUBLISH } from '../realtime/constants.ts';
 import type { RealtimeHub } from '../realtime/types.ts';
 

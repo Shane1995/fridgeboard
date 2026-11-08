@@ -1,7 +1,11 @@
 import { resolve } from 'node:path';
 import type { Plugin, PluginBuild } from 'esbuild';
 import { aliasConfiguration } from './index.ts';
-import { FUNCTIONS_CONFIGURATION, LOCAL_CONFIGURATION } from './constants.ts';
+import {
+  FUNCTIONS_CONFIGURATION,
+  FUNCTIONS_CONFIGURATION_SPECIFIER,
+  LOCAL_CONFIGURATION,
+} from './constants.ts';
 
 const resolver = () => {
   const registered: { callback?: Parameters<PluginBuild['onResolve']>[1] } = {};
@@ -29,6 +33,14 @@ describe('aliasConfiguration', () => {
         resolve(FUNCTIONS_CONFIGURATION, '../../utils/x'),
       ),
     ).toEqual({ path: LOCAL_CONFIGURATION });
+  });
+
+  it('points the package import of the functions configuration at the local one', () => {
+    const resolveImport = resolver();
+
+    expect(resolveImport(FUNCTIONS_CONFIGURATION_SPECIFIER, '/anywhere')).toEqual({
+      path: LOCAL_CONFIGURATION,
+    });
   });
 
   it('leaves other configuration modules alone', () => {

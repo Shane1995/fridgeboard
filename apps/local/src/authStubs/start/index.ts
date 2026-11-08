@@ -1,11 +1,11 @@
 import { GetCommand } from '@aws-sdk/lib-dynamodb';
 import type { APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
-import type { AuthRequest } from '../../../../functions/src/handlers/auth/types.ts';
-import { readBodyField } from '../../../../functions/src/handlers/auth/utils/readBodyField/index.ts';
-import { jsonResponse } from '../../../../functions/src/utils/jsonResponse/index.ts';
-import { inviteKey } from '../../../../functions/src/utils/keys/inviteKey/index.ts';
-import { profileKey } from '../../../../functions/src/utils/keys/profileKey/index.ts';
-import { normaliseEmail } from '../../../../functions/src/utils/normaliseEmail/index.ts';
+import type { AuthRequest } from '@fridgeboard/fn-auth/types.ts';
+import { readBodyField } from '@fridgeboard/fn-auth/utils/readBodyField/index.ts';
+import { jsonResponse } from '@fridgeboard/lambda-kit/utils/jsonResponse/index.ts';
+import { inviteKey } from '@fridgeboard/lambda-kit/utils/keys/inviteKey/index.ts';
+import { profileKey } from '@fridgeboard/lambda-kit/utils/keys/profileKey/index.ts';
+import { normaliseEmail } from '@fridgeboard/lambda-kit/utils/normaliseEmail/index.ts';
 import { client } from '../../client/index.ts';
 import { FLOW_COOKIE, FLOW_MAX_AGE, TABLE_NAME } from '../../constants.ts';
 import { localCookie } from '../../localCookie/index.ts';

@@ -11,12 +11,21 @@
     "lint": "oxlint --config ../../.oxlintrc.json src/",
     "format": "oxfmt src/",
     "format:check": "oxfmt --check src/",
-    "db:admin": "DYNAMO_ENDPOINT=http://127.0.0.1:8001 AWS_REGION=eu-west-2 AWS_ACCESS_KEY_ID=local AWS_SECRET_ACCESS_KEY=local pnpm dlx dynamodb-admin"
+    "db:admin": "PORT=8002 DYNAMO_ENDPOINT=http://127.0.0.1:8001 AWS_REGION=eu-west-2 AWS_ACCESS_KEY_ID=local AWS_SECRET_ACCESS_KEY=local pnpm dlx dynamodb-admin"
   },
   "devDependencies": {
     "@aws-sdk/client-dynamodb": "^3.1152.0",
     "@aws-sdk/lib-dynamodb": "^3.1152.0",
     "@fridgeboard/contract": "workspace:*",
+    "@fridgeboard/fn-auth": "workspace:*",
+    "@fridgeboard/fn-households": "workspace:*",
+    "@fridgeboard/fn-list-items": "workspace:*",
+    "@fridgeboard/fn-list-shops": "workspace:*",
+    "@fridgeboard/fn-me": "workspace:*",
+    "@fridgeboard/fn-onboarding": "workspace:*",
+    "@fridgeboard/fn-post-confirmation": "workspace:*",
+    "@fridgeboard/fn-username": "workspace:*",
+    "@fridgeboard/lambda-kit": "workspace:*",
     "@types/aws-lambda": "^8.10.164",
     "@types/node": "^26.6.5",
     "@types/ws": "^8.18.2",

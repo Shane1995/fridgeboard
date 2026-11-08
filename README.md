@@ -10,7 +10,7 @@ A shared shopping list and shift planner for the household, replacing the calend
 
 ## Getting started
 
-Requires Node 24+ and pnpm 9.
+Requires Node 26 (the current LTS) and pnpm 9.
 
 ```sh
 pnpm install
@@ -27,6 +27,7 @@ pnpm dev          # http://localhost:5173
 | `pnpm build`                                      | Typecheck and build every app                           |
 | `pnpm test`                                       | Run Vitest                                              |
 | `pnpm --filter @fridgeboard/e2e test:integration` | Run handler tests against DynamoDB Local (needs Docker) |
+| `pnpm new:lambda <name> [kind]`                   | Scaffold a new Lambda package under `apps/functions/`   |
 | `pnpm lint`                                       | Run oxlint                                              |
 | `pnpm typecheck`                                  | Run `tsc -b`                                            |
 | `pnpm format`                                     | Format with oxfmt                                       |
@@ -42,6 +43,10 @@ apps/web/            PWA
   src/routes/        TanStack file routes (thin)
   src/services/      framework-agnostic I/O (no React or UI-framework imports)
   src/utils/         pure helpers
+apps/functions/<name>/  one package per API Lambda (src/index.ts, .deployment, package.json, build.config.ts)
+scripts/admin/          operator scripts, run by hand (invite, delete or export a user)
+packages/lambda-kit/    code shared by two or more Lambdas
+packages/lambda-cli/  lambda-build, lambda-smoke and the new-lambda scaffold
 ```
 
 Each unit lives at `<Name>/index.tsx`, with its `types.ts`, `constants.ts` and `index.test.tsx` beside it.
@@ -71,3 +76,7 @@ Passkeys are off and their routes 404. `pnpm dev:local:reset` deletes the data; 
 Copyright © 2026 Shane Linden. All rights reserved. The source is public to read, but no licence is granted to copy, modify or reuse it. See [LICENSE](LICENSE).
 
 To report a security issue, see [SECURITY.md](SECURITY.md).
+
+## Deploys
+
+A push to `main` deploys only what changed. `turbo ls --affected` picks the packages that changed and the packages that depend on them, so touching one Lambda deploys that Lambda alone, touching `packages/lambda-kit` deploys every Lambda, and a web-only change deploys no Lambda. Untouched Lambdas get no new version.

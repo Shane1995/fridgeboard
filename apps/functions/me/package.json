@@ -1,0 +1,34 @@
+{
+  "name": "@fridgeboard/fn-me",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*"
+  },
+  "scripts": {
+    "build": "lambda-build",
+    "smoke": "lambda-smoke",
+    "typecheck": "tsc -b",
+    "test": "vitest run",
+    "lint": "oxlint --config ../../../.oxlintrc.json src/",
+    "format": "oxfmt src/",
+    "format:check": "oxfmt --check src/"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-dynamodb": "^3.1152.0",
+    "@aws-sdk/lib-dynamodb": "^3.1152.0",
+    "@fridgeboard/contract": "workspace:*",
+    "@fridgeboard/lambda-kit": "workspace:*",
+    "@fridgeboard/lambda-cli": "workspace:*",
+    "@types/aws-lambda": "^8.10.164",
+    "@types/node": "^26.6.5",
+    "aws-sdk-client-mock": "^4.1.0",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  },
+  "lambda": {
+    "kind": "wrapped"
+  }
+}

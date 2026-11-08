@@ -1,11 +1,11 @@
 import { GetCommand } from '@aws-sdk/lib-dynamodb';
 import type { APIGatewayProxyStructuredResultV2, PostConfirmationTriggerEvent } from 'aws-lambda';
-import type { AuthRequest } from '../../../../functions/src/handlers/auth/types.ts';
-import { handler as postConfirmation } from '../../../../functions/src/handlers/postConfirmation/index.ts';
-import { readBodyField } from '../../../../functions/src/handlers/auth/utils/readBodyField/index.ts';
-import { readCookie } from '../../../../functions/src/handlers/auth/utils/cookies/readCookie/index.ts';
-import { jsonResponse } from '../../../../functions/src/utils/jsonResponse/index.ts';
-import { profileKey } from '../../../../functions/src/utils/keys/profileKey/index.ts';
+import type { AuthRequest } from '@fridgeboard/fn-auth/types.ts';
+import { handler as postConfirmation } from '@fridgeboard/fn-post-confirmation/index.ts';
+import { readBodyField } from '@fridgeboard/fn-auth/utils/readBodyField/index.ts';
+import { readCookie } from '@fridgeboard/fn-auth/utils/cookies/readCookie/index.ts';
+import { jsonResponse } from '@fridgeboard/lambda-kit/utils/jsonResponse/index.ts';
+import { profileKey } from '@fridgeboard/lambda-kit/utils/keys/profileKey/index.ts';
 import { client } from '../../client/index.ts';
 import { FLOW_COOKIE, REGION, SIGN_IN_CODE, TABLE_NAME } from '../../constants.ts';
 import { sessionResult } from '../../sessionResult/index.ts';

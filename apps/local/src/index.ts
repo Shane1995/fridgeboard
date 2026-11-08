@@ -21,7 +21,7 @@ await build({
   outfile: SERVER_BUNDLE,
   bundle: true,
   platform: 'node',
-  target: 'node24',
+  target: 'node26',
   format: 'esm',
   sourcemap: 'inline',
   banner: { js: ESM_REQUIRE_BANNER },
