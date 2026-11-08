@@ -65,7 +65,7 @@ TypeScript, Node and React standards for Fridgeboard. Apply every rule to any co
 
 The repo's root config files are the source of truth:
 
-- pnpm workspaces + Turborepo, Node ≥ 24
+- pnpm workspaces + Turborepo, Node ≥ 26
 - Vitest
 - oxfmt (`.oxfmtrc.json`) + oxlint, run through lint-staged
 - Husky pre-commit + commitlint (conventional commits)

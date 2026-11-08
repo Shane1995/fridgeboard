@@ -10,7 +10,7 @@ A shared shopping list and shift planner for the household, replacing the calend
 
 ## Getting started
 
-Requires Node 24+ and pnpm 9.
+Requires Node 26 (the current LTS) and pnpm 9.
 
 ```sh
 pnpm install
