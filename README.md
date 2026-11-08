@@ -22,8 +22,8 @@ pnpm dev          # http://localhost:5173
 | Command                                           | What it does                                            |
 | ------------------------------------------------- | ------------------------------------------------------- |
 | `pnpm dev`                                        | Run the web app with hot reload                         |
-| `pnpm dev:local`                                  | Web app + local API on LocalStack (needs Docker, token) |
-| `pnpm dev:local:reset`                            | Delete the LocalStack data; the next run reseeds        |
+| `pnpm dev:local`                                  | Web app + local API on DynamoDB Local (needs Docker)    |
+| `pnpm dev:local:reset`                            | Delete the local data; the next run reseeds             |
 | `pnpm build`                                      | Typecheck and build every app                           |
 | `pnpm test`                                       | Run Vitest                                              |
 | `pnpm --filter @fridgeboard/e2e test:integration` | Run handler tests against DynamoDB Local (needs Docker) |
@@ -54,7 +54,7 @@ See the Web layout section in `.claude/CODE_STANDARDS.md` for the full folder ta
 
 ## Local app (Docker)
 
-`pnpm dev:local` starts LocalStack (DynamoDB, SQS, SSM and S3; data persists while the container runs, `dev:local:reset` clears it; needs `LOCALSTACK_AUTH_TOKEN` in the shell or in the gitignored `apps/local/.env`), the real `me`, `username` and `households` Lambdas behind `http://127.0.0.1:3001`, and Vite on `http://localhost:5173` proxying `/api` and `/configuration.json` to it.
+`pnpm dev:local` starts DynamoDB Local (port 8001, data kept in a Docker volume; `dev:local:reset` clears it), the real Lambda handlers behind `http://127.0.0.1:3001`, and Vite on `http://localhost:5173` proxying `/api` and `/configuration.json` to it. See `apps/local/README.md` for adding an endpoint.
 
 Sign in with any seeded email and code `000000`:
 
@@ -64,7 +64,7 @@ Sign in with any seeded email and code `000000`:
 | `member@fridgeboard.local`   | Household invite: joins "Local Home" on first sign-in |
 | `newcomer@fridgeboard.local` | App invite: may create a household                    |
 
-Passkeys are off and their routes 404. `pnpm dev:local:reset` deletes the data; the next run reseeds. Stop LocalStack with `docker compose -f apps/local/compose.yaml stop localstack`.
+Passkeys are off and their routes 404. `pnpm dev:local:reset` deletes the data; the next run reseeds. Stop the database with `docker compose -f apps/local/compose.yaml stop dynamodb`.
 
 ## Licence
 

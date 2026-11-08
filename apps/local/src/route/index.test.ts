@@ -1,4 +1,9 @@
+import { readFileSync } from 'node:fs';
+import { WebConfigurationSchema } from '../../../web/src/services/configuration/schema/index.ts';
+import { CONFIGURATION_FILE } from '../constants.ts';
 import { buildRoutes } from './index.ts';
+
+const NOT_SERVED_LOCALLY = /passkey/i;
 
 const api = {
   endpoints: {
@@ -59,5 +64,28 @@ describe('buildRoutes', () => {
 
   it('has no passkey routes', () => {
     expect([...buildRoutes(api).keys()].filter((key) => key.includes('passkey'))).toEqual([]);
+  });
+
+  describe('against the local web configuration', () => {
+    const { api } = WebConfigurationSchema.parse(
+      JSON.parse(readFileSync(CONFIGURATION_FILE, 'utf8')),
+    ).services;
+    const routes = buildRoutes(api);
+
+    it('serves every endpoint in the configuration', () => {
+      const unserved = Object.entries(api.endpoints)
+        .filter(([service]) => !NOT_SERVED_LOCALLY.test(service))
+        .filter(([, path]) => ![...routes.keys()].some((key) => key.endsWith(` ${path}`)))
+        .map(([service, path]) => `${service} (${path})`);
+
+      expect(
+        unserved,
+        'Add a { method, service, jwt, handler } line per method to DEFINITIONS in apps/local/src/route/index.ts',
+      ).toEqual([]);
+    });
+
+    it('has no route for a service missing from the configuration', () => {
+      expect([...routes.keys()].filter((key) => key.includes('undefined'))).toEqual([]);
+    });
   });
 });

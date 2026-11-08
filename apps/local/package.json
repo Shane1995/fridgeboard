@@ -11,13 +11,10 @@
     "lint": "oxlint --config ../../.oxlintrc.json src/",
     "format": "oxfmt src/",
     "format:check": "oxfmt --check src/",
-    "db:admin": "DYNAMO_ENDPOINT=http://127.0.0.1:4566 AWS_REGION=eu-west-2 AWS_ACCESS_KEY_ID=local AWS_SECRET_ACCESS_KEY=local pnpm dlx dynamodb-admin"
+    "db:admin": "DYNAMO_ENDPOINT=http://127.0.0.1:8001 AWS_REGION=eu-west-2 AWS_ACCESS_KEY_ID=local AWS_SECRET_ACCESS_KEY=local pnpm dlx dynamodb-admin"
   },
   "devDependencies": {
     "@aws-sdk/client-dynamodb": "^3.1152.0",
-    "@aws-sdk/client-s3": "^3.1152.0",
-    "@aws-sdk/client-sqs": "^3.1152.0",
-    "@aws-sdk/client-ssm": "^3.1152.0",
     "@aws-sdk/lib-dynamodb": "^3.1152.0",
     "@fridgeboard/contract": "workspace:*",
     "@types/aws-lambda": "^8.10.164",

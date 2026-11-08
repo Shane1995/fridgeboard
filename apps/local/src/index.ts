@@ -1,31 +1,18 @@
 import { execFileSync, spawn } from 'node:child_process';
-import { existsSync } from 'node:fs';
 import { build } from 'esbuild';
 import { aliasConfiguration } from './aliasConfiguration/index.ts';
 import {
   COMPOSE_FILE,
   DEV_ENV,
-  ENV_FILE,
+  DYNAMO_SERVICE,
   ESM_REQUIRE_BANNER,
-  LOCALSTACK_SERVICE,
   SERVER_BUNDLE,
   SERVER_ENTRY,
-  TOKEN_HINT,
-  TOKEN_VARIABLE,
 } from './constants.ts';
-
-if (existsSync(ENV_FILE)) {
-  process.loadEnvFile(ENV_FILE);
-}
-
-if (!process.env[TOKEN_VARIABLE]) {
-  console.error(TOKEN_HINT);
-  process.exit(1);
-}
 
 execFileSync(
   'docker',
-  ['compose', '-f', COMPOSE_FILE, 'up', '--detach', '--wait', LOCALSTACK_SERVICE],
+  ['compose', '-f', COMPOSE_FILE, 'up', '--detach', '--wait', DYNAMO_SERVICE],
   { stdio: 'inherit' },
 );
 

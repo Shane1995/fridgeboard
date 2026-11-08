@@ -1,20 +1,19 @@
 # Local
 
-Runs the real API handlers and the web app on your machine. LocalStack stands in for AWS (DynamoDB, SQS, SSM, S3) and auth is faked.
+Runs the real API handlers and the web app on your machine. DynamoDB Local stands in for the table and auth is faked. No account or token needed.
 
 ## Run
 
 1. Docker Desktop running.
-2. `apps/local/.env` containing `LOCALSTACK_AUTH_TOKEN=<token>` (gitignored), or export it in your shell.
-3. `pnpm dev:local` from the repo root.
+2. `pnpm dev:local` from the repo root.
 
-| What       | Where                                                            |
-| ---------- | ---------------------------------------------------------------- |
-| Web app    | http://localhost:5173 (proxies `/api` and `/configuration.json`) |
-| API        | http://127.0.0.1:3001                                            |
-| LocalStack | http://127.0.0.1:4566                                            |
+| What     | Where                                                            |
+| -------- | ---------------------------------------------------------------- |
+| Web app  | http://localhost:5173 (proxies `/api` and `/configuration.json`) |
+| API      | http://127.0.0.1:3001                                            |
+| DynamoDB | http://127.0.0.1:8001 (DynamoDB Local, table `fridgeboard`)      |
 
-`Ctrl+C` stops the API and Vite; the LocalStack container keeps running with its data. `pnpm dev:local:reset` removes the container, and the next run rebuilds and reseeds everything.
+`Ctrl+C` stops the API and Vite; the DynamoDB container keeps running and your data persists in a Docker volume. `pnpm dev:local:reset` removes the container and the volume, and the next run reseeds everything.
 
 ## Sign in
 
@@ -60,7 +59,18 @@ curl -s -X POST http://127.0.0.1:3001/api/v1/auth/verify -b jar -c jar -H 'conte
 curl -s http://127.0.0.1:3001/api/v1/me -H 'Authorization: Bearer <accessToken>'
 ```
 
-The route paths are in http://127.0.0.1:3001/configuration.json. Routes served locally are listed in `src/route/index.ts`; to add one, add one entry and restart.
+The route paths are in http://127.0.0.1:3001/configuration.json.
+
+## Add an endpoint
+
+When you add a handler and a URL, wire it locally in four steps:
+
+1. Add the endpoint to both `apps/configuration/web/configuration.json` and `apps/local/configuration/web.json` (and the `WebService` enum if it is new).
+2. Import the handler in `src/route/index.ts`.
+3. Add one line per HTTP method to `DEFINITIONS` there: `{ method: 'GET', service: WebService.recipes, jwt: true, handler: recipes }`. The path comes from the configuration.
+4. Restart `pnpm dev:local`. Add seed data in `src/seed` if the page needs some, and a request to the Postman collection.
+
+You cannot forget step 3: `src/route/index.test.ts` fails, naming the endpoint, until every configured endpoint has a route. A new handler that needs another environment variable gets it in `DEV_ENV` in `src/constants.ts`.
 
 ## Live sync
 
@@ -86,23 +96,19 @@ They are copies of `apps/configuration/web/configuration.json` and `apps/configu
 
 ## Look at the data
 
-`pnpm db:admin` opens a table browser (dynamodb-admin) for LocalStack's DynamoDB at http://localhost:8001. The LocalStack web app at https://app.localstack.cloud also shows resources for the running container (sign in with your LocalStack account).
+`pnpm db:admin` opens a table browser (dynamodb-admin) for the local table at http://localhost:8001.
 
 ```sh
-export AWS_ENDPOINT_URL=http://127.0.0.1:4566 AWS_ACCESS_KEY_ID=local AWS_SECRET_ACCESS_KEY=local AWS_REGION=eu-west-2
+export AWS_ENDPOINT_URL_DYNAMODB=http://127.0.0.1:8001 AWS_ACCESS_KEY_ID=local AWS_SECRET_ACCESS_KEY=local AWS_REGION=eu-west-2
 aws dynamodb scan --table-name fridgeboard
-aws sqs list-queues
-aws ssm get-parameters-by-path --path /fridgeboard
-aws s3 ls
 ```
 
 ## What is faked
 
-Cognito, the JWT authorizer, API Gateway, SES, Bedrock and AppSync are not available (Cognito, Bedrock and AppSync are not on the LocalStack Community licence), and credentials are dummy, so IAM is not checked. AppSync is replaced by the local stand-in described above. Anything touching those only shows up after a deploy.
+Cognito, the JWT authorizer, API Gateway, Lambda packaging, SES, SQS, SSM, S3 and Bedrock are not run: the handlers are plain Node functions behind a small HTTP server, and credentials are dummy, so IAM is not checked. AppSync is replaced by the local stand-in described above. Anything touching those only shows up after a deploy. When the recipes worker needs queues and a fake Bedrock, add an emulator then (LocalStack or LocalEmu).
 
 ## Troubleshooting
 
-- `Add LOCALSTACK_AUTH_TOKEN=<token> to apps/local/.env`: the token is missing.
-- Port 3001, 5173 or 4566 in use: an earlier `dev:local` or LocalStack is still running.
+- Port 3001, 5173 or 8001 in use: an earlier `dev:local` is still running.
 - Docker not found: `DOCKER_HOST` must point at Docker Desktop's socket (`unix:///Users/shane/.docker/run/docker.sock`).
 - The `Route file ... does not export a Route` warnings from Vite are harmless.

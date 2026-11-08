@@ -12,8 +12,10 @@ import { start } from '../authStubs/start/index.ts';
 import { verify } from '../authStubs/verify/index.ts';
 import type { RouteDefinition, RouteEntry } from './types.ts';
 
-// Add a Lambda here to serve it locally. The path comes from the served configuration, so it
-// cannot drift from what the web app calls. Passkey services are left out and 404.
+// To serve a new endpoint locally: add its path to both configuration files (apps/configuration/web
+// and apps/local/configuration/web.json), import its handler above, and add one line per method
+// here. The path comes from the configuration, so it cannot drift from what the web app calls, and
+// the route test fails until every configured endpoint has a line. Passkey services are left out.
 const DEFINITIONS: RouteDefinition[] = [
   { method: 'GET', service: WebService.me, jwt: true, handler: me },
   { method: 'GET', service: WebService.onboarding, jwt: true, handler: onboarding },
