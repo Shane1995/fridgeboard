@@ -8,7 +8,7 @@
   },
   "scripts": {
     "typecheck": "tsc -b",
-    "test": "vitest run --globals",
+    "test": "vitest run",
     "lint": "oxlint --config ../../.oxlintrc.json src/",
     "format": "oxfmt src/",
     "format:check": "oxfmt --check src/"

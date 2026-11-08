@@ -12,7 +12,7 @@ describe('renderLambda', () => {
       name: '@fridgeboard/fn-list-items',
       lambda: { kind: 'wrapped' },
       exports: { '.': './src/index.ts', './*': './src/*' },
-      scripts: { build: 'lambda-build', smoke: 'lambda-smoke' },
+      scripts: { build: 'lambda-build', smoke: 'lambda-smoke', test: 'vitest run' },
     });
   });
 
@@ -40,6 +40,7 @@ describe('renderLambda', () => {
       'build.config.ts',
       'package.json',
       'tsconfig.json',
+      'vitest.config.ts',
     ]);
   });
 });

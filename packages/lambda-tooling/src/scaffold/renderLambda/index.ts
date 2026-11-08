@@ -24,7 +24,7 @@ export const renderLambda = ({
       build: 'lambda-build',
       smoke: 'lambda-smoke',
       typecheck: 'tsc -b',
-      test: 'vitest run --globals',
+      test: 'vitest run',
       lint: 'oxlint --config ../../../.oxlintrc.json src/',
       format: 'oxfmt src/',
       'format:check': 'oxfmt --check src/',
@@ -39,13 +39,25 @@ export const renderLambda = ({
       lib: ['es2023', 'esnext.array'],
       types: ['node', 'vitest/globals'],
     },
-    include: ['src', 'build.config.ts'],
+    include: ['src', 'build.config.ts', 'vitest.config.ts'],
   };
 
   return {
     'package.json': `${JSON.stringify(manifest, null, 2)}\n`,
     'tsconfig.json': `${JSON.stringify(tsconfig, null, 2)}\n`,
     '.deployment': `${functionName}\n`,
+    'vitest.config.ts': [
+      "import { defineConfig } from 'vitest/config';",
+      '',
+      'export default defineConfig({',
+      '  test: {',
+      "    environment: 'node',",
+      '    globals: true,',
+      "    include: ['src/**/*.test.ts'],",
+      '  },',
+      '});',
+      '',
+    ].join('\n'),
     'build.config.ts': [
       "import type { BuildConfig } from '@fridgeboard/lambda-tooling/build/types.ts';",
       '',

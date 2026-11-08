@@ -31,6 +31,9 @@
         "apps/web/vite.config.ts",
         "apps/web/vitest.config.ts",
         "scripts/admin/vitest.config.ts",
+        "apps/functions/*/vitest.config.ts",
+        "packages/lambda-kit/vitest.config.ts",
+        "packages/lambda-tooling/vitest.config.ts",
         "e2e/vitest.config.ts",
         "commitlint.config.cjs"
       ],

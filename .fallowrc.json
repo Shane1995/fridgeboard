@@ -45,6 +45,7 @@
   "health": {
     "ignore": [
       "apps/web/index.html",
+      "apps/functions/*/build.config.ts",
       "apps/web/src/main.tsx",
       "apps/web/src/app/router/types.ts",
       "apps/configuration/scripts/validate/index.ts",

@@ -3,9 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "lambda": {
-    "kind": "pre-sign-up"
-  },
   "exports": {
     ".": "./src/index.ts",
     "./*": "./src/*"
@@ -14,7 +11,7 @@
     "build": "lambda-build",
     "smoke": "lambda-smoke",
     "typecheck": "tsc -b",
-    "test": "vitest run --globals",
+    "test": "vitest run",
     "lint": "oxlint --config ../../../.oxlintrc.json src/",
     "format": "oxfmt src/",
     "format:check": "oxfmt --check src/"
@@ -29,5 +26,8 @@
     "aws-sdk-client-mock": "^4.1.0",
     "typescript": "^7.0.2",
     "vitest": "^5.0.5"
+  },
+  "lambda": {
+    "kind": "pre-sign-up"
   }
 }
