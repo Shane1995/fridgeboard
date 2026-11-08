@@ -30,7 +30,7 @@
         "vitest.config.ts",
         "apps/web/vite.config.ts",
         "apps/web/vitest.config.ts",
-        "apps/functions/vitest.config.ts",
+        "apps/functions-admin/vitest.config.ts",
         "e2e/vitest.config.ts",
         "commitlint.config.cjs"
       ],

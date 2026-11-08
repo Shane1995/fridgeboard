@@ -1,9 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
-import { commitChange } from '../../../../apps/functions/src/utils/commitChange/index.ts';
-import { changeKey } from '../../../../apps/functions/src/utils/keys/changeKey/index.ts';
-import { householdMetaKey } from '../../../../apps/functions/src/utils/keys/householdMetaKey/index.ts';
-import { createTable } from '../../../../apps/functions/src/utils/table/index.ts';
+import { commitChange } from '@fridgeboard/lambda-kit/utils/commitChange/index.ts';
+import { changeKey } from '@fridgeboard/lambda-kit/utils/keys/changeKey/index.ts';
+import { householdMetaKey } from '@fridgeboard/lambda-kit/utils/keys/householdMetaKey/index.ts';
+import { createTable } from '@fridgeboard/lambda-kit/utils/table/index.ts';
 import { client } from '../dynamodbLocal/client/index.ts';
 import { TABLE_NAME } from '../dynamodbLocal/constants.ts';
 import { getItem } from '../dynamodbLocal/getItem/index.ts';

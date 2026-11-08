@@ -7,8 +7,12 @@
     "apps/web/src/testUtils/**/*.{ts,tsx}",
     "apps/web/scripts/thirdPartyLicenses/index.ts",
     "apps/web/src/hooks/useFeatureFlag/index.ts",
-    "apps/functions/src/handlers/*/index.ts",
-    "apps/functions/scripts/**/index.ts",
+    "apps/functions/*/src/index.ts",
+    "apps/functions/*/build.config.ts",
+    "apps/functions-admin/scripts/**/index.ts",
+    "packages/lambda-tooling/src/build/index.ts",
+    "packages/lambda-tooling/src/smoke/index.ts",
+    "packages/lambda-tooling/src/scaffold/index.ts",
     "apps/local/src/index.ts",
     "apps/local/src/reset/index.ts",
     "apps/local/src/server/index.ts",
@@ -17,12 +21,13 @@
     "packages/contract/src/auth/types.ts",
     "packages/contract/src/me/types.ts",
     "apps/configuration/scripts/validate/index.ts",
-    "apps/functions/src/configuration/isFeatureEnabled/index.ts",
+    "packages/lambda-kit/src/configuration/isFeatureEnabled/index.ts",
     "scripts/checkReexports/index.ts",
+    "scripts/checkDeployments/index.ts",
     "e2e/api/integration/dynamodbLocal/**/*.ts"
   ],
   "workspaces": {
-    "packages": ["apps/*", "packages/*", "e2e"]
+    "packages": ["apps/*", "apps/functions/*", "packages/*", "e2e"]
   },
   "ignorePatterns": [
     "dist/**",

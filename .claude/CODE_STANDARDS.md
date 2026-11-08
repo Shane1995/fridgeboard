@@ -50,7 +50,7 @@ TypeScript, Node and React standards for Fridgeboard. Apply every rule to any co
 
 ## Exports
 
-- **Named exports only.** No `export default`. Exceptions are config files a tool loads by default export: `apps/web/vite.config.ts`, `apps/web/vitest.config.ts`, `apps/functions/vitest.config.ts`, `commitlint.config.cjs`, and any other root or app config. They are listed in the `.oxlintrc.json` `overrides`.
+- **Named exports only.** No `export default`. Exceptions are config files a tool loads by default export: `apps/web/vite.config.ts`, `apps/web/vitest.config.ts`, `apps/functions-admin/vitest.config.ts`, `commitlint.config.cjs`, and any other root or app config. They are listed in the `.oxlintrc.json` `overrides`.
 - **Functions and components are `export const name = (…): Ret => …`.** No `function` declarations. Recursive functions are `const` arrows that reference themselves. Lambda handlers are `export const handler = async (…) => …`.
 - **No barrel files.** `<Name>/index.ts(x)` holds that unit's implementation only and never re-exports. Import types from `<Name>/types.ts` and constants from `<Name>/constants.ts` directly.
 - **Shared packages expose subpaths via `package.json` `exports`, not an index barrel.** Example: `@fridgeboard/contract/auth`, `@fridgeboard/contract/auth/constants`, `@fridgeboard/contract/me`.

@@ -1,15 +1,15 @@
 import { randomUUID } from 'node:crypto';
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
-import { HouseholdRole } from '../../../../apps/functions/src/utils/isHouseholdRole/constants.ts';
+import { HouseholdRole } from '@fridgeboard/lambda-kit/utils/isHouseholdRole/constants.ts';
 import { buildEvent } from '../dynamodbLocal/buildEvent/index.ts';
 import { client } from '../dynamodbLocal/client/index.ts';
 import { getItem } from '../dynamodbLocal/getItem/index.ts';
 import { TABLE_NAME } from '../dynamodbLocal/constants.ts';
-import { householdMetaKey } from '../../../../apps/functions/src/utils/keys/householdMetaKey/index.ts';
-import { membershipKey } from '../../../../apps/functions/src/utils/keys/membershipKey/index.ts';
-import { ownedHouseholdKey } from '../../../../apps/functions/src/utils/keys/ownedHouseholdKey/index.ts';
-import { profileKey } from '../../../../apps/functions/src/utils/keys/profileKey/index.ts';
-import { handler } from '../../../../apps/functions/src/handlers/households/index.ts';
+import { householdMetaKey } from '@fridgeboard/lambda-kit/utils/keys/householdMetaKey/index.ts';
+import { membershipKey } from '@fridgeboard/lambda-kit/utils/keys/membershipKey/index.ts';
+import { ownedHouseholdKey } from '@fridgeboard/lambda-kit/utils/keys/ownedHouseholdKey/index.ts';
+import { profileKey } from '@fridgeboard/lambda-kit/utils/keys/profileKey/index.ts';
+import { handler } from '@fridgeboard/fn-households/index.ts';
 
 const seedProfile = async (sub: string, canCreateHousehold: boolean): Promise<void> => {
   await client.send(

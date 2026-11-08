@@ -1,17 +1,17 @@
 import type { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
-import { HouseholdRole } from '../../../functions/src/utils/isHouseholdRole/constants.ts';
-import { InviteType, type TableKey } from '../../../functions/src/utils/keys/types.ts';
+import { HouseholdRole } from '@fridgeboard/lambda-kit/utils/isHouseholdRole/constants.ts';
+import { InviteType, type TableKey } from '@fridgeboard/lambda-kit/utils/keys/types.ts';
 import { MAIN_LIST_ID } from '@fridgeboard/contract/lists/constants';
-import { createTable } from '../../../functions/src/utils/table/index.ts';
-import { historyKey } from '../../../functions/src/utils/keys/historyKey/index.ts';
-import { itemKey } from '../../../functions/src/utils/keys/itemKey/index.ts';
-import { shopKey } from '../../../functions/src/utils/keys/shopKey/index.ts';
-import { householdMetaKey } from '../../../functions/src/utils/keys/householdMetaKey/index.ts';
-import { inviteKey } from '../../../functions/src/utils/keys/inviteKey/index.ts';
-import { membershipKey } from '../../../functions/src/utils/keys/membershipKey/index.ts';
-import { ownedHouseholdKey } from '../../../functions/src/utils/keys/ownedHouseholdKey/index.ts';
-import { profileKey } from '../../../functions/src/utils/keys/profileKey/index.ts';
-import { usernameKey } from '../../../functions/src/utils/keys/usernameKey/index.ts';
+import { createTable } from '@fridgeboard/lambda-kit/utils/table/index.ts';
+import { historyKey } from '@fridgeboard/lambda-kit/utils/keys/historyKey/index.ts';
+import { itemKey } from '@fridgeboard/lambda-kit/utils/keys/itemKey/index.ts';
+import { shopKey } from '@fridgeboard/lambda-kit/utils/keys/shopKey/index.ts';
+import { householdMetaKey } from '@fridgeboard/lambda-kit/utils/keys/householdMetaKey/index.ts';
+import { inviteKey } from '@fridgeboard/lambda-kit/utils/keys/inviteKey/index.ts';
+import { membershipKey } from '@fridgeboard/lambda-kit/utils/keys/membershipKey/index.ts';
+import { ownedHouseholdKey } from '@fridgeboard/lambda-kit/utils/keys/ownedHouseholdKey/index.ts';
+import { profileKey } from '@fridgeboard/lambda-kit/utils/keys/profileKey/index.ts';
+import { usernameKey } from '@fridgeboard/lambda-kit/utils/keys/usernameKey/index.ts';
 import {
   ADMIN_EMAIL,
   APP_INVITE_EMAIL,

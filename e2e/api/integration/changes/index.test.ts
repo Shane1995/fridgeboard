@@ -1,11 +1,11 @@
 import { randomUUID } from 'node:crypto';
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
-import { handler } from '../../../../apps/functions/src/handlers/households/index.ts';
-import { commitChange } from '../../../../apps/functions/src/utils/commitChange/index.ts';
-import { HouseholdRole } from '../../../../apps/functions/src/utils/isHouseholdRole/constants.ts';
-import { householdMetaKey } from '../../../../apps/functions/src/utils/keys/householdMetaKey/index.ts';
-import { membershipKey } from '../../../../apps/functions/src/utils/keys/membershipKey/index.ts';
-import { createTable } from '../../../../apps/functions/src/utils/table/index.ts';
+import { handler } from '@fridgeboard/fn-households/index.ts';
+import { commitChange } from '@fridgeboard/lambda-kit/utils/commitChange/index.ts';
+import { HouseholdRole } from '@fridgeboard/lambda-kit/utils/isHouseholdRole/constants.ts';
+import { householdMetaKey } from '@fridgeboard/lambda-kit/utils/keys/householdMetaKey/index.ts';
+import { membershipKey } from '@fridgeboard/lambda-kit/utils/keys/membershipKey/index.ts';
+import { createTable } from '@fridgeboard/lambda-kit/utils/table/index.ts';
 import { buildEvent } from '../dynamodbLocal/buildEvent/index.ts';
 import { client } from '../dynamodbLocal/client/index.ts';
 import { TABLE_NAME } from '../dynamodbLocal/constants.ts';

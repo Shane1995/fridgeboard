@@ -1,6 +1,6 @@
 import type { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { GetCommand, type DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
-import { profileKey } from '../../../functions/src/utils/keys/profileKey/index.ts';
+import { profileKey } from '@fridgeboard/lambda-kit/utils/keys/profileKey/index.ts';
 import { ADMIN_EMAIL, TABLE_NAME } from '../constants.ts';
 import { createTable } from '../createTable/index.ts';
 import { seed } from '../seed/index.ts';

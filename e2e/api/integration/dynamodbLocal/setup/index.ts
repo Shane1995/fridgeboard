@@ -1,5 +1,5 @@
-import { DEFAULT_LAMBDA_CONFIGURATION } from '../../../../../apps/functions/src/configuration/lambdaConfigurationSchema/constants.ts';
+import { DEFAULT_LAMBDA_CONFIGURATION } from '@fridgeboard/lambda-kit/configuration/lambdaConfigurationSchema/constants.ts';
 
-vi.mock('../../../../../apps/functions/src/configuration/index.ts', () => ({
+vi.mock('@fridgeboard/lambda-kit/configuration/index.ts', () => ({
   getConfiguration: async () => DEFAULT_LAMBDA_CONFIGURATION,
 }));

@@ -6,7 +6,7 @@
   "scripts": {
     "build": "turbo run build",
     "test": "vitest run && turbo run test",
-    "lint": "node scripts/checkReexports/index.ts && turbo run lint",
+    "lint": "node scripts/checkReexports/index.ts && node scripts/checkDeployments/index.ts && turbo run lint",
     "format": "turbo run format",
     "format:check": "turbo run format:check",
     "typecheck": "turbo run typecheck",
@@ -14,11 +14,13 @@
     "dev:local": "pnpm --filter @fridgeboard/local dev:local",
     "dev:local:reset": "pnpm --filter @fridgeboard/local dev:local:reset",
     "prepare": "husky",
-    "db:admin": "pnpm --filter @fridgeboard/local db:admin"
+    "db:admin": "pnpm --filter @fridgeboard/local db:admin",
+    "new:lambda": "new-lambda"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.0.2",
     "@commitlint/config-conventional": "^21.0.2",
+    "@fridgeboard/lambda-tooling": "workspace:*",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "oxfmt": "^0.73.0",

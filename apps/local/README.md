@@ -66,7 +66,7 @@ The route paths are in http://127.0.0.1:3001/configuration.json.
 When you add a handler and a URL, wire it locally in four steps:
 
 1. Add the endpoint to both `apps/configuration/web/configuration.json` and `apps/local/configuration/web.json` (and the `WebService` enum if it is new).
-2. Import the handler in `src/route/index.ts`.
+2. Import the handler in `src/route/index.ts` from its package (`@fridgeboard/fn-<name>/index.ts`) and add that package to this app's `devDependencies`.
 3. Add one line per HTTP method to `DEFINITIONS` there: `{ method: 'GET', service: WebService.recipes, jwt: true, handler: recipes }`. The path comes from the configuration.
 4. Restart `pnpm dev:local`. Add seed data in `src/seed` if the page needs some, and a request to the Postman collection.
 

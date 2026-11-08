@@ -1,15 +1,15 @@
 import { randomUUID } from 'node:crypto';
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
-import { DEFAULT_LAMBDA_CONFIGURATION } from '../../../../apps/functions/src/configuration/lambdaConfigurationSchema/constants.ts';
+import { DEFAULT_LAMBDA_CONFIGURATION } from '@fridgeboard/lambda-kit/configuration/lambdaConfigurationSchema/constants.ts';
 import { buildEvent } from '../dynamodbLocal/buildEvent/index.ts';
 import { client } from '../dynamodbLocal/client/index.ts';
 import { getItem } from '../dynamodbLocal/getItem/index.ts';
 import { TABLE_NAME } from '../dynamodbLocal/constants.ts';
-import { profileKey } from '../../../../apps/functions/src/utils/keys/profileKey/index.ts';
-import { usernameKey } from '../../../../apps/functions/src/utils/keys/usernameKey/index.ts';
-import { handler } from '../../../../apps/functions/src/handlers/username/index.ts';
+import { profileKey } from '@fridgeboard/lambda-kit/utils/keys/profileKey/index.ts';
+import { usernameKey } from '@fridgeboard/lambda-kit/utils/keys/usernameKey/index.ts';
+import { handler } from '@fridgeboard/fn-username/index.ts';
 
-vi.mock('../../../../apps/functions/src/configuration/index.ts', () => ({
+vi.mock('@fridgeboard/lambda-kit/configuration/index.ts', () => ({
   getConfiguration: async () => DEFAULT_LAMBDA_CONFIGURATION,
 }));
 

@@ -1,17 +1,17 @@
 import { randomUUID } from 'node:crypto';
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
-import { handler } from '../../../../apps/functions/src/handlers/households/index.ts';
-import { HouseholdRole } from '../../../../apps/functions/src/utils/isHouseholdRole/constants.ts';
-import { householdMetaKey } from '../../../../apps/functions/src/utils/keys/householdMetaKey/index.ts';
-import { inviteKey } from '../../../../apps/functions/src/utils/keys/inviteKey/index.ts';
-import { membershipKey } from '../../../../apps/functions/src/utils/keys/membershipKey/index.ts';
-import { profileKey } from '../../../../apps/functions/src/utils/keys/profileKey/index.ts';
+import { handler } from '@fridgeboard/fn-households/index.ts';
+import { HouseholdRole } from '@fridgeboard/lambda-kit/utils/isHouseholdRole/constants.ts';
+import { householdMetaKey } from '@fridgeboard/lambda-kit/utils/keys/householdMetaKey/index.ts';
+import { inviteKey } from '@fridgeboard/lambda-kit/utils/keys/inviteKey/index.ts';
+import { membershipKey } from '@fridgeboard/lambda-kit/utils/keys/membershipKey/index.ts';
+import { profileKey } from '@fridgeboard/lambda-kit/utils/keys/profileKey/index.ts';
 import { buildEvent } from '../dynamodbLocal/buildEvent/index.ts';
 import { client } from '../dynamodbLocal/client/index.ts';
 import { TABLE_NAME } from '../dynamodbLocal/constants.ts';
 import { getItem } from '../dynamodbLocal/getItem/index.ts';
 
-vi.mock('../../../../apps/functions/src/utils/ensureEmailIdentity/index.ts', () => ({
+vi.mock('@fridgeboard/lambda-kit/utils/ensureEmailIdentity/index.ts', () => ({
   ensureEmailIdentity: vi.fn().mockResolvedValue('created'),
 }));
 

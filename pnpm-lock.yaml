@@ -14,6 +14,9 @@ importers:
       '@commitlint/config-conventional':
         specifier: ^21.0.2
         version: 21.2.3
+      '@fridgeboard/lambda-tooling':
+        specifier: workspace:*
+        version: link:packages/lambda-tooling
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -38,6 +41,9 @@ importers:
       '@fridgeboard/contract':
         specifier: workspace:*
         version: link:../../packages/contract
+      '@fridgeboard/lambda-kit':
+        specifier: workspace:*
+        version: link:../../packages/lambda-kit
       '@types/node':
         specifier: ^26.6.5
         version: 26.6.5
@@ -51,11 +57,7 @@ importers:
         specifier: ^5.0.5
         version: 5.0.5(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
 
-  apps/functions:
-    dependencies:
-      '@aws-sdk/client-s3':
-        specifier: 3.1152.0
-        version: 3.1152.0
+  apps/functions-admin:
     devDependencies:
       '@aws-sdk/client-cognito-identity-provider':
         specifier: ^3.1152.0
@@ -72,21 +74,42 @@ importers:
       '@aws-sdk/lib-dynamodb':
         specifier: ^3.1152.0
         version: 3.1152.0(@aws-sdk/client-dynamodb@3.1152.0)
+      '@fridgeboard/lambda-kit':
+        specifier: workspace:*
+        version: link:../../packages/lambda-kit
+      '@types/node':
+        specifier: ^26.6.5
+        version: 26.6.5
+      aws-sdk-client-mock:
+        specifier: ^4.1.0
+        version: 4.1.0
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^5.0.5
+        version: 5.0.5(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
+
+  apps/functions/auth:
+    devDependencies:
+      '@aws-sdk/client-cognito-identity-provider':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/client-sesv2':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/client-ssm':
+        specifier: ^3.1152.0
+        version: 3.1152.0
       '@fridgeboard/contract':
         specifier: workspace:*
-        version: link:../../packages/contract
-      '@smithy/hash-node':
-        specifier: ^4.5.2
-        version: 4.5.2
-      '@smithy/protocol-http':
-        specifier: ^5.6.2
-        version: 5.6.2
-      '@smithy/signature-v4':
-        specifier: 5.7.4
-        version: 5.7.4
-      '@smithy/util-stream':
-        specifier: ^4.8.2
-        version: 4.8.2
+        version: link:../../../packages/contract
+      '@fridgeboard/lambda-kit':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-kit
+      '@fridgeboard/lambda-tooling':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-tooling
       '@types/aws-lambda':
         specifier: ^8.10.164
         version: 8.10.164
@@ -96,9 +119,72 @@ importers:
       aws-sdk-client-mock:
         specifier: ^4.1.0
         version: 4.1.0
-      esbuild:
-        specifier: ^0.28.2
-        version: 0.28.2
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^5.0.5
+        version: 5.0.5(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
+
+  apps/functions/households:
+    devDependencies:
+      '@aws-sdk/client-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/client-sesv2':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/lib-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0(@aws-sdk/client-dynamodb@3.1152.0)
+      '@fridgeboard/contract':
+        specifier: workspace:*
+        version: link:../../../packages/contract
+      '@fridgeboard/lambda-kit':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-kit
+      '@fridgeboard/lambda-tooling':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-tooling
+      '@types/aws-lambda':
+        specifier: ^8.10.164
+        version: 8.10.164
+      '@types/node':
+        specifier: ^26.6.5
+        version: 26.6.5
+      aws-sdk-client-mock:
+        specifier: ^4.1.0
+        version: 4.1.0
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^5.0.5
+        version: 5.0.5(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
+
+  apps/functions/listItems:
+    devDependencies:
+      '@aws-sdk/client-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/lib-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0(@aws-sdk/client-dynamodb@3.1152.0)
+      '@fridgeboard/contract':
+        specifier: workspace:*
+        version: link:../../../packages/contract
+      '@fridgeboard/lambda-kit':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-kit
+      '@fridgeboard/lambda-tooling':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-tooling
+      '@types/node':
+        specifier: ^26.6.5
+        version: 26.6.5
+      aws-sdk-client-mock:
+        specifier: ^4.1.0
+        version: 4.1.0
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -108,6 +194,225 @@ importers:
       zod:
         specifier: 4.6.7
         version: 4.6.7
+
+  apps/functions/listShops:
+    devDependencies:
+      '@aws-sdk/client-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/lib-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0(@aws-sdk/client-dynamodb@3.1152.0)
+      '@fridgeboard/contract':
+        specifier: workspace:*
+        version: link:../../../packages/contract
+      '@fridgeboard/lambda-kit':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-kit
+      '@fridgeboard/lambda-tooling':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-tooling
+      '@types/node':
+        specifier: ^26.6.5
+        version: 26.6.5
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^5.0.5
+        version: 5.0.5(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
+      zod:
+        specifier: 4.6.7
+        version: 4.6.7
+
+  apps/functions/me:
+    devDependencies:
+      '@aws-sdk/client-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/lib-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0(@aws-sdk/client-dynamodb@3.1152.0)
+      '@fridgeboard/contract':
+        specifier: workspace:*
+        version: link:../../../packages/contract
+      '@fridgeboard/lambda-kit':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-kit
+      '@fridgeboard/lambda-tooling':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-tooling
+      '@types/aws-lambda':
+        specifier: ^8.10.164
+        version: 8.10.164
+      '@types/node':
+        specifier: ^26.6.5
+        version: 26.6.5
+      aws-sdk-client-mock:
+        specifier: ^4.1.0
+        version: 4.1.0
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^5.0.5
+        version: 5.0.5(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
+
+  apps/functions/onboarding:
+    devDependencies:
+      '@aws-sdk/client-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/lib-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0(@aws-sdk/client-dynamodb@3.1152.0)
+      '@fridgeboard/contract':
+        specifier: workspace:*
+        version: link:../../../packages/contract
+      '@fridgeboard/lambda-kit':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-kit
+      '@fridgeboard/lambda-tooling':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-tooling
+      '@types/aws-lambda':
+        specifier: ^8.10.164
+        version: 8.10.164
+      '@types/node':
+        specifier: ^26.6.5
+        version: 26.6.5
+      aws-sdk-client-mock:
+        specifier: ^4.1.0
+        version: 4.1.0
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^5.0.5
+        version: 5.0.5(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
+
+  apps/functions/postConfirmation:
+    devDependencies:
+      '@aws-sdk/client-cognito-identity-provider':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/client-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/lib-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0(@aws-sdk/client-dynamodb@3.1152.0)
+      '@fridgeboard/lambda-kit':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-kit
+      '@fridgeboard/lambda-tooling':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-tooling
+      '@types/aws-lambda':
+        specifier: ^8.10.164
+        version: 8.10.164
+      '@types/node':
+        specifier: ^26.6.5
+        version: 26.6.5
+      aws-sdk-client-mock:
+        specifier: ^4.1.0
+        version: 4.1.0
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^5.0.5
+        version: 5.0.5(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
+
+  apps/functions/preSignUp:
+    devDependencies:
+      '@aws-sdk/client-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/lib-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0(@aws-sdk/client-dynamodb@3.1152.0)
+      '@fridgeboard/lambda-kit':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-kit
+      '@fridgeboard/lambda-tooling':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-tooling
+      '@types/aws-lambda':
+        specifier: ^8.10.164
+        version: 8.10.164
+      '@types/node':
+        specifier: ^26.6.5
+        version: 26.6.5
+      aws-sdk-client-mock:
+        specifier: ^4.1.0
+        version: 4.1.0
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^5.0.5
+        version: 5.0.5(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
+
+  apps/functions/subscribeGuard:
+    devDependencies:
+      '@aws-sdk/client-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/lib-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0(@aws-sdk/client-dynamodb@3.1152.0)
+      '@fridgeboard/lambda-kit':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-kit
+      '@fridgeboard/lambda-tooling':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-tooling
+      '@types/node':
+        specifier: ^26.6.5
+        version: 26.6.5
+      aws-sdk-client-mock:
+        specifier: ^4.1.0
+        version: 4.1.0
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^5.0.5
+        version: 5.0.5(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
+      zod:
+        specifier: 4.6.7
+        version: 4.6.7
+
+  apps/functions/username:
+    devDependencies:
+      '@aws-sdk/client-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/lib-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0(@aws-sdk/client-dynamodb@3.1152.0)
+      '@fridgeboard/lambda-kit':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-kit
+      '@fridgeboard/lambda-tooling':
+        specifier: workspace:*
+        version: link:../../../packages/lambda-tooling
+      '@types/aws-lambda':
+        specifier: ^8.10.164
+        version: 8.10.164
+      '@types/node':
+        specifier: ^26.6.5
+        version: 26.6.5
+      aws-sdk-client-mock:
+        specifier: ^4.1.0
+        version: 4.1.0
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^5.0.5
+        version: 5.0.5(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
 
   apps/local:
     devDependencies:
@@ -120,6 +425,33 @@ importers:
       '@fridgeboard/contract':
         specifier: workspace:*
         version: link:../../packages/contract
+      '@fridgeboard/fn-auth':
+        specifier: workspace:*
+        version: link:../functions/auth
+      '@fridgeboard/fn-households':
+        specifier: workspace:*
+        version: link:../functions/households
+      '@fridgeboard/fn-list-items':
+        specifier: workspace:*
+        version: link:../functions/listItems
+      '@fridgeboard/fn-list-shops':
+        specifier: workspace:*
+        version: link:../functions/listShops
+      '@fridgeboard/fn-me':
+        specifier: workspace:*
+        version: link:../functions/me
+      '@fridgeboard/fn-onboarding':
+        specifier: workspace:*
+        version: link:../functions/onboarding
+      '@fridgeboard/fn-post-confirmation':
+        specifier: workspace:*
+        version: link:../functions/postConfirmation
+      '@fridgeboard/fn-username':
+        specifier: workspace:*
+        version: link:../functions/username
+      '@fridgeboard/lambda-kit':
+        specifier: workspace:*
+        version: link:../../packages/lambda-kit
       '@types/aws-lambda':
         specifier: ^8.10.164
         version: 8.10.164
@@ -262,6 +594,30 @@ importers:
       '@fridgeboard/contract':
         specifier: workspace:*
         version: link:../packages/contract
+      '@fridgeboard/fn-households':
+        specifier: workspace:*
+        version: link:../apps/functions/households
+      '@fridgeboard/fn-list-items':
+        specifier: workspace:*
+        version: link:../apps/functions/listItems
+      '@fridgeboard/fn-list-shops':
+        specifier: workspace:*
+        version: link:../apps/functions/listShops
+      '@fridgeboard/fn-me':
+        specifier: workspace:*
+        version: link:../apps/functions/me
+      '@fridgeboard/fn-onboarding':
+        specifier: workspace:*
+        version: link:../apps/functions/onboarding
+      '@fridgeboard/fn-post-confirmation':
+        specifier: workspace:*
+        version: link:../apps/functions/postConfirmation
+      '@fridgeboard/fn-username':
+        specifier: workspace:*
+        version: link:../apps/functions/username
+      '@fridgeboard/lambda-kit':
+        specifier: workspace:*
+        version: link:../packages/lambda-kit
       '@types/aws-lambda':
         specifier: ^8.10.164
         version: 8.10.164
@@ -280,6 +636,71 @@ importers:
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
+
+  packages/lambda-kit:
+    dependencies:
+      '@aws-sdk/client-s3':
+        specifier: 3.1152.0
+        version: 3.1152.0
+    devDependencies:
+      '@aws-sdk/client-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/client-sesv2':
+        specifier: ^3.1152.0
+        version: 3.1152.0
+      '@aws-sdk/lib-dynamodb':
+        specifier: ^3.1152.0
+        version: 3.1152.0(@aws-sdk/client-dynamodb@3.1152.0)
+      '@fridgeboard/contract':
+        specifier: workspace:*
+        version: link:../contract
+      '@smithy/hash-node':
+        specifier: ^4.5.2
+        version: 4.5.2
+      '@smithy/protocol-http':
+        specifier: ^5.6.2
+        version: 5.6.2
+      '@smithy/signature-v4':
+        specifier: 5.7.4
+        version: 5.7.4
+      '@smithy/util-stream':
+        specifier: ^4.8.2
+        version: 4.8.2
+      '@types/aws-lambda':
+        specifier: ^8.10.164
+        version: 8.10.164
+      '@types/node':
+        specifier: ^26.6.5
+        version: 26.6.5
+      aws-sdk-client-mock:
+        specifier: ^4.1.0
+        version: 4.1.0
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^5.0.5
+        version: 5.0.5(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
+      zod:
+        specifier: 4.6.7
+        version: 4.6.7
+
+  packages/lambda-tooling:
+    dependencies:
+      esbuild:
+        specifier: ^0.28.2
+        version: 0.28.2
+    devDependencies:
+      '@types/node':
+        specifier: ^26.6.5
+        version: 26.6.5
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^5.0.5
+        version: 5.0.5(@types/node@26.6.5)(jsdom@30.1.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
 
 packages:
 

@@ -2,17 +2,17 @@ import { readFileSync } from 'node:fs';
 import {
   DEFAULT_LAMBDA_FLAGS,
   LAMBDA_FEATURE_FLAGS,
-} from '../../../functions/src/configuration/flags/constants.ts';
-import { LambdaConfigurationSchema } from '../../../functions/src/configuration/lambdaConfigurationSchema/index.ts';
-import type { LambdaConfiguration } from '../../../functions/src/configuration/lambdaConfigurationSchema/types.ts';
+} from '@fridgeboard/lambda-kit/configuration/flags/constants.ts';
+import { LambdaConfigurationSchema } from '@fridgeboard/lambda-kit/configuration/lambdaConfigurationSchema/index.ts';
+import type { LambdaConfiguration } from '@fridgeboard/lambda-kit/configuration/lambdaConfigurationSchema/types.ts';
 import {
   DEFAULT_LAMBDA_SETTINGS,
   LAMBDA_SETTINGS,
-} from '../../../functions/src/configuration/settings/constants.ts';
-import { mergeSettings } from '../../../functions/src/configuration/settings/mergeSettings/index.ts';
-import { stripTopLevelParams } from '../../../functions/src/configuration/stripTopLevelParams/index.ts';
-import { stripUnknownFlags } from '../../../functions/src/configuration/stripUnknownFlags/index.ts';
-import { stripUnknownKeys } from '../../../functions/src/configuration/stripUnknownKeys/index.ts';
+} from '@fridgeboard/lambda-kit/configuration/settings/constants.ts';
+import { mergeSettings } from '@fridgeboard/lambda-kit/configuration/settings/mergeSettings/index.ts';
+import { stripTopLevelParams } from '@fridgeboard/lambda-kit/configuration/stripTopLevelParams/index.ts';
+import { stripUnknownFlags } from '@fridgeboard/lambda-kit/configuration/stripUnknownFlags/index.ts';
+import { stripUnknownKeys } from '@fridgeboard/lambda-kit/configuration/stripUnknownKeys/index.ts';
 import { LAMBDA_CONFIGURATION_FILE } from './constants.ts';
 import type { LocalLambdaFile } from './types.ts';
 

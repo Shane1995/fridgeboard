@@ -1,0 +1,29 @@
+{
+  "name": "@fridgeboard/lambda-tooling",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "lambda-build": "./src/build/index.ts",
+    "lambda-smoke": "./src/smoke/index.ts",
+    "new-lambda": "./src/scaffold/index.ts"
+  },
+  "exports": {
+    "./*": "./src/*"
+  },
+  "scripts": {
+    "typecheck": "tsc -b",
+    "test": "vitest run --globals",
+    "lint": "oxlint --config ../../.oxlintrc.json src/",
+    "format": "oxfmt src/",
+    "format:check": "oxfmt --check src/"
+  },
+  "dependencies": {
+    "esbuild": "^0.28.2"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  }
+}

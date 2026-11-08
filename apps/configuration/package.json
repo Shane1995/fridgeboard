@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@fridgeboard/contract": "workspace:*",
+    "@fridgeboard/lambda-kit": "workspace:*",
     "@types/node": "^26.6.5",
     "tsx": "^4.20.6",
     "typescript": "^7.0.2",

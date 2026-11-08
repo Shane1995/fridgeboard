@@ -1,5 +1,5 @@
 import { GetCommand } from '@aws-sdk/lib-dynamodb';
-import { membershipKey } from '../../../functions/src/utils/keys/membershipKey/index.ts';
+import { membershipKey } from '@fridgeboard/lambda-kit/utils/keys/membershipKey/index.ts';
 import { client } from '../client/index.ts';
 import { CHANNEL_PREFIX } from '../realtime/constants.ts';
 import { TABLE_NAME } from '../constants.ts';

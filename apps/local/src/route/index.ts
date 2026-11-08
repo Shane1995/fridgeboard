@@ -1,11 +1,11 @@
 import { WebService } from '../../../web/src/services/configuration/schema/constants.ts';
 import type { ApiService } from '../../../web/src/services/configuration/schema/types.ts';
-import { handler as households } from '../../../functions/src/handlers/households/index.ts';
-import { handler as listShops } from '../../../functions/src/handlers/listShops/index.ts';
-import { handler as listItems } from '../../../functions/src/handlers/listItems/index.ts';
-import { handler as me } from '../../../functions/src/handlers/me/index.ts';
-import { handler as onboarding } from '../../../functions/src/handlers/onboarding/index.ts';
-import { handler as username } from '../../../functions/src/handlers/username/index.ts';
+import { handler as households } from '@fridgeboard/fn-households/index.ts';
+import { handler as listShops } from '@fridgeboard/fn-list-shops/index.ts';
+import { handler as listItems } from '@fridgeboard/fn-list-items/index.ts';
+import { handler as me } from '@fridgeboard/fn-me/index.ts';
+import { handler as onboarding } from '@fridgeboard/fn-onboarding/index.ts';
+import { handler as username } from '@fridgeboard/fn-username/index.ts';
 import { refresh } from '../authStubs/refresh/index.ts';
 import { signOut } from '../authStubs/signOut/index.ts';
 import { start } from '../authStubs/start/index.ts';
