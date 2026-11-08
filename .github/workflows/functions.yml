@@ -125,7 +125,7 @@ jobs:
             local sha prev live
             sha="sha256:$(sha256sum "api-dist/$dir/index.mjs" | cut -d' ' -f1)"
             prev=$(aws lambda get-alias --function-name "$fn" --name live --query FunctionVersion --output text)
-            live=$(aws lambda get-function-configuration --function-name "$fn" --qualifier "$prev" --query Description --output text)
+            live=$(aws lambda get-function-configuration --function-name "$fn" --qualifier "$prev" --query Description --output text 2>/dev/null || true)
             if [ "$live" = "$sha" ]; then
               echo "$fn v$prev already runs this bundle: nothing to deploy"
               return 0
