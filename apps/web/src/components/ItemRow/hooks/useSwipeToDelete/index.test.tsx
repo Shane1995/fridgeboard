@@ -1,12 +1,14 @@
 import { act, renderHook } from '@testing-library/react';
+import { TOUCH_DRAG_DELAY_MS } from '../../../../utils/touchDragListeners/constants';
 import { SWIPE_DELETE_THRESHOLD_PX } from './constants';
 import { useSwipeToDelete } from './index';
 
-const pointer = (x: number, y = 0) =>
+const pointer = (x: number, y = 0, timeStamp = 0) =>
   ({
     pointerId: 1,
     clientX: x,
     clientY: y,
+    timeStamp,
     currentTarget: { setPointerCapture: vi.fn(), releasePointerCapture: vi.fn() },
   }) as never;
 
@@ -102,6 +104,28 @@ describe('useSwipeToDelete', () => {
 
     expect(result.current.offset).toBe(0);
     expect(result.current.isSwiping).toBe(false);
+    expect(onDelete).not.toHaveBeenCalled();
+  });
+
+  it('leaves a gesture that starts after a long press to the touch drag', () => {
+    const { onDelete, result } = setUp();
+
+    act(() => result.current.handlers.onPointerDown(pointer(200, 0, 0)));
+    act(() => result.current.handlers.onPointerMove(pointer(60, 0, TOUCH_DRAG_DELAY_MS + 50)));
+    act(() => result.current.handlers.onPointerUp(pointer(60, 0, TOUCH_DRAG_DELAY_MS + 100)));
+
+    expect(result.current.isSwiping).toBe(false);
+    expect(result.current.offset).toBe(0);
+    expect(onDelete).not.toHaveBeenCalled();
+  });
+
+  it('ignores a swipe while the row is being dragged', () => {
+    const onDelete = vi.fn();
+    const { result } = renderHook(() => useSwipeToDelete({ onDelete, enabled: false }));
+
+    swipe({ result, to: 0 });
+    act(() => result.current.handlers.onPointerUp(pointer(0)));
+
     expect(onDelete).not.toHaveBeenCalled();
   });
 });

@@ -1,8 +1,7 @@
 import { useRef, useState } from 'react';
+import { TOUCH_DRAG_DELAY_MS } from '../../../../utils/touchDragListeners/constants';
 import { SWIPE_DELETE_THRESHOLD_PX, SWIPE_LOCK_PX } from './constants';
-import type { SwipeToDeleteOptions, SwipeToDeleteState } from './types';
-
-type Gesture = { startX: number; startY: number; locked: boolean; abandoned: boolean };
+import type { Gesture, SwipeToDeleteOptions, SwipeToDeleteState } from './types';
 
 // Dragging a row left reveals a delete underneath it. Horizontal intent is decided after a few
 // pixels, so a mostly vertical drag is left to scroll the page.
@@ -30,6 +29,7 @@ export const useSwipeToDelete = ({
           gesture.current = {
             startX: event.clientX,
             startY: event.clientY,
+            startedAt: event.timeStamp,
             locked: false,
             abandoned: false,
           };
@@ -48,6 +48,10 @@ export const useSwipeToDelete = ({
             return;
           }
           if (Math.abs(dx) < SWIPE_LOCK_PX) {
+            return;
+          }
+          if (event.timeStamp - current.startedAt >= TOUCH_DRAG_DELAY_MS) {
+            current.abandoned = true;
             return;
           }
           current.locked = true;

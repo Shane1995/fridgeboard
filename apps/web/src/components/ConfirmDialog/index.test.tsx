@@ -102,6 +102,15 @@ describe('ConfirmDialog', () => {
       expect(onConfirm).not.toHaveBeenCalled();
     });
 
+    it('confirms from a screen reader activation that sends only a click', async () => {
+      const onConfirm = vi.fn();
+      render(<Harness onConfirm={onConfirm} holdToConfirm />);
+
+      fireEvent.click(await screen.findByRole('button', { name: 'Delete' }), { detail: 0 });
+
+      expect(onConfirm).toHaveBeenCalledTimes(1);
+    });
+
     it('confirms when Enter is held on the keyboard', async () => {
       const onConfirm = vi.fn();
       render(<Harness onConfirm={onConfirm} holdToConfirm />);

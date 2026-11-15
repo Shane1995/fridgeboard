@@ -270,4 +270,26 @@ describe('useHome', () => {
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     });
   });
+
+  describe('clearing ticked items', () => {
+    const tickTwo = async () => {
+      const milk = await fakeShoppingList.addItem({ name: 'Milk', shopIds: [] });
+      const eggs = await fakeShoppingList.addItem({ name: 'Eggs', shopIds: [] });
+      await fakeShoppingList.updateItem({ id: milk.id, changes: { checked: true } });
+      await fakeShoppingList.updateItem({ id: eggs.id, changes: { checked: true } });
+    };
+
+    it('keeps the count the dialog was opened with while the items are being cleared', async () => {
+      await tickTwo();
+      const { result } = await renderHookWithHousehold(() => useHome());
+      await waitFor(() => expect(result.current.tickedCount).toBe(2));
+
+      act(() => result.current.openClearTicked());
+      act(() => result.current.confirmClearTicked());
+
+      await waitFor(() => expect(result.current.tickedCount).toBe(0));
+      expect(result.current.clearTickedCount).toBe(2);
+      expect(await screen.findByText('Cleared 2 items')).toBeInTheDocument();
+    });
+  });
 });

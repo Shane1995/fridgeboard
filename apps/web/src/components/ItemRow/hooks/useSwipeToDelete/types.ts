@@ -5,6 +5,14 @@ export type SwipeToDeleteOptions = {
   enabled: boolean;
 };
 
+export type Gesture = {
+  startX: number;
+  startY: number;
+  startedAt: number;
+  locked: boolean;
+  abandoned: boolean;
+};
+
 export type SwipeToDeleteState = {
   offset: number;
   isSwiping: boolean;

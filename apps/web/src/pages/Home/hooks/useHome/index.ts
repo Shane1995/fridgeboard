@@ -42,6 +42,7 @@ export const useHome = (): HomeState => {
   const newShopDialog = useOverlayState();
   const clearTickedDialog = useOverlayState();
   const clearAllDialog = useOverlayState();
+  const [clearTickedCount, setClearTickedCount] = useState(0);
   const clear = useClearItemsMutation();
   const toast = useToast();
   const [storedFocus, setFocus] = useLocalStorage(FOCUS_SHOP_STORAGE_KEY);
@@ -150,8 +151,13 @@ export const useHome = (): HomeState => {
     tickedCount: grouped.tickedCount,
     clearTickedDialog,
     clearAllDialog,
+    clearTickedCount,
+    openClearTicked: () => {
+      setClearTickedCount(grouped.tickedCount);
+      clearTickedDialog.open();
+    },
     confirmClearTicked: () => {
-      const count = grouped.tickedCount;
+      const count = clearTickedCount;
       clear.mutate(ClearItemsBy.Checked, {
         onSuccess: (result) => result.ok && toast.success(HOME_COPY.clearedTicked(count)),
       });

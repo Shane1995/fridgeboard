@@ -35,6 +35,8 @@ export type HomeState = {
   tickedCount: number;
   clearTickedDialog: UseOverlayStateReturn;
   clearAllDialog: UseOverlayStateReturn;
+  clearTickedCount: number;
+  openClearTicked: () => void;
   confirmClearTicked: () => void;
   confirmClearAll: () => void;
 };

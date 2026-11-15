@@ -62,7 +62,7 @@ export const ItemRow = ({
     !isEditing &&
     typeof window.matchMedia === 'function' &&
     window.matchMedia(COARSE_POINTER_QUERY).matches;
-  const swipe = useSwipeToDelete({ onDelete: remove, enabled: canSwipe });
+  const swipe = useSwipeToDelete({ onDelete: remove, enabled: canSwipe && !isDragging });
   const splitOutLabel = ITEM_ROW_COPY.splitOut(shops.find(({ id }) => id === shopId)?.name ?? '');
   const elsewhere = item.shops.filter(({ id }) => id !== shopId);
 

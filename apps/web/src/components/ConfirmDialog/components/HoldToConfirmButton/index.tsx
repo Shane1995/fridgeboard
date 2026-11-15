@@ -6,6 +6,7 @@ import type { HoldToConfirmButtonProps } from './types';
 export const HoldToConfirmButton = ({ onComplete, children }: HoldToConfirmButtonProps) => {
   const [isHolding, setIsHolding] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const sawInput = useRef(false);
 
   const stop = () => {
     clearTimeout(timer.current);
@@ -14,6 +15,7 @@ export const HoldToConfirmButton = ({ onComplete, children }: HoldToConfirmButto
   };
 
   const start = () => {
+    sawInput.current = true;
     if (timer.current !== undefined) {
       return;
     }
@@ -38,6 +40,13 @@ export const HoldToConfirmButton = ({ onComplete, children }: HoldToConfirmButto
       onPointerCancel={stop}
       onKeyDown={(event) => isPressKey(event) && start()}
       onKeyUp={(event) => isPressKey(event) && stop()}
+      onClick={(event) => {
+        const isAssistiveClick = !sawInput.current && event.detail === 0;
+        sawInput.current = false;
+        if (isAssistiveClick) {
+          onComplete();
+        }
+      }}
       onBlur={stop}
       onContextMenu={(event) => event.preventDefault()}
       className="relative min-h-11 cursor-pointer touch-none overflow-hidden rounded-full bg-danger/15 px-5 text-sm font-semibold text-danger outline-none select-none focus-visible:ring-2 focus-visible:ring-danger"

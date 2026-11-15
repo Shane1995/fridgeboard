@@ -48,6 +48,8 @@ export const Home = () => {
     tickedCount,
     clearTickedDialog,
     clearAllDialog,
+    clearTickedCount,
+    openClearTicked,
     confirmClearTicked,
     confirmClearAll,
     hasItems,
@@ -123,7 +125,7 @@ export const Home = () => {
         <Button
           size="sm"
           variant="secondary"
-          onPress={clearTickedDialog.open}
+          onPress={openClearTicked}
           isPending={isClearing}
           className="self-end"
         >
@@ -153,7 +155,7 @@ export const Home = () => {
       <ShopDialog state={newShopDialog} />
       <ConfirmDialog
         state={clearTickedDialog}
-        title={HOME_COPY.clearTickedTitle(tickedCount)}
+        title={HOME_COPY.clearTickedTitle(clearTickedCount)}
         description={HOME_COPY.clearTickedDescription}
         confirmLabel={HOME_COPY.clearTickedConfirm}
         onConfirm={confirmClearTicked}
