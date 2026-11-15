@@ -1,4 +1,4 @@
-import { act, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import { ShopColor } from '../../../../services/shoppingList/constants';
 import { fakeShoppingList } from '../../../../testUtils/fakeShoppingList';
 import type { ListItem } from '../../../../services/shoppingList/types';
@@ -102,5 +102,13 @@ describe('useItemRow', () => {
     act(() => result.current.handleMenuAction(DELETE_ACTION));
 
     await waitFor(async () => expect(await stored()).toBeUndefined());
+  });
+
+  it('offers Undo after deleting from the menu', async () => {
+    const { result } = await setup();
+
+    act(() => result.current.handleMenuAction(DELETE_ACTION));
+
+    expect(await screen.findByRole('button', { name: 'Undo' })).toBeInTheDocument();
   });
 });
