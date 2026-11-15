@@ -1,4 +1,4 @@
-import { act, fireEvent, screen, within } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { WebFeatureFlag } from '../../services/configuration/schema/constants';
 import { SessionStatus } from '../../services/session/constants';
 import { createSession } from '../../testUtils/createSession';
@@ -88,6 +88,7 @@ describe('Recipes', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'Save recipe' }));
     expect(await screen.findByRole('heading', { name: 'Pancakes' })).toBeInTheDocument();
+    expect(await screen.findByText(RECIPES_COPY.saved('Pancakes'))).toBeInTheDocument();
   });
 
   it('edits a recipe', async () => {
@@ -99,6 +100,7 @@ describe('Recipes', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'Save recipe' }));
     expect(await screen.findByRole('heading', { name: 'Tikka traybake' })).toBeInTheDocument();
+    expect(await screen.findByText(RECIPES_COPY.updated('Tikka traybake'))).toBeInTheDocument();
   });
 
   it('deletes a recipe after a confirm', async () => {
@@ -110,7 +112,21 @@ describe('Recipes', () => {
     expect(
       await screen.findByRole('searchbox', { name: RECIPES_COPY.searchLabel }),
     ).toBeInTheDocument();
-    expect(screen.queryByText('Chocolate brownies')).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Chocolate brownies' })).not.toBeInTheDocument();
+    expect(await screen.findByText(RECIPES_COPY.deleted('Chocolate brownies'))).toBeInTheDocument();
+  });
+
+  it('keeps the recipe when the delete is cancelled', async () => {
+    await renderRecipes({ enabled: true });
+    openRecipe('Chocolate brownies');
+    fireEvent.click(screen.getByRole('button', { name: RECIPES_COPY.delete }));
+    const dialog = await screen.findByRole('dialog');
+
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(screen.getByRole('heading', { name: 'Chocolate brownies' })).toBeInTheDocument();
+    expect(screen.queryByText(RECIPES_COPY.deleted('Chocolate brownies'))).not.toBeInTheDocument();
   });
 
   describe('adding to the Chop list', () => {
