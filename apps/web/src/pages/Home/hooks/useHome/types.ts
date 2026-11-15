@@ -13,7 +13,6 @@ export type HomeState = {
   focusedId: string | undefined;
   setFocus: (id: string | undefined) => void;
   visibleSections: ShopSectionData[];
-  visibleChecked: ListItem[];
   reorderable: ShopSectionData[];
   unsorted: ShopSectionData | undefined;
   sensors: SensorDescriptor<SensorOptions>[];

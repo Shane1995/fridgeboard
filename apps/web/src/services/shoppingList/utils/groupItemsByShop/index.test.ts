@@ -39,24 +39,36 @@ describe('groupItemsByShop', () => {
     expect(sections[0]?.items.map(({ id }) => id)).toEqual(['a', 'b']);
   });
 
-  it('moves ticked items out of their shop into checked', () => {
-    const { sections, checked } = groupItemsByShop(
+  it('keeps ticked items in their shop, in place', () => {
+    const { sections } = groupItemsByShop(
       [shop('b1', 0)],
       [item('a', ['b1'], true), item('b', ['b1'])],
     );
 
-    expect(sections[0]?.items.map(({ id }) => id)).toEqual(['b']);
-    expect(checked.map(({ id }) => id)).toEqual(['a']);
+    expect(sections[0]?.items.map(({ id }) => id)).toEqual(['a', 'b']);
   });
 
-  it('shows an item in every shop it belongs to, and ticked once', () => {
-    const { sections, checked } = groupItemsByShop(
+  it('shows General when it only holds ticked items', () => {
+    const { sections } = groupItemsByShop([shop('b1', 0)], [item('a', [], true)]);
+
+    expect(sections.map(({ shop: { id } }) => id)).toEqual([UNSORTED_SHOP_ID, 'b1']);
+  });
+
+  it('shows an item in every shop it belongs to, and counts a ticked item once', () => {
+    const { sections, tickedCount } = groupItemsByShop(
       [shop('express', 0), shop('ms', 1)],
       [item('a', ['express', 'ms']), item('b', ['ms'], true), item('c', ['ms', 'express'], true)],
     );
 
-    expect(sections.map(({ items }) => items.map(({ id }) => id))).toEqual([['a'], ['a']]);
-    expect(checked.map(({ id }) => id)).toEqual(['b', 'c']);
+    expect(sections.map(({ items }) => items.map(({ id }) => id))).toEqual([
+      ['a', 'c'],
+      ['a', 'b', 'c'],
+    ]);
+    expect(tickedCount).toBe(2);
+  });
+
+  it('counts no ticked items on a list with none', () => {
+    expect(groupItemsByShop([shop('b1', 0)], [item('a', ['b1'])]).tickedCount).toBe(0);
   });
 
   it('keeps an item that lost some of its shops in the ones that are left', () => {

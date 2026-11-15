@@ -242,9 +242,10 @@ describe('Home', () => {
     expect(screen.getByRole('region', { name: UNSORTED_SHOP_NAME })).toContainElement(checkbox);
 
     fireEvent.click(checkbox);
-    expect(await screen.findByRole('region', { name: HOME_COPY.gotIt })).toContainElement(
-      await screen.findByRole('checkbox', { name: 'Milk', checked: true }),
-    );
+    const ticked = await screen.findByRole('checkbox', { name: 'Milk', checked: true });
+    expect(screen.getByRole('region', { name: UNSORTED_SHOP_NAME })).toContainElement(ticked);
+    expect(screen.queryByRole('heading', { name: 'Got it' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Milk' })).toHaveClass('line-through');
 
     fireEvent.click(screen.getByRole('button', { name: HOME_COPY.clearTicked }));
     await waitFor(() => expect(screen.queryByText('Milk')).not.toBeInTheDocument());

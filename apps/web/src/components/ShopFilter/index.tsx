@@ -16,7 +16,8 @@ const chipClass = (selected: boolean) =>
   }`;
 
 export const ShopFilter = ({ sections, focusedId, onSelect }: ShopFilterProps) => {
-  const total = new Set(sections.flatMap(({ items }) => items.map(({ id }) => id))).size;
+  const toGet = (items: ShopSectionData['items']) => items.filter(({ checked }) => !checked);
+  const total = new Set(sections.flatMap(({ items }) => toGet(items).map(({ id }) => id))).size;
 
   return (
     <div
@@ -38,14 +39,14 @@ export const ShopFilter = ({ sections, focusedId, onSelect }: ShopFilterProps) =
         <button
           key={shop.id}
           type="button"
-          aria-label={`${shop.name}, ${items.length}`}
+          aria-label={`${shop.name}, ${toGet(items).length}`}
           aria-pressed={focusedId === shop.id}
           onClick={() => onSelect(shop.id)}
           className={chipClass(focusedId === shop.id)}
         >
           <ShopSwatch color={shop.color} name={shop.name} />
           {shop.name}
-          <span className="opacity-60">{items.length}</span>
+          <span className="opacity-60">{toGet(items).length}</span>
         </button>
       ))}
     </div>

@@ -9,14 +9,12 @@ import { ShopCard } from '../../components/ShopCard';
 import { ShopSection } from '../../components/ShopSection';
 import { ItemDragPreview } from '../../components/ItemDragPreview';
 import { ShopDragPreview } from '../../components/ShopDragPreview';
-import { ItemRow } from '../../components/ItemRow';
 import { detectShopCollisions } from '../../utils/detectShopCollisions';
 import { restrictShopDragToVerticalAxis } from '../../utils/restrictShopDragToVerticalAxis';
 import { SortableShop } from '../../components/SortableShop';
 import { PullToRefresh } from '../../components/PullToRefresh';
 import { PageHeader } from '../../components/PageHeader';
 import { Typography } from '../../components/Typography';
-import { TypographyVariant } from '../../components/Typography/constants';
 import { HomeSkeleton } from './components/HomeSkeleton';
 import { HOME_COPY } from './constants';
 import { useHome } from './hooks/useHome';
@@ -28,7 +26,6 @@ export const Home = () => {
     focusedId,
     setFocus,
     visibleSections,
-    visibleChecked,
     reorderable,
     unsorted,
     sensors,
@@ -115,34 +112,19 @@ export const Home = () => {
               quickAdd={canQuickAdd}
             />
           ))}
-          {visibleSections.length === 0 && visibleChecked.length === 0 && (
-            <Typography>{HOME_COPY.focusEmpty}</Typography>
-          )}
+          {visibleSections.length === 0 && <Typography>{HOME_COPY.focusEmpty}</Typography>}
         </>
       )}
-      {visibleChecked.length > 0 && (
-        <section aria-label={HOME_COPY.gotIt} className="flex flex-col gap-2">
-          <header className="flex items-center justify-between">
-            <Typography variant={TypographyVariant.Heading3} as="h2">
-              {HOME_COPY.gotIt}
-            </Typography>
-            {focusedId === undefined && (
-              <Button
-                size="sm"
-                variant="secondary"
-                onPress={handleClearChecked}
-                isPending={isClearing}
-              >
-                {HOME_COPY.clearTicked}
-              </Button>
-            )}
-          </header>
-          <ul className="flex flex-col gap-2">
-            {visibleChecked.map((item) => (
-              <ItemRow key={item.id} item={item} shops={allShops} />
-            ))}
-          </ul>
-        </section>
+      {focusedId === undefined && grouped.tickedCount > 0 && (
+        <Button
+          size="sm"
+          variant="secondary"
+          onPress={handleClearChecked}
+          isPending={isClearing}
+          className="self-end"
+        >
+          {HOME_COPY.clearTicked}
+        </Button>
       )}
       {focusedId === undefined && (
         <button

@@ -5,7 +5,6 @@ export const HOME_COPY = {
   empty: 'Nothing on the list yet.',
   focusEmpty: 'Nothing left in this shop.',
   newShop: 'New shop',
-  gotIt: 'Got it',
   clearTicked: 'Clear ticked',
   clearAll: 'Clear all',
   clearAllTitle: 'Clear the whole list?',

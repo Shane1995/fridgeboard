@@ -30,7 +30,6 @@ import {
   groupItemsByShop,
   UNSORTED_SHOP,
 } from '../../../../services/shoppingList/utils/groupItemsByShop';
-import { inShop } from '../../../../services/shoppingList/utils/inShop';
 import { readDraggedItem, readDropShopId } from '../../../../utils/readDragData';
 import { HOME_COPY } from '../../constants';
 import type { HomeState } from './types';
@@ -77,10 +76,6 @@ export const useHome = (): HomeState => {
     focusedId === undefined
       ? grouped.sections
       : grouped.sections.filter(({ shop }) => shop.id === focusedId);
-  const visibleChecked =
-    focusedId === undefined
-      ? grouped.checked
-      : grouped.checked.filter((item) => inShop({ item, shopId: focusedId, shops: shopList }));
 
   const allShops = [UNSORTED_SHOP, ...shopList];
 
@@ -131,7 +126,6 @@ export const useHome = (): HomeState => {
     focusedId,
     setFocus,
     visibleSections,
-    visibleChecked,
     reorderable: grouped.sections.filter(({ shop }) => shop.id !== UNSORTED_SHOP_ID),
     unsorted: grouped.sections.find(({ shop }) => shop.id === UNSORTED_SHOP_ID),
     sensors,

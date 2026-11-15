@@ -20,4 +20,4 @@ export type ShopChanges = Partial<Pick<Shop, 'name' | 'color'>>;
 
 export type ShopSectionData = { shop: Shop; items: ListItem[] };
 
-export type GroupedItems = { sections: ShopSectionData[]; checked: ListItem[] };
+export type GroupedItems = { sections: ShopSectionData[]; tickedCount: number };

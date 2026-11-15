@@ -13,14 +13,13 @@ export const groupItemsByShop = (
   shops: readonly Shop[],
   items: readonly ListItem[],
 ): GroupedItems => {
-  const open = items.filter(({ checked }) => !checked);
   const sectionFor = (shop: Shop) => ({
     shop,
-    items: open.filter((item) => inShop({ item, shopId: shop.id, shops })),
+    items: items.filter((item) => inShop({ item, shopId: shop.id, shops })),
   });
   const unsorted = sectionFor(UNSORTED_SHOP);
   return {
     sections: [...(unsorted.items.length > 0 ? [unsorted] : []), ...shops.map(sectionFor)],
-    checked: items.filter(({ checked }) => checked),
+    tickedCount: items.filter(({ checked }) => checked).length,
   };
 };

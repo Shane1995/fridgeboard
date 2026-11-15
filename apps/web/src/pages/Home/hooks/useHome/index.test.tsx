@@ -44,8 +44,11 @@ describe('useHome', () => {
     const { result } = renderHook(() => useHome(), { wrapper: createShoppingListWrapper() });
 
     await waitFor(() => expect(result.current.hasItems).toBe(true));
-    expect(result.current.grouped.sections[0]?.items.map(({ id }) => id)).toEqual([milk.id]);
-    expect(result.current.grouped.checked.map(({ id }) => id)).toEqual([eggs.id]);
+    expect(result.current.grouped.sections[0]?.items.map(({ id }) => id)).toEqual([
+      milk.id,
+      eggs.id,
+    ]);
+    expect(result.current.grouped.tickedCount).toBe(1);
     expect(result.current.allShops.map(({ id }) => id)).toEqual([UNSORTED_SHOP_ID, shop.id]);
   });
 
