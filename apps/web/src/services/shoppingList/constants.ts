@@ -30,7 +30,13 @@ export const ITEM_FAILURE_COPY = {
   update: 'Could not save the change. Try again.',
   remove: 'Could not delete the item. Try again.',
   clearTicked: 'Could not clear the ticked items. Try again.',
+  clearAll: 'Could not clear the list. Try again.',
 } as const;
+
+export enum ClearItemsBy {
+  All = 'all',
+  Checked = 'checked',
+}
 
 export const PENDING_ITEM_PREFIX = 'pending-';
 export const ITEM_NAME_MAX_LENGTH = 80;

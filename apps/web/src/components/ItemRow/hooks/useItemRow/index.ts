@@ -1,3 +1,4 @@
+import { shopIdsOf } from '../../../../services/shoppingList/utils/shopIdsOf';
 import { useOverlayState } from '@heroui/react';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
@@ -34,8 +35,8 @@ export const useItemRow = ({
   const combine = useCombineItems();
   const duplicates = findDuplicates({ item, items: items.data ?? [] });
 
-  const canSplitOut =
-    shopId !== undefined && item.shopIds.length >= 2 && item.shopIds.includes(shopId);
+  const shopIds = shopIdsOf(item);
+  const canSplitOut = shopId !== undefined && shopIds.length >= 2 && shopIds.includes(shopId);
 
   const startEditing = () => {
     setDraft(item.name);
@@ -84,7 +85,7 @@ export const useItemRow = ({
     toggle,
     setShops,
     canSplitOut,
-    canSplitAll: item.shopIds.length >= 3 || (item.shopIds.length === 2 && !canSplitOut),
+    canSplitAll: shopIds.length >= 3 || (shopIds.length === 2 && !canSplitOut),
     duplicateCount: duplicates.length,
     handleMenuAction,
   };

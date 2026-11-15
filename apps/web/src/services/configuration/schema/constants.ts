@@ -75,7 +75,7 @@ export enum MutationName {
   addItem = 'addItem',
   updateItem = 'updateItem',
   deleteItem = 'deleteItem',
-  clearChecked = 'clearChecked',
+  clearItems = 'clearItems',
   createShop = 'createShop',
   updateShop = 'updateShop',
   deleteShop = 'deleteShop',

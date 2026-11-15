@@ -226,7 +226,9 @@ describe('useHome', () => {
 
       await waitFor(async () =>
         expect(
-          (await fakeShoppingList.listItems()).find(({ id }) => id === tape.id)?.shopIds,
+          (await fakeShoppingList.listItems())
+            .find(({ id }) => id === tape.id)
+            ?.shops.map(({ id }) => id),
         ).toEqual([tesco.id]),
       );
     });
@@ -258,7 +260,9 @@ describe('useHome', () => {
       );
 
       expect(
-        (await fakeShoppingList.listItems()).find(({ id }) => id === tape.id)?.shopIds,
+        (await fakeShoppingList.listItems())
+          .find(({ id }) => id === tape.id)
+          ?.shops.map(({ id }) => id),
       ).toEqual([]);
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     });

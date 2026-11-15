@@ -6,6 +6,7 @@ import { fakeShoppingList } from '../../testUtils/fakeShoppingList';
 import { renderHookWithHousehold } from '../../testUtils/createShoppingListWrapper';
 import { MOVE_ITEM_COPY } from './constants';
 import { useMoveItem } from './index';
+import { shopIdsOf } from '../../services/shoppingList/utils/shopIdsOf';
 
 type Shops = { tesco: Shop; ms: Shop };
 
@@ -20,7 +21,7 @@ const setUp = async (shopIdsOf: (shops: Shops) => string[]) => {
   return { tesco, ms, apples, result };
 };
 
-const shopsOf = async () => (await fakeShoppingList.listItems()).map(({ shopIds }) => shopIds);
+const shopsOf = async () => (await fakeShoppingList.listItems()).map((item) => shopIdsOf(item));
 
 describe('useMoveItem', () => {
   it('does nothing when an item is dropped where it already is', async () => {

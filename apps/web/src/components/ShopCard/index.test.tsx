@@ -4,11 +4,12 @@ import { ShopColor } from '../../services/shoppingList/constants';
 import type { Shop } from '../../services/shoppingList/types';
 import { createShoppingListWrapper } from '../../testUtils/createShoppingListWrapper';
 import { ShopCard } from './index';
+import { buildShop } from '../../testUtils/buildShop';
 
 const TESCO: Shop = { id: 'b1', name: 'Tesco', color: ShopColor.Sky, order: 0 };
 const SECTION = {
   shop: TESCO,
-  items: [{ id: 'i1', name: 'Apples', shopIds: ['b1'], checked: false, createdAt: 0 }],
+  items: [{ id: 'i1', name: 'Apples', shops: [buildShop('b1')], checked: false, createdAt: 0 }],
 };
 
 const renderCard = (draggable: boolean) => {

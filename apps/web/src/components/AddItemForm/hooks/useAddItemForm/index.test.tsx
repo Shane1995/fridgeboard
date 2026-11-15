@@ -7,6 +7,7 @@ import {
 } from '../../../../testUtils/createShoppingListWrapper';
 import { useAddItemForm } from './index';
 import type { AddItemFormState } from './types';
+import { shopIdsOf } from '../../../../services/shoppingList/utils/shopIdsOf';
 
 const renderWithShops = async (names: string[]) => {
   const ids: string[] = [];
@@ -39,7 +40,7 @@ describe('useAddItemForm', () => {
 
     await submitName(result, 'Milk');
 
-    expect((await fakeShoppingList.listItems())[0]).toMatchObject({ name: 'Milk', shopIds: [] });
+    expect((await fakeShoppingList.listItems())[0]).toMatchObject({ name: 'Milk', shops: [] });
   });
 
   it('adds an item to every shop picked and keeps the picks for the next item', async () => {
@@ -48,7 +49,10 @@ describe('useAddItemForm', () => {
     act(() => result.current.setShopIds(ids));
     await submitName(result, '  Milk ');
 
-    expect((await fakeShoppingList.listItems())[0]).toMatchObject({ name: 'Milk', shopIds: ids });
+    expect((await fakeShoppingList.listItems())[0]).toMatchObject({
+      name: 'Milk',
+      shops: ids.map((id) => expect.objectContaining({ id })),
+    });
     expect(result.current.shopIds).toEqual(ids);
   });
 
@@ -72,7 +76,10 @@ describe('useAddItemForm', () => {
     await submitName(result, 'Apples');
 
     expect(
-      (await fakeShoppingList.listItems()).map(({ name, shopIds }) => ({ name, shopIds })),
+      (await fakeShoppingList.listItems()).map((item) => ({
+        name: item.name,
+        shopIds: shopIdsOf(item),
+      })),
     ).toEqual(ids.map((id) => ({ name: 'Apples', shopIds: [id] })));
   });
 

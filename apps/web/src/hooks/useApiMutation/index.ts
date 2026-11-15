@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import type { ApiResult } from '../../services/api/sendJson/types';
 import { sendJson } from '../../services/api/sendJson';
 import { resolveEndpoint } from '../../services/configuration/resolveEndpoint';
+import { withQuery } from '../../services/configuration/withQuery';
 import { mergedEntry } from '../../utils/mergedEntry';
 import { useMutation } from '../useMutation';
 import type { MutationResult } from '../useMutation/types';
@@ -20,6 +21,7 @@ export const useApiMutation = <TVariables, TResponse, TReason extends string, TC
   method,
   toBody,
   toParams,
+  toQuery,
   reasons,
   onSuccess,
   failureMessage,
@@ -45,11 +47,14 @@ export const useApiMutation = <TVariables, TResponse, TReason extends string, TC
   return useMutation({
     mutationKey: [name],
     mutationFn: async (variables: TVariables) => {
-      const endpoint = resolveEndpoint({
-        api: services.api,
-        service,
-        timeoutMs: mergedEntry(mutations, name).timeoutMs,
-        ...(toParams === undefined ? {} : { params: toParams(variables) }),
+      const endpoint = withQuery({
+        endpoint: resolveEndpoint({
+          api: services.api,
+          service,
+          timeoutMs: mergedEntry(mutations, name).timeoutMs,
+          ...(toParams === undefined ? {} : { params: toParams(variables) }),
+        }),
+        query: toQuery?.(variables) ?? {},
       });
       if (optimistic !== undefined) {
         await queryClient.cancelQueries({ queryKey: optimistic.queryKey });

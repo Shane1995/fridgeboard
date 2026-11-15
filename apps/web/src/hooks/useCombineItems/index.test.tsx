@@ -4,6 +4,7 @@ import { fakeShoppingList } from '../../testUtils/fakeShoppingList';
 import { renderHookWithHousehold } from '../../testUtils/createShoppingListWrapper';
 import { COMBINE_ITEMS_COPY } from './constants';
 import { useCombineItems } from './index';
+import { shopIdsOf } from '../../services/shoppingList/utils/shopIdsOf';
 
 const seed = async () => {
   const tesco = await fakeShoppingList.createShop({ name: 'Tesco', color: ShopColor.Sky });
@@ -13,7 +14,10 @@ const seed = async () => {
 };
 
 const remaining = async () =>
-  (await fakeShoppingList.listItems()).map(({ name, shopIds }) => ({ name, shopIds }));
+  (await fakeShoppingList.listItems()).map((item) => ({
+    name: item.name,
+    shopIds: shopIdsOf(item),
+  }));
 
 describe('useCombineItems', () => {
   it('keeps one item in all the shops of the items combined, and removes the others', async () => {

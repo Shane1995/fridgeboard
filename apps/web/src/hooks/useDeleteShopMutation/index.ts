@@ -23,11 +23,8 @@ export const useDeleteShopMutation = (): MutationResult<ApiResult<undefined, nev
       updateItems({
         update: (items) =>
           items.map((item) =>
-            item.shopIds.includes(id)
-              ? {
-                  ...item,
-                  shopIds: item.shopIds.filter((shopId) => shopId !== id),
-                }
+            item.shops.some((shop) => shop.id === id)
+              ? { ...item, shops: item.shops.filter((shop) => shop.id !== id) }
               : item,
           ),
       });

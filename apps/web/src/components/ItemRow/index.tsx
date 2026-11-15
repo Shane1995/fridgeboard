@@ -1,8 +1,8 @@
 import { Checkbox, Dropdown } from '@heroui/react';
 import { Ellipsis } from 'lucide-react';
 import type { HTMLAttributes, ReactNode, Ref } from 'react';
-import { UNSORTED_SHOP_ID } from '../../services/shoppingList/constants';
 import type { Shop, ListItem } from '../../services/shoppingList/types';
+import { shopIdsOf } from '../../services/shoppingList/utils/shopIdsOf';
 import { isPendingItem } from '../../services/shoppingList/utils/isPendingItem';
 import { ItemInfoDialog } from '../ItemInfoDialog';
 import { ShopSwatch } from '../ShopSwatch';
@@ -55,9 +55,7 @@ export const ItemRow = ({
   } = useItemRow({ item, shopId });
   const pending = isPendingItem(item);
   const splitOutLabel = ITEM_ROW_COPY.splitOut(shops.find(({ id }) => id === shopId)?.name ?? '');
-  const elsewhere = shops.filter(
-    ({ id }) => id !== UNSORTED_SHOP_ID && id !== shopId && item.shopIds.includes(id),
-  );
+  const elsewhere = item.shops.filter(({ id }) => id !== shopId);
 
   return (
     <li
@@ -142,7 +140,7 @@ export const ItemRow = ({
                       aria-label={ITEM_ROW_COPY.shops}
                       selectionMode="multiple"
                       shouldCloseOnSelect={false}
-                      selectedKeys={new Set(item.shopIds)}
+                      selectedKeys={new Set(shopIdsOf(item))}
                       onSelectionChange={(keys) =>
                         setShops({
                           shopIds: keys instanceof Set ? [...keys].map(String) : [],

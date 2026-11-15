@@ -7,4 +7,8 @@ export const HOME_COPY = {
   newShop: 'New shop',
   gotIt: 'Got it',
   clearTicked: 'Clear ticked',
+  clearAll: 'Clear all',
+  clearAllTitle: 'Clear the whole list?',
+  clearAllDescription: 'Every item comes off the list for everyone in the household.',
+  clearAllConfirm: 'Clear everything',
 } as const;

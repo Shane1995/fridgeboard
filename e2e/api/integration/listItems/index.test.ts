@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { PutCommand } from '@aws-sdk/lib-dynamodb';
+import { DeleteCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { handler } from '@fridgeboard/fn-list-items/index.ts';
 import { HouseholdRole } from '@fridgeboard/lambda-kit/utils/isHouseholdRole/constants.ts';
 import { shopKey } from '@fridgeboard/lambda-kit/utils/keys/shopKey/index.ts';
@@ -68,7 +68,7 @@ describe('list items handler against DynamoDB Local', () => {
       'oat milk',
     ]);
     expect(listed.items[0]).toMatchObject({
-      shopIds: [],
+      shops: [],
       checked: false,
       addedBy: member.sub,
     });
@@ -108,7 +108,11 @@ describe('list items handler against DynamoDB Local', () => {
     );
 
     expect(updated.statusCode).toBe(200);
-    expect(json(updated)).toMatchObject({ checked: true, name: 'Free eggs', shopIds: [shopId] });
+    expect(json(updated)).toMatchObject({
+      checked: true,
+      name: 'Free eggs',
+      shops: [{ id: shopId, name: 'Aldi', color: 'sky', order: 0 }],
+    });
     expect(
       await getItem(itemKey({ householdId: member.householdId, listId: 'main', itemId: id })),
     ).toMatchObject({
@@ -216,7 +220,7 @@ describe('list items handler against DynamoDB Local', () => {
       }),
     );
 
-    expect(created).toMatchObject({ shopIds: ['express', 'ms'] });
+    expect(created.shops.map(({ id }: { id: string }) => id)).toEqual(['express', 'ms']);
     expect(created).not.toHaveProperty('shopId');
     expect(json(await call(member, 'GET', '/history')).entries).toEqual([
       { name: 'Hummus', shopIds: ['express', 'ms'], count: 1 },
@@ -232,8 +236,8 @@ describe('list items handler against DynamoDB Local', () => {
     const both = await call(member, 'PATCH', `/items/${id}`, { shopIds: ['express', 'ms'] }, id);
     const none = await call(member, 'PATCH', `/items/${id}`, { shopIds: [] }, id);
 
-    expect(json(both).shopIds).toEqual(['express', 'ms']);
-    expect(json(none)).toMatchObject({ shopIds: [] });
+    expect(json(both).shops.map(({ id }: { id: string }) => id)).toEqual(['express', 'ms']);
+    expect(json(none)).toMatchObject({ shops: [] });
   });
 
   it('refuses an unknown shop, a list that is not a list, and too many shops', async () => {
@@ -256,6 +260,24 @@ describe('list items handler against DynamoDB Local', () => {
     expect(json(unknown)).toEqual({ reason: 'invalid-shop' });
   });
 
+  it('lists each item with its shops, and drops one that was deleted', async () => {
+    const member = await seedMember();
+    await seedShop(member, 'express');
+    await seedShop(member, 'ms');
+    await call(member, 'POST', '/items', { name: 'Hummus', shopIds: ['express', 'ms'] });
+    await client.send(
+      new DeleteCommand({
+        TableName: TABLE_NAME,
+        Key: shopKey({ householdId: member.householdId, listId: 'main', shopId: 'ms' }),
+      }),
+    );
+
+    const [item] = json(await call(member, 'GET', '/items')).items;
+
+    expect(item.shops).toEqual([expect.objectContaining({ id: 'express', color: 'sky' })]);
+    expect(item).not.toHaveProperty('shopIds');
+  });
+
   it('treats a row that only has the old single shop as being in no shop', async () => {
     const member = await seedMember();
     await seedShop(member, 'express');
@@ -275,7 +297,7 @@ describe('list items handler against DynamoDB Local', () => {
     );
 
     const [item] = json(await call(member, 'GET', '/items')).items;
-    expect(item).toMatchObject({ shopIds: [] });
+    expect(item).toMatchObject({ shops: [] });
     expect(item).not.toHaveProperty('shopId');
   });
 

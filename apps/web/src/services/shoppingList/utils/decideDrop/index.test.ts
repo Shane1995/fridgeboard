@@ -1,11 +1,12 @@
 import { UNSORTED_SHOP_ID } from '../../constants';
 import type { ListItem } from '../../types';
 import { decideDrop } from './index';
+import { buildShop } from '../../../../testUtils/buildShop';
 
 const item = (shopIds: string[]): ListItem => ({
   id: 'i1',
   name: 'Apples',
-  shopIds,
+  shops: shopIds.map((id) => buildShop(id)),
   checked: false,
   createdAt: 1,
 });

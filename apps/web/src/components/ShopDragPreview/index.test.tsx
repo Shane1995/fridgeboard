@@ -3,12 +3,13 @@ import { ShopColor } from '../../services/shoppingList/constants';
 import type { ShopSectionData } from '../../services/shoppingList/types';
 import { SHOP_COLOR_CLASSES } from '../ShopSwatch/constants';
 import { ShopDragPreview } from './index';
+import { buildShop } from '../../testUtils/buildShop';
 
 const SECTION: ShopSectionData = {
   shop: { id: 'b1', name: 'Tesco', color: ShopColor.Sky, order: 0 },
   items: [
-    { id: 'i1', name: 'Apples', shopIds: ['b1'], checked: false, createdAt: 0 },
-    { id: 'i2', name: 'Pears', shopIds: ['b1'], checked: false, createdAt: 0 },
+    { id: 'i1', name: 'Apples', shops: [buildShop('b1')], checked: false, createdAt: 0 },
+    { id: 'i2', name: 'Pears', shops: [buildShop('b1')], checked: false, createdAt: 0 },
   ],
 };
 

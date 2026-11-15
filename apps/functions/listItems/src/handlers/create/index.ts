@@ -1,6 +1,7 @@
 import { LIST_ITEM_NAME_MAX_LENGTH } from '@fridgeboard/contract/lists/constants';
 import { countHistoryOp } from '@fridgeboard/lambda-kit/repository/history/index.ts';
 import { putItemOp } from '@fridgeboard/lambda-kit/repository/items/index.ts';
+import { queryShops } from '@fridgeboard/lambda-kit/repository/shops/index.ts';
 import { jsonResponse } from '@fridgeboard/lambda-kit/utils/jsonResponse/index.ts';
 import { newId } from '@fridgeboard/lambda-kit/utils/newId/index.ts';
 import { readJsonBody } from '@fridgeboard/lambda-kit/utils/readJsonBody/index.ts';
@@ -37,5 +38,5 @@ export const createListItem = async ({ user, table, scope }: ListRouteContext) =
     changes: [{ type: 'item', id: stored.id }],
     items: [putItemOp({ scope, item: stored }), countHistoryOp({ scope, name, shopIds })],
   });
-  return jsonResponse(201, toListItem(stored));
+  return jsonResponse(201, toListItem({ row: stored, shops: await queryShops({ table, scope }) }));
 };

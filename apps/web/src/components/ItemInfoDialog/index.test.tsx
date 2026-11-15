@@ -4,11 +4,12 @@ import { createShoppingListWrapper } from '../../testUtils/createShoppingListWra
 import type { ListItem } from '../../services/shoppingList/types';
 import { ITEM_INFO_COPY } from './constants';
 import { ItemInfoDialog } from './index';
+import { buildShop } from '../../testUtils/buildShop';
 
 const ITEM: ListItem = {
   id: 'i1',
   name: 'Milk',
-  shopIds: ['b1'],
+  shops: [buildShop('b1')],
   checked: false,
   createdAt: new Date(2026, 9, 24, 21, 31).getTime(),
   addedBy: 'sub-1',

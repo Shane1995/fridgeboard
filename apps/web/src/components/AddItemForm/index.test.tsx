@@ -68,7 +68,7 @@ describe('AddItemForm', () => {
     fireEvent.click(screen.getByRole('button', { name: ADD_ITEM_COPY.submit }));
 
     await waitFor(async () => expect(await fakeShoppingList.listItems()).toHaveLength(1));
-    expect((await fakeShoppingList.listItems())[0]?.shopIds).toHaveLength(2);
+    expect((await fakeShoppingList.listItems())[0]?.shops).toHaveLength(2);
   });
 
   it('names the assign button', async () => {

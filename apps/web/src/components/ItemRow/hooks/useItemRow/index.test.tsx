@@ -1,4 +1,5 @@
 import { act, waitFor } from '@testing-library/react';
+import { ShopColor } from '../../../../services/shoppingList/constants';
 import { fakeShoppingList } from '../../../../testUtils/fakeShoppingList';
 import type { ListItem } from '../../../../services/shoppingList/types';
 import { renderHookWithHousehold } from '../../../../testUtils/createShoppingListWrapper';
@@ -12,6 +13,12 @@ const setup = async () => {
   });
   const { result } = await renderHookWithHousehold(() => useItemRow({ item }));
   return { item, result };
+};
+
+const twoShops = async () => {
+  const first = await fakeShoppingList.createShop({ name: 'Express', color: ShopColor.Mint });
+  const second = await fakeShoppingList.createShop({ name: 'Market', color: ShopColor.Sky });
+  return [first.id, second.id] as const;
 };
 
 const stored = async () => (await fakeShoppingList.listItems())[0];
@@ -61,20 +68,24 @@ describe('useItemRow', () => {
 
   it('puts the item in the chosen shops', async () => {
     const { result } = await setup();
+    const [first, second] = await twoShops();
 
-    act(() => result.current.setShops({ shopIds: ['b1', 'b2'] }));
+    act(() => result.current.setShops({ shopIds: [first, second] }));
 
-    await waitFor(async () => expect((await stored())?.shopIds).toEqual(['b1', 'b2']));
+    await waitFor(async () =>
+      expect((await stored())?.shops.map(({ id }) => id)).toEqual([first, second]),
+    );
   });
 
   it('can take the item out of every shop', async () => {
     const { result } = await setup();
-    act(() => result.current.setShops({ shopIds: ['b1'] }));
-    await waitFor(async () => expect((await stored())?.shopIds).toEqual(['b1']));
+    const [first] = await twoShops();
+    act(() => result.current.setShops({ shopIds: [first] }));
+    await waitFor(async () => expect((await stored())?.shops.map(({ id }) => id)).toEqual([first]));
 
     act(() => result.current.setShops({ shopIds: [] }));
 
-    await waitFor(async () => expect((await stored())?.shopIds).toEqual([]));
+    await waitFor(async () => expect((await stored())?.shops.map(({ id }) => id)).toEqual([]));
   });
 
   it('opens the item info from the menu', async () => {

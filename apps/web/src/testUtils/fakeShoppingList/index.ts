@@ -1,5 +1,6 @@
 import type { IListItem } from '@fridgeboard/contract/lists';
-import type { Shop } from '../../services/shoppingList/types';
+import type { ListItem, Shop } from '../../services/shoppingList/types';
+import { toListItem } from '../../services/shoppingList/utils/toListItem';
 import { toShop } from '../../services/shoppingList/utils/toShop';
 import { fakeShoppingListApi } from '../fakeShoppingListApi';
 import { TEST_HOUSEHOLD_ID } from './constants';
@@ -19,11 +20,12 @@ const call = async ({ path, method, body }: { path: string; method?: string; bod
   ).json();
 
 export const fakeShoppingList = {
-  addItem: ({ name, shopIds }: AddFakeItem): Promise<IListItem> =>
-    call({ path: '/items', method: 'POST', body: { name, shopIds } }),
-  updateItem: ({ id, changes }: UpdateFakeItem): Promise<IListItem> =>
-    call({ path: `/items/${id}`, method: 'PATCH', body: changes }),
-  listItems: async (): Promise<IListItem[]> => (await call({ path: '/items' })).items,
+  addItem: async ({ name, shopIds }: AddFakeItem): Promise<ListItem> =>
+    toListItem(await call({ path: '/items', method: 'POST', body: { name, shopIds } })),
+  updateItem: async ({ id, changes }: UpdateFakeItem): Promise<ListItem> =>
+    toListItem(await call({ path: `/items/${id}`, method: 'PATCH', body: changes })),
+  listItems: async (): Promise<ListItem[]> =>
+    (await call({ path: '/items' })).items.map((item: IListItem) => toListItem(item)),
   createShop: async ({ name, color }: AddFakeShop): Promise<Shop> =>
     toShop(await call({ path: '/shops', method: 'POST', body: { name, color } })),
   listShops: async (): Promise<Shop[]> => (await call({ path: '/shops' })).shops.map(toShop),

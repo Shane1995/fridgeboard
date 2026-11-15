@@ -1,6 +1,7 @@
 import { ShopColor, UNSORTED_SHOP_ID } from '../../constants';
 import type { ListItem, Shop } from '../../types';
 import { inShop } from './index';
+import { buildShop } from '../../../../testUtils/buildShop';
 
 const shops: Shop[] = [
   { id: 'express', name: 'Express', color: ShopColor.Mint, order: 0 },
@@ -9,7 +10,7 @@ const shops: Shop[] = [
 const item = (shopIds: string[]): ListItem => ({
   id: 'i1',
   name: 'Milk',
-  shopIds,
+  shops: shopIds.map((id) => buildShop(id)),
   checked: false,
   createdAt: 1,
 });

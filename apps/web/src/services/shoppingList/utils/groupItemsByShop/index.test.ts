@@ -11,7 +11,7 @@ const shop = (id: string, order: number): Shop => ({
 const item = (id: string, shopIds: string[], checked = false): ListItem => ({
   id,
   name: id,
-  shopIds,
+  shops: shopIds.map((id) => shop(id, 0)),
   checked,
   createdAt: 0,
 });

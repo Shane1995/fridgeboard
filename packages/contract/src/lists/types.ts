@@ -5,7 +5,7 @@ export type ShopColorName = (typeof SHOP_COLORS)[number];
 export type IListItem = {
   id: string;
   name: string;
-  shopIds: string[];
+  shops: IShop[];
   checked: boolean;
   createdAt: number;
   addedBy: string;

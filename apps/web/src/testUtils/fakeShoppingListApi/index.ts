@@ -1,7 +1,7 @@
 import type { IShop, IListItem } from '@fridgeboard/contract/lists';
 import type { Endpoint } from '../../services/configuration/types';
 import { TEST_HOUSEHOLD_ID } from '../fakeShoppingList/constants';
-import type { FakeShoppingListState } from './types';
+import type { FakeItem, FakeShoppingListState } from './types';
 
 const BASE = `/api/v1/households/${TEST_HOUSEHOLD_ID}/lists/main`;
 const SUB = 'sub-1';
@@ -44,13 +44,18 @@ const remember = ({ name, shopIds }: { name: string; shopIds: string[] }) => {
 
 const byOrder = (a: IShop, b: IShop) => a.order - b.order;
 
+const withShops = ({ shopIds, ...rest }: FakeItem): IListItem => ({
+  ...rest,
+  shops: shopIds.flatMap((id) => state.current.shops.filter((shop) => shop.id === id)),
+});
+
 const handleItems = (method: string, init: RequestInit) => {
   if (method === 'GET') {
-    return json(200, { items: state.current.items });
+    return json(200, { items: state.current.items.map(withShops) });
   }
   const body = readBody(init);
   const shopIds = Array.isArray(body.shopIds) ? body.shopIds.map(String) : [];
-  const item: IListItem = {
+  const item: FakeItem = {
     id: nextId('item'),
     name: String(body.name),
     shopIds,
@@ -60,7 +65,16 @@ const handleItems = (method: string, init: RequestInit) => {
   };
   state.current.items = [...state.current.items, item];
   remember({ name: item.name, shopIds });
-  return json(201, item);
+  return json(201, withShops(item));
+};
+
+const handleClear = (query: URLSearchParams) => {
+  const by = query.get('clearby');
+  if (by !== 'all' && by !== 'checked') {
+    return json(400, { reason: 'invalid-request' });
+  }
+  state.current.items = by === 'all' ? [] : state.current.items.filter(({ checked }) => !checked);
+  return json(204);
 };
 
 const handleItem = (id: string, method: string, init: RequestInit) => {
@@ -76,7 +90,7 @@ const handleItem = (id: string, method: string, init: RequestInit) => {
   const shopIds = Array.isArray(changes.shopIds) ? changes.shopIds.map(String) : current.shopIds;
   const updated = { ...current, ...changes, shopIds };
   state.current.items = state.current.items.map((item) => (item.id === id ? updated : item));
-  return json(200, updated);
+  return json(200, withShops(updated));
 };
 
 const handleShops = (method: string, init: RequestInit) => {
@@ -127,7 +141,11 @@ export const fakeShoppingListApi = async (
   init: RequestInit = {},
 ): Promise<Response> => {
   const method = init.method ?? 'GET';
-  const rest = path.startsWith(BASE) ? path.slice(BASE.length) : undefined;
+  const [route, search = ''] = path.split('?');
+  const rest = route?.startsWith(BASE) ? route.slice(BASE.length) : undefined;
+  if (rest === '/items/clear' && method === 'DELETE') {
+    return handleClear(new URLSearchParams(search));
+  }
   if (rest === '/items') {
     return handleItems(method, init);
   }

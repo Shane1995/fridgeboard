@@ -9,7 +9,7 @@ const isListItem = (value: unknown): value is ListItem =>
   isRecord(value) &&
   typeof value.id === 'string' &&
   typeof value.name === 'string' &&
-  Array.isArray(value.shopIds) &&
+  Array.isArray(value.shops) &&
   typeof value.checked === 'boolean';
 
 export const readDraggedItem = (data: unknown): Dragged | undefined => {

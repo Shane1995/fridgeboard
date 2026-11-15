@@ -4,7 +4,7 @@ import { findDuplicates } from './index';
 const item = (id: string, name: string, checked = false): ListItem => ({
   id,
   name,
-  shopIds: [],
+  shops: [],
   checked,
   createdAt: 1,
 });

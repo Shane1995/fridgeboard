@@ -3,6 +3,7 @@ import { ShopColor } from '../../services/shoppingList/constants';
 import type { Shop, ListItem } from '../../services/shoppingList/types';
 import { createShoppingListWrapper } from '../../testUtils/createShoppingListWrapper';
 import { useItemsQuery } from '../../hooks/useItemsQuery';
+import { shopIdsOf } from '../../services/shoppingList/utils/shopIdsOf';
 import { fakeShoppingList } from '../../testUtils/fakeShoppingList';
 import { ITEM_ROW_COPY } from './constants';
 import { ItemRow } from './index';
@@ -10,7 +11,7 @@ import { ItemRow } from './index';
 const ITEM: ListItem = {
   id: 'i1',
   name: 'Milk',
-  shopIds: [],
+  shops: [],
   checked: false,
   createdAt: 0,
 };
@@ -105,7 +106,7 @@ describe('ItemRow', () => {
     };
 
     it('shows the other shops an item is in, not the one it is listed under', () => {
-      renderIn({ ...ITEM, shopIds: ['b1', 'b2'] }, 'b1');
+      renderIn({ ...ITEM, shops: [EXPRESS, MARKET] }, 'b1');
 
       expect(
         screen.getByRole('img', { name: ITEM_ROW_COPY.alsoIn(['Market']) }),
@@ -113,13 +114,13 @@ describe('ItemRow', () => {
     });
 
     it('shows nothing extra for an item that is only in the shop it is listed under', () => {
-      renderIn({ ...ITEM, shopIds: ['b1'] }, 'b1');
+      renderIn({ ...ITEM, shops: [EXPRESS] }, 'b1');
 
       expect(screen.queryByRole('img')).not.toBeInTheDocument();
     });
 
     it('shows every shop when the row is not listed under one, like the ticked list', () => {
-      renderIn({ ...ITEM, shopIds: ['b1', 'b2'] });
+      renderIn({ ...ITEM, shops: [EXPRESS, MARKET] });
 
       expect(
         screen.getByRole('img', { name: ITEM_ROW_COPY.alsoIn(['Express', 'Market']) }),
@@ -127,19 +128,13 @@ describe('ItemRow', () => {
     });
 
     it('shows a count for the shops that do not fit', () => {
-      renderIn({ ...ITEM, shopIds: ['b1', 'b2', 'b3', 'b4', 'b5'] }, 'b1');
+      renderIn({ ...ITEM, shops: ALL }, 'b1');
 
       expect(
         screen.getByRole('img', {
           name: ITEM_ROW_COPY.alsoIn(['Market', 'Sainsburys', 'Aldi', 'Tesco']),
         }),
       ).toHaveTextContent('+1');
-    });
-
-    it('ignores a shop that no longer exists', () => {
-      renderIn({ ...ITEM, shopIds: ['b1', 'gone'] }, 'b1');
-
-      expect(screen.queryByRole('img')).not.toBeInTheDocument();
     });
   });
 
@@ -172,13 +167,13 @@ describe('ItemRow', () => {
     };
 
     it('offers Split into every shop for an item in two shops when no shop is in context', async () => {
-      await renderStored({ ...ITEM, shopIds: ['b1', 'b2'] }, [EXPRESS, MARKET]);
+      await renderStored({ ...ITEM, shops: [EXPRESS, MARKET] }, [EXPRESS, MARKET]);
 
       expect(screen.getByRole('menuitem', { name: ITEM_ROW_COPY.splitAll })).toBeInTheDocument();
     });
 
     it('leaves Split out for an item in one shop', async () => {
-      await renderStored({ ...ITEM, shopIds: ['b1'] }, [EXPRESS, MARKET]);
+      await renderStored({ ...ITEM, shops: [EXPRESS] }, [EXPRESS, MARKET]);
 
       expect(
         screen.queryByRole('menuitem', { name: ITEM_ROW_COPY.splitAll }),
@@ -203,7 +198,7 @@ describe('ItemRow', () => {
     });
 
     it('offers only Split out of this shop for an item in two shops, viewed from one of them', async () => {
-      await renderStored({ ...ITEM, shopIds: ['b1', 'b2'] }, [EXPRESS, MARKET], 'b1');
+      await renderStored({ ...ITEM, shops: [EXPRESS, MARKET] }, [EXPRESS, MARKET], 'b1');
 
       expect(
         screen.getByRole('menuitem', { name: ITEM_ROW_COPY.splitOut('Express') }),
@@ -215,7 +210,11 @@ describe('ItemRow', () => {
 
     it('offers both Split out of this shop and Split into every shop for an item in three', async () => {
       const third: Shop = { id: 'b3', name: 'Aldi', color: ShopColor.Pink, order: 2 };
-      await renderStored({ ...ITEM, shopIds: ['b1', 'b2', 'b3'] }, [EXPRESS, MARKET, third], 'b1');
+      await renderStored(
+        { ...ITEM, shops: [EXPRESS, MARKET, third] },
+        [EXPRESS, MARKET, third],
+        'b1',
+      );
 
       expect(
         screen.getByRole('menuitem', { name: ITEM_ROW_COPY.splitOut('Express') }),
@@ -239,7 +238,7 @@ describe('ItemRow', () => {
       choose(screen.getByRole('menuitem', { name: ITEM_ROW_COPY.splitOut('Express') }));
 
       await waitFor(async () =>
-        expect((await fakeShoppingList.listItems()).map(({ shopIds }) => shopIds).sort()).toEqual([
+        expect((await fakeShoppingList.listItems()).map((item) => shopIdsOf(item)).sort()).toEqual([
           [express.id],
           [market.id],
         ]),

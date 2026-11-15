@@ -1,4 +1,5 @@
 import { UNSORTED_SHOP_ID } from '../../constants';
+import { shopIdsOf } from '../shopIdsOf';
 import type { DecideDropOptions, DropDecision } from './types';
 
 export const decideDrop = ({ item, fromShopId, toShopId }: DecideDropOptions): DropDecision => {
@@ -11,5 +12,5 @@ export const decideDrop = ({ item, fromShopId, toShopId }: DecideDropOptions): D
   if (fromShopId === UNSORTED_SHOP_ID) {
     return { kind: 'assign' };
   }
-  return item.shopIds.includes(toShopId) ? { kind: 'already' } : { kind: 'ask' };
+  return shopIdsOf(item).includes(toShopId) ? { kind: 'already' } : { kind: 'ask' };
 };

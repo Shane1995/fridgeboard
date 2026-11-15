@@ -1,18 +1,15 @@
 import type { IListItem } from '@fridgeboard/contract/lists';
-import type * as z from 'zod/mini';
-import type { ListItemSchema } from '@fridgeboard/lambda-kit/utils/items/listItem/index.ts';
+import type { ToListItemOptions } from './types.ts';
 
+// The shops of an item are its own, in the order it names them; a shop that no longer exists is
+// left out.
 export const toListItem = ({
+  row: { id, name, shopIds, checked, createdAt, addedBy },
+  shops,
+}: ToListItemOptions): IListItem => ({
   id,
   name,
-  shopIds,
-  checked,
-  createdAt,
-  addedBy,
-}: z.infer<typeof ListItemSchema>): IListItem => ({
-  id,
-  name,
-  shopIds: shopIds ?? [],
+  shops: (shopIds ?? []).flatMap((shopId) => shops.filter((shop) => shop.id === shopId)),
   checked,
   createdAt,
   addedBy,

@@ -4,9 +4,16 @@ import { ShopColor } from '../../services/shoppingList/constants';
 import type { ListItem, Shop } from '../../services/shoppingList/types';
 import { createShoppingListWrapper } from '../../testUtils/createShoppingListWrapper';
 import { DraggableItemRow } from './index';
+import { buildShop } from '../../testUtils/buildShop';
 
 const TESCO: Shop = { id: 'b1', name: 'Tesco', color: ShopColor.Sky, order: 0 };
-const ITEM: ListItem = { id: 'i1', name: 'Apples', shopIds: ['b1'], checked: false, createdAt: 0 };
+const ITEM: ListItem = {
+  id: 'i1',
+  name: 'Apples',
+  shops: [buildShop('b1')],
+  checked: false,
+  createdAt: 0,
+};
 
 const renderRow = () => {
   const Wrapper = createShoppingListWrapper();

@@ -5,13 +5,17 @@ import {
 import { getListItem } from './index.ts';
 
 const getItem = vi.hoisted(() => vi.fn());
+const queryShops = vi.hoisted(() => vi.fn());
 vi.mock('@fridgeboard/lambda-kit/repository/items/index.ts', () => ({ getItem }));
+vi.mock('@fridgeboard/lambda-kit/repository/shops/index.ts', () => ({ queryShops }));
 
 const context = buildListContext({ pathParameters: { itemId: 'i1' } });
+const SHOP = { id: 's1', name: 'Aldi', color: 'sky', order: 0 };
 
 describe('getListItem', () => {
   beforeEach(() => {
     getItem.mockReset();
+    queryShops.mockReset().mockResolvedValue([SHOP]);
   });
 
   it('returns the item without its keys', async () => {
@@ -32,7 +36,7 @@ describe('getListItem', () => {
     expect(JSON.parse(result.body ?? '')).toEqual({
       id: 'i1',
       name: 'Milk',
-      shopIds: ['s1'],
+      shops: [SHOP],
       checked: true,
       createdAt: 1,
       addedBy: 'sub-1',

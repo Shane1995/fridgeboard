@@ -1,17 +1,18 @@
 import type { IListItem } from '@fridgeboard/contract/lists';
 import type { ListItem } from '../../types';
+import { toShop } from '../toShop';
 
 export const toListItem = ({
   id,
   name,
-  shopIds,
+  shops,
   checked,
   createdAt,
   addedBy,
 }: IListItem): ListItem => ({
   id,
   name,
-  shopIds,
+  shops: shops.map(toShop),
   checked,
   createdAt,
   addedBy,

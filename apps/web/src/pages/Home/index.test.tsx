@@ -250,6 +250,25 @@ describe('Home', () => {
     await waitFor(() => expect(screen.queryByText('Milk')).not.toBeInTheDocument());
   });
 
+  it('clears the whole list after asking, with one request', async () => {
+    renderHome();
+    for (const name of ['Milk', 'Tape']) {
+      fireEvent.change(await screen.findByRole('textbox', { name: 'Item' }), {
+        target: { value: name },
+      });
+      fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+      await screen.findByRole('checkbox', { name });
+    }
+
+    fireEvent.click(screen.getByRole('button', { name: HOME_COPY.clearAll }));
+    expect(await screen.findByText(HOME_COPY.clearAllTitle)).toBeInTheDocument();
+    expect(await fakeShoppingList.listItems()).toHaveLength(2);
+    fireEvent.click(screen.getByRole('button', { name: HOME_COPY.clearAllConfirm }));
+
+    await waitFor(() => expect(screen.queryByRole('checkbox', { name: 'Milk' })).toBeNull());
+    expect(await fakeShoppingList.listItems()).toEqual([]);
+  });
+
   it('narrows the list to one shop and back to all', async () => {
     renderHome();
     fireEvent.click(await screen.findByRole('button', { name: HOME_COPY.newShop }));
