@@ -28,6 +28,7 @@ const VALID = {
   services: {
     api: {
       endpoints: {
+        clearItems: '/api/v1/households/{householdId}/lists/{listId}/items/clear',
         householdChanges: '/api/v1/households/{householdId}/changes',
         householdInvites: '/api/v1/households/{householdId}/invites',
         householdMembers: '/api/v1/households/{householdId}/members',

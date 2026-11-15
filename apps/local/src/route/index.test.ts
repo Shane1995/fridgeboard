@@ -12,6 +12,7 @@ const api = {
     onboardingSkip: '/api/v2/me/onboarding/{sectionId}/skip',
     username: '/api/v2/profile/name',
     households: '/api/v2/households',
+    clearItems: '/api/v2/households/{householdId}/lists/{listId}/items/clear',
     householdChanges: '/api/v2/households/{householdId}/changes',
     householdInvites: '/api/v2/households/{householdId}/invites',
     householdMembers: '/api/v2/households/{householdId}/members',
@@ -53,6 +54,7 @@ describe('buildRoutes', () => {
       expect.arrayContaining([
         'GET /api/v2/households/{householdId}/lists/{listId}/items',
         'PATCH /api/v2/households/{householdId}/lists/{listId}/items/{itemId}',
+        'DELETE /api/v2/households/{householdId}/lists/{listId}/items/clear',
         'PUT /api/v2/households/{householdId}/lists/{listId}/shops/order',
         'DELETE /api/v2/households/{householdId}/lists/{listId}/shops/{shopId}',
         'GET /api/v2/households/{householdId}/lists/{listId}/history',

@@ -1,6 +1,6 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
-import { isMember } from '@fridgeboard/lambda-kit/utils/isMember/index.ts';
+import { isMember } from '@fridgeboard/lambda-kit/repository/households/isMember/index.ts';
 import { ID_PATTERN } from '@fridgeboard/lambda-kit/utils/resolveList/constants.ts';
 import { createTable } from '@fridgeboard/lambda-kit/utils/table/index.ts';
 import { CHANNEL_NAMESPACE, CHANNEL_SEGMENT_COUNT, UNAUTHORIZED_ERROR } from './constants.ts';

@@ -1,3 +1,3 @@
-import type { Profile } from '../readProfile/types.ts';
+import type { Profile } from '../../repository/profile/types.ts';
 
 export type PendingOnboardingInput = { sub: string; profile: Profile; isAdmin: boolean };

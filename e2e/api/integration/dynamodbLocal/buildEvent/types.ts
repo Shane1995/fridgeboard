@@ -7,3 +7,8 @@ export type BuildEventOptions = {
   query?: Record<string, string>;
   headers?: Record<string, string>;
 };
+
+export type RouteTemplateOptions = {
+  path: string;
+  pathParameters: Record<string, string> | undefined;
+};

@@ -38,6 +38,7 @@ const call = (
   suffix = '',
   body?: unknown,
   itemId?: string,
+  query?: Record<string, string>,
 ) =>
   handler(
     buildEvent({
@@ -46,6 +47,7 @@ const call = (
       path: `${BASE(householdId)}${suffix}`,
       pathParameters: { householdId, listId: 'main', ...(itemId ? { itemId } : {}) },
       body,
+      ...(query ? { query } : {}),
     }),
   );
 
@@ -279,16 +281,117 @@ describe('list items handler against DynamoDB Local', () => {
 
   it('records a numbered change for each write and none for a missing item', async () => {
     const member = await seedMember();
-    const { id } = json(await call(member, 'POST', '', { name: 'Milk' }));
-    await call(member, 'PATCH', `/${id}`, { checked: true }, id);
-    await call(member, 'DELETE', `/${id}`, undefined, id);
-    await call(member, 'DELETE', '/missing', undefined, 'missing');
+    const { id } = json(await call(member, 'POST', '/items', { name: 'Milk' }));
+    await call(member, 'PATCH', `/items/${id}`, { checked: true }, id);
+    await call(member, 'DELETE', `/items/${id}`, undefined, id);
+    await call(member, 'DELETE', '/items/missing', undefined, 'missing');
 
     expect((await getItem(householdMetaKey(member.householdId)))?.rev).toBe(3);
     expect(await getItem({ PK: `HH#${member.householdId}`, SK: 'CHG#0000000002' })).toMatchObject({
       rev: 2,
       type: 'item',
       id,
+    });
+  });
+
+  describe('clearing items', () => {
+    const CLEAR = '/items/clear';
+
+    const seedItems = async (member: { sub: string; householdId: string }, names: string[]) =>
+      Promise.all(
+        names.map(async (name) => json(await call(member, 'POST', '/items', { name })).id),
+      );
+
+    const names = async (member: { sub: string; householdId: string }) =>
+      json(await call(member, 'GET', '/items')).items.map((item: { name: string }) => item.name);
+
+    it('clears every item with clearby=all', async () => {
+      const member = await seedMember();
+      await seedItems(member, ['Eggs', 'Milk', 'Bread']);
+
+      const cleared = await call(member, 'DELETE', CLEAR, undefined, undefined, {
+        clearby: 'all',
+      });
+
+      expect(cleared.statusCode).toBe(204);
+      expect(await names(member)).toEqual([]);
+    });
+
+    it('clears only the checked items with clearby=checked', async () => {
+      const member = await seedMember();
+      const [eggs] = await seedItems(member, ['Eggs']);
+      await seedItems(member, ['Milk']);
+      await call(member, 'PATCH', `/items/${eggs}`, { checked: true }, eggs);
+
+      const cleared = await call(member, 'DELETE', CLEAR, undefined, undefined, {
+        clearby: 'checked',
+      });
+
+      expect(cleared.statusCode).toBe(204);
+      expect(await names(member)).toEqual(['Milk']);
+    });
+
+    it('answers 204 and records nothing when there is nothing to clear', async () => {
+      const member = await seedMember();
+      await seedItems(member, ['Milk']);
+
+      const cleared = await call(member, 'DELETE', CLEAR, undefined, undefined, {
+        clearby: 'checked',
+      });
+
+      expect(cleared.statusCode).toBe(204);
+      expect(await names(member)).toEqual(['Milk']);
+      expect((await getItem(householdMetaKey(member.householdId)))?.rev).toBe(1);
+    });
+
+    it('refuses a missing or unknown clearby and clears nothing', async () => {
+      const member = await seedMember();
+      await seedItems(member, ['Milk']);
+
+      const missing = await call(member, 'DELETE', CLEAR);
+      const unknown = await call(member, 'DELETE', CLEAR, undefined, undefined, {
+        clearby: 'everything',
+      });
+
+      expect(missing.statusCode).toBe(400);
+      expect(unknown.statusCode).toBe(400);
+      expect(await names(member)).toEqual(['Milk']);
+    });
+
+    it('records one numbered change for the whole clear', async () => {
+      const member = await seedMember();
+      await seedItems(member, ['Eggs', 'Milk']);
+
+      await call(member, 'DELETE', CLEAR, undefined, undefined, { clearby: 'all' });
+
+      expect((await getItem(householdMetaKey(member.householdId)))?.rev).toBe(3);
+      expect(await getItem({ PK: `HH#${member.householdId}`, SK: 'CHG#0000000003' })).toMatchObject(
+        { rev: 3, type: 'item', id: 'main' },
+      );
+    });
+
+    it('leaves another household’s items alone', async () => {
+      const mine = await seedMember();
+      const theirs = await seedMember();
+      await seedItems(mine, ['Eggs']);
+      await seedItems(theirs, ['Milk']);
+
+      await call(mine, 'DELETE', CLEAR, undefined, undefined, { clearby: 'all' });
+
+      expect(await names(theirs)).toEqual(['Milk']);
+    });
+
+    it('hides a household from someone who is not a member', async () => {
+      const member = await seedMember();
+      const stranger = { sub: randomUUID(), householdId: member.householdId };
+      await seedItems(member, ['Eggs']);
+
+      const cleared = await call(stranger, 'DELETE', CLEAR, undefined, undefined, {
+        clearby: 'all',
+      });
+
+      expect(cleared.statusCode).toBe(404);
+      expect(await names(member)).toEqual(['Eggs']);
     });
   });
 });

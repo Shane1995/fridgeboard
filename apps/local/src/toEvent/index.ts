@@ -4,7 +4,7 @@ import type { LocalClaims } from '../types.ts';
 import type { ToEventInput } from './types.ts';
 
 export const toEvent = (
-  { request, body, path, routeKey, pathParameters }: ToEventInput,
+  { request, body, path, query, routeKey, pathParameters }: ToEventInput,
   claims: LocalClaims | undefined,
 ): APIGatewayProxyEventV2WithJWTAuthorizer => {
   const method = request.method ?? 'GET';
@@ -20,12 +20,13 @@ export const toEvent = (
     version: '2.0',
     routeKey,
     rawPath: path,
-    rawQueryString: '',
+    rawQueryString: query.toString(),
     headers: { ...headers, [ORIGIN_HEADER]: ORIGIN_SECRET },
     cookies: (headers.cookie ?? '')
       .split(';')
       .map((pair) => pair.trim())
       .filter(Boolean),
+    ...(query.size > 0 ? { queryStringParameters: Object.fromEntries(query) } : {}),
     ...(body === '' ? {} : { body }),
     ...(Object.keys(pathParameters).length > 0 ? { pathParameters } : {}),
     isBase64Encoded: false,

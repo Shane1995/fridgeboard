@@ -24,7 +24,8 @@
     "packages/lambda-kit/src/configuration/isFeatureEnabled/index.ts",
     "scripts/checkReexports/index.ts",
     "scripts/checkDeployments/index.ts",
-    "e2e/api/integration/dynamodbLocal/**/*.ts"
+    "e2e/api/integration/dynamodbLocal/**/*.ts",
+    "packages/lambda-kit/src/testUtils/**/*.ts"
   ],
   "workspaces": {
     "packages": ["apps/*", "apps/functions/*", "packages/*", "scripts/admin", "e2e"]
@@ -57,6 +58,7 @@
       "apps/local/src/server/index.ts",
     "apps/local/src/localConfiguration/index.ts",
       "apps/local/src/constants.ts",
+      "apps/local/src/localConfiguration/types.ts",
       "e2e/api/integration/dynamodbLocal/constants.ts",
       "e2e/api/integration/dynamodbLocal/globalSetup/index.ts",
       "e2e/api/integration/dynamodbLocal/setup/index.ts"

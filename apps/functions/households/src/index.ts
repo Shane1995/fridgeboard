@@ -4,11 +4,11 @@ import { SESv2Client } from '@aws-sdk/client-sesv2';
 import { HttpMethod } from '@fridgeboard/lambda-kit/utils/httpMethod/constants.ts';
 import { withAuthenticatedUser } from '@fridgeboard/lambda-kit/utils/withAuthenticatedUser/index.ts';
 import { CHANGES_PATH_SUFFIX } from './constants.ts';
-import { listChanges } from './routes/changes/index.ts';
-import { createHousehold } from './routes/create/index.ts';
-import { inviteToHousehold } from './routes/invite/index.ts';
-import { listMyHouseholds } from './routes/list/index.ts';
-import { listMembers } from './routes/members/index.ts';
+import { listChanges } from './handlers/changes/index.ts';
+import { createHousehold } from './handlers/create/index.ts';
+import { inviteToHousehold } from './handlers/invite/index.ts';
+import { listMyHouseholds } from './handlers/list/index.ts';
+import { listMembers } from './handlers/members/index.ts';
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const ses = new SESv2Client({});

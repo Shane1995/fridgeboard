@@ -35,6 +35,7 @@ describe('postConfirmation handler', () => {
     ddbMock.reset();
     cognitoMock.reset();
     vi.stubEnv('TABLE_NAME', 'fridgeboard');
+    ddbMock.on(DeleteCommand).resolves({});
   });
 
   it('creates the profile with canCreateHousehold true for an app invite', async () => {

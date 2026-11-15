@@ -1,4 +1,4 @@
-import { isMember } from '../isMember/index.ts';
+import { isMember } from '../../repository/households/isMember/index.ts';
 import { ID_PATTERN } from './constants.ts';
 import type { ListScope, ResolveListOptions } from './types.ts';
 

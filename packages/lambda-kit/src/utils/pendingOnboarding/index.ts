@@ -1,6 +1,6 @@
 import type { IOnboardingSection } from '@fridgeboard/contract/onboarding';
 import { buildOnboarding } from '../buildOnboarding/index.ts';
-import { fetchMemberships } from '../fetchMemberships/index.ts';
+import { fetchMemberships } from '../../repository/households/fetchMemberships/index.ts';
 import { householdRoles } from '../householdRoles/index.ts';
 import type { Table } from '../table/types.ts';
 import type { PendingOnboardingInput } from './types.ts';

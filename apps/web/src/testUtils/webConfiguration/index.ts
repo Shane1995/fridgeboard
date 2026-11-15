@@ -27,6 +27,7 @@ export const TEST_WEB_CONFIGURATION: WebConfiguration = {
   services: {
     api: {
       endpoints: {
+        [WebService.clearItems]: '/api/v1/households/{householdId}/lists/{listId}/items/clear',
         [WebService.householdChanges]: '/api/v1/households/{householdId}/changes',
         [WebService.householdInvites]: '/api/v1/households/{householdId}/invites',
         [WebService.householdMembers]: '/api/v1/households/{householdId}/members',

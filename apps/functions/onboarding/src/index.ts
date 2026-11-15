@@ -2,8 +2,8 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { HttpMethod } from '@fridgeboard/lambda-kit/utils/httpMethod/constants.ts';
 import { withAuthenticatedUser } from '@fridgeboard/lambda-kit/utils/withAuthenticatedUser/index.ts';
-import { getOnboarding } from './routes/get/index.ts';
-import { skipSection } from './routes/skip/index.ts';
+import { getOnboarding } from './handlers/get/index.ts';
+import { skipSection } from './handlers/skip/index.ts';
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 

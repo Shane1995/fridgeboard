@@ -1,23 +1,20 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import type { PreSignUpTriggerEvent } from 'aws-lambda';
-import { inviteKey } from '@fridgeboard/lambda-kit/utils/keys/inviteKey/index.ts';
-import type { Invite } from '@fridgeboard/lambda-kit/utils/keys/types.ts';
+import { getInviteExpiry } from '@fridgeboard/lambda-kit/repository/invites/index.ts';
 import { NO_INVITE_ERROR } from '@fridgeboard/lambda-kit/utils/noInviteError/constants.ts';
+import { createTable } from '@fridgeboard/lambda-kit/utils/table/index.ts';
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 
 export const handler = async (event: PreSignUpTriggerEvent): Promise<PreSignUpTriggerEvent> => {
-  const { Item } = await client.send(
-    new GetCommand({
-      TableName: process.env.TABLE_NAME,
-      Key: inviteKey(event.request.userAttributes.email ?? ''),
-      ConsistentRead: true,
-    }),
-  );
-  const expiresAt: Invite['expiresAt'] | undefined = Item?.expiresAt;
+  const table = createTable(client, String(process.env.TABLE_NAME));
+  const expiresAt = await getInviteExpiry({
+    table,
+    email: event.request.userAttributes.email ?? '',
+  });
 
-  if (typeof expiresAt !== 'number' || expiresAt <= Math.floor(Date.now() / 1000)) {
+  if (expiresAt === undefined || expiresAt <= Math.floor(Date.now() / 1000)) {
     throw new Error(NO_INVITE_ERROR);
   }
 
