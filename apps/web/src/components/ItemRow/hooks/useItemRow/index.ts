@@ -88,5 +88,6 @@ export const useItemRow = ({
     canSplitAll: shopIds.length >= 3 || (shopIds.length === 2 && !canSplitOut),
     duplicateCount: duplicates.length,
     handleMenuAction,
+    remove: () => void removeItem(item),
   };
 };
