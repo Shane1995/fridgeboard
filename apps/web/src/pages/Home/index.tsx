@@ -2,6 +2,7 @@ import { DndContext, DragOverlay } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Button } from '@heroui/react';
 import { Plus } from 'lucide-react';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { AddItemForm } from '../../components/AddItemForm';
 import { ShopDialog } from '../../components/ShopDialog';
 import { ShopFilter } from '../../components/ShopFilter';
@@ -44,8 +45,11 @@ export const Home = () => {
     hasError,
     newShopDialog,
     isClearing,
-    handleClearChecked,
-    handleClearAll,
+    tickedCount,
+    clearTickedDialog,
+    clearAllDialog,
+    confirmClearTicked,
+    confirmClearAll,
     hasItems,
   } = useHome();
 
@@ -115,15 +119,15 @@ export const Home = () => {
           {visibleSections.length === 0 && <Typography>{HOME_COPY.focusEmpty}</Typography>}
         </>
       )}
-      {focusedId === undefined && grouped.tickedCount > 0 && (
+      {focusedId === undefined && tickedCount > 0 && (
         <Button
           size="sm"
           variant="secondary"
-          onPress={handleClearChecked}
+          onPress={clearTickedDialog.open}
           isPending={isClearing}
           className="self-end"
         >
-          {HOME_COPY.clearTicked}
+          {HOME_COPY.clearTicked} ({tickedCount})
         </Button>
       )}
       {focusedId === undefined && (
@@ -137,11 +141,31 @@ export const Home = () => {
         </button>
       )}
       {focusedId === undefined && hasItems && (
-        <Button size="sm" variant="ghost" onPress={handleClearAll} isPending={isClearing}>
+        <button
+          type="button"
+          onClick={clearAllDialog.open}
+          disabled={isClearing}
+          className="mt-10 cursor-pointer self-center text-xs text-foreground/50 underline underline-offset-4 outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-focus"
+        >
           {HOME_COPY.clearAll}
-        </Button>
+        </button>
       )}
       <ShopDialog state={newShopDialog} />
+      <ConfirmDialog
+        state={clearTickedDialog}
+        title={HOME_COPY.clearTickedTitle(tickedCount)}
+        description={HOME_COPY.clearTickedDescription}
+        confirmLabel={HOME_COPY.clearTickedConfirm}
+        onConfirm={confirmClearTicked}
+      />
+      <ConfirmDialog
+        state={clearAllDialog}
+        title={HOME_COPY.clearAllTitle}
+        description={HOME_COPY.clearAllDescription}
+        confirmLabel={HOME_COPY.clearAllConfirm}
+        onConfirm={confirmClearAll}
+        holdToConfirm
+      />
     </main>
   );
 };

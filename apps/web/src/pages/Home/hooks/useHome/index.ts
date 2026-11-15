@@ -40,6 +40,8 @@ export const useHome = (): HomeState => {
   const shops = useShopsQuery();
   const items = useItemsQuery();
   const newShopDialog = useOverlayState();
+  const clearTickedDialog = useOverlayState();
+  const clearAllDialog = useOverlayState();
   const clear = useClearItemsMutation();
   const toast = useToast();
   const [storedFocus, setFocus] = useLocalStorage(FOCUS_SHOP_STORAGE_KEY);
@@ -145,14 +147,18 @@ export const useHome = (): HomeState => {
     hasError: households.isError || shops.isError || items.isError,
     newShopDialog,
     isClearing: clear.isPending,
-    handleClearChecked: () => clear.mutate(ClearItemsBy.Checked),
-    handleClearAll: () =>
-      toast.confirm({
-        title: HOME_COPY.clearAllTitle,
-        description: HOME_COPY.clearAllDescription,
-        actions: [
-          { label: HOME_COPY.clearAllConfirm, onPress: () => clear.mutate(ClearItemsBy.All) },
-        ],
+    tickedCount: grouped.tickedCount,
+    clearTickedDialog,
+    clearAllDialog,
+    confirmClearTicked: () => {
+      const count = grouped.tickedCount;
+      clear.mutate(ClearItemsBy.Checked, {
+        onSuccess: (result) => result.ok && toast.success(HOME_COPY.clearedTicked(count)),
+      });
+    },
+    confirmClearAll: () =>
+      clear.mutate(ClearItemsBy.All, {
+        onSuccess: (result) => result.ok && toast.success(HOME_COPY.clearedAll),
       }),
   };
 };

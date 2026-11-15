@@ -247,11 +247,48 @@ describe('Home', () => {
     expect(screen.queryByRole('heading', { name: 'Got it' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Milk' })).toHaveClass('line-through');
 
-    fireEvent.click(screen.getByRole('button', { name: HOME_COPY.clearTicked }));
+    fireEvent.click(screen.getByRole('button', { name: `${HOME_COPY.clearTicked} (1)` }));
+    expect(await screen.findByText(HOME_COPY.clearTickedTitle(1))).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: HOME_COPY.clearTickedConfirm }));
+
     await waitFor(() => expect(screen.queryByText('Milk')).not.toBeInTheDocument());
+    expect(await screen.findByText(HOME_COPY.clearedTicked(1))).toBeInTheDocument();
   });
 
-  it('clears the whole list after asking, with one request', async () => {
+  it('keeps the ticked items when the clear dialog is cancelled', async () => {
+    const milk = await fakeShoppingList.addItem({ name: 'Milk', shopIds: [] });
+    await fakeShoppingList.updateItem({ id: milk.id, changes: { checked: true } });
+    renderHome();
+
+    fireEvent.click(await screen.findByRole('button', { name: `${HOME_COPY.clearTicked} (1)` }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Cancel' }));
+
+    await waitFor(() => expect(screen.queryByText(HOME_COPY.clearTickedTitle(1))).toBeNull());
+    expect(await fakeShoppingList.listItems()).toHaveLength(1);
+    expect(screen.queryByText(HOME_COPY.clearedTicked(1))).not.toBeInTheDocument();
+  });
+
+  it('offers Clear ticked only while something is ticked', async () => {
+    await fakeShoppingList.addItem({ name: 'Milk', shopIds: [] });
+    renderHome();
+
+    await screen.findByRole('checkbox', { name: 'Milk' });
+    expect(screen.queryByRole('button', { name: /^Clear ticked/ })).not.toBeInTheDocument();
+  });
+
+  it('puts Clear all last, below New shop, so it is hard to hit by accident', async () => {
+    await fakeShoppingList.addItem({ name: 'Milk', shopIds: [] });
+    renderHome();
+
+    const newShop = await screen.findByRole('button', { name: HOME_COPY.newShop });
+    const clearAll = screen.getByRole('button', { name: HOME_COPY.clearAll });
+
+    expect(
+      newShop.compareDocumentPosition(clearAll) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it('clears the whole list once the dialog button is held, with one request', async () => {
     renderHome();
     for (const name of ['Milk', 'Tape']) {
       fireEvent.change(await screen.findByRole('textbox', { name: 'Item' }), {
@@ -263,10 +300,14 @@ describe('Home', () => {
 
     fireEvent.click(screen.getByRole('button', { name: HOME_COPY.clearAll }));
     expect(await screen.findByText(HOME_COPY.clearAllTitle)).toBeInTheDocument();
+    const confirm = screen.getByRole('button', { name: HOME_COPY.clearAllConfirm });
+    fireEvent.click(confirm);
     expect(await fakeShoppingList.listItems()).toHaveLength(2);
-    fireEvent.click(screen.getByRole('button', { name: HOME_COPY.clearAllConfirm }));
+    fireEvent.pointerDown(confirm);
 
-    await waitFor(() => expect(screen.queryByRole('checkbox', { name: 'Milk' })).toBeNull());
+    expect(
+      await screen.findByText(HOME_COPY.clearedAll, undefined, { timeout: 4000 }),
+    ).toBeInTheDocument();
     expect(await fakeShoppingList.listItems()).toEqual([]);
   });
 

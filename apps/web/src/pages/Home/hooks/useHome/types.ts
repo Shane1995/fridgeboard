@@ -32,6 +32,9 @@ export type HomeState = {
   hasError: boolean;
   newShopDialog: UseOverlayStateReturn;
   isClearing: boolean;
-  handleClearChecked: () => void;
-  handleClearAll: () => void;
+  tickedCount: number;
+  clearTickedDialog: UseOverlayStateReturn;
+  clearAllDialog: UseOverlayStateReturn;
+  confirmClearTicked: () => void;
+  confirmClearAll: () => void;
 };
