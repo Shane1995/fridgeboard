@@ -13,7 +13,7 @@ type Variables = { id: string; changes: ShopChanges };
 
 export const useUpdateShopMutation = (): MutationResult<ApiResult<IShop, never>, Variables> => {
   const { paramsFor } = useListParams();
-  const { updateShops } = useListCache();
+  const { updateShops, updateItems } = useListCache();
   return useApiMutation({
     name: MutationName.updateShop,
     service: WebService.listShop,
@@ -22,9 +22,18 @@ export const useUpdateShopMutation = (): MutationResult<ApiResult<IShop, never>,
     toParams: ({ id }) => paramsFor({ shopId: id }),
     reasons: [],
     failureMessage: SHOP_FAILURE_COPY.update,
-    onSuccess: (saved) =>
+    onSuccess: (saved) => {
       updateShops({
         update: (shops) => shops.map((shop) => (shop.id === saved.id ? saved : shop)),
-      }),
+      });
+      updateItems({
+        update: (items) =>
+          items.map((item) =>
+            item.shops.some((shop) => shop.id === saved.id)
+              ? { ...item, shops: item.shops.map((shop) => (shop.id === saved.id ? saved : shop)) }
+              : item,
+          ),
+      });
+    },
   });
 };

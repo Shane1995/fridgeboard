@@ -7,17 +7,23 @@ const SHOPS: Shop[] = [
   { id: 'b1', name: 'Tesco', color: ShopColor.Sky, order: 0 },
   { id: 'b2', name: 'Aldi', color: ShopColor.Pink, order: 1 },
 ];
-const ITEM: ListItem = { id: 'i1', name: 'Apples', shopIds: ['b1'], checked: false, createdAt: 0 };
+const ITEM: ListItem = {
+  id: 'i1',
+  name: 'Apples',
+  shops: [SHOPS[0]!],
+  checked: false,
+  createdAt: 0,
+};
 
 describe('ItemDragPreview', () => {
   it('shows the name of the item being dragged', () => {
-    render(<ItemDragPreview item={ITEM} shops={SHOPS} />);
+    render(<ItemDragPreview item={ITEM} />);
 
     expect(screen.getByText('Apples')).toBeInTheDocument();
   });
 
   it('shows a badge for each shop the item is in, and none for others', () => {
-    const { container } = render(<ItemDragPreview item={ITEM} shops={SHOPS} />);
+    const { container } = render(<ItemDragPreview item={ITEM} />);
 
     const badges = container.querySelectorAll('[aria-hidden]');
     expect(badges).toHaveLength(1);

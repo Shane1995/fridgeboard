@@ -1,3 +1,4 @@
+import { shopIdsOf } from '../../services/shoppingList/utils/shopIdsOf';
 import { useDeleteItemMutation } from '../useDeleteItemMutation';
 import { useToast } from '../useToast';
 import { useUpdateItemMutation } from '../useUpdateItemMutation';
@@ -10,7 +11,7 @@ export const useCombineItems = (): ((options: CombineItemsOptions) => Promise<vo
   const toast = useToast();
 
   return async ({ keeper, duplicates }) => {
-    const shopIds = [...new Set([keeper, ...duplicates].flatMap((item) => item.shopIds))];
+    const shopIds = [...new Set([keeper, ...duplicates].flatMap((item) => shopIdsOf(item)))];
     try {
       const kept = await update.mutateAsync({ id: keeper.id, changes: { shopIds } });
       if (!kept.ok) {

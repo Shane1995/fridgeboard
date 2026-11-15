@@ -5,7 +5,7 @@ export type Shop = { id: string; name: string; color: ShopColor; order: number }
 export type ListItem = {
   id: string;
   name: string;
-  shopIds: string[];
+  shops: Shop[];
   checked: boolean;
   createdAt: number;
   addedBy?: string | undefined;
@@ -14,7 +14,7 @@ export type ListItem = {
 export type HistoryEntry = { name: string; shopIds: string[]; count: number };
 
 export type NewItem = { name: string; shopIds: string[] };
-export type ItemChanges = Partial<Pick<ListItem, 'name' | 'shopIds' | 'checked'>>;
+export type ItemChanges = { name?: string; shopIds?: string[]; checked?: boolean };
 export type NewShop = { name: string; color: ShopColor };
 export type ShopChanges = Partial<Pick<Shop, 'name' | 'color'>>;
 

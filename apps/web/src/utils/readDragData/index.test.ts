@@ -1,6 +1,6 @@
 import { readDraggedItem, readDropShopId } from './index';
 
-const ITEM = { id: 'i1', name: 'Apples', shopIds: ['b1'], checked: false, createdAt: 1 };
+const ITEM = { id: 'i1', name: 'Apples', shops: [], checked: false, createdAt: 1 };
 
 describe('readDraggedItem', () => {
   it('reads an item and the shop it was dragged from', () => {

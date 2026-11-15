@@ -11,6 +11,7 @@ import { fakeShoppingList } from '../../testUtils/fakeShoppingList';
 import { useActiveHousehold } from '../../hooks/useActiveHousehold';
 import { SHOP_QUICK_ADD_COPY } from './constants';
 import { ShopQuickAdd } from './index';
+import { shopIdsOf } from '../../services/shoppingList/utils/shopIdsOf';
 
 const TESCO: Shop = { id: 'b1', name: 'Tesco', color: ShopColor.Sky, order: 0 };
 
@@ -53,7 +54,8 @@ describe('ShopQuickAdd', () => {
   });
 
   it('adds to that shop on Enter and stays open and clear for the next item', async () => {
-    await renderQuickAdd({ shop: TESCO });
+    const tesco = await fakeShoppingList.createShop({ name: 'Tesco', color: ShopColor.Sky });
+    await renderQuickAdd({ shop: tesco });
     const input = screen.getByRole('textbox', { name: SHOP_QUICK_ADD_COPY.inputLabel });
 
     addByTyping('Apples');
@@ -62,8 +64,8 @@ describe('ShopQuickAdd', () => {
     expect(input).toHaveFocus();
     await waitFor(async () => {
       const items = await fakeShoppingList.listItems();
-      expect(items.map(({ name, shopIds }) => ({ name, shopIds }))).toEqual([
-        { name: 'Apples', shopIds: ['b1'] },
+      expect(items.map((item) => ({ name: item.name, shopIds: shopIdsOf(item) }))).toEqual([
+        { name: 'Apples', shopIds: [tesco.id] },
       ]);
     });
   });
@@ -75,7 +77,7 @@ describe('ShopQuickAdd', () => {
 
     await waitFor(async () => {
       const items = await fakeShoppingList.listItems();
-      expect(items.map(({ name, shopIds }) => ({ name, shopIds }))).toEqual([
+      expect(items.map((item) => ({ name: item.name, shopIds: shopIdsOf(item) }))).toEqual([
         { name: 'Tape', shopIds: [] },
       ]);
     });

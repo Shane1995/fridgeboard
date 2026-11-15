@@ -4,6 +4,7 @@ import { fakeShoppingList } from '../../testUtils/fakeShoppingList';
 import { renderHookWithHousehold } from '../../testUtils/createShoppingListWrapper';
 import { SPLIT_ITEM_COPY } from './constants';
 import { useSplitItem } from './index';
+import { shopIdsOf } from '../../services/shoppingList/utils/shopIdsOf';
 
 const NAMES = ['Tesco', 'M&S', 'Market'];
 
@@ -24,10 +25,10 @@ const setUp = async ({ inShops, failMethod }: { inShops: number; failMethod?: st
 };
 
 const namesAndShops = async () =>
-  (await fakeShoppingList.listItems()).map(({ name, shopIds, checked }) => ({
-    name,
-    shopIds,
-    checked,
+  (await fakeShoppingList.listItems()).map((item) => ({
+    name: item.name,
+    shopIds: shopIdsOf(item),
+    checked: item.checked,
   }));
 
 describe('useSplitItem', () => {

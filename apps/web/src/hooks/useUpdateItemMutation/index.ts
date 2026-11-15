@@ -17,7 +17,7 @@ type Variables = { id: string; changes: ItemChanges };
 export const useUpdateItemMutation = (): MutationResult<ApiResult<IListItem, never>, Variables> => {
   const { paramsFor, queryKeyFor } = useListParams();
   const invalidate = useInvalidateQueries();
-  const { updateItems } = useListCache();
+  const { updateItems, readShops } = useListCache();
   return useApiMutation({
     name: MutationName.updateItem,
     service: WebService.listItem,
@@ -40,9 +40,27 @@ export const useUpdateItemMutation = (): MutationResult<ApiResult<IListItem, nev
       }: {
         current: IListItemsResponse;
         variables: Variables;
-      }) => ({
-        items: current.items.map((item) => (item.id === id ? { ...item, ...changes } : item)),
-      }),
+      }) => {
+        const { shopIds, ...fields } = changes;
+        const shops = readShops();
+        return {
+          items: current.items.map((item) =>
+            item.id === id
+              ? {
+                  ...item,
+                  ...fields,
+                  ...(shopIds === undefined
+                    ? {}
+                    : {
+                        shops: shopIds.flatMap((shopId) =>
+                          shops.filter(({ id: known }) => known === shopId),
+                        ),
+                      }),
+                }
+              : item,
+          ),
+        };
+      },
     },
   });
 };

@@ -34,4 +34,5 @@ export type HomeState = {
   newShopDialog: UseOverlayStateReturn;
   isClearing: boolean;
   handleClearChecked: () => void;
+  handleClearAll: () => void;
 };

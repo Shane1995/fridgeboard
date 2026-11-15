@@ -4,6 +4,7 @@ import {
   setHistoryShopsOp,
 } from '@fridgeboard/lambda-kit/repository/history/index.ts';
 import { getItem, updateItemOp } from '@fridgeboard/lambda-kit/repository/items/index.ts';
+import { queryShops } from '@fridgeboard/lambda-kit/repository/shops/index.ts';
 import { jsonResponse } from '@fridgeboard/lambda-kit/utils/jsonResponse/index.ts';
 import { readJsonBody } from '@fridgeboard/lambda-kit/utils/readJsonBody/index.ts';
 import { recordChange } from '@fridgeboard/lambda-kit/utils/recordChange/index.ts';
@@ -47,5 +48,5 @@ export const updateListItem = async ({ user, table, scope }: ListRouteContext) =
     }
     throw error;
   }
-  return jsonResponse(200, toListItem(updated));
+  return jsonResponse(200, toListItem({ row: updated, shops: await queryShops({ table, scope }) }));
 };

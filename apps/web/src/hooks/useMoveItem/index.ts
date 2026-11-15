@@ -1,4 +1,5 @@
 import type { ListItem } from '../../services/shoppingList/types';
+import { shopIdsOf } from '../../services/shoppingList/utils/shopIdsOf';
 import { decideDrop } from '../../services/shoppingList/utils/decideDrop';
 import { useAddItemMutation } from '../useAddItemMutation';
 import { useToast } from '../useToast';
@@ -18,7 +19,7 @@ export const useMoveItem = (): ((options: MoveItemOptions) => void) => {
     if (result?.ok) {
       toast.success(message, {
         label: MOVE_ITEM_COPY.undo,
-        onPress: () => update.mutate({ id: item.id, changes: { shopIds: item.shopIds } }),
+        onPress: () => update.mutate({ id: item.id, changes: { shopIds: shopIdsOf(item) } }),
       });
     }
   };
@@ -39,10 +40,10 @@ export const useMoveItem = (): ((options: MoveItemOptions) => void) => {
     } else if (kind === 'assign') {
       void setShops(item, [to.id], MOVE_ITEM_COPY.assigned(item.name, to.name));
     } else if (kind === 'unassign') {
-      const left = item.shopIds.filter((id) => id !== from.id);
+      const left = shopIdsOf(item).filter((id) => id !== from.id);
       void setShops(item, left, MOVE_ITEM_COPY.unassigned(item.name, from.name));
     } else if (kind === 'ask') {
-      const stay = item.shopIds.filter((id) => id !== from.id);
+      const stay = shopIdsOf(item).filter((id) => id !== from.id);
       toast.confirm({
         title: MOVE_ITEM_COPY.askTitle(item.name, from.name),
         description: MOVE_ITEM_COPY.askDescription,
@@ -57,7 +58,7 @@ export const useMoveItem = (): ((options: MoveItemOptions) => void) => {
             onPress: () =>
               void setShops(
                 item,
-                [...item.shopIds, to.id],
+                [...shopIdsOf(item), to.id],
                 MOVE_ITEM_COPY.added(item.name, to.name),
               ),
           },

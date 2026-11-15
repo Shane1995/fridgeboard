@@ -18,7 +18,7 @@ describe('useDeleteShopMutation', () => {
     await act(async () => result.current.mutation.mutateAsync(shop.id));
 
     await waitFor(() => expect(result.current.shops.data).toEqual([]));
-    await waitFor(() => expect(result.current.items.data?.[0]?.shopIds).toEqual([]));
+    await waitFor(() => expect(result.current.items.data?.[0]?.shops).toEqual([]));
   });
 
   it('tells the user when the shop could not be deleted', async () => {

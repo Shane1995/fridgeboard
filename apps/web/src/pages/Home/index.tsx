@@ -48,6 +48,8 @@ export const Home = () => {
     newShopDialog,
     isClearing,
     handleClearChecked,
+    handleClearAll,
+    hasItems,
   } = useHome();
 
   if (isLoading) {
@@ -99,7 +101,7 @@ export const Home = () => {
             </div>
           </SortableContext>
           <DragOverlay>
-            {activeItem && <ItemDragPreview item={activeItem} shops={allShops} />}
+            {activeItem && <ItemDragPreview item={activeItem} />}
             {activeShop && <ShopDragPreview section={activeShop} />}
           </DragOverlay>
         </DndContext>
@@ -151,6 +153,11 @@ export const Home = () => {
           <Plus aria-hidden size={18} />
           {HOME_COPY.newShop}
         </button>
+      )}
+      {focusedId === undefined && hasItems && (
+        <Button size="sm" variant="ghost" onPress={handleClearAll} isPending={isClearing}>
+          {HOME_COPY.clearAll}
+        </Button>
       )}
       <ShopDialog state={newShopDialog} />
     </main>

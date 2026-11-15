@@ -96,7 +96,7 @@ describe('calls made with live sync on, 17 rows and 2 shop readers on screen', (
     expect(calls()).toEqual(['items']);
   });
 
-  it('refreshes only the shops when a shop is renamed', async () => {
+  it('refreshes the shops and the items that carry them when a shop is renamed', async () => {
     const { calls, settle, connection, apiFetch } = setup();
     await settle();
     apiFetch.mockClear();
@@ -104,7 +104,7 @@ describe('calls made with live sync on, 17 rows and 2 shop readers on screen', (
     connection().onChanges([{ type: 'shop', id: 's1' }]);
     await settle();
 
-    expect(calls()).toEqual(['shops']);
+    expect(calls().sort()).toEqual(['items', 'shops']);
   });
 
   it('refreshes each list once when a shop with items is deleted', async () => {

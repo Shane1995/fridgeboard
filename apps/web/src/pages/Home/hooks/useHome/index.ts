@@ -11,7 +11,8 @@ import {
 import { useShopsQuery } from '../../../../hooks/useShopsQuery';
 import { useActiveHousehold } from '../../../../hooks/useActiveHousehold';
 import { useHouseholdsQuery } from '../../../../hooks/useHouseholdsQuery';
-import { useClearCheckedMutation } from '../../../../hooks/useClearCheckedMutation';
+import { useClearItemsMutation } from '../../../../hooks/useClearItemsMutation';
+import { useToast } from '../../../../hooks/useToast';
 import { useFeatureFlag } from '../../../../hooks/useFeatureFlag';
 import { useListCache } from '../../../../hooks/useListCache';
 import { useMoveItem } from '../../../../hooks/useMoveItem';
@@ -23,6 +24,7 @@ import {
   UNSORTED_SHOP_ID,
 } from '../../../../services/shoppingList/constants';
 import { WebFeatureFlag } from '../../../../services/configuration/schema/constants';
+import { ClearItemsBy } from '../../../../services/shoppingList/constants';
 import type { ListItem } from '../../../../services/shoppingList/types';
 import {
   groupItemsByShop,
@@ -39,7 +41,8 @@ export const useHome = (): HomeState => {
   const shops = useShopsQuery();
   const items = useItemsQuery();
   const newShopDialog = useOverlayState();
-  const clear = useClearCheckedMutation();
+  const clear = useClearItemsMutation();
+  const toast = useToast();
   const [storedFocus, setFocus] = useLocalStorage(FOCUS_SHOP_STORAGE_KEY);
   const reorder = useReorderShopsMutation();
   const { updateShops } = useListCache();
@@ -148,6 +151,14 @@ export const useHome = (): HomeState => {
     hasError: households.isError || shops.isError || items.isError,
     newShopDialog,
     isClearing: clear.isPending,
-    handleClearChecked: () => clear.mutate(),
+    handleClearChecked: () => clear.mutate(ClearItemsBy.Checked),
+    handleClearAll: () =>
+      toast.confirm({
+        title: HOME_COPY.clearAllTitle,
+        description: HOME_COPY.clearAllDescription,
+        actions: [
+          { label: HOME_COPY.clearAllConfirm, onPress: () => clear.mutate(ClearItemsBy.All) },
+        ],
+      }),
   };
 };

@@ -9,13 +9,14 @@ import { updateListItem } from './index.ts';
 
 const getItem = vi.hoisted(() => vi.fn());
 const getShop = vi.hoisted(() => vi.fn());
+const queryShops = vi.hoisted(() => vi.fn());
 const getHistoryEntryMock = vi.hoisted(() => vi.fn());
 const recordChange = vi.hoisted(() => vi.fn());
 vi.mock('@fridgeboard/lambda-kit/repository/items/index.ts', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@fridgeboard/lambda-kit/repository/items/index.ts')>()),
   getItem,
 }));
-vi.mock('@fridgeboard/lambda-kit/repository/shops/index.ts', () => ({ getShop }));
+vi.mock('@fridgeboard/lambda-kit/repository/shops/index.ts', () => ({ getShop, queryShops }));
 vi.mock('@fridgeboard/lambda-kit/repository/history/index.ts', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@fridgeboard/lambda-kit/repository/history/index.ts')>()),
   getHistoryEntry: getHistoryEntryMock,
@@ -37,6 +38,7 @@ describe('updateListItem', () => {
   beforeEach(() => {
     getItem.mockReset().mockResolvedValue(CURRENT);
     getShop.mockReset().mockResolvedValue({ id: 's1' });
+    queryShops.mockReset().mockResolvedValue([{ id: 's1', name: 'Aldi', color: 'sky', order: 0 }]);
     getHistoryEntryMock.mockReset().mockResolvedValue(undefined);
     recordChange.mockReset().mockResolvedValue([]);
   });
@@ -54,6 +56,14 @@ describe('updateListItem', () => {
       changes: [{ type: 'item', id: 'i1' }],
       items: [updateItemOp({ scope: TEST_SCOPE, itemId: 'i1', set: { checked: true } })],
     });
+  });
+
+  it('answers with the shops the item is now in', async () => {
+    const result = await updateListItem(contextFor({ shopIds: ['s1'] }));
+
+    expect(JSON.parse(result.body ?? '').shops).toEqual([
+      { id: 's1', name: 'Aldi', color: 'sky', order: 0 },
+    ]);
   });
 
   it('answers 404 when there is no such item', async () => {

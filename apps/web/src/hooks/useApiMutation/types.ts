@@ -11,6 +11,7 @@ export type ApiMutationOptions<TVariables, TResponse, TReason extends string, TC
   method: string;
   toBody: (variables: TVariables) => unknown;
   toParams?: (variables: TVariables) => Record<string, string>;
+  toQuery?: (variables: TVariables) => Record<string, string>;
   reasons: readonly TReason[];
   onSuccess?: (response: TResponse, variables: TVariables) => void;
   failureMessage?: string | ((variables: TVariables) => string);

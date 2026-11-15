@@ -1,4 +1,4 @@
-import type { IShopsResponse, IListItemsResponse } from '@fridgeboard/contract/lists';
+import type { IShop, IShopsResponse, IListItemsResponse } from '@fridgeboard/contract/lists';
 import { useQueryClient } from '@tanstack/react-query';
 import { SHOPS_QUERY_KEY } from '../useShopsQuery/constants';
 import { ITEMS_QUERY_KEY } from '../useItemsQuery/constants';
@@ -15,6 +15,8 @@ export const useListCache = () => {
       queryClient.setQueryData<IListItemsResponse>(queryKeyFor(ITEMS_QUERY_KEY), (current) =>
         current === undefined ? current : { items: update(current.items) },
       ),
+    readShops: (): IShop[] =>
+      queryClient.getQueryData<IShopsResponse>(queryKeyFor(SHOPS_QUERY_KEY))?.shops ?? [],
     updateShops: ({ update }: UpdateShopsOptions) =>
       queryClient.setQueryData<IShopsResponse>(queryKeyFor(SHOPS_QUERY_KEY), (current) =>
         current === undefined ? current : { shops: update(current.shops) },

@@ -3,8 +3,15 @@ import { ShopColor } from '../../services/shoppingList/constants';
 import type { ShopSectionData } from '../../services/shoppingList/types';
 import { SHOP_FILTER_COPY } from './constants';
 import { ShopFilter } from './index';
+import { buildShop } from '../../testUtils/buildShop';
 
-const item = (id: string) => ({ id, name: id, shopIds: ['b1'], checked: false, createdAt: 0 });
+const item = (id: string) => ({
+  id,
+  name: id,
+  shops: [buildShop('b1')],
+  checked: false,
+  createdAt: 0,
+});
 const SECTIONS: ShopSectionData[] = [
   {
     shop: { id: 'b1', name: 'Express', color: ShopColor.Mint, order: 0 },

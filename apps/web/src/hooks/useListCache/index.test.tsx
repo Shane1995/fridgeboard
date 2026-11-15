@@ -13,7 +13,7 @@ import { useListCache } from './index';
 const ITEM = {
   id: 'i1',
   name: 'Milk',
-  shopIds: [],
+  shops: [],
   checked: false,
   createdAt: 1,
   addedBy: 'sub-1',

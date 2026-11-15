@@ -6,13 +6,16 @@ import { UNSORTED_SHOP } from '../../services/shoppingList/utils/groupItemsBySho
 import { createShoppingListWrapper } from '../../testUtils/createShoppingListWrapper';
 import { SHOP_SECTION_COPY } from './constants';
 import { ShopSection } from './index';
+import { buildShop } from '../../testUtils/buildShop';
 
 const TESCO: Shop = { id: 'b1', name: 'Tesco', color: ShopColor.Sky, order: 0 };
 const ALDI: Shop = { id: 'b2', name: 'Aldi', color: ShopColor.Pink, order: 1 };
 const item = (id: string, name: string, shopIds: string[]): ListItem => ({
   id,
   name,
-  shopIds,
+  shops: shopIds.map(
+    (shopId) => [TESCO, ALDI].find((shop) => shop.id === shopId) ?? buildShop(shopId),
+  ),
   checked: false,
   createdAt: 0,
 });

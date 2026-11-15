@@ -1,4 +1,5 @@
 import type { ListItem } from '../../services/shoppingList/types';
+import { shopIdsOf } from '../../services/shoppingList/utils/shopIdsOf';
 import { useAddItemMutation } from '../useAddItemMutation';
 import { useShopsQuery } from '../useShopsQuery';
 import { useToast } from '../useToast';
@@ -19,7 +20,7 @@ export const useSplitItem = (): ((options: SplitItemOptions) => Promise<void>) =
     }
     const kept = await update.mutateAsync({
       id: item.id,
-      changes: { shopIds: item.shopIds.filter((id) => id !== shopId) },
+      changes: { shopIds: shopIdsOf(item).filter((id) => id !== shopId) },
     });
     if (kept.ok) {
       const shopName = (shops.data ?? []).find(({ id }) => id === shopId)?.name ?? 'the shop';
@@ -28,7 +29,7 @@ export const useSplitItem = (): ((options: SplitItemOptions) => Promise<void>) =
   };
 
   const splitAll = async (item: ListItem) => {
-    const [first, ...others] = item.shopIds;
+    const [first, ...others] = shopIdsOf(item);
     if (first === undefined || others.length === 0) {
       return;
     }
@@ -40,16 +41,16 @@ export const useSplitItem = (): ((options: SplitItemOptions) => Promise<void>) =
     }
     const kept = await update.mutateAsync({ id: item.id, changes: { shopIds: [first] } });
     if (kept.ok) {
-      toast.success(SPLIT_ITEM_COPY.done(item.name, item.shopIds.length));
+      toast.success(SPLIT_ITEM_COPY.done(item.name, item.shops.length));
     }
   };
 
   return async ({ item, fromShopId }) => {
-    if (item.shopIds.length < 2) {
+    if (item.shops.length < 2) {
       return;
     }
     try {
-      if (fromShopId !== undefined && item.shopIds.includes(fromShopId)) {
+      if (fromShopId !== undefined && shopIdsOf(item).includes(fromShopId)) {
         await splitOut({ item, shopId: fromShopId });
       } else {
         await splitAll(item);

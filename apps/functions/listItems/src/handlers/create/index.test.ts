@@ -7,11 +7,13 @@ import { putItemOp } from '@fridgeboard/lambda-kit/repository/items/index.ts';
 import { createListItem } from './index.ts';
 
 const getShop = vi.hoisted(() => vi.fn());
+const queryShops = vi.hoisted(() => vi.fn());
 const recordChange = vi.hoisted(() => vi.fn());
-vi.mock('@fridgeboard/lambda-kit/repository/shops/index.ts', () => ({ getShop }));
+vi.mock('@fridgeboard/lambda-kit/repository/shops/index.ts', () => ({ getShop, queryShops }));
 vi.mock('@fridgeboard/lambda-kit/utils/recordChange/index.ts', () => ({ recordChange }));
 vi.mock('@fridgeboard/lambda-kit/utils/newId/index.ts', () => ({ newId: () => 'i-new' }));
 
+const SHOP = { id: 's1', name: 'Aldi', color: 'sky', order: 0 };
 const STORED = {
   id: 'i-new',
   name: 'Oat milk',
@@ -21,9 +23,12 @@ const STORED = {
   addedBy: 'sub-1',
 };
 
+const omitShopIds = ({ shopIds: _shopIds, ...rest }: typeof STORED) => rest;
+
 describe('createListItem', () => {
   beforeEach(() => {
     getShop.mockReset().mockResolvedValue({ id: 's1' });
+    queryShops.mockReset().mockResolvedValue([SHOP]);
     recordChange.mockReset().mockResolvedValue([]);
     vi.useFakeTimers();
     vi.setSystemTime(1_000);
@@ -39,7 +44,7 @@ describe('createListItem', () => {
     const result = await createListItem(context);
 
     expect(result.statusCode).toBe(201);
-    expect(JSON.parse(result.body ?? '')).toEqual(STORED);
+    expect(JSON.parse(result.body ?? '')).toEqual({ ...omitShopIds(STORED), shops: [] });
     expect(recordChange).toHaveBeenCalledWith({
       table: context.table,
       householdId: 'hh-1',
@@ -56,7 +61,7 @@ describe('createListItem', () => {
       buildListContext({ body: { name: 'Oat milk', shopIds: ['s1', 's1'] } }),
     );
 
-    expect(JSON.parse(result.body ?? '').shopIds).toEqual(['s1']);
+    expect(JSON.parse(result.body ?? '').shops).toEqual([SHOP]);
   });
 
   it.each([{}, { name: '' }, { name: '   ' }, { name: 7 }, { name: 'x'.repeat(81) }, 'nope'])(

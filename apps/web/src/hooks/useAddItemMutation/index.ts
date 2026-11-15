@@ -15,7 +15,7 @@ import { SUGGESTIONS_QUERY_KEY } from '../useSuggestions/constants';
 export const useAddItemMutation = (): MutationResult<ApiResult<IListItem, never>, NewItem> => {
   const { paramsFor } = useListParams();
   const invalidate = useInvalidateQueries();
-  const { updateItems } = useListCache();
+  const { updateItems, readShops } = useListCache();
   const pendingIds = useRef(new WeakMap<NewItem, string>());
   const counter = useRef(0);
 
@@ -44,7 +44,9 @@ export const useAddItemMutation = (): MutationResult<ApiResult<IListItem, never>
           {
             id: pendingId,
             name: variables.name,
-            shopIds: variables.shopIds,
+            shops: variables.shopIds.flatMap((shopId) =>
+              readShops().filter(({ id }) => id === shopId),
+            ),
             checked: false,
             createdAt: Date.now(),
             addedBy: '',

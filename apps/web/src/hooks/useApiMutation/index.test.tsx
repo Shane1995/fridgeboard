@@ -136,6 +136,33 @@ describe('useApiMutation', () => {
       return { result, apiFetch, client };
     };
 
+    it('adds the query from the variables to the path', async () => {
+      const { session, apiFetch } = createSession(SessionStatus.SignedIn);
+      apiFetch.mockImplementation(async () => new Response(null, { status: 204 }));
+      const { result } = renderHook(
+        () =>
+          useApiMutation({
+            name: MutationName.clearItems,
+            service: WebService.clearItems,
+            method: 'DELETE',
+            toBody: () => undefined,
+            toParams: () => ({ householdId: 'hh-1', listId: 'main' }),
+            toQuery: (by: string) => ({ clearby: by }),
+            reasons: [] as const,
+          }),
+        { wrapper: createSessionWrapper(session, new QueryClient()) },
+      );
+
+      await act(async () => {
+        await result.current.mutateAsync('checked');
+      });
+
+      expect(apiFetch).toHaveBeenCalledWith(
+        endpoint('/api/v1/households/hh-1/lists/main/items/clear?clearby=checked'),
+        { method: 'DELETE', body: undefined },
+      );
+    });
+
     it('fills the path parameters from the variables and keeps the optimistic change', async () => {
       const { result, apiFetch, client } = setupList(new Response(null, { status: 204 }));
 
