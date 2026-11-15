@@ -1,5 +1,9 @@
 import { act, screen, waitFor } from '@testing-library/react';
-import { ShopColor, SHOP_FAILURE_COPY } from '../../services/shoppingList/constants';
+import {
+  ShopColor,
+  SHOP_FAILURE_COPY,
+  SHOP_SUCCESS_COPY,
+} from '../../services/shoppingList/constants';
 import { fakeShoppingList } from '../../testUtils/fakeShoppingList';
 import { renderShoppingListMutation } from '../../testUtils/renderShoppingListMutation';
 import { useDeleteShopMutation } from './index';
@@ -31,5 +35,14 @@ describe('useDeleteShopMutation', () => {
 
     expect(await screen.findByText(SHOP_FAILURE_COPY.remove)).toBeInTheDocument();
     expect(result.current.shops.data).toHaveLength(1);
+  });
+
+  it('tells the user the shop was deleted', async () => {
+    const shop = await fakeShoppingList.createShop({ name: 'Express', color: ShopColor.Mint });
+    const result = await renderShoppingListMutation(() => useDeleteShopMutation(), 0);
+
+    await act(async () => result.current.mutation.mutateAsync(shop.id));
+
+    expect(await screen.findByText(SHOP_SUCCESS_COPY.remove)).toBeInTheDocument();
   });
 });

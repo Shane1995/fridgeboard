@@ -4,15 +4,23 @@ import type { ApiResult } from '../../services/api/sendJson/types';
 import { MutationName, WebService } from '../../services/configuration/schema/constants';
 import { POST } from '../../services/session/constants';
 import type { NewItem } from '../../services/shoppingList/types';
-import { ITEM_FAILURE_COPY, PENDING_ITEM_PREFIX } from '../../services/shoppingList/constants';
+import {
+  ITEM_FAILURE_COPY,
+  ITEM_SUCCESS_COPY,
+  PENDING_ITEM_PREFIX,
+} from '../../services/shoppingList/constants';
 import { useApiMutation } from '../useApiMutation';
 import { useInvalidateQueries } from '../useInvalidateQueries';
 import { useListCache } from '../useListCache';
 import { useListParams } from '../useListParams';
 import type { MutationResult } from '../useMutation/types';
 import { SUGGESTIONS_QUERY_KEY } from '../useSuggestions/constants';
+import type { AddItemMutationOptions } from './types';
 
-export const useAddItemMutation = (): MutationResult<ApiResult<IListItem, never>, NewItem> => {
+export const useAddItemMutation = ({ quiet = false }: AddItemMutationOptions = {}): MutationResult<
+  ApiResult<IListItem, never>,
+  NewItem
+> => {
   const { paramsFor } = useListParams();
   const invalidate = useInvalidateQueries();
   const { updateItems, readShops } = useListCache();
@@ -34,6 +42,7 @@ export const useAddItemMutation = (): MutationResult<ApiResult<IListItem, never>
     toParams: () => paramsFor(),
     reasons: [],
     failureMessage: ({ name }: NewItem) => ITEM_FAILURE_COPY.add(name),
+    ...(quiet ? {} : { successMessage: ({ name }: NewItem) => ITEM_SUCCESS_COPY.add(name) }),
     onStart: (variables) => {
       counter.current += 1;
       const pendingId = `${PENDING_ITEM_PREFIX}${counter.current}`;

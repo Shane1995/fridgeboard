@@ -238,6 +238,7 @@ describe('useApiMutation failure message', () => {
 
   type Extra = {
     failureMessage?: string | ((username: string) => string);
+    successMessage?: string | ((username: string) => string);
     onStart?: (username: string) => void;
     onFailure?: (username: string) => void;
   };
@@ -373,5 +374,44 @@ describe('useApiMutation failure message', () => {
     });
 
     expect(onFailure).not.toHaveBeenCalled();
+  });
+
+  it('shows the success message when the request works', async () => {
+    const result = setUp(
+      { successMessage: 'Name saved' },
+      async () => new Response(JSON.stringify({ username: 'jess' }), { status: 200 }),
+    );
+
+    await act(async () => {
+      await result.current.mutateAsync('jess');
+    });
+
+    expect(await screen.findByText('Name saved')).toBeInTheDocument();
+  });
+
+  it('shows no success message when the server answers with a failure', async () => {
+    const result = setUp(
+      { successMessage: 'Name saved' },
+      async () => new Response('{}', { status: 409 }),
+    );
+
+    await act(async () => {
+      await result.current.mutateAsync('jess');
+    });
+
+    expect(screen.queryByText('Name saved')).not.toBeInTheDocument();
+  });
+
+  it('builds the success message from the request when given a function', async () => {
+    const result = setUp(
+      { successMessage: (username) => `Saved ${username}` },
+      async () => new Response(JSON.stringify({ username: 'jess' }), { status: 200 }),
+    );
+
+    await act(async () => {
+      await result.current.mutateAsync('jess');
+    });
+
+    expect(await screen.findByText('Saved jess')).toBeInTheDocument();
   });
 });

@@ -9,7 +9,7 @@ import type { MoveItemOptions } from './types';
 
 export const useMoveItem = (): ((options: MoveItemOptions) => void) => {
   const update = useUpdateItemMutation();
-  const add = useAddItemMutation();
+  const add = useAddItemMutation({ quiet: true });
   const toast = useToast();
 
   const setShops = async (item: ListItem, shopIds: string[], message: string) => {

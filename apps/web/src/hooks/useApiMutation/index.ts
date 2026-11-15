@@ -25,6 +25,7 @@ export const useApiMutation = <TVariables, TResponse, TReason extends string, TC
   reasons,
   onSuccess,
   failureMessage,
+  successMessage,
   onStart,
   onFailure,
   optimistic,
@@ -88,6 +89,13 @@ export const useApiMutation = <TVariables, TResponse, TReason extends string, TC
       });
       if (result.ok) {
         onSuccess?.(result.data, variables);
+        if (successMessage !== undefined) {
+          toast.success(
+            typeof successMessage === 'function'
+              ? successMessage(variables, result.data)
+              : successMessage,
+          );
+        }
       } else {
         restore();
         reportFailure(variables);

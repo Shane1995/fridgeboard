@@ -1,5 +1,9 @@
 import { act, renderHook, screen, waitFor } from '@testing-library/react';
-import { ShopColor, SHOP_FAILURE_COPY } from '../../services/shoppingList/constants';
+import {
+  ShopColor,
+  SHOP_FAILURE_COPY,
+  SHOP_SUCCESS_COPY,
+} from '../../services/shoppingList/constants';
 import { fakeShoppingList } from '../../testUtils/fakeShoppingList';
 import { createShoppingListWrapper } from '../../testUtils/createShoppingListWrapper';
 import { useItemsQuery } from '../useItemsQuery';
@@ -61,5 +65,18 @@ describe('useUpdateShopMutation', () => {
 
     expect(await screen.findByText(SHOP_FAILURE_COPY.update)).toBeInTheDocument();
     expect(result.current.shops.data?.[0]?.name).toBe('Express');
+  });
+
+  it('tells the user the shop was saved', async () => {
+    const { id } = await fakeShoppingList.createShop({ name: 'Express', color: ShopColor.Mint });
+    const { result } = renderHook(
+      () => ({ update: useUpdateShopMutation(), shops: useShopsQuery() }),
+      { wrapper: createShoppingListWrapper() },
+    );
+    await waitFor(() => expect(result.current.shops.data).toHaveLength(1));
+
+    await act(async () => result.current.update.mutateAsync({ id, changes: { name: 'Tesco' } }));
+
+    expect(await screen.findByText(SHOP_SUCCESS_COPY.update)).toBeInTheDocument();
   });
 });

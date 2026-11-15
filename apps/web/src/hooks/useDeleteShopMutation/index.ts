@@ -1,7 +1,7 @@
 import type { ApiResult } from '../../services/api/sendJson/types';
 import { MutationName, WebService } from '../../services/configuration/schema/constants';
 import { DELETE } from '../../services/session/constants';
-import { SHOP_FAILURE_COPY } from '../../services/shoppingList/constants';
+import { SHOP_FAILURE_COPY, SHOP_SUCCESS_COPY } from '../../services/shoppingList/constants';
 import { useApiMutation } from '../useApiMutation';
 import { useListCache } from '../useListCache';
 import { useListParams } from '../useListParams';
@@ -18,6 +18,7 @@ export const useDeleteShopMutation = (): MutationResult<ApiResult<undefined, nev
     toParams: (id: string) => paramsFor({ shopId: id }),
     reasons: [],
     failureMessage: SHOP_FAILURE_COPY.remove,
+    successMessage: SHOP_SUCCESS_COPY.remove,
     onSuccess: (_removed, id) => {
       updateShops({ update: (shops) => shops.filter((shop) => shop.id !== id) });
       updateItems({
