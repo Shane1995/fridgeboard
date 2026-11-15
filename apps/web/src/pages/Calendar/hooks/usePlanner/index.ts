@@ -1,21 +1,24 @@
 import { useState } from 'react';
+import { useToast } from '../../../../hooks/useToast';
 import { WEEK_STARTS_ON } from '../../constants';
 import type { PlannerPlan, PlannerSection } from '../../types';
 import { buildDummyPlanner } from '../../utils/buildDummyPlanner';
 import { getToday } from '../../utils/getToday';
 import { updateSection } from '../../utils/updateSection';
-import { NEW_NOTE_TITLE } from './constants';
+import { NEW_NOTE_TITLE, PLANNER_TOAST_COPY } from './constants';
 import type {
   AddLineOptions,
   DeleteNoteOptions,
   LinkRecipeOptions,
   RemoveLineOptions,
   RenameNoteOptions,
+  RestoreLineOptions,
   UnlinkRecipeOptions,
   UpdateLineOptions,
 } from './types';
 
 export const usePlanner = () => {
+  const toast = useToast();
   const [plan, setPlan] = useState<PlannerPlan>(() =>
     buildDummyPlanner({ weekStartsOn: WEEK_STARTS_ON }),
   );
@@ -54,14 +57,35 @@ export const usePlanner = () => {
       }),
     });
 
-  const removeLine = ({ sectionId, lineId }: RemoveLineOptions) =>
+  const restoreLine = ({ sectionId, line, index }: RestoreLineOptions) =>
     change({
       sectionId,
       update: (section) => ({
         ...section,
-        lines: section.lines.filter((line) => line.id !== lineId),
+        lines: section.lines.some(({ id }) => id === line.id)
+          ? section.lines
+          : [...section.lines.slice(0, index), line, ...section.lines.slice(index)],
       }),
     });
+
+  const removeLine = ({ sectionId, lineId }: RemoveLineOptions) => {
+    const lines = [...plan.days, ...plan.notes].find(({ id }) => id === sectionId)?.lines ?? [];
+    const index = lines.findIndex(({ id }) => id === lineId);
+    const line = lines[index];
+    change({
+      sectionId,
+      update: (section) => ({
+        ...section,
+        lines: section.lines.filter((other) => other.id !== lineId),
+      }),
+    });
+    if (line !== undefined && line.text.trim() !== '') {
+      toast.success(PLANNER_TOAST_COPY.lineRemoved, {
+        label: PLANNER_TOAST_COPY.undo,
+        onPress: () => restoreLine({ sectionId, line, index }),
+      });
+    }
+  };
 
   const linkRecipe = ({ sectionId, lineId, recipeId, name }: LinkRecipeOptions) =>
     change({
@@ -91,16 +115,22 @@ export const usePlanner = () => {
       ...current,
       notes: [...current.notes, { id, title: NEW_NOTE_TITLE, lines: [] }],
     }));
+    toast.success(PLANNER_TOAST_COPY.noteAdded);
   };
 
   const renameNote = ({ sectionId, title }: RenameNoteOptions) =>
     change({ sectionId, update: (section) => ({ ...section, title }) });
 
-  const deleteNote = ({ sectionId }: DeleteNoteOptions) =>
+  const deleteNote = ({ sectionId }: DeleteNoteOptions) => {
+    const removed = plan.notes.find((note) => note.id === sectionId);
     setPlan((current) => ({
       ...current,
       notes: current.notes.filter((note) => note.id !== sectionId),
     }));
+    if (removed !== undefined) {
+      toast.success(PLANNER_TOAST_COPY.noteDeleted(removed.title));
+    }
+  };
 
   return {
     days: plan.days,

@@ -1,4 +1,5 @@
-import { Button, Input, Label, TextField } from '@heroui/react';
+import { Button, Input, Label, TextField, useOverlayState } from '@heroui/react';
+import { ConfirmDialog } from '../../../../../../components/ConfirmDialog';
 import {
   EVENT_NOTE_MAX_LENGTH,
   EVENT_TITLE_MAX_LENGTH,
@@ -16,6 +17,8 @@ export const EventForm = ({ event, date, onSave, onDelete, onDone }: EventFormPr
     onDelete,
     onDone,
   });
+
+  const confirmDelete = useOverlayState();
 
   return (
     <form onSubmit={handleSubmit} className="flex min-w-0 flex-col gap-4">
@@ -105,9 +108,18 @@ export const EventForm = ({ event, date, onSave, onDelete, onDone }: EventFormPr
         {event === undefined ? EVENT_FORM_COPY.create : EVENT_FORM_COPY.save}
       </Button>
       {event !== undefined && (
-        <Button variant="danger-soft" fullWidth onPress={handleDelete}>
-          {EVENT_FORM_COPY.delete}
-        </Button>
+        <>
+          <Button variant="danger-soft" fullWidth onPress={confirmDelete.open}>
+            {EVENT_FORM_COPY.delete}
+          </Button>
+          <ConfirmDialog
+            state={confirmDelete}
+            title={EVENT_FORM_COPY.confirmTitle(event.title)}
+            description={EVENT_FORM_COPY.confirmDescription}
+            confirmLabel={EVENT_FORM_COPY.confirm}
+            onConfirm={handleDelete}
+          />
+        </>
       )}
     </form>
   );

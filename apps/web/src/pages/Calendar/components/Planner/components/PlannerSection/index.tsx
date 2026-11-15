@@ -1,10 +1,11 @@
-import { Button } from '@heroui/react';
+import { Button, useOverlayState } from '@heroui/react';
 import { Link } from '@tanstack/react-router';
 import { BookOpen, Link2, Link2Off, Plus, Trash2, X } from 'lucide-react';
 import {
   SHOP_COLOR_CLASSES,
   SHOP_TEXT_CLASSES,
 } from '../../../../../../components/ShopSwatch/constants';
+import { ConfirmDialog } from '../../../../../../components/ConfirmDialog';
 import { Typography } from '../../../../../../components/Typography';
 import { TypographyVariant } from '../../../../../../components/Typography/constants';
 import {
@@ -31,6 +32,7 @@ export const PlannerSection = ({
   onDelete,
 }: PlannerSectionProps) => {
   const style = SECTION_STYLES[color];
+  const confirmDelete = useOverlayState();
   return (
     <section
       aria-label={section.title}
@@ -64,12 +66,21 @@ export const PlannerSection = ({
             variant="ghost"
             aria-label={`${PLANNER_COPY.deleteNote} ${section.title}`}
             className="text-current"
-            onPress={() => onDelete({ sectionId: section.id })}
+            onPress={confirmDelete.open}
           >
             <Trash2 aria-hidden size={18} />
           </Button>
         )}
       </div>
+      {onDelete !== undefined && (
+        <ConfirmDialog
+          state={confirmDelete}
+          title={PLANNER_COPY.confirmNoteTitle(section.title)}
+          description={PLANNER_COPY.confirmNoteDescription}
+          confirmLabel={PLANNER_COPY.confirmNote}
+          onConfirm={() => onDelete({ sectionId: section.id })}
+        />
+      )}
       <div className="flex flex-col gap-2 p-3">
         {section.lines.length === 0 && (
           <Typography variant={TypographyVariant.Caption}>{PLANNER_COPY.emptySection}</Typography>

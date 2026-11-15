@@ -9,6 +9,9 @@ export const EVENT_FORM_COPY = {
   create: 'Add event',
   save: 'Save',
   delete: 'Delete event',
+  confirmTitle: (title: string) => `Delete ${title}?`,
+  confirmDescription: 'It comes off the calendar for everyone.',
+  confirm: 'Delete',
 } as const;
 
 export const FIELD_CLASS =

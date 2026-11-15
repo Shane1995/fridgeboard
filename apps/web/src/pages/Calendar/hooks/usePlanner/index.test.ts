@@ -1,4 +1,8 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, fireEvent, renderHook, screen } from '@testing-library/react';
+import { createElement } from 'react';
+import type { PropsWithChildren } from 'react';
+import { ToastProvider } from '../../../../Context/Toast';
+import { PLANNER_TOAST_COPY } from './constants';
 import { usePlanner } from '.';
 
 describe('usePlanner', () => {
@@ -69,5 +73,63 @@ describe('usePlanner', () => {
 
     act(() => result.current.deleteNote({ sectionId: added?.id ?? '' }));
     expect(result.current.notes).toHaveLength(before);
+  });
+
+  describe('telling the user what happened', () => {
+    const wrapper = ({ children }: PropsWithChildren) =>
+      createElement(ToastProvider, null, children);
+
+    const addLine = (result: { current: ReturnType<typeof usePlanner> }, text: string) => {
+      const sectionId = result.current.days[2]?.id ?? '';
+      act(() => result.current.addLine({ sectionId }));
+      const lineId = result.current.days[2]?.lines.at(-1)?.id ?? '';
+      act(() => result.current.updateLine({ sectionId, lineId, text }));
+      return { sectionId, lineId };
+    };
+
+    it('offers Undo when a line is removed', async () => {
+      const { result } = renderHook(() => usePlanner(), { wrapper });
+      const { sectionId, lineId } = addLine(result, 'Tacos');
+
+      act(() => result.current.removeLine({ sectionId, lineId }));
+
+      expect(await screen.findByText(PLANNER_TOAST_COPY.lineRemoved)).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: PLANNER_TOAST_COPY.undo })).toBeInTheDocument();
+    });
+
+    it('puts the line back in the same place when Undo is pressed', async () => {
+      const { result } = renderHook(() => usePlanner(), { wrapper });
+      const { sectionId, lineId } = addLine(result, 'Tacos');
+      const lines = result.current.days[2]?.lines ?? [];
+      const index = lines.findIndex((line) => line.id === lineId);
+      act(() => result.current.removeLine({ sectionId, lineId }));
+
+      fireEvent.click(await screen.findByRole('button', { name: PLANNER_TOAST_COPY.undo }));
+
+      expect(result.current.days[2]?.lines[index]).toMatchObject({ id: lineId, text: 'Tacos' });
+      expect(result.current.days[2]?.lines).toHaveLength(lines.length);
+    });
+
+    it('says nothing when removing an empty line', () => {
+      const { result } = renderHook(() => usePlanner(), { wrapper });
+      const sectionId = result.current.days[2]?.id ?? '';
+      act(() => result.current.addLine({ sectionId }));
+      const lineId = result.current.days[2]?.lines.at(-1)?.id ?? '';
+
+      act(() => result.current.removeLine({ sectionId, lineId }));
+
+      expect(screen.queryByText(PLANNER_TOAST_COPY.lineRemoved)).not.toBeInTheDocument();
+    });
+
+    it('says a notes box was added and deleted', async () => {
+      const { result } = renderHook(() => usePlanner(), { wrapper });
+      const title = result.current.notes[0]?.title ?? '';
+
+      act(() => result.current.addNote());
+      expect(await screen.findByText(PLANNER_TOAST_COPY.noteAdded)).toBeInTheDocument();
+
+      act(() => result.current.deleteNote({ sectionId: result.current.notes[0]?.id ?? '' }));
+      expect(await screen.findByText(PLANNER_TOAST_COPY.noteDeleted(title))).toBeInTheDocument();
+    });
   });
 });
