@@ -58,6 +58,7 @@
       "apps/local/src/server/index.ts",
     "apps/local/src/localConfiguration/index.ts",
       "apps/local/src/constants.ts",
+      "apps/local/src/localConfiguration/types.ts",
       "e2e/api/integration/dynamodbLocal/constants.ts",
       "e2e/api/integration/dynamodbLocal/globalSetup/index.ts",
       "e2e/api/integration/dynamodbLocal/setup/index.ts"
