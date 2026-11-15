@@ -1,5 +1,5 @@
 import { Toast, ToastProvider as ToastRegion, ToastQueue } from '@heroui/react';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 import { TOAST_TIMEOUT_MS } from './constants';
 import { ToastContext } from './context';
@@ -7,26 +7,25 @@ import type { ToastApi, ToastContent } from './types';
 
 export const ToastProvider = ({ children }: PropsWithChildren) => {
   const [queue] = useState(() => new ToastQueue<ToastContent>());
-  const api = useMemo<ToastApi>(
-    () => ({
-      success: (title, action) => {
-        queue.add(
+  const latest = useRef<string | undefined>(undefined);
+  const api = useMemo<ToastApi>(() => {
+    const show = (content: ToastContent, timeout: number) => {
+      if (latest.current !== undefined) {
+        queue.close(latest.current);
+      }
+      latest.current = queue.add(content, { timeout });
+    };
+    return {
+      success: (title, action) =>
+        show(
           { title, variant: 'success', actions: action === undefined ? undefined : [action] },
-          { timeout: action === undefined ? TOAST_TIMEOUT_MS.success : TOAST_TIMEOUT_MS.undo },
-        );
-      },
-      error: (title) => {
-        queue.add({ title, variant: 'danger' }, { timeout: TOAST_TIMEOUT_MS.error });
-      },
-      confirm: ({ title, description, actions }) => {
-        queue.add(
-          { title, description, actions, variant: 'accent' },
-          { timeout: TOAST_TIMEOUT_MS.confirm },
-        );
-      },
-    }),
-    [queue],
-  );
+          action === undefined ? TOAST_TIMEOUT_MS.success : TOAST_TIMEOUT_MS.undo,
+        ),
+      error: (title) => show({ title, variant: 'danger' }, TOAST_TIMEOUT_MS.error),
+      confirm: ({ title, description, actions }) =>
+        show({ title, description, actions, variant: 'accent' }, TOAST_TIMEOUT_MS.confirm),
+    };
+  }, [queue]);
 
   return (
     <ToastContext.Provider value={api}>
@@ -56,7 +55,9 @@ export const ToastProvider = ({ children }: PropsWithChildren) => {
                 </div>
               )}
             </Toast.Content>
-            <Toast.CloseButton />
+            {(toast.content.variant !== 'success' || toast.content.actions !== undefined) && (
+              <Toast.CloseButton />
+            )}
           </Toast>
         )}
       </ToastRegion>
