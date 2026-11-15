@@ -84,6 +84,39 @@
           }
         ]
       }
+    },
+    {
+      "files": [
+        "apps/functions/*/src/**/*.ts"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@aws-sdk/lib-dynamodb",
+                "message": "DynamoDB access belongs in packages/lambda-kit/src/repository; handlers call a repository function.",
+                "allowTypeImports": true
+              },
+              {
+                "name": "@aws-sdk/client-dynamodb",
+                "message": "DynamoDB access belongs in packages/lambda-kit/src/repository; handlers call a repository function.",
+                "allowTypeImports": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "apps/functions/*/src/index.ts",
+        "apps/functions/**/*.test.ts"
+      ],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
     }
   ],
   "ignorePatterns": [

@@ -20,6 +20,7 @@ const dispatch = async (
   request: LocalRequest,
   routeKey: string,
   path: string,
+  query: URLSearchParams,
 ): Promise<APIGatewayProxyStructuredResultV2> => {
   if (routeKey === `POST ${PUBLISH_PATH}`) {
     return handlePublish({ body: await readBody(request), hub });
@@ -44,6 +45,7 @@ const dispatch = async (
         request,
         body: await readBody(request),
         path,
+        query,
         routeKey: match.routeKey,
         pathParameters,
       },
@@ -56,10 +58,10 @@ export const handleRequest = async (
   request: LocalRequest,
   response: Pick<ServerResponse, 'writeHead' | 'end'>,
 ): Promise<void> => {
-  const { pathname: path } = new URL(request.url ?? '/', 'http://localhost');
+  const { pathname: path, searchParams } = new URL(request.url ?? '/', 'http://localhost');
   const routeKey = `${request.method} ${path}`;
   try {
-    const result = await dispatch(request, routeKey, path);
+    const result = await dispatch(request, routeKey, path, searchParams);
     console.log(`${routeKey} -> ${result.statusCode}`);
     sendResult(response, result);
   } catch (error) {

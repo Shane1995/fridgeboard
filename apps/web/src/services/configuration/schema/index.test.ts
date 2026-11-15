@@ -183,6 +183,7 @@ describe('web settings schema', () => {
 describe('web configuration schema', () => {
   const ENDPOINTS = {
     households: '/api/v1/households',
+    clearItems: '/api/v1/households/{householdId}/lists/{listId}/items/clear',
     householdChanges: '/api/v1/households/{householdId}/changes',
     householdInvites: '/api/v1/households/{householdId}/invites',
     householdMembers: '/api/v1/households/{householdId}/members',

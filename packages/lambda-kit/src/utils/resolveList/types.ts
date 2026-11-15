@@ -1,3 +1,4 @@
+import type { APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import type { Table } from '../table/types.ts';
 import type { AuthenticatedUser } from '../withAuthenticatedUser/types.ts';
 
@@ -7,6 +8,6 @@ export type ListRouteContext = { user: AuthenticatedUser; table: Table; scope: L
 
 export type ResolveListOptions = { user: AuthenticatedUser; table: Table };
 
-export type ItemRouteOptions = { context: ListRouteContext; itemId: string };
-
-export type ShopRouteOptions = { context: ListRouteContext; shopId: string };
+export type ListRouteHandler = (
+  context: ListRouteContext,
+) => Promise<APIGatewayProxyStructuredResultV2>;

@@ -31,6 +31,7 @@ const DEFINITIONS: RouteDefinition[] = [
   { method: 'GET', service: WebService.listItem, jwt: true, handler: listItems },
   { method: 'PATCH', service: WebService.listItem, jwt: true, handler: listItems },
   { method: 'DELETE', service: WebService.listItem, jwt: true, handler: listItems },
+  { method: 'DELETE', service: WebService.clearItems, jwt: true, handler: listItems },
   { method: 'GET', service: WebService.listHistory, jwt: true, handler: listItems },
   { method: 'GET', service: WebService.listShops, jwt: true, handler: listShops },
   { method: 'POST', service: WebService.listShops, jwt: true, handler: listShops },

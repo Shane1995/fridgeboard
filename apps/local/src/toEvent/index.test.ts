@@ -10,6 +10,7 @@ describe('toEvent', () => {
         request: request({ cookie: 'a=1; b=2' }),
         body: '{"x":1}',
         path: '/api/v1/me',
+        query: new URLSearchParams(),
         routeKey: 'PUT /api/v1/me',
         pathParameters: {},
       },
@@ -32,6 +33,7 @@ describe('toEvent', () => {
         request: request({}),
         body: '',
         path: '/api/v1/households/h1',
+        query: new URLSearchParams(),
         routeKey: 'GET /api/v1/households/{householdId}',
         pathParameters: { householdId: 'h1' },
       },
@@ -44,10 +46,51 @@ describe('toEvent', () => {
 
   it('omits the body when empty', () => {
     const event = toEvent(
-      { request: request({}), body: '', path: '/', routeKey: 'GET /', pathParameters: {} },
+      {
+        request: request({}),
+        body: '',
+        path: '/',
+        query: new URLSearchParams(),
+        routeKey: 'GET /',
+        pathParameters: {},
+      },
       undefined,
     );
 
     expect(event).not.toHaveProperty('body');
+  });
+
+  it('carries the query string as API Gateway does', () => {
+    const event = toEvent(
+      {
+        request: request({}),
+        body: '',
+        path: '/items/clear',
+        query: new URLSearchParams('clearby=checked'),
+        routeKey: 'DELETE /items/clear',
+        pathParameters: {},
+      },
+      undefined,
+    );
+
+    expect(event.rawQueryString).toBe('clearby=checked');
+    expect(event.queryStringParameters).toEqual({ clearby: 'checked' });
+  });
+
+  it('leaves queryStringParameters off when there is no query string', () => {
+    const event = toEvent(
+      {
+        request: request({}),
+        body: '',
+        path: '/',
+        query: new URLSearchParams(),
+        routeKey: 'GET /',
+        pathParameters: {},
+      },
+      undefined,
+    );
+
+    expect(event.rawQueryString).toBe('');
+    expect(event).not.toHaveProperty('queryStringParameters');
   });
 });

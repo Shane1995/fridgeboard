@@ -1,6 +1,6 @@
 import type { ListScope } from '@fridgeboard/lambda-kit/utils/resolveList/types.ts';
 import type { Table } from '@fridgeboard/lambda-kit/utils/table/types.ts';
-import type { ItemChanges } from '../../routes/update/types.ts';
+import type { ItemChanges } from '../../handlers/update/types.ts';
 
 export type ReadItemChangesOptions = {
   fields: Record<string, unknown>;

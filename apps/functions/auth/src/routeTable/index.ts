@@ -9,14 +9,14 @@ import {
   START_ROUTE,
   VERIFY_ROUTE,
 } from '../constants.ts';
-import { passkeysComplete } from '../routes/passkeysComplete/index.ts';
-import { passkeysStart } from '../routes/passkeysStart/index.ts';
-import { passkeyStart } from '../routes/passkeyStart/index.ts';
-import { passkeyVerify } from '../routes/passkeyVerify/index.ts';
-import { refresh } from '../routes/refresh/index.ts';
-import { signOut } from '../routes/signOut/index.ts';
-import { start } from '../routes/start/index.ts';
-import { verify } from '../routes/verify/index.ts';
+import { passkeysComplete } from '../handlers/passkeysComplete/index.ts';
+import { passkeysStart } from '../handlers/passkeysStart/index.ts';
+import { passkeyStart } from '../handlers/passkeyStart/index.ts';
+import { passkeyVerify } from '../handlers/passkeyVerify/index.ts';
+import { refresh } from '../handlers/refresh/index.ts';
+import { signOut } from '../handlers/signOut/index.ts';
+import { start } from '../handlers/start/index.ts';
+import { verify } from '../handlers/verify/index.ts';
 import type { RouteEntry } from '../types.ts';
 
 export const ROUTE_TABLE: ReadonlyMap<string, RouteEntry> = new Map<string, RouteEntry>([

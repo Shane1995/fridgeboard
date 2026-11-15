@@ -1,12 +1,10 @@
-import { DynamoDBClient, TransactionCanceledException } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
+import { claimUsername } from '@fridgeboard/lambda-kit/repository/usernames/index.ts';
 import { getConfiguration } from '@fridgeboard/lambda-kit/configuration/index.ts';
 import { isValidUsername } from './utils/isValidUsername/index.ts';
 import { jsonResponse } from '@fridgeboard/lambda-kit/utils/jsonResponse/index.ts';
-import { profileKey } from '@fridgeboard/lambda-kit/utils/keys/profileKey/index.ts';
-import { usernameKey } from '@fridgeboard/lambda-kit/utils/keys/usernameKey/index.ts';
 import { withAuthenticatedUser } from '@fridgeboard/lambda-kit/utils/withAuthenticatedUser/index.ts';
-import { CONDITION_FAILED, PROFILE_REASON_INDEX } from './constants.ts';
 import { readUsername } from './utils/readUsername/index.ts';
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient({}));
@@ -23,44 +21,9 @@ export const handler = withAuthenticatedUser(async ({ event, sub }) => {
     return jsonResponse(400, { reason: 'invalid-username' });
   }
 
-  const TableName = process.env.TABLE_NAME;
-  try {
-    await client.send(
-      new TransactWriteCommand({
-        TransactItems: [
-          {
-            Put: {
-              TableName,
-              Item: { ...usernameKey(username), sub },
-              ConditionExpression: 'attribute_not_exists(PK) OR #sub = :sub',
-              ExpressionAttributeNames: { '#sub': 'sub' },
-              ExpressionAttributeValues: { ':sub': sub },
-            },
-          },
-          {
-            Update: {
-              TableName,
-              Key: profileKey(sub),
-              UpdateExpression: 'SET username = :username',
-              ConditionExpression:
-                'attribute_exists(PK) AND (attribute_not_exists(username) OR username = :username)',
-              ExpressionAttributeValues: { ':username': username },
-            },
-          },
-        ],
-      }),
-    );
-  } catch (error) {
-    if (error instanceof TransactionCanceledException) {
-      const reasons = error.CancellationReasons ?? [];
-      if (reasons[PROFILE_REASON_INDEX]?.Code === CONDITION_FAILED) {
-        return jsonResponse(409, { reason: 'username-set' });
-      }
-      if (reasons.some(({ Code }) => Code === CONDITION_FAILED)) {
-        return jsonResponse(409, { reason: 'username-taken' });
-      }
-    }
-    throw error;
+  const claimed = await claimUsername({ client, sub, username });
+  if (claimed === 'username-set' || claimed === 'username-taken') {
+    return jsonResponse(409, { reason: claimed });
   }
 
   return jsonResponse(200, { username });

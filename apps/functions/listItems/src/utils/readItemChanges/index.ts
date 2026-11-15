@@ -1,7 +1,7 @@
 import { LIST_ITEM_NAME_MAX_LENGTH } from '@fridgeboard/contract/lists/constants';
 import { readShopIds } from '../readShopIds/index.ts';
 import { readText } from '@fridgeboard/lambda-kit/utils/readText/index.ts';
-import type { ItemChanges } from '../../routes/update/types.ts';
+import type { ItemChanges } from '../../handlers/update/types.ts';
 import type { ReadItemChangesOptions, ReadItemChangesResult } from './types.ts';
 
 export const readItemChanges = async ({
