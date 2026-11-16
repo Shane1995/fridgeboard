@@ -63,6 +63,16 @@ describe('useCalendarEvents', () => {
       expect(await screen.findByText(CALENDAR_COPY.eventUpdated('Brunch'))).toBeInTheDocument();
     });
 
+    it('says nothing when an event is saved without changes', async () => {
+      const { result } = renderHook(() => useCalendarEvents(), { wrapper });
+      act(() => result.current.createEvent({ draft }));
+      const created = result.current.events.find((event) => event.title === 'Picnic');
+
+      act(() => result.current.updateEvent({ id: created?.id ?? '', draft }));
+
+      expect(screen.queryByText(CALENDAR_COPY.eventUpdated('Picnic'))).not.toBeInTheDocument();
+    });
+
     it('says an event was deleted, by name', async () => {
       const { result } = renderHook(() => useCalendarEvents(), { wrapper });
       act(() => result.current.createEvent({ draft }));

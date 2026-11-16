@@ -17,6 +17,17 @@ const setUp = async () => {
   return { shop, onDone };
 };
 
+describe('ShopForm saving', () => {
+  it('closes quietly when nothing was changed', async () => {
+    const { onDone } = await setUp();
+
+    fireEvent.click(screen.getByRole('button', { name: /save/i }));
+
+    await waitFor(() => expect(onDone).toHaveBeenCalled());
+    expect(screen.queryByText(SHOP_SUCCESS_COPY.update)).not.toBeInTheDocument();
+  });
+});
+
 describe('ShopForm deleting', () => {
   it('asks before deleting and does not delete yet', async () => {
     await setUp();

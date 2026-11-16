@@ -19,10 +19,12 @@ export const useCalendarEvents = () => {
   };
 
   const updateEvent = ({ id, draft }: UpdateEventOptions) => {
-    setEvents((current) =>
-      current.map((event) => (event.id === id ? buildEvent({ draft, id }) : event)),
-    );
-    toast.success(CALENDAR_COPY.eventUpdated(draft.title));
+    const next = buildEvent({ draft, id });
+    const previous = events.find((event) => event.id === id);
+    setEvents((current) => current.map((event) => (event.id === id ? next : event)));
+    if (JSON.stringify(previous) !== JSON.stringify(next)) {
+      toast.success(CALENDAR_COPY.eventUpdated(draft.title));
+    }
   };
 
   const deleteEvent = ({ id }: DeleteEventOptions) => {

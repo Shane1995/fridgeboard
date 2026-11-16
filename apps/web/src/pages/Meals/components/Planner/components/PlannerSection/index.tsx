@@ -1,18 +1,16 @@
-import { Button, useOverlayState } from '@heroui/react';
+import { Button } from '@heroui/react';
 import { Link } from '@tanstack/react-router';
-import { BookOpen, Link2Off, Plus, Trash2, X } from 'lucide-react';
+import { BookOpen, Link2Off, Plus, X } from 'lucide-react';
 import {
   SHOP_COLOR_CLASSES,
   SHOP_TEXT_CLASSES,
 } from '../../../../../../components/ShopSwatch/constants';
-import { ConfirmDialog } from '../../../../../../components/ConfirmDialog';
 import { Typography } from '../../../../../../components/Typography';
 import { TypographyVariant } from '../../../../../../components/Typography/constants';
 import {
   PLANNER_COPY,
   PLANNER_INPUT_CLASS,
   PLANNER_LINE_MAX_LENGTH,
-  PLANNER_TITLE_MAX_LENGTH,
   SECTION_STYLES,
 } from '../../constants';
 import type { PlannerSectionProps } from './types';
@@ -30,11 +28,8 @@ export const PlannerSection = ({
   onAddIngredients,
   onPickRecipe,
   onUnlinkRecipe,
-  onRename,
-  onDelete,
 }: PlannerSectionProps) => {
   const style = SECTION_STYLES[color];
-  const confirmDelete = useOverlayState();
   return (
     <section
       aria-label={section.title}
@@ -43,46 +38,15 @@ export const PlannerSection = ({
       <div
         className={`flex items-center justify-between gap-2 px-3 py-2 ${SHOP_COLOR_CLASSES[color]} ${SHOP_TEXT_CLASSES[color]}`}
       >
-        {onRename === undefined ? (
-          <Typography variant={TypographyVariant.Heading3} as="h3">
-            {section.title}
-          </Typography>
-        ) : (
-          <input
-            aria-label={PLANNER_COPY.noteTitleLabel}
-            maxLength={PLANNER_TITLE_MAX_LENGTH}
-            className="w-full min-w-0 rounded-lg bg-transparent px-1 text-lg font-semibold outline-none focus-visible:ring-2 focus-visible:ring-current"
-            value={section.title}
-            onChange={(event) => onRename({ sectionId: section.id, title: event.target.value })}
-          />
-        )}
+        <Typography variant={TypographyVariant.Heading3} as="h3">
+          {section.title}
+        </Typography>
         {isToday && (
           <span className="shrink-0 rounded-full bg-white/30 px-2 py-0.5 text-xs font-semibold">
             {PLANNER_COPY.today}
           </span>
         )}
-        {onDelete !== undefined && (
-          <Button
-            isIconOnly
-            size="sm"
-            variant="ghost"
-            aria-label={`${PLANNER_COPY.deleteNote} ${section.title}`}
-            className="text-current"
-            onPress={confirmDelete.open}
-          >
-            <Trash2 aria-hidden size={18} />
-          </Button>
-        )}
       </div>
-      {onDelete !== undefined && (
-        <ConfirmDialog
-          state={confirmDelete}
-          title={PLANNER_COPY.confirmNoteTitle(section.title)}
-          description={PLANNER_COPY.confirmNoteDescription}
-          confirmLabel={PLANNER_COPY.confirmNote}
-          onConfirm={() => onDelete({ sectionId: section.id })}
-        />
-      )}
       <div className="flex flex-col gap-2 p-3">
         {section.lines.length === 0 && (
           <Typography variant={TypographyVariant.Caption}>{PLANNER_COPY.emptySection}</Typography>

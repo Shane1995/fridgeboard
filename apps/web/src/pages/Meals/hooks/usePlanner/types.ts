@@ -10,8 +10,4 @@ export type AddRecipeLineOptions = { sectionId: string; recipeId: string; name: 
 
 export type UnlinkRecipeOptions = { sectionId: string; lineId: string };
 
-export type RenameNoteOptions = { sectionId: string; title: string };
-
-export type DeleteNoteOptions = { sectionId: string };
-
 export type RestoreLineOptions = { sectionId: string; line: PlannerLine; index: number };

@@ -6,11 +6,10 @@ import { PLANNER_TOAST_COPY } from './constants';
 import { usePlanner } from '.';
 
 describe('usePlanner', () => {
-  it('starts with seven weekdays and some notes boxes', () => {
+  it('starts with seven weekdays', () => {
     const { result } = renderHook(() => usePlanner());
     expect(result.current.days).toHaveLength(7);
     expect(result.current.days[0]?.title).toBe('Sunday');
-    expect(result.current.notes.length).toBeGreaterThan(0);
   });
 
   it('knows which weekday is today', () => {
@@ -57,21 +56,6 @@ describe('usePlanner', () => {
     expect(result.current.days[3]?.lines.at(-1)?.text).toBe('Butternut squash soup');
   });
 
-  it('adds, renames and deletes a notes box', () => {
-    const { result } = renderHook(() => usePlanner());
-    const before = result.current.notes.length;
-
-    act(() => result.current.addNote());
-    const added = result.current.notes.at(-1);
-    expect(result.current.notes).toHaveLength(before + 1);
-
-    act(() => result.current.renameNote({ sectionId: added?.id ?? '', title: 'Freezer' }));
-    expect(result.current.notes.at(-1)?.title).toBe('Freezer');
-
-    act(() => result.current.deleteNote({ sectionId: added?.id ?? '' }));
-    expect(result.current.notes).toHaveLength(before);
-  });
-
   describe('telling the user what happened', () => {
     const wrapper = ({ children }: PropsWithChildren) =>
       createElement(ToastProvider, null, children);
@@ -116,17 +100,6 @@ describe('usePlanner', () => {
       act(() => result.current.removeLine({ sectionId, lineId }));
 
       expect(screen.queryByText(PLANNER_TOAST_COPY.lineRemoved)).not.toBeInTheDocument();
-    });
-
-    it('says a notes box was added and deleted', async () => {
-      const { result } = renderHook(() => usePlanner(), { wrapper });
-      const title = result.current.notes[0]?.title ?? '';
-
-      act(() => result.current.addNote());
-      expect(await screen.findByText(PLANNER_TOAST_COPY.noteAdded)).toBeInTheDocument();
-
-      act(() => result.current.deleteNote({ sectionId: result.current.notes[0]?.id ?? '' }));
-      expect(await screen.findByText(PLANNER_TOAST_COPY.noteDeleted(title))).toBeInTheDocument();
     });
   });
 });

@@ -1,11 +1,8 @@
-import { Button, useOverlayState } from '@heroui/react';
+import { useOverlayState } from '@heroui/react';
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
 import { useRecipeBook } from '../../../../hooks/useRecipeBook';
-import { Typography } from '../../../../components/Typography';
-import { TypographyVariant } from '../../../../components/Typography/constants';
 import { ShopColor } from '../../../../services/shoppingList/constants';
-import { PLANNER_COPY, PLANNER_DAY_COLORS, PLANNER_NOTE_COLOR } from './constants';
+import { PLANNER_COPY, PLANNER_DAY_COLORS } from './constants';
 import { PlannerSection } from './components/PlannerSection';
 import { AddToListDialog } from '../../../Recipes/components/AddToListDialog';
 import { RecipePickerDialog } from './components/RecipePickerDialog';
@@ -13,7 +10,6 @@ import type { PlannerProps } from './types';
 
 export const Planner = ({
   days,
-  notes,
   focusId,
   todayWeekday,
   onAddLine,
@@ -21,9 +17,6 @@ export const Planner = ({
   onRemoveLine,
   onAddRecipeLine,
   onUnlinkRecipe,
-  onAddNote,
-  onRenameNote,
-  onDeleteNote,
 }: PlannerProps) => {
   const book = useRecipeBook();
   const picker = useOverlayState();
@@ -96,33 +89,6 @@ export const Planner = ({
           />
         ))}
       </div>
-      <Typography variant={TypographyVariant.Heading3} as="h2">
-        {PLANNER_COPY.notesHeading}
-      </Typography>
-      <div className="grid gap-3 md:grid-cols-2">
-        {notes.map((note) => (
-          <PlannerSection
-            key={note.id}
-            section={note}
-            color={PLANNER_NOTE_COLOR}
-            isToday={false}
-            focusId={focusId}
-            onAddLine={onAddLine}
-            onUpdateLine={onUpdateLine}
-            onRemoveLine={onRemoveLine}
-            recipeIngredientCounts={recipeIngredientCounts}
-            onAddIngredients={openAddIngredients}
-            onPickRecipe={openPicker}
-            onUnlinkRecipe={onUnlinkRecipe}
-            onRename={onRenameNote}
-            onDelete={onDeleteNote}
-          />
-        ))}
-      </div>
-      <Button variant="secondary" onPress={onAddNote}>
-        <Plus aria-hidden size={18} />
-        {PLANNER_COPY.addNote}
-      </Button>
       {addRecipe !== undefined && (
         <AddToListDialog key={addRecipe.id} state={addDialog} recipe={addRecipe} />
       )}

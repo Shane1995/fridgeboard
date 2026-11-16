@@ -1,7 +1,7 @@
 import { DAYS_PER_WEEK } from '../../../Calendar/constants';
 import type { PlannerPlan, PlannerSection } from '../../types';
 import { formatWeekdayName } from '../../../Calendar/utils/formatWeekdayName';
-import { DUMMY_DAY_LINES, DUMMY_NOTES, DUMMY_RECIPE_LINKS } from './constants';
+import { DUMMY_DAY_LINES, DUMMY_RECIPE_LINKS } from './constants';
 import type { BuildDummyPlannerOptions } from './types';
 
 const toLines = ({ id, texts }: { id: string; texts: readonly string[] }) =>
@@ -21,9 +21,5 @@ export const buildDummyPlanner = ({ weekStartsOn }: BuildDummyPlannerOptions): P
       title: formatWeekdayName({ weekday }),
       lines: toLines({ id, texts: DUMMY_DAY_LINES[weekday] ?? [] }),
     };
-  }),
-  notes: DUMMY_NOTES.map((note, index): PlannerSection => {
-    const id = `note-${index}`;
-    return { id, title: note.title, lines: toLines({ id, texts: note.lines }) };
   }),
 });

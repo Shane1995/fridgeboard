@@ -5,13 +5,11 @@ import type { PlannerPlan, PlannerSection } from '../../types';
 import { buildDummyPlanner } from '../../utils/buildDummyPlanner';
 import { getToday } from '../../../Calendar/utils/getToday';
 import { updateSection } from '../../utils/updateSection';
-import { NEW_NOTE_TITLE, PLANNER_TOAST_COPY } from './constants';
+import { PLANNER_TOAST_COPY } from './constants';
 import type {
   AddLineOptions,
   AddRecipeLineOptions,
-  DeleteNoteOptions,
   RemoveLineOptions,
-  RenameNoteOptions,
   RestoreLineOptions,
   UnlinkRecipeOptions,
   UpdateLineOptions,
@@ -36,7 +34,6 @@ export const usePlanner = () => {
   }) =>
     setPlan((current) => ({
       days: updateSection({ sections: current.days, sectionId, update }),
-      notes: updateSection({ sections: current.notes, sectionId, update }),
     }));
 
   const addLine = ({ sectionId }: AddLineOptions) => {
@@ -69,7 +66,7 @@ export const usePlanner = () => {
     });
 
   const removeLine = ({ sectionId, lineId }: RemoveLineOptions) => {
-    const lines = [...plan.days, ...plan.notes].find(({ id }) => id === sectionId)?.lines ?? [];
+    const lines = plan.days.find(({ id }) => id === sectionId)?.lines ?? [];
     const index = lines.findIndex(({ id }) => id === lineId);
     const line = lines[index];
     change({
@@ -107,32 +104,8 @@ export const usePlanner = () => {
       }),
     });
 
-  const addNote = () => {
-    const id = crypto.randomUUID();
-    setPlan((current) => ({
-      ...current,
-      notes: [...current.notes, { id, title: NEW_NOTE_TITLE, lines: [] }],
-    }));
-    toast.success(PLANNER_TOAST_COPY.noteAdded);
-  };
-
-  const renameNote = ({ sectionId, title }: RenameNoteOptions) =>
-    change({ sectionId, update: (section) => ({ ...section, title }) });
-
-  const deleteNote = ({ sectionId }: DeleteNoteOptions) => {
-    const removed = plan.notes.find((note) => note.id === sectionId);
-    setPlan((current) => ({
-      ...current,
-      notes: current.notes.filter((note) => note.id !== sectionId),
-    }));
-    if (removed !== undefined) {
-      toast.success(PLANNER_TOAST_COPY.noteDeleted(removed.title));
-    }
-  };
-
   return {
     days: plan.days,
-    notes: plan.notes,
     focusId,
     todayWeekday,
     addLine,
@@ -140,8 +113,5 @@ export const usePlanner = () => {
     removeLine,
     addRecipeLine,
     unlinkRecipe,
-    addNote,
-    renameNote,
-    deleteNote,
   };
 };

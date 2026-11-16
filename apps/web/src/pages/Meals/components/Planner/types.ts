@@ -3,9 +3,7 @@ import type {
   AddLineOptions,
   AddRecipeLineOptions,
   UnlinkRecipeOptions,
-  DeleteNoteOptions,
   RemoveLineOptions,
-  RenameNoteOptions,
   UpdateLineOptions,
 } from '../../hooks/usePlanner/types';
 
@@ -13,7 +11,6 @@ export type SectionStyle = { surface: string; border: string };
 
 export type PlannerProps = {
   days: readonly PlannerSection[];
-  notes: readonly PlannerSection[];
   focusId: string | undefined;
   todayWeekday: number;
   onAddLine: (options: AddLineOptions) => void;
@@ -21,7 +18,4 @@ export type PlannerProps = {
   onRemoveLine: (options: RemoveLineOptions) => void;
   onAddRecipeLine: (options: AddRecipeLineOptions) => void;
   onUnlinkRecipe: (options: UnlinkRecipeOptions) => void;
-  onAddNote: () => void;
-  onRenameNote: (options: RenameNoteOptions) => void;
-  onDeleteNote: (options: DeleteNoteOptions) => void;
 };

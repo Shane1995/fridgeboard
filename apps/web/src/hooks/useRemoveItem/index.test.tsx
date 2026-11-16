@@ -37,6 +37,18 @@ describe('useRemoveItem', () => {
     });
   });
 
+  it('keeps a ticked item ticked when Undo is pressed', async () => {
+    const { milk, result } = await setUp();
+    await act(async () => result.current({ ...milk, checked: true }));
+
+    fireEvent.click(await screen.findByRole('button', { name: REMOVE_ITEM_COPY.undo }));
+
+    await waitFor(async () => {
+      const items = await fakeShoppingList.listItems();
+      expect(items.map(({ checked }) => checked)).toEqual([true]);
+    });
+  });
+
   it('does not say the item was added again after Undo', async () => {
     const { milk, result } = await setUp();
     await act(async () => result.current(milk));

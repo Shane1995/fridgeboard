@@ -6,13 +6,6 @@ export const PLANNER_COPY = {
   removeLine: 'Remove line',
   lineLabel: 'line',
   linePlaceholder: 'Add a meal',
-  addNote: 'Add notes box',
-  deleteNote: 'Delete box',
-  confirmNoteTitle: (title: string) => `Delete ${title}?`,
-  confirmNoteDescription: 'Everything in this box goes with it.',
-  confirmNote: 'Delete',
-  noteTitleLabel: 'Box title',
-  notesHeading: 'Notes',
   addRecipe: 'From recipe',
   addIngredients: 'Add ingredients',
   dayStrip: 'Days',
@@ -27,7 +20,6 @@ export const PLANNER_COPY = {
 } as const;
 
 export const PLANNER_LINE_MAX_LENGTH = 120;
-export const PLANNER_TITLE_MAX_LENGTH = 40;
 
 export const PLANNER_INPUT_CLASS =
   'block w-full min-w-0 rounded-xl border border-black/10 bg-white/80 px-3 py-2 outline-none focus-visible:ring-2 focus-visible:ring-focus';
@@ -41,8 +33,6 @@ export const PLANNER_DAY_COLORS: readonly ShopColor[] = [
   ShopColor.Pink,
   ShopColor.Cyan,
 ];
-
-export const PLANNER_NOTE_COLOR = ShopColor.Mustard;
 
 export const SECTION_STYLES: Record<ShopColor, SectionStyle> = {
   [ShopColor.Tomato]: {

@@ -21,7 +21,7 @@ describe('buildDummyPlanner', () => {
 
   it('gives every section and line a unique id', () => {
     const plan = buildDummyPlanner({ weekStartsOn: 0 });
-    const ids = [...plan.days, ...plan.notes].flatMap((section) => [
+    const ids = plan.days.flatMap((section) => [
       section.id,
       ...section.lines.map((line) => line.id),
     ]);

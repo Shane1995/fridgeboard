@@ -21,7 +21,6 @@ export const Meals = () => {
       <PageHeader title={MEALS_COPY.title} />
       <Planner
         days={meals.planner.days}
-        notes={meals.planner.notes}
         focusId={meals.planner.focusId}
         todayWeekday={meals.planner.todayWeekday}
         onAddLine={meals.planner.addLine}
@@ -29,9 +28,6 @@ export const Meals = () => {
         onRemoveLine={meals.planner.removeLine}
         onAddRecipeLine={meals.planner.addRecipeLine}
         onUnlinkRecipe={meals.planner.unlinkRecipe}
-        onAddNote={meals.planner.addNote}
-        onRenameNote={meals.planner.renameNote}
-        onDeleteNote={meals.planner.deleteNote}
       />
     </main>
   );

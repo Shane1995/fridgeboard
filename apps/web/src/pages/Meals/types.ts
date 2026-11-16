@@ -7,4 +7,4 @@ export type PlannerSection = {
   weekday?: number | undefined;
 };
 
-export type PlannerPlan = { days: PlannerSection[]; notes: PlannerSection[] };
+export type PlannerPlan = { days: PlannerSection[] };
