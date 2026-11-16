@@ -1,3 +1,4 @@
+import type { Recipe } from '../../../../../../services/recipes/types';
 import type { ShopColor } from '../../../../../../services/shoppingList/constants';
 import type { PlannerSection as Section } from '../../../../types';
 import type {
@@ -6,6 +7,8 @@ import type {
   RemoveLineOptions,
   UpdateLineOptions,
 } from '../../../../hooks/usePlanner/types';
+
+export type PickTarget = { sectionId: string; lineId?: string };
 
 export type PlannerSectionProps = {
   section: Section;
@@ -16,8 +19,8 @@ export type PlannerSectionProps = {
   onAddLine: (options: AddLineOptions) => void;
   onUpdateLine: (options: UpdateLineOptions) => void;
   onRemoveLine: (options: RemoveLineOptions) => void;
-  recipeIngredientCounts: ReadonlyMap<string, number>;
+  recipesById: ReadonlyMap<string, Recipe>;
   onAddIngredients: (options: { recipeId: string }) => void;
-  onPickRecipe: (options: { sectionId: string }) => void;
+  onPickRecipe: (options: PickTarget) => void;
   onUnlinkRecipe: (options: UnlinkRecipeOptions) => void;
 };

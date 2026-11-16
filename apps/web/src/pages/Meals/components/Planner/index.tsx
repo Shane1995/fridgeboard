@@ -5,7 +5,9 @@ import { ShopColor } from '../../../../services/shoppingList/constants';
 import { PLANNER_COPY, PLANNER_DAY_COLORS } from './constants';
 import { PlannerSection } from './components/PlannerSection';
 import { AddToListDialog } from '../../../Recipes/components/AddToListDialog';
+import { WeekGlance } from './components/WeekGlance';
 import { RecipePickerDialog } from './components/RecipePickerDialog';
+import type { PickTarget } from './components/PlannerSection/types';
 import type { PlannerProps } from './types';
 
 export const Planner = ({
@@ -16,17 +18,16 @@ export const Planner = ({
   onUpdateLine,
   onRemoveLine,
   onAddRecipeLine,
+  onSetLineRecipe,
   onUnlinkRecipe,
 }: PlannerProps) => {
   const book = useRecipeBook();
   const picker = useOverlayState();
-  const [target, setTarget] = useState<{ sectionId: string } | undefined>(undefined);
+  const [target, setTarget] = useState<PickTarget | undefined>(undefined);
   const addDialog = useOverlayState();
   const [addRecipeId, setAddRecipeId] = useState<string | undefined>(undefined);
   const [selectedWeekday, setSelectedWeekday] = useState(todayWeekday);
-  const recipeIngredientCounts = new Map(
-    book.recipes.map((recipe) => [recipe.id, recipe.ingredients.length]),
-  );
+  const recipesById = new Map(book.recipes.map((recipe) => [recipe.id, recipe]));
   const addRecipe = book.recipes.find((recipe) => recipe.id === addRecipeId);
 
   const openAddIngredients = ({ recipeId }: { recipeId: string }) => {
@@ -34,14 +35,21 @@ export const Planner = ({
     addDialog.open();
   };
 
-  const openPicker = (options: { sectionId: string }) => {
+  const openPicker = (options: PickTarget) => {
     setTarget(options);
     picker.open();
   };
 
   const pickRecipe = ({ recipe }: { recipe: { id: string; name: string } }) => {
-    if (target !== undefined) {
-      onAddRecipeLine({ ...target, recipeId: recipe.id, name: recipe.name });
+    if (target?.lineId !== undefined) {
+      onSetLineRecipe({
+        sectionId: target.sectionId,
+        lineId: target.lineId,
+        recipeId: recipe.id,
+        name: recipe.name,
+      });
+    } else if (target !== undefined) {
+      onAddRecipeLine({ sectionId: target.sectionId, recipeId: recipe.id, name: recipe.name });
     }
     picker.close();
   };
@@ -82,13 +90,18 @@ export const Planner = ({
             onAddLine={onAddLine}
             onUpdateLine={onUpdateLine}
             onRemoveLine={onRemoveLine}
-            recipeIngredientCounts={recipeIngredientCounts}
+            recipesById={recipesById}
             onAddIngredients={openAddIngredients}
             onPickRecipe={openPicker}
             onUnlinkRecipe={onUnlinkRecipe}
           />
         ))}
       </div>
+      <WeekGlance
+        days={days}
+        selectedWeekday={selectedWeekday}
+        onSelect={({ weekday }) => setSelectedWeekday(weekday)}
+      />
       {addRecipe !== undefined && (
         <AddToListDialog key={addRecipe.id} state={addDialog} recipe={addRecipe} />
       )}

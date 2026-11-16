@@ -1,10 +1,11 @@
 import { Button } from '@heroui/react';
 import { Link } from '@tanstack/react-router';
-import { BookOpen, Link2Off, Plus, X } from 'lucide-react';
+import { BookOpen, Link2Off, Plus, Replace, X } from 'lucide-react';
 import {
   SHOP_COLOR_CLASSES,
   SHOP_TEXT_CLASSES,
 } from '../../../../../../components/ShopSwatch/constants';
+import { formatIngredient } from '../../../../../Recipes/utils/formatIngredient';
 import { Typography } from '../../../../../../components/Typography';
 import { TypographyVariant } from '../../../../../../components/Typography/constants';
 import {
@@ -24,7 +25,7 @@ export const PlannerSection = ({
   onAddLine,
   onUpdateLine,
   onRemoveLine,
-  recipeIngredientCounts,
+  recipesById,
   onAddIngredients,
   onPickRecipe,
   onUnlinkRecipe,
@@ -51,71 +52,114 @@ export const PlannerSection = ({
         {section.lines.length === 0 && (
           <Typography variant={TypographyVariant.Caption}>{PLANNER_COPY.emptySection}</Typography>
         )}
-        {section.lines.map((line) => (
-          <div key={line.id} className="flex flex-col gap-1">
-            <div className="flex items-center gap-2">
-              <input
-                aria-label={`${section.title} ${PLANNER_COPY.lineLabel}`}
-                placeholder={PLANNER_COPY.linePlaceholder}
-                maxLength={PLANNER_LINE_MAX_LENGTH}
-                autoFocus={line.id === focusId}
-                className={PLANNER_INPUT_CLASS}
-                value={line.text}
-                onChange={(event) =>
-                  onUpdateLine({ sectionId: section.id, lineId: line.id, text: event.target.value })
-                }
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter' && line.text.trim() !== '') {
-                    event.preventDefault();
-                    onAddLine({ sectionId: section.id });
+        {section.lines.map((line) => {
+          const recipe = line.recipeId === undefined ? undefined : recipesById.get(line.recipeId);
+          return (
+            <div key={line.id} className="flex flex-col gap-1">
+              <div className="flex items-center gap-1">
+                <input
+                  aria-label={`${section.title} ${PLANNER_COPY.lineLabel}`}
+                  placeholder={PLANNER_COPY.linePlaceholder}
+                  maxLength={PLANNER_LINE_MAX_LENGTH}
+                  autoFocus={line.id === focusId}
+                  className={PLANNER_INPUT_CLASS}
+                  value={line.text}
+                  onChange={(event) =>
+                    onUpdateLine({
+                      sectionId: section.id,
+                      lineId: line.id,
+                      text: event.target.value,
+                    })
                   }
-                }}
-              />
-              {line.recipeId !== undefined && recipeIngredientCounts.has(line.recipeId) ? (
-                <>
-                  <Link
-                    to="/recipes"
-                    search={{ recipe: line.recipeId }}
-                    aria-label={`${PLANNER_COPY.openRecipe} ${line.text}`}
-                    className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-accent outline-none focus-visible:ring-2 focus-visible:ring-focus"
-                  >
-                    <BookOpen aria-hidden size={18} />
-                  </Link>
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' && line.text.trim() !== '') {
+                      event.preventDefault();
+                      onAddLine({ sectionId: section.id });
+                    }
+                  }}
+                />
+                {recipe === undefined ? (
                   <Button
                     isIconOnly
                     size="sm"
                     variant="ghost"
-                    aria-label={`${PLANNER_COPY.unlinkRecipe} ${line.text}`}
-                    onPress={() => onUnlinkRecipe({ sectionId: section.id, lineId: line.id })}
+                    aria-label={`${PLANNER_COPY.linkRecipe} ${line.text}`}
+                    onPress={() => onPickRecipe({ sectionId: section.id, lineId: line.id })}
                   >
-                    <Link2Off aria-hidden size={16} />
+                    <BookOpen aria-hidden size={16} />
                   </Button>
+                ) : (
+                  <>
+                    <Link
+                      to="/recipes"
+                      search={{ recipe: recipe.id }}
+                      aria-label={`${PLANNER_COPY.openRecipe} ${line.text}`}
+                      className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-accent outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                    >
+                      <BookOpen aria-hidden size={18} />
+                    </Link>
+                    <Button
+                      isIconOnly
+                      size="sm"
+                      variant="ghost"
+                      aria-label={`${PLANNER_COPY.changeRecipe} ${line.text}`}
+                      onPress={() => onPickRecipe({ sectionId: section.id, lineId: line.id })}
+                    >
+                      <Replace aria-hidden size={16} />
+                    </Button>
+                    <Button
+                      isIconOnly
+                      size="sm"
+                      variant="ghost"
+                      aria-label={`${PLANNER_COPY.unlinkRecipe} ${line.text}`}
+                      onPress={() => onUnlinkRecipe({ sectionId: section.id, lineId: line.id })}
+                    >
+                      <Link2Off aria-hidden size={16} />
+                    </Button>
+                  </>
+                )}
+                <Button
+                  isIconOnly
+                  size="sm"
+                  variant="ghost"
+                  aria-label={`${PLANNER_COPY.removeLine} ${line.text}`}
+                  onPress={() => onRemoveLine({ sectionId: section.id, lineId: line.id })}
+                >
+                  <X aria-hidden size={16} />
+                </Button>
+              </div>
+              {recipe !== undefined && (
+                <>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="self-start"
+                    aria-label={`${PLANNER_COPY.addIngredients} ${line.text}`}
+                    onPress={() => onAddIngredients({ recipeId: recipe.id })}
+                  >
+                    <Plus aria-hidden size={16} />
+                    {PLANNER_COPY.addIngredients} ({recipe.ingredients.length})
+                  </Button>
+                  <details className="rounded-xl bg-white/60 px-3 py-2 text-sm">
+                    <summary className="cursor-pointer font-semibold outline-none focus-visible:ring-2 focus-visible:ring-focus">
+                      {PLANNER_COPY.recipeDetails}
+                    </summary>
+                    <ul className="mt-2 list-disc pl-5">
+                      {recipe.ingredients.map((ingredient) => (
+                        <li key={ingredient.id}>{formatIngredient({ ingredient })}</li>
+                      ))}
+                    </ul>
+                    <ol className="mt-2 list-decimal pl-5">
+                      {recipe.steps.map((step) => (
+                        <li key={step}>{step}</li>
+                      ))}
+                    </ol>
+                  </details>
                 </>
-              ) : null}
-              <Button
-                isIconOnly
-                size="sm"
-                variant="ghost"
-                aria-label={`${PLANNER_COPY.removeLine} ${line.text}`}
-                onPress={() => onRemoveLine({ sectionId: section.id, lineId: line.id })}
-              >
-                <X aria-hidden size={16} />
-              </Button>
+              )}
             </div>
-            {line.recipeId !== undefined && recipeIngredientCounts.has(line.recipeId) && (
-              <Button
-                size="sm"
-                variant="secondary"
-                className="self-start"
-                aria-label={`${PLANNER_COPY.addIngredients} ${line.text}`}
-                onPress={() => onAddIngredients({ recipeId: line.recipeId ?? '' })}
-              >
-                <Plus aria-hidden size={16} />
-                {PLANNER_COPY.addIngredients} ({recipeIngredientCounts.get(line.recipeId)})
-              </Button>
-            )}
-          </div>
-        ))}
+          );
+        })}
         <div className="flex gap-2">
           <Button
             size="sm"

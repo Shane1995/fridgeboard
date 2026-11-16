@@ -56,6 +56,34 @@ describe('usePlanner', () => {
     expect(result.current.days[3]?.lines.at(-1)?.text).toBe('Butternut squash soup');
   });
 
+  it('swaps the recipe on a line and renames it', () => {
+    const { result } = renderHook(() => usePlanner());
+    const sectionId = result.current.days[3]?.id ?? '';
+    act(() =>
+      result.current.addRecipeLine({
+        sectionId,
+        recipeId: 'mock-soup',
+        name: 'Butternut squash soup',
+      }),
+    );
+    const line = result.current.days[3]?.lines.at(-1);
+
+    act(() =>
+      result.current.setLineRecipe({
+        sectionId,
+        lineId: line?.id ?? '',
+        recipeId: 'mock-bolognese',
+        name: 'Spaghetti bolognese',
+      }),
+    );
+
+    expect(result.current.days[3]?.lines.at(-1)).toMatchObject({
+      id: line?.id,
+      recipeId: 'mock-bolognese',
+      text: 'Spaghetti bolognese',
+    });
+  });
+
   describe('telling the user what happened', () => {
     const wrapper = ({ children }: PropsWithChildren) =>
       createElement(ToastProvider, null, children);

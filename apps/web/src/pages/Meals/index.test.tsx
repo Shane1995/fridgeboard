@@ -144,6 +144,73 @@ describe('Meals planner', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('swaps the recipe on a line in place', async () => {
+    await openPlanner();
+    const monday = screen.getByRole('region', { name: 'Monday' });
+
+    fireEvent.click(
+      within(monday).getByRole('button', {
+        name: `${PLANNER_COPY.changeRecipe} Spaghetti + mince`,
+      }),
+    );
+    const dialog = await screen.findByRole('dialog');
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Veggie chilli' }));
+
+    expect(within(monday).getByDisplayValue('Veggie chilli')).toBeInTheDocument();
+    expect(within(monday).queryByDisplayValue('Spaghetti + mince')).not.toBeInTheDocument();
+    expect(
+      within(monday).getByRole('link', { name: 'Open recipe Veggie chilli' }),
+    ).toBeInTheDocument();
+  });
+
+  it('links a recipe to a plain line that was already typed', async () => {
+    await openPlanner();
+    const sunday = screen.getByRole('region', { name: 'Sunday' });
+    fireEvent.click(within(sunday).getByRole('button', { name: 'Add line Sunday' }));
+    fireEvent.change(within(sunday).getAllByRole('textbox').at(-1) ?? sunday, {
+      target: { value: 'Jacket potatoes' },
+    });
+
+    fireEvent.click(
+      within(sunday).getByRole('button', { name: `${PLANNER_COPY.linkRecipe} Jacket potatoes` }),
+    );
+    const dialog = await screen.findByRole('dialog');
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Veggie chilli' }));
+
+    expect(within(sunday).getByDisplayValue('Veggie chilli')).toBeInTheDocument();
+    expect(
+      within(sunday).getByRole('link', { name: 'Open recipe Veggie chilli' }),
+    ).toBeInTheDocument();
+  });
+
+  it('keeps ingredients and steps behind a toggle on recipe lines only', async () => {
+    await openPlanner();
+    const monday = screen.getByRole('region', { name: 'Monday' });
+
+    expect(within(monday).getByText(PLANNER_COPY.recipeDetails)).toBeInTheDocument();
+    expect(within(monday).getByText('500 g beef mince')).toBeInTheDocument();
+    expect(
+      within(monday).getByText('Brown the mince, add the tomatoes and simmer for 30 minutes.'),
+    ).toBeInTheDocument();
+
+    const sunday = screen.getByRole('region', { name: 'Sunday' });
+    fireEvent.click(within(sunday).getByRole('button', { name: 'Add line Sunday' }));
+    expect(within(sunday).queryByText(PLANNER_COPY.recipeDetails)).not.toBeInTheDocument();
+  });
+
+  it('lists the rest of the week under the day and jumps to a day on tap', async () => {
+    await openPlanner();
+    const strip = screen.getByRole('group', { name: PLANNER_COPY.dayStrip });
+    fireEvent.click(within(strip).getByRole('button', { name: `${PLANNER_COPY.showDay} Sunday` }));
+    const glance = screen.getByRole('list', { name: PLANNER_COPY.weekGlance });
+
+    fireEvent.click(within(glance).getByRole('button', { name: /Monday/ }));
+
+    expect(
+      within(strip).getByRole('button', { name: `${PLANNER_COPY.showDay} Monday` }),
+    ).toHaveAttribute('aria-pressed', 'true');
+  });
+
   it('opens on today in the day strip and switches day on tap', async () => {
     await openPlanner();
     const todayName = formatWeekdayName({ weekday: new Date().getDay() });

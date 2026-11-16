@@ -11,6 +11,7 @@ import type {
   AddRecipeLineOptions,
   RemoveLineOptions,
   RestoreLineOptions,
+  SetLineRecipeOptions,
   UnlinkRecipeOptions,
   UpdateLineOptions,
 } from './types';
@@ -93,6 +94,17 @@ export const usePlanner = () => {
       }),
     });
 
+  const setLineRecipe = ({ sectionId, lineId, recipeId, name }: SetLineRecipeOptions) =>
+    change({
+      sectionId,
+      update: (section) => ({
+        ...section,
+        lines: section.lines.map((line) =>
+          line.id === lineId ? { ...line, text: name, recipeId } : line,
+        ),
+      }),
+    });
+
   const unlinkRecipe = ({ sectionId, lineId }: UnlinkRecipeOptions) =>
     change({
       sectionId,
@@ -112,6 +124,7 @@ export const usePlanner = () => {
     updateLine,
     removeLine,
     addRecipeLine,
+    setLineRecipe,
     unlinkRecipe,
   };
 };
