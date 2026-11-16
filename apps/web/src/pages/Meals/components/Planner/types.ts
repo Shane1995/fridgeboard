@@ -3,6 +3,7 @@ import type {
   AddLineOptions,
   AddRecipeLineOptions,
   SetLineRecipeOptions,
+  SwapBackupOptions,
   UnlinkRecipeOptions,
   RemoveLineOptions,
   UpdateLineOptions,
@@ -16,6 +17,7 @@ export type PlannerProps = {
   onUpdateLine: (options: UpdateLineOptions) => void;
   onRemoveLine: (options: RemoveLineOptions) => void;
   onAddRecipeLine: (options: AddRecipeLineOptions) => void;
+  onSwapBackup: (options: SwapBackupOptions) => void;
   onSetLineRecipe: (options: SetLineRecipeOptions) => void;
   onUnlinkRecipe: (options: UnlinkRecipeOptions) => void;
 };

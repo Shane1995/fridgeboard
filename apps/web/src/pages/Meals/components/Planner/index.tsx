@@ -19,6 +19,7 @@ export const Planner = ({
   onRemoveLine,
   onAddRecipeLine,
   onSetLineRecipe,
+  onSwapBackup,
   onUnlinkRecipe,
 }: PlannerProps) => {
   const book = useRecipeBook();
@@ -95,6 +96,7 @@ export const Planner = ({
             onRemoveLine={onRemoveLine}
             suggestions={suggestions}
             onAddRecipe={onAddRecipeLine}
+            onSwapBackup={onSwapBackup}
             recipesById={recipesById}
             onAddIngredients={openAddIngredients}
             onPickRecipe={openPicker}

@@ -1,6 +1,8 @@
 import type { PlannerLine } from '../../types';
 
-export type AddLineOptions = { sectionId: string };
+export type AddLineOptions = { sectionId: string; isBackup?: boolean };
+
+export type SwapBackupOptions = { sectionId: string; lineId: string };
 
 export type UpdateLineOptions = { sectionId: string; lineId: string; text: string };
 

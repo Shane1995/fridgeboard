@@ -243,6 +243,35 @@ describe('Meals planner', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('adds a backup meal, swaps it in and keeps it out of the week list', async () => {
+    await openPlanner();
+    const tuesday = screen.getByRole('region', { name: 'Tuesday' });
+    fireEvent.click(within(tuesday).getByRole('button', { name: 'Add backup Tuesday' }));
+    fireEvent.change(within(tuesday).getAllByRole('textbox').at(-1) ?? tuesday, {
+      target: { value: 'Takeaway' },
+    });
+
+    expect(within(tuesday).getByText(PLANNER_COPY.backupLabel)).toBeInTheDocument();
+    expect(
+      within(tuesday).queryByRole('button', { name: 'Add backup Tuesday' }),
+    ).not.toBeInTheDocument();
+
+    const strip = screen.getByRole('group', { name: PLANNER_COPY.dayStrip });
+    fireEvent.click(within(strip).getByRole('button', { name: `${PLANNER_COPY.showDay} Sunday` }));
+    const glance = screen.getByRole('list', { name: PLANNER_COPY.weekGlance });
+    expect(within(glance).getByText('Leftovers')).toBeInTheDocument();
+    expect(within(glance).queryByText(/Takeaway/)).not.toBeInTheDocument();
+
+    fireEvent.click(within(tuesday).getByRole('button', { name: 'Use instead Takeaway' }));
+
+    expect(
+      within(tuesday)
+        .getAllByRole('textbox')
+        .map((box) => (box as HTMLInputElement).value),
+    ).toEqual(['Takeaway', 'Leftovers']);
+    expect(within(glance).getByText('Takeaway')).toBeInTheDocument();
+  });
+
   it('opens on today in the day strip and switches day on tap', async () => {
     await openPlanner();
     const todayName = formatWeekdayName({ weekday: new Date().getDay() });

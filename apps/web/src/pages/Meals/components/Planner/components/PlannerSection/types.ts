@@ -4,6 +4,7 @@ import type { PlannerSection as Section } from '../../../../types';
 import type {
   AddLineOptions,
   AddRecipeLineOptions,
+  SwapBackupOptions,
   UnlinkRecipeOptions,
   RemoveLineOptions,
   UpdateLineOptions,
@@ -21,6 +22,7 @@ export type PlannerSectionProps = {
   onUpdateLine: (options: UpdateLineOptions) => void;
   onRemoveLine: (options: RemoveLineOptions) => void;
   suggestions: readonly Recipe[];
+  onSwapBackup: (options: SwapBackupOptions) => void;
   onAddRecipe: (options: AddRecipeLineOptions) => void;
   recipesById: ReadonlyMap<string, Recipe>;
   onAddIngredients: (options: { recipeId: string }) => void;

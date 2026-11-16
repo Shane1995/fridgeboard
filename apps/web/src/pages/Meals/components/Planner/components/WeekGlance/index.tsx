@@ -10,7 +10,10 @@ export const WeekGlance = ({ days, selectedWeekday, onSelect }: WeekGlanceProps)
     .filter((day) => day.weekday !== selectedWeekday)
     .map((day) => ({
       day,
-      meals: day.lines.map((line) => line.text.trim()).filter((text) => text !== ''),
+      meals: day.lines
+        .filter((line) => !line.isBackup)
+        .map((line) => line.text.trim())
+        .filter((text) => text !== ''),
     }))
     .filter(({ meals }) => meals.length > 0);
 

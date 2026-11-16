@@ -12,6 +12,7 @@ import type {
   RemoveLineOptions,
   RestoreLineOptions,
   SetLineRecipeOptions,
+  SwapBackupOptions,
   UnlinkRecipeOptions,
   UpdateLineOptions,
 } from './types';
@@ -37,12 +38,12 @@ export const usePlanner = () => {
       days: updateSection({ sections: current.days, sectionId, update }),
     }));
 
-  const addLine = ({ sectionId }: AddLineOptions) => {
+  const addLine = ({ sectionId, isBackup = false }: AddLineOptions) => {
     const id = crypto.randomUUID();
     setFocusId(id);
     change({
       sectionId,
-      update: (section) => ({ ...section, lines: [...section.lines, { id, text: '' }] }),
+      update: (section) => ({ ...section, lines: [...section.lines, { id, text: '', isBackup }] }),
     });
   };
 
@@ -105,6 +106,23 @@ export const usePlanner = () => {
       }),
     });
 
+  const swapBackup = ({ sectionId, lineId }: SwapBackupOptions) =>
+    change({
+      sectionId,
+      update: (section) => {
+        const demoted = section.lines.find((line) => line.id !== lineId && !line.isBackup)?.id;
+        return {
+          ...section,
+          lines: section.lines.map((line) => {
+            if (line.id === lineId) {
+              return { ...line, isBackup: false };
+            }
+            return line.id === demoted ? { ...line, isBackup: true } : line;
+          }),
+        };
+      },
+    });
+
   const unlinkRecipe = ({ sectionId, lineId }: UnlinkRecipeOptions) =>
     change({
       sectionId,
@@ -125,6 +143,7 @@ export const usePlanner = () => {
     removeLine,
     addRecipeLine,
     setLineRecipe,
+    swapBackup,
     unlinkRecipe,
   };
 };

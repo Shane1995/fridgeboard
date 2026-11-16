@@ -84,6 +84,23 @@ describe('usePlanner', () => {
     });
   });
 
+  it('adds a backup line and swaps it in as the main meal', () => {
+    const { result } = renderHook(() => usePlanner());
+    const sectionId = result.current.days[2]?.id ?? '';
+    const main = result.current.days[2]?.lines[0];
+
+    act(() => result.current.addLine({ sectionId, isBackup: true }));
+    const backup = result.current.days[2]?.lines.at(-1);
+    expect(backup?.isBackup).toBe(true);
+    act(() => result.current.updateLine({ sectionId, lineId: backup?.id ?? '', text: 'Takeaway' }));
+
+    act(() => result.current.swapBackup({ sectionId, lineId: backup?.id ?? '' }));
+
+    const lines = result.current.days[2]?.lines ?? [];
+    expect(lines.find((line) => line.id === backup?.id)?.isBackup).toBe(false);
+    expect(lines.find((line) => line.id === main?.id)?.isBackup).toBe(true);
+  });
+
   describe('telling the user what happened', () => {
     const wrapper = ({ children }: PropsWithChildren) =>
       createElement(ToastProvider, null, children);

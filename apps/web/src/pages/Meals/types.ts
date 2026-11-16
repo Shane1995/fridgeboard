@@ -1,4 +1,9 @@
-export type PlannerLine = { id: string; text: string; recipeId?: string | undefined };
+export type PlannerLine = {
+  id: string;
+  text: string;
+  recipeId?: string | undefined;
+  isBackup?: boolean | undefined;
+};
 
 export type PlannerSection = {
   id: string;

@@ -1,6 +1,6 @@
 import { Button } from '@heroui/react';
 import { Link } from '@tanstack/react-router';
-import { BookOpen, Link2Off, Plus, Replace, X } from 'lucide-react';
+import { ArrowUpDown, BookOpen, Link2Off, Plus, Replace, X } from 'lucide-react';
 import { SHOP_COLOR_CLASSES } from '../../../../../../components/ShopSwatch/constants';
 import { formatIngredient } from '../../../../../Recipes/utils/formatIngredient';
 import { Typography } from '../../../../../../components/Typography';
@@ -19,11 +19,15 @@ export const PlannerSection = ({
   onUpdateLine,
   onRemoveLine,
   onAddRecipe,
+  onSwapBackup,
   recipesById,
   onAddIngredients,
   onPickRecipe,
   onUnlinkRecipe,
 }: PlannerSectionProps) => {
+  const mains = section.lines.filter((line) => !line.isBackup);
+  const backups = section.lines.filter((line) => line.isBackup);
+  const firstBackupId = backups[0]?.id;
   return (
     <section
       aria-label={section.title}
@@ -70,10 +74,18 @@ export const PlannerSection = ({
             )}
           </div>
         )}
-        {section.lines.map((line) => {
+        {[...mains, ...backups].map((line) => {
           const recipe = line.recipeId === undefined ? undefined : recipesById.get(line.recipeId);
           return (
-            <div key={line.id} className="flex flex-col py-1">
+            <div
+              key={line.id}
+              className={`flex flex-col py-1 ${line.isBackup ? '-mx-4 bg-default/40 px-4' : ''}`}
+            >
+              {line.id === firstBackupId && (
+                <span className="pt-1 text-xs font-semibold uppercase tracking-wide text-foreground/60">
+                  {PLANNER_COPY.backupLabel}
+                </span>
+              )}
               <div className="flex items-center gap-1">
                 <input
                   aria-label={`${section.title} ${PLANNER_COPY.lineLabel}`}
@@ -92,7 +104,7 @@ export const PlannerSection = ({
                   onKeyDown={(event) => {
                     if (event.key === 'Enter' && line.text.trim() !== '') {
                       event.preventDefault();
-                      onAddLine({ sectionId: section.id });
+                      onAddLine({ sectionId: section.id, isBackup: line.isBackup === true });
                     }
                   }}
                 />
@@ -117,18 +129,32 @@ export const PlannerSection = ({
                   <X aria-hidden size={16} />
                 </Button>
               </div>
+              {line.isBackup === true && (
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="mb-2 self-start"
+                  aria-label={`${PLANNER_COPY.useInstead} ${line.text}`}
+                  onPress={() => onSwapBackup({ sectionId: section.id, lineId: line.id })}
+                >
+                  <ArrowUpDown aria-hidden size={16} />
+                  {PLANNER_COPY.useInstead}
+                </Button>
+              )}
               {recipe !== undefined && (
                 <div className="flex flex-col gap-2 pb-2">
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    className="w-full"
-                    aria-label={`${PLANNER_COPY.addIngredients} ${line.text}`}
-                    onPress={() => onAddIngredients({ recipeId: recipe.id })}
-                  >
-                    <Plus aria-hidden size={16} />
-                    {PLANNER_COPY.addIngredients} ({recipe.ingredients.length})
-                  </Button>
+                  {line.isBackup !== true && (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="w-full"
+                      aria-label={`${PLANNER_COPY.addIngredients} ${line.text}`}
+                      onPress={() => onAddIngredients({ recipeId: recipe.id })}
+                    >
+                      <Plus aria-hidden size={16} />
+                      {PLANNER_COPY.addIngredients} ({recipe.ingredients.length})
+                    </Button>
+                  )}
                   <div className="grid grid-cols-3 gap-1">
                     <Link
                       to="/recipes"
@@ -179,7 +205,7 @@ export const PlannerSection = ({
           );
         })}
       </div>
-      <div className="flex gap-1 border-t border-foreground/5 px-2 py-1">
+      <div className="flex flex-wrap gap-1 border-t border-foreground/5 px-2 py-1">
         <Button
           size="sm"
           variant="ghost"
@@ -198,6 +224,17 @@ export const PlannerSection = ({
           <BookOpen aria-hidden size={16} />
           {PLANNER_COPY.addRecipe}
         </Button>
+        {mains.length > 0 && backups.length === 0 && (
+          <Button
+            size="sm"
+            variant="ghost"
+            aria-label={`${PLANNER_COPY.addBackup} ${section.title}`}
+            onPress={() => onAddLine({ sectionId: section.id, isBackup: true })}
+          >
+            <ArrowUpDown aria-hidden size={16} />
+            {PLANNER_COPY.addBackup}
+          </Button>
+        )}
       </div>
     </section>
   );
