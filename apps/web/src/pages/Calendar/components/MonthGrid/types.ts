@@ -6,4 +6,5 @@ export type MonthGridProps = {
   today: string;
   eventsByDay: Readonly<Record<string, readonly CalendarEvent[]>>;
   onSelectDay: (date: string) => void;
+  onAddDay: (date: string) => void;
 };

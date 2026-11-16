@@ -2,7 +2,14 @@ import { formatWeekday } from '../../utils/formatWeekday';
 import { DayCell } from './components/DayCell';
 import type { MonthGridProps } from './types';
 
-export const MonthGrid = ({ cells, anchor, today, eventsByDay, onSelectDay }: MonthGridProps) => {
+export const MonthGrid = ({
+  cells,
+  anchor,
+  today,
+  eventsByDay,
+  onSelectDay,
+  onAddDay,
+}: MonthGridProps) => {
   const headerDates = cells[0]?.map((cell) => cell.date) ?? [];
   return (
     <div className="grid grid-cols-7 gap-px overflow-hidden rounded-2xl border border-separator bg-separator">
@@ -23,6 +30,7 @@ export const MonthGrid = ({ cells, anchor, today, eventsByDay, onSelectDay }: Mo
           isSelected={cell.date === anchor}
           events={eventsByDay[cell.date] ?? []}
           onSelect={onSelectDay}
+          onAdd={onAddDay}
         />
       ))}
     </div>

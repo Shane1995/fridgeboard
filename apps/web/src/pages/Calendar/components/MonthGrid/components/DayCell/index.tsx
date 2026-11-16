@@ -8,7 +8,15 @@ import { findOwner } from '../../../../utils/findOwner';
 import { formatDayHeading } from '../../../../utils/formatDayHeading';
 import type { DayCellProps } from './types';
 
-export const DayCell = ({ date, inMonth, isToday, isSelected, events, onSelect }: DayCellProps) => {
+export const DayCell = ({
+  date,
+  inMonth,
+  isToday,
+  isSelected,
+  events,
+  onSelect,
+  onAdd,
+}: DayCellProps) => {
   const owners = useOwners();
   const hidden = events.length - MAX_CHIPS_PER_DAY;
   return (
@@ -17,7 +25,8 @@ export const DayCell = ({ date, inMonth, isToday, isSelected, events, onSelect }
       aria-label={formatDayHeading({ date })}
       aria-pressed={isSelected}
       onClick={() => onSelect(date)}
-      className={`flex min-h-20 cursor-pointer flex-col items-stretch gap-0.5 bg-background p-1 text-left outline-none focus-visible:ring-2 focus-visible:ring-focus aria-pressed:bg-default ${inMonth ? '' : 'opacity-40'}`}
+      onDoubleClick={() => onAdd(date)}
+      className={`flex min-h-20 touch-manipulation cursor-pointer flex-col items-stretch gap-0.5 bg-background p-1 text-left outline-none focus-visible:ring-2 focus-visible:ring-focus aria-pressed:bg-default ${inMonth ? '' : 'opacity-40'}`}
     >
       <span
         className={`flex size-6 items-center justify-center self-start rounded-full text-xs font-semibold ${isToday ? 'bg-accent text-white' : ''}`}

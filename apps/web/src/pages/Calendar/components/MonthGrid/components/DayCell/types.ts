@@ -7,4 +7,5 @@ export type DayCellProps = {
   isSelected: boolean;
   events: readonly CalendarEvent[];
   onSelect: (date: string) => void;
+  onAdd: (date: string) => void;
 };
