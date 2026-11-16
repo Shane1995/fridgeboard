@@ -2,6 +2,7 @@ import { DndContext, DragOverlay } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Button } from '@heroui/react';
 import { Plus } from 'lucide-react';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { AddItemForm } from '../../components/AddItemForm';
 import { ShopDialog } from '../../components/ShopDialog';
 import { ShopFilter } from '../../components/ShopFilter';
@@ -9,14 +10,12 @@ import { ShopCard } from '../../components/ShopCard';
 import { ShopSection } from '../../components/ShopSection';
 import { ItemDragPreview } from '../../components/ItemDragPreview';
 import { ShopDragPreview } from '../../components/ShopDragPreview';
-import { ItemRow } from '../../components/ItemRow';
 import { detectShopCollisions } from '../../utils/detectShopCollisions';
 import { restrictShopDragToVerticalAxis } from '../../utils/restrictShopDragToVerticalAxis';
 import { SortableShop } from '../../components/SortableShop';
 import { PullToRefresh } from '../../components/PullToRefresh';
 import { PageHeader } from '../../components/PageHeader';
 import { Typography } from '../../components/Typography';
-import { TypographyVariant } from '../../components/Typography/constants';
 import { HomeSkeleton } from './components/HomeSkeleton';
 import { HOME_COPY } from './constants';
 import { useHome } from './hooks/useHome';
@@ -28,7 +27,6 @@ export const Home = () => {
     focusedId,
     setFocus,
     visibleSections,
-    visibleChecked,
     reorderable,
     unsorted,
     sensors,
@@ -47,8 +45,13 @@ export const Home = () => {
     hasError,
     newShopDialog,
     isClearing,
-    handleClearChecked,
-    handleClearAll,
+    tickedCount,
+    clearTickedDialog,
+    clearAllDialog,
+    clearTickedCount,
+    openClearTicked,
+    confirmClearTicked,
+    confirmClearAll,
     hasItems,
   } = useHome();
 
@@ -115,34 +118,19 @@ export const Home = () => {
               quickAdd={canQuickAdd}
             />
           ))}
-          {visibleSections.length === 0 && visibleChecked.length === 0 && (
-            <Typography>{HOME_COPY.focusEmpty}</Typography>
-          )}
+          {visibleSections.length === 0 && <Typography>{HOME_COPY.focusEmpty}</Typography>}
         </>
       )}
-      {visibleChecked.length > 0 && (
-        <section aria-label={HOME_COPY.gotIt} className="flex flex-col gap-2">
-          <header className="flex items-center justify-between">
-            <Typography variant={TypographyVariant.Heading3} as="h2">
-              {HOME_COPY.gotIt}
-            </Typography>
-            {focusedId === undefined && (
-              <Button
-                size="sm"
-                variant="secondary"
-                onPress={handleClearChecked}
-                isPending={isClearing}
-              >
-                {HOME_COPY.clearTicked}
-              </Button>
-            )}
-          </header>
-          <ul className="flex flex-col gap-2">
-            {visibleChecked.map((item) => (
-              <ItemRow key={item.id} item={item} shops={allShops} />
-            ))}
-          </ul>
-        </section>
+      {focusedId === undefined && tickedCount > 0 && (
+        <Button
+          size="sm"
+          variant="secondary"
+          onPress={openClearTicked}
+          isPending={isClearing}
+          className="self-end"
+        >
+          {HOME_COPY.clearTicked} ({tickedCount})
+        </Button>
       )}
       {focusedId === undefined && (
         <button
@@ -155,11 +143,31 @@ export const Home = () => {
         </button>
       )}
       {focusedId === undefined && hasItems && (
-        <Button size="sm" variant="ghost" onPress={handleClearAll} isPending={isClearing}>
+        <button
+          type="button"
+          onClick={clearAllDialog.open}
+          disabled={isClearing}
+          className="mt-10 cursor-pointer self-center text-xs text-foreground/50 underline underline-offset-4 outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-focus"
+        >
           {HOME_COPY.clearAll}
-        </Button>
+        </button>
       )}
       <ShopDialog state={newShopDialog} />
+      <ConfirmDialog
+        state={clearTickedDialog}
+        title={HOME_COPY.clearTickedTitle(clearTickedCount)}
+        description={HOME_COPY.clearTickedDescription}
+        confirmLabel={HOME_COPY.clearTickedConfirm}
+        onConfirm={confirmClearTicked}
+      />
+      <ConfirmDialog
+        state={clearAllDialog}
+        title={HOME_COPY.clearAllTitle}
+        description={HOME_COPY.clearAllDescription}
+        confirmLabel={HOME_COPY.clearAllConfirm}
+        onConfirm={confirmClearAll}
+        holdToConfirm
+      />
     </main>
   );
 };

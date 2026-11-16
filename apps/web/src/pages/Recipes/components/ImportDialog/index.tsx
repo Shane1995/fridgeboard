@@ -16,6 +16,7 @@ export const ImportDialog = ({ state, onImport }: ImportDialogProps) => {
       <Modal.Backdrop>
         <Modal.Container placement="auto">
           <Modal.Dialog>
+            <Modal.CloseTrigger />
             <Modal.Header>
               <Modal.Heading>{IMPORT_DIALOG_COPY.title}</Modal.Heading>
             </Modal.Header>

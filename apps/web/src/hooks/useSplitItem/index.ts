@@ -8,7 +8,7 @@ import { SPLIT_ITEM_COPY } from './constants';
 import type { SplitItemOptions } from './types';
 
 export const useSplitItem = (): ((options: SplitItemOptions) => Promise<void>) => {
-  const add = useAddItemMutation();
+  const add = useAddItemMutation({ quiet: true });
   const update = useUpdateItemMutation();
   const shops = useShopsQuery();
   const toast = useToast();

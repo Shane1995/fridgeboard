@@ -44,6 +44,17 @@ const renderSection = ({
 };
 
 describe('ShopSection', () => {
+  it('counts only the items still to get in the header', () => {
+    renderSection({
+      shop: TESCO,
+      items: [item('i1', 'Apples', ['b1']), { ...item('i2', 'Pears', ['b1']), checked: true }],
+    });
+
+    expect(
+      within(screen.getByRole('region', { name: 'Tesco' })).getByText('1'),
+    ).toBeInTheDocument();
+  });
+
   it('names the shop and counts its items in the header', () => {
     renderSection({ shop: TESCO, items: [item('i1', 'Apples', ['b1'])] });
 

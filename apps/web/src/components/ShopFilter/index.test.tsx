@@ -24,6 +24,19 @@ const SECTIONS: ShopSectionData[] = [
 ];
 
 describe('ShopFilter', () => {
+  it('counts only the items still to get', () => {
+    const sections: ShopSectionData[] = [
+      {
+        shop: { id: 'b1', name: 'Express', color: ShopColor.Mint, order: 0 },
+        items: [item('a'), { ...item('b'), checked: true }],
+      },
+    ];
+    render(<ShopFilter sections={sections} focusedId={undefined} onSelect={vi.fn()} />);
+
+    expect(screen.getByRole('button', { name: `${SHOP_FILTER_COPY.all}, 1` })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Express, 1' })).toBeInTheDocument();
+  });
+
   it('offers All with the total and each shop with its count', () => {
     render(<ShopFilter sections={SECTIONS} focusedId={undefined} onSelect={vi.fn()} />);
 

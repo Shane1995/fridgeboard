@@ -30,7 +30,6 @@ import {
   groupItemsByShop,
   UNSORTED_SHOP,
 } from '../../../../services/shoppingList/utils/groupItemsByShop';
-import { inShop } from '../../../../services/shoppingList/utils/inShop';
 import { readDraggedItem, readDropShopId } from '../../../../utils/readDragData';
 import { HOME_COPY } from '../../constants';
 import type { HomeState } from './types';
@@ -41,6 +40,9 @@ export const useHome = (): HomeState => {
   const shops = useShopsQuery();
   const items = useItemsQuery();
   const newShopDialog = useOverlayState();
+  const clearTickedDialog = useOverlayState();
+  const clearAllDialog = useOverlayState();
+  const [clearTickedCount, setClearTickedCount] = useState(0);
   const clear = useClearItemsMutation();
   const toast = useToast();
   const [storedFocus, setFocus] = useLocalStorage(FOCUS_SHOP_STORAGE_KEY);
@@ -77,10 +79,6 @@ export const useHome = (): HomeState => {
     focusedId === undefined
       ? grouped.sections
       : grouped.sections.filter(({ shop }) => shop.id === focusedId);
-  const visibleChecked =
-    focusedId === undefined
-      ? grouped.checked
-      : grouped.checked.filter((item) => inShop({ item, shopId: focusedId, shops: shopList }));
 
   const allShops = [UNSORTED_SHOP, ...shopList];
 
@@ -131,7 +129,6 @@ export const useHome = (): HomeState => {
     focusedId,
     setFocus,
     visibleSections,
-    visibleChecked,
     reorderable: grouped.sections.filter(({ shop }) => shop.id !== UNSORTED_SHOP_ID),
     unsorted: grouped.sections.find(({ shop }) => shop.id === UNSORTED_SHOP_ID),
     sensors,
@@ -151,14 +148,23 @@ export const useHome = (): HomeState => {
     hasError: households.isError || shops.isError || items.isError,
     newShopDialog,
     isClearing: clear.isPending,
-    handleClearChecked: () => clear.mutate(ClearItemsBy.Checked),
-    handleClearAll: () =>
-      toast.confirm({
-        title: HOME_COPY.clearAllTitle,
-        description: HOME_COPY.clearAllDescription,
-        actions: [
-          { label: HOME_COPY.clearAllConfirm, onPress: () => clear.mutate(ClearItemsBy.All) },
-        ],
+    tickedCount: grouped.tickedCount,
+    clearTickedDialog,
+    clearAllDialog,
+    clearTickedCount,
+    openClearTicked: () => {
+      setClearTickedCount(grouped.tickedCount);
+      clearTickedDialog.open();
+    },
+    confirmClearTicked: () => {
+      const count = clearTickedCount;
+      clear.mutate(ClearItemsBy.Checked, {
+        onSuccess: (result) => result.ok && toast.success(HOME_COPY.clearedTicked(count)),
+      });
+    },
+    confirmClearAll: () =>
+      clear.mutate(ClearItemsBy.All, {
+        onSuccess: (result) => result.ok && toast.success(HOME_COPY.clearedAll),
       }),
   };
 };

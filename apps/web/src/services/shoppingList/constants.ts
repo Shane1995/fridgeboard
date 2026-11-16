@@ -25,6 +25,16 @@ export const SHOP_FAILURE_COPY = {
   remove: 'Could not delete the shop. Try again.',
 } as const;
 
+export const SHOP_SUCCESS_COPY = {
+  create: (name: string) => `${name} added`,
+  update: 'Shop saved',
+  remove: 'Shop deleted',
+} as const;
+
+export const ITEM_SUCCESS_COPY = {
+  add: (name: string) => `Added ${name}`,
+} as const;
+
 export const ITEM_FAILURE_COPY = {
   add: (name: string) => `Could not add ${name}. Try again.`,
   update: 'Could not save the change. Try again.',

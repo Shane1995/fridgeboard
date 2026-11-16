@@ -15,6 +15,7 @@ import { Route as PrivacyRouteImport } from './../../routes/privacy'
 import { Route as SignInRouteImport } from './../../routes/sign-in'
 import { Route as AuthenticatedIndexRouteImport } from './../../routes/_authenticated/index'
 import { Route as AuthenticatedCalendarRouteImport } from './../../routes/_authenticated/calendar'
+import { Route as AuthenticatedMealsRouteImport } from './../../routes/_authenticated/meals'
 import { Route as AuthenticatedOnboardingRouteImport } from './../../routes/_authenticated/onboarding'
 import { Route as AuthenticatedProfileRouteImport } from './../../routes/_authenticated/profile'
 import { Route as AuthenticatedRecipesRouteImport } from './../../routes/_authenticated/recipes'
@@ -48,6 +49,11 @@ const AuthenticatedCalendarRoute = AuthenticatedCalendarRouteImport.update({
   path: '/calendar',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedMealsRoute = AuthenticatedMealsRouteImport.update({
+  id: '/meals',
+  path: '/meals',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -70,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
   '/calendar': typeof AuthenticatedCalendarRoute
+  '/meals': typeof AuthenticatedMealsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/recipes': typeof AuthenticatedRecipesRoute
@@ -79,6 +86,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
   '/calendar': typeof AuthenticatedCalendarRoute
+  '/meals': typeof AuthenticatedMealsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/recipes': typeof AuthenticatedRecipesRoute
@@ -91,6 +99,7 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
   '/_authenticated/calendar': typeof AuthenticatedCalendarRoute
+  '/_authenticated/meals': typeof AuthenticatedMealsRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/recipes': typeof AuthenticatedRecipesRoute
@@ -104,6 +113,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/sign-in'
     | '/calendar'
+    | '/meals'
     | '/onboarding'
     | '/profile'
     | '/recipes'
@@ -113,6 +123,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/sign-in'
     | '/calendar'
+    | '/meals'
     | '/onboarding'
     | '/profile'
     | '/recipes'
@@ -124,6 +135,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/sign-in'
     | '/_authenticated/calendar'
+    | '/_authenticated/meals'
     | '/_authenticated/onboarding'
     | '/_authenticated/profile'
     | '/_authenticated/recipes'
@@ -181,6 +193,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCalendarRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/meals': {
+      id: '/_authenticated/meals'
+      path: '/meals'
+      fullPath: '/meals'
+      preLoaderRoute: typeof AuthenticatedMealsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/onboarding': {
       id: '/_authenticated/onboarding'
       path: '/onboarding'
@@ -207,6 +226,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteChildren {
   AuthenticatedCalendarRoute: typeof AuthenticatedCalendarRoute
+  AuthenticatedMealsRoute: typeof AuthenticatedMealsRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedRecipesRoute: typeof AuthenticatedRecipesRoute
@@ -215,6 +235,7 @@ interface AuthenticatedRouteChildren {
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCalendarRoute: AuthenticatedCalendarRoute,
+  AuthenticatedMealsRoute: AuthenticatedMealsRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedRecipesRoute: AuthenticatedRecipesRoute,

@@ -27,5 +27,7 @@ export const RECIPES_COPY = {
   confirmTitle: 'Delete this recipe?',
   confirmBody: 'Planner lines that use it keep the name as plain text.',
   confirmDelete: 'Delete recipe',
-  confirmCancel: 'Keep it',
+  saved: (name: string) => `${name} saved`,
+  updated: (name: string) => `${name} updated`,
+  deleted: (name: string) => `${name} deleted`,
 } as const;

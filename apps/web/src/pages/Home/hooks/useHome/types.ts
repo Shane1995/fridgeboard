@@ -13,7 +13,6 @@ export type HomeState = {
   focusedId: string | undefined;
   setFocus: (id: string | undefined) => void;
   visibleSections: ShopSectionData[];
-  visibleChecked: ListItem[];
   reorderable: ShopSectionData[];
   unsorted: ShopSectionData | undefined;
   sensors: SensorDescriptor<SensorOptions>[];
@@ -33,6 +32,11 @@ export type HomeState = {
   hasError: boolean;
   newShopDialog: UseOverlayStateReturn;
   isClearing: boolean;
-  handleClearChecked: () => void;
-  handleClearAll: () => void;
+  tickedCount: number;
+  clearTickedDialog: UseOverlayStateReturn;
+  clearAllDialog: UseOverlayStateReturn;
+  clearTickedCount: number;
+  openClearTicked: () => void;
+  confirmClearTicked: () => void;
+  confirmClearAll: () => void;
 };

@@ -44,8 +44,11 @@ describe('useHome', () => {
     const { result } = renderHook(() => useHome(), { wrapper: createShoppingListWrapper() });
 
     await waitFor(() => expect(result.current.hasItems).toBe(true));
-    expect(result.current.grouped.sections[0]?.items.map(({ id }) => id)).toEqual([milk.id]);
-    expect(result.current.grouped.checked.map(({ id }) => id)).toEqual([eggs.id]);
+    expect(result.current.grouped.sections[0]?.items.map(({ id }) => id)).toEqual([
+      milk.id,
+      eggs.id,
+    ]);
+    expect(result.current.grouped.tickedCount).toBe(1);
     expect(result.current.allShops.map(({ id }) => id)).toEqual([UNSORTED_SHOP_ID, shop.id]);
   });
 
@@ -265,6 +268,28 @@ describe('useHome', () => {
           ?.shops.map(({ id }) => id),
       ).toEqual([]);
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('clearing ticked items', () => {
+    const tickTwo = async () => {
+      const milk = await fakeShoppingList.addItem({ name: 'Milk', shopIds: [] });
+      const eggs = await fakeShoppingList.addItem({ name: 'Eggs', shopIds: [] });
+      await fakeShoppingList.updateItem({ id: milk.id, changes: { checked: true } });
+      await fakeShoppingList.updateItem({ id: eggs.id, changes: { checked: true } });
+    };
+
+    it('keeps the count the dialog was opened with while the items are being cleared', async () => {
+      await tickTwo();
+      const { result } = await renderHookWithHousehold(() => useHome());
+      await waitFor(() => expect(result.current.tickedCount).toBe(2));
+
+      act(() => result.current.openClearTicked());
+      act(() => result.current.confirmClearTicked());
+
+      await waitFor(() => expect(result.current.tickedCount).toBe(0));
+      expect(result.current.clearTickedCount).toBe(2);
+      expect(await screen.findByText('Cleared 2 items')).toBeInTheDocument();
     });
   });
 });

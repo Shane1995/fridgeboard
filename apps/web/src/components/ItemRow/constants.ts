@@ -8,6 +8,7 @@ export const SPLIT_OUT_ACTION = 'split-out';
 export const COMBINE_ACTION = 'combine';
 export const EDIT_MAX_LENGTH = ITEM_NAME_MAX_LENGTH;
 export const MAX_SHOP_BADGES = 3;
+export const COARSE_POINTER_QUERY = '(pointer: coarse)';
 
 export const ITEM_ROW_COPY = {
   menu: 'Item options',

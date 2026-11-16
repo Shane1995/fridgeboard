@@ -275,4 +275,96 @@ describe('ItemRow', () => {
       await waitFor(async () => expect(await fakeShoppingList.listItems()).toHaveLength(1));
     });
   });
+
+  describe('swiping to delete', () => {
+    const useCoarsePointer = (coarse: boolean) =>
+      vi.stubGlobal('matchMedia', (query: string) => ({
+        matches: coarse && query === '(pointer: coarse)',
+        media: query,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+      }));
+
+    const Loaded = () => (useItemsQuery().isSuccess ? <span data-testid="swipe-loaded" /> : null);
+
+    const renderSwipeable = async (stored: ListItem) => {
+      const Wrapper = createShoppingListWrapper();
+      render(
+        <Wrapper>
+          <Loaded />
+          <ul>
+            <ItemRow item={stored} shops={[EXPRESS]} />
+          </ul>
+        </Wrapper>,
+      );
+      await screen.findByTestId('swipe-loaded');
+    };
+
+    const drag = ({ to }: { to: number }) => {
+      const row = screen.getByRole('button', { name: 'Milk' });
+      fireEvent.pointerDown(row, { pointerId: 1, clientX: 300, clientY: 0 });
+      fireEvent.pointerMove(row, { pointerId: 1, clientX: to, clientY: 0 });
+      fireEvent.pointerUp(row, { pointerId: 1, clientX: to, clientY: 0 });
+    };
+
+    beforeEach(() => {
+      Element.prototype.setPointerCapture = vi.fn();
+      Element.prototype.releasePointerCapture = vi.fn();
+    });
+    afterEach(() => vi.unstubAllGlobals());
+
+    it('deletes the item and offers Undo when swiped left on a touch screen', async () => {
+      useCoarsePointer(true);
+      const stored = await fakeShoppingList.addItem({ name: 'Milk', shopIds: [] });
+      await renderSwipeable(stored);
+
+      drag({ to: 120 });
+
+      expect(await screen.findByRole('button', { name: 'Undo' })).toBeInTheDocument();
+      expect(await fakeShoppingList.listItems()).toEqual([]);
+    });
+
+    it('keeps the item when the swipe is short', async () => {
+      useCoarsePointer(true);
+      const stored = await fakeShoppingList.addItem({ name: 'Milk', shopIds: [] });
+      await renderSwipeable(stored);
+
+      drag({ to: 240 });
+
+      expect(screen.queryByRole('button', { name: 'Undo' })).not.toBeInTheDocument();
+      expect(await fakeShoppingList.listItems()).toHaveLength(1);
+    });
+
+    it('does not delete when the drag starts on the grip handle', async () => {
+      useCoarsePointer(true);
+      const stored = await fakeShoppingList.addItem({ name: 'Milk', shopIds: [] });
+      const Wrapper = createShoppingListWrapper();
+      render(
+        <Wrapper>
+          <Loaded />
+          <ul>
+            <ItemRow item={stored} shops={[EXPRESS]} handle={<button aria-label="grip" />} />
+          </ul>
+        </Wrapper>,
+      );
+      await screen.findByTestId('swipe-loaded');
+      const grip = screen.getByRole('button', { name: 'grip' });
+
+      fireEvent.pointerDown(grip, { pointerId: 1, clientX: 300, clientY: 0 });
+      fireEvent.pointerMove(grip, { pointerId: 1, clientX: 100, clientY: 0 });
+      fireEvent.pointerUp(grip, { pointerId: 1, clientX: 100, clientY: 0 });
+
+      expect(await fakeShoppingList.listItems()).toHaveLength(1);
+    });
+
+    it('does nothing with a mouse', async () => {
+      useCoarsePointer(false);
+      const stored = await fakeShoppingList.addItem({ name: 'Milk', shopIds: [] });
+      await renderSwipeable(stored);
+
+      drag({ to: 0 });
+
+      expect(await fakeShoppingList.listItems()).toHaveLength(1);
+    });
+  });
 });

@@ -40,7 +40,9 @@ export const ShopSection = ({
           >
             {shop.name}
           </h2>
-          <Typography variant={TypographyVariant.Caption}>{items.length}</Typography>
+          <Typography variant={TypographyVariant.Caption}>
+            {items.filter(({ checked }) => !checked).length}
+          </Typography>
         </header>
       )}
       {isEditable && (
@@ -60,7 +62,7 @@ export const ShopSection = ({
       ) : (
         <ul className="flex flex-col divide-y divide-foreground/5">
           {items.map((item) =>
-            draggable && !isPendingItem(item) ? (
+            draggable && !item.checked && !isPendingItem(item) ? (
               <DraggableItemRow key={item.id} item={item} shops={allShops} shopId={shop.id} />
             ) : (
               <ItemRow key={item.id} item={item} shops={allShops} shopId={shop.id} />

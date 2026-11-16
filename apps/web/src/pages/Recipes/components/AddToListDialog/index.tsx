@@ -9,6 +9,7 @@ export const AddToListDialog = ({ state, recipe }: AddToListDialogProps) => {
       <Modal.Backdrop>
         <Modal.Container placement="auto" scroll="inside">
           <Modal.Dialog>
+            <Modal.CloseTrigger />
             <Modal.Header>
               <Modal.Heading>
                 {ADD_TO_LIST_COPY.title}: {recipe.name}

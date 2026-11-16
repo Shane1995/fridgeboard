@@ -8,6 +8,14 @@ const Buttons = ({ onMove }: { onMove: () => void }) => {
     <>
       <button onClick={() => toast.success('Milk added')}>success</button>
       <button onClick={() => toast.error('Could not add the item')}>error</button>
+      <button
+        onClick={() => {
+          toast.success('First message');
+          toast.success('Second message');
+        }}
+      >
+        twice
+      </button>
       <button onClick={() => toast.success('Moved Apples', { label: 'Undo', onPress: onMove })}>
         undoable
       </button>
@@ -101,5 +109,31 @@ describe('ToastProvider', () => {
     fireEvent.click(screen.getByRole('button', { name: 'error' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Could not add the item');
+  });
+
+  it('shows only the latest message when two are raised in a row', async () => {
+    renderWithToasts();
+
+    fireEvent.click(screen.getByRole('button', { name: 'twice' }));
+
+    expect(await screen.findByText('Second message')).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByText('First message')).not.toBeInTheDocument());
+  });
+
+  it('has no close button on a plain success message', async () => {
+    renderWithToasts();
+
+    fireEvent.click(screen.getByRole('button', { name: 'success' }));
+
+    expect(await screen.findByText('Milk added')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /close|dismiss/i })).not.toBeInTheDocument();
+  });
+
+  it('keeps a close button on an error message', async () => {
+    renderWithToasts();
+
+    fireEvent.click(screen.getByRole('button', { name: 'error' }));
+
+    expect(await screen.findByRole('button', { name: /close|dismiss/i })).toBeInTheDocument();
   });
 });

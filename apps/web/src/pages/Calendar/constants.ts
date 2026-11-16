@@ -4,7 +4,6 @@ import type { CalendarMember } from './types';
 export enum CalendarView {
   Month = 'month',
   Week = 'week',
-  Planner = 'planner',
 }
 
 export enum DummyMemberId {
@@ -36,6 +35,9 @@ const DUMMY_MEMBERS: readonly CalendarMember[] = [
 export const OWNER_OPTIONS: readonly CalendarMember[] = [HOUSEHOLD_OWNER, ...DUMMY_MEMBERS];
 
 export const CALENDAR_COPY = {
+  eventAdded: (title: string) => `${title} added`,
+  eventUpdated: (title: string) => `${title} updated`,
+  eventDeleted: (title: string) => `${title} deleted`,
   title: 'Calendar',
   placeholder: 'Coming soon: shifts and meals on a calendar.',
   previous: 'Previous',
@@ -43,7 +45,6 @@ export const CALENDAR_COPY = {
   today: 'Today',
   month: 'Month',
   week: 'Week',
-  planner: 'Planner',
   viewLabel: 'Calendar view',
   legendLabel: 'Who is who',
   addEvent: 'Add event',

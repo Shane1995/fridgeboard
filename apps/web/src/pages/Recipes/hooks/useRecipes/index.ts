@@ -1,9 +1,11 @@
 import { useOverlayState } from '@heroui/react';
 import { useEffect, useRef, useState } from 'react';
 import { useFeatureFlag } from '../../../../hooks/useFeatureFlag';
+import { useToast } from '../../../../hooks/useToast';
 import { useRecipeBook } from '../../../../hooks/useRecipeBook';
 import { WebFeatureFlag } from '../../../../services/configuration/schema/constants';
 import type { RecipeDraft } from '../../../../services/recipes/types';
+import { RECIPES_COPY } from '../../constants';
 import type { RecipeScreen } from '../../types';
 import { filterRecipes } from '../../../../utils/filterRecipes';
 import type { UseRecipesOptions } from './types';
@@ -11,6 +13,7 @@ import type { UseRecipesOptions } from './types';
 export const useRecipes = ({ initialRecipeId, initialUrl }: UseRecipesOptions) => {
   const enabled = useFeatureFlag(WebFeatureFlag.ENABLE_RECIPES);
   const book = useRecipeBook();
+  const toast = useToast();
   const importDialog = useOverlayState();
   const ideasDialog = useOverlayState();
   const addToListDialog = useOverlayState();
@@ -49,14 +52,17 @@ export const useRecipes = ({ initialRecipeId, initialUrl }: UseRecipesOptions) =
   const saveRecipe = ({ draft }: { draft: RecipeDraft }) => {
     if (screen.kind === 'review') {
       openRecipe({ id: book.saveImport({ id: screen.importId, draft }) });
+      toast.success(RECIPES_COPY.saved(draft.name));
       return;
     }
     if (screen.kind === 'form' && screen.recipeId !== undefined) {
       book.updateRecipe({ id: screen.recipeId, draft });
       openRecipe({ id: screen.recipeId });
+      toast.success(RECIPES_COPY.updated(draft.name));
       return;
     }
     openRecipe({ id: book.createRecipe({ draft }) });
+    toast.success(RECIPES_COPY.saved(draft.name));
   };
 
   const cancelForm = () =>
@@ -65,8 +71,12 @@ export const useRecipes = ({ initialRecipeId, initialUrl }: UseRecipesOptions) =
       : showList();
 
   const removeRecipe = ({ id }: { id: string }) => {
+    const removed = book.recipes.find((recipe) => recipe.id === id);
     book.deleteRecipe({ id });
     showList();
+    if (removed !== undefined) {
+      toast.success(RECIPES_COPY.deleted(removed.name));
+    }
   };
 
   return {

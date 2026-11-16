@@ -6,14 +6,11 @@ import { DayAgenda } from './components/DayAgenda';
 import { EventDialog } from './components/EventDialog';
 import { MonthGrid } from './components/MonthGrid';
 import { OwnerLegend } from './components/OwnerLegend';
-import { Planner } from './components/Planner';
 import { WeekView } from './components/WeekView';
 import { useCalendar } from './hooks/useCalendar';
-import { usePlanner } from './hooks/usePlanner';
 
 export const Calendar = () => {
   const calendar = useCalendar();
-  const planner = usePlanner();
 
   if (!calendar.enabled) {
     return (
@@ -63,23 +60,7 @@ export const Calendar = () => {
           onEdit={(event) => calendar.openEdit({ event })}
         />
       )}
-      {calendar.view === CalendarView.Planner && (
-        <Planner
-          days={planner.days}
-          notes={planner.notes}
-          focusId={planner.focusId}
-          todayWeekday={planner.todayWeekday}
-          onAddLine={planner.addLine}
-          onUpdateLine={planner.updateLine}
-          onRemoveLine={planner.removeLine}
-          onLinkRecipe={planner.linkRecipe}
-          onUnlinkRecipe={planner.unlinkRecipe}
-          onAddNote={planner.addNote}
-          onRenameNote={planner.renameNote}
-          onDeleteNote={planner.deleteNote}
-        />
-      )}
-      {calendar.view !== CalendarView.Planner && <OwnerLegend />}
+      <OwnerLegend />
       <EventDialog
         key={calendar.editing?.id ?? calendar.anchor}
         state={calendar.dialog}

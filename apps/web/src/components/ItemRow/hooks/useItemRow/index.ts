@@ -2,7 +2,7 @@ import { shopIdsOf } from '../../../../services/shoppingList/utils/shopIdsOf';
 import { useOverlayState } from '@heroui/react';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { useDeleteItemMutation } from '../../../../hooks/useDeleteItemMutation';
+import { useRemoveItem } from '../../../../hooks/useRemoveItem';
 import { useCombineItems } from '../../../../hooks/useCombineItems';
 import { useItemsQuery } from '../../../../hooks/useItemsQuery';
 import { useSplitItem } from '../../../../hooks/useSplitItem';
@@ -29,7 +29,7 @@ export const useItemRow = ({
   const [draft, setDraft] = useState(item.name);
   const infoDialog = useOverlayState();
   const update = useUpdateItemMutation();
-  const remove = useDeleteItemMutation();
+  const removeItem = useRemoveItem();
   const items = useItemsQuery();
   const split = useSplitItem();
   const combine = useCombineItems();
@@ -61,7 +61,7 @@ export const useItemRow = ({
     if (action === INFO_ACTION) {
       infoDialog.open();
     } else if (action === DELETE_ACTION) {
-      remove.mutate(item.id);
+      void removeItem(item);
     } else if (action === SPLIT_ACTION) {
       void split({ item });
     } else if (action === SPLIT_OUT_ACTION) {
@@ -88,5 +88,6 @@ export const useItemRow = ({
     canSplitAll: shopIds.length >= 3 || (shopIds.length === 2 && !canSplitOut),
     duplicateCount: duplicates.length,
     handleMenuAction,
+    remove: () => void removeItem(item),
   };
 };

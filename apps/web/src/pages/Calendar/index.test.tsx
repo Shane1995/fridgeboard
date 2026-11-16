@@ -80,64 +80,6 @@ describe('Calendar', () => {
     expect(within(dialog).getByLabelText('Date')).toHaveValue(target);
   });
 
-  it('shows a date-free planner and edits a meal line', async () => {
-    await renderCalendar(true);
-    fireEvent.click(screen.getByRole('button', { name: CALENDAR_COPY.planner }));
-    expect(screen.queryByRole('button', { name: CALENDAR_COPY.addEvent })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: CALENDAR_COPY.today })).not.toBeInTheDocument();
-    const sunday = screen.getByRole('region', { name: 'Sunday' });
-    fireEvent.click(within(sunday).getByRole('button', { name: 'Add line Sunday' }));
-    const input = within(sunday).getAllByRole('textbox').at(-1);
-    expect(input).toBeDefined();
-    if (input !== undefined) {
-      fireEvent.change(input, { target: { value: 'Pancakes' } });
-    }
-    expect(within(sunday).getByDisplayValue('Pancakes')).toBeInTheDocument();
-  });
-
-  it('links a planner line to a recipe and opens it from the line', async () => {
-    await renderCalendar(true);
-    fireEvent.click(screen.getByRole('button', { name: CALENDAR_COPY.planner }));
-    const tuesday = screen.getByRole('region', { name: 'Tuesday' });
-    fireEvent.click(within(tuesday).getByRole('button', { name: 'Add line Tuesday' }));
-    fireEvent.click(
-      within(tuesday).getAllByRole('button', { name: 'Link a recipe Tuesday' }).at(-1) ?? tuesday,
-    );
-    const dialog = await screen.findByRole('dialog');
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Veggie chilli' }));
-    expect(within(tuesday).getByDisplayValue('Veggie chilli')).toBeInTheDocument();
-    expect(
-      within(tuesday).getByRole('link', { name: 'Open recipe Veggie chilli' }),
-    ).toHaveAttribute('href', expect.stringContaining('/recipes'));
-    fireEvent.click(within(tuesday).getByRole('button', { name: 'Unlink recipe Veggie chilli' }));
-    expect(within(tuesday).queryByRole('link', { name: /Open recipe/ })).not.toBeInTheDocument();
-    expect(within(tuesday).getByDisplayValue('Veggie chilli')).toBeInTheDocument();
-  });
-
-  it('shows the recipe links already on the planner', async () => {
-    await renderCalendar(true);
-    fireEvent.click(screen.getByRole('button', { name: CALENDAR_COPY.planner }));
-    const monday = screen.getByRole('region', { name: 'Monday' });
-    expect(
-      within(monday).getByRole('link', { name: 'Open recipe Spaghetti + mince' }),
-    ).toBeInTheDocument();
-  });
-
-  it('marks exactly one weekday as today in the planner', async () => {
-    await renderCalendar(true);
-    fireEvent.click(screen.getByRole('button', { name: CALENDAR_COPY.planner }));
-    expect(screen.getAllByText('Today')).toHaveLength(1);
-  });
-
-  it('keeps planner edits when switching views', async () => {
-    await renderCalendar(true);
-    fireEvent.click(screen.getByRole('button', { name: CALENDAR_COPY.planner }));
-    fireEvent.click(screen.getByRole('button', { name: 'Add notes box' }));
-    fireEvent.click(screen.getByRole('button', { name: CALENDAR_COPY.month }));
-    fireEvent.click(screen.getByRole('button', { name: CALENDAR_COPY.planner }));
-    expect(screen.getByRole('region', { name: 'New box' })).toBeInTheDocument();
-  });
-
   it('adds an event from the dialog', async () => {
     await renderCalendar(true);
     fireEvent.click(screen.getByRole('button', { name: CALENDAR_COPY.addEvent }));

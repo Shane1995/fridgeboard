@@ -16,6 +16,7 @@ export const IdeasDialog = ({ state, onImport }: IdeasDialogProps) => {
       <Modal.Backdrop>
         <Modal.Container placement="auto">
           <Modal.Dialog>
+            <Modal.CloseTrigger />
             <Modal.Header>
               <Modal.Heading>{IDEAS_DIALOG_COPY.title}</Modal.Heading>
             </Modal.Header>

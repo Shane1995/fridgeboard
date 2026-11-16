@@ -22,6 +22,8 @@ export const useShopForm = (shop: Shop | undefined, onDone: () => void): ShopFor
     }
     if (shop === undefined) {
       create.mutate({ name: trimmed, color }, { onSuccess: (result) => result.ok && onDone() });
+    } else if (trimmed === shop.name && color === shop.color) {
+      onDone();
     } else {
       update.mutate(
         { id: shop.id, changes: { name: trimmed, color } },

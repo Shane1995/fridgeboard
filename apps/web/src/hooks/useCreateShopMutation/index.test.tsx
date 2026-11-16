@@ -1,5 +1,9 @@
 import { act, renderHook, screen, waitFor } from '@testing-library/react';
-import { ShopColor, SHOP_FAILURE_COPY } from '../../services/shoppingList/constants';
+import {
+  ShopColor,
+  SHOP_FAILURE_COPY,
+  SHOP_SUCCESS_COPY,
+} from '../../services/shoppingList/constants';
 import { createShoppingListWrapper } from '../../testUtils/createShoppingListWrapper';
 import { useShopsQuery } from '../useShopsQuery';
 import { useCreateShopMutation } from './index';
@@ -36,5 +40,19 @@ describe('useCreateShopMutation', () => {
 
     expect(await screen.findByText(SHOP_FAILURE_COPY.create)).toBeInTheDocument();
     expect(result.current.shops.data).toEqual([]);
+  });
+
+  it('tells the user the shop was added', async () => {
+    const { result } = renderHook(
+      () => ({ create: useCreateShopMutation(), shops: useShopsQuery() }),
+      { wrapper: createShoppingListWrapper() },
+    );
+    await waitFor(() => expect(result.current.shops.data).toEqual([]));
+
+    await act(async () =>
+      result.current.create.mutateAsync({ name: 'Express', color: ShopColor.Mint }),
+    );
+
+    expect(await screen.findByText(SHOP_SUCCESS_COPY.create('Express'))).toBeInTheDocument();
   });
 });

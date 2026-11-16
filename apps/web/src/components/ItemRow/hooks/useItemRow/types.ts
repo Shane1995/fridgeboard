@@ -15,4 +15,5 @@ export type ItemRowState = {
   canSplitAll: boolean;
   duplicateCount: number;
   handleMenuAction: (key: string | number) => void;
+  remove: () => void;
 };

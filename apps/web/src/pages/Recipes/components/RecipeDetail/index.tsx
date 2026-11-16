@@ -1,5 +1,6 @@
-import { Button, Modal, useOverlayState } from '@heroui/react';
+import { Button, useOverlayState } from '@heroui/react';
 import { ArrowLeft, ExternalLink, ShoppingBasket, Star } from 'lucide-react';
+import { ConfirmDialog } from '../../../../components/ConfirmDialog';
 import { Typography } from '../../../../components/Typography';
 import { TypographyVariant } from '../../../../components/Typography/constants';
 import { RECIPES_COPY } from '../../constants';
@@ -96,35 +97,13 @@ export const RecipeDetail = ({
           {RECIPES_COPY.delete}
         </Button>
       </div>
-      <Modal state={confirm}>
-        <Modal.Backdrop>
-          <Modal.Container placement="auto">
-            <Modal.Dialog>
-              <Modal.Header>
-                <Modal.Heading>{RECIPES_COPY.confirmTitle}</Modal.Heading>
-              </Modal.Header>
-              <Modal.Body>
-                <div className="flex flex-col gap-4">
-                  <Typography>{RECIPES_COPY.confirmBody}</Typography>
-                  <Button
-                    variant="danger"
-                    fullWidth
-                    onPress={() => {
-                      confirm.close();
-                      onDelete({ id: recipe.id });
-                    }}
-                  >
-                    {RECIPES_COPY.confirmDelete}
-                  </Button>
-                  <Button variant="secondary" fullWidth onPress={confirm.close}>
-                    {RECIPES_COPY.confirmCancel}
-                  </Button>
-                </div>
-              </Modal.Body>
-            </Modal.Dialog>
-          </Modal.Container>
-        </Modal.Backdrop>
-      </Modal>
+      <ConfirmDialog
+        state={confirm}
+        title={RECIPES_COPY.confirmTitle}
+        description={RECIPES_COPY.confirmBody}
+        confirmLabel={RECIPES_COPY.confirmDelete}
+        onConfirm={() => onDelete({ id: recipe.id })}
+      />
     </article>
   );
 };
