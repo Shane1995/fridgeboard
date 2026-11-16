@@ -18,6 +18,7 @@
     "@aws-sdk/lib-dynamodb": "^3.1152.0",
     "@fridgeboard/contract": "workspace:*",
     "@fridgeboard/fn-auth": "workspace:*",
+    "@fridgeboard/fn-events": "workspace:*",
     "@fridgeboard/fn-households": "workspace:*",
     "@fridgeboard/fn-list-items": "workspace:*",
     "@fridgeboard/fn-list-shops": "workspace:*",

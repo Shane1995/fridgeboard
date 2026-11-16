@@ -1,4 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { SessionStatus } from '../../../../../../services/session/constants';
+import { createSession } from '../../../../../../testUtils/createSession';
+import { TestProviders } from '../../../../../../testUtils/TestProviders';
 import { buildEvent } from '../../../../utils/buildEvent';
 import { EVENT_FORM_COPY } from './constants';
 import { EventForm } from './index';
@@ -16,17 +19,21 @@ const EVENT = buildEvent({
   },
 });
 
+const { session } = createSession(SessionStatus.SignedIn);
+
 const setUp = () => {
   const onDelete = vi.fn();
   const onDone = vi.fn();
   render(
-    <EventForm
-      event={EVENT}
-      date="2026-11-03"
-      onSave={vi.fn()}
-      onDelete={onDelete}
-      onDone={onDone}
-    />,
+    <TestProviders session={session}>
+      <EventForm
+        event={EVENT}
+        date="2026-11-03"
+        onSave={vi.fn()}
+        onDelete={onDelete}
+        onDone={onDone}
+      />
+    </TestProviders>,
   );
   return { onDelete, onDone };
 };

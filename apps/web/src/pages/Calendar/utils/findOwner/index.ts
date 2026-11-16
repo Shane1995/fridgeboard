@@ -1,6 +1,6 @@
-import { HOUSEHOLD_OWNER, OWNER_OPTIONS } from '../../constants';
+import { HOUSEHOLD_OWNER } from '../../constants';
 import type { CalendarMember } from '../../types';
 import type { FindOwnerOptions } from './types';
 
-export const findOwner = ({ ownerId }: FindOwnerOptions): CalendarMember =>
-  OWNER_OPTIONS.find((member) => member.id === ownerId) ?? HOUSEHOLD_OWNER;
+export const findOwner = ({ ownerId, owners }: FindOwnerOptions): CalendarMember =>
+  owners.find((member) => member.id === ownerId) ?? HOUSEHOLD_OWNER;

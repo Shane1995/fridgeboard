@@ -34,10 +34,23 @@ const DUMMY_MEMBERS: readonly CalendarMember[] = [
 
 export const OWNER_OPTIONS: readonly CalendarMember[] = [HOUSEHOLD_OWNER, ...DUMMY_MEMBERS];
 
+export const MEMBER_COLORS: readonly ShopColor[] = [
+  ShopColor.Tomato,
+  ShopColor.Sky,
+  ShopColor.Mint,
+  ShopColor.Mustard,
+  ShopColor.Grape,
+  ShopColor.Pink,
+];
+export const UNNAMED_MEMBER = 'Member';
+
 export const CALENDAR_COPY = {
   eventAdded: (title: string) => `${title} added`,
   eventUpdated: (title: string) => `${title} updated`,
   eventDeleted: (title: string) => `${title} deleted`,
+  eventAddFailed: (title: string) => `Could not add ${title}`,
+  eventUpdateFailed: (title: string) => `Could not update ${title}`,
+  eventDeleteFailed: (title: string) => `Could not delete ${title}`,
   title: 'Calendar',
   placeholder: 'Coming soon: shifts and meals on a calendar.',
   previous: 'Previous',

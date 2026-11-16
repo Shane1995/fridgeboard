@@ -1,10 +1,12 @@
 import { ShopSwatch } from '../../../../components/ShopSwatch';
+import { useOwners } from '../../hooks/useOwners';
 import { findOwner } from '../../utils/findOwner';
 import { formatEventTime } from '../../utils/formatEventTime';
 import type { EventRowProps } from './types';
 
 export const EventRow = ({ event, onEdit }: EventRowProps) => {
-  const owner = findOwner({ ownerId: event.ownerId });
+  const owners = useOwners();
+  const owner = findOwner({ ownerId: event.ownerId, owners });
   return (
     <button
       type="button"

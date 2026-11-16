@@ -431,6 +431,9 @@ importers:
       '@fridgeboard/fn-auth':
         specifier: workspace:*
         version: link:../functions/auth
+      '@fridgeboard/fn-events':
+        specifier: workspace:*
+        version: link:../functions/events
       '@fridgeboard/fn-households':
         specifier: workspace:*
         version: link:../functions/households

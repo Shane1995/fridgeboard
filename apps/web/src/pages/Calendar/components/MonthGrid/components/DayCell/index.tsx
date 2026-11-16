@@ -3,11 +3,13 @@ import {
   SHOP_TEXT_CLASSES,
 } from '../../../../../../components/ShopSwatch/constants';
 import { CALENDAR_COPY, MAX_CHIPS_PER_DAY } from '../../../../constants';
+import { useOwners } from '../../../../hooks/useOwners';
 import { findOwner } from '../../../../utils/findOwner';
 import { formatDayHeading } from '../../../../utils/formatDayHeading';
 import type { DayCellProps } from './types';
 
 export const DayCell = ({ date, inMonth, isToday, isSelected, events, onSelect }: DayCellProps) => {
+  const owners = useOwners();
   const hidden = events.length - MAX_CHIPS_PER_DAY;
   return (
     <button
@@ -23,7 +25,7 @@ export const DayCell = ({ date, inMonth, isToday, isSelected, events, onSelect }
         {Number(date.slice(8))}
       </span>
       {events.slice(0, MAX_CHIPS_PER_DAY).map((event) => {
-        const { color } = findOwner({ ownerId: event.ownerId });
+        const { color } = findOwner({ ownerId: event.ownerId, owners });
         return (
           <span
             key={event.id}

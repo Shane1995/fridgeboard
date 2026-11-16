@@ -29,6 +29,12 @@ export const TEST_WEB_CONFIGURATION: WebConfiguration = {
     api: {
       endpoints: {
         [WebService.clearItems]: '/api/v1/households/{householdId}/lists/{listId}/items/clear',
+        [WebService.event]: '/api/v1/households/{householdId}/events/{eventId}',
+        [WebService.eventOccurrence]:
+          '/api/v1/households/{householdId}/event-rules/{ruleId}/occurrences/{date}',
+        [WebService.eventRule]: '/api/v1/households/{householdId}/event-rules/{ruleId}',
+        [WebService.eventRules]: '/api/v1/households/{householdId}/event-rules',
+        [WebService.events]: '/api/v1/households/{householdId}/events',
         [WebService.householdChanges]: '/api/v1/households/{householdId}/changes',
         [WebService.householdInvites]: '/api/v1/households/{householdId}/invites',
         [WebService.householdMembers]: '/api/v1/households/{householdId}/members',

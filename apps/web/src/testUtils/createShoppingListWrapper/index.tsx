@@ -5,6 +5,7 @@ import { useActiveHousehold } from '../../hooks/useActiveHousehold';
 import { WebFeatureFlag } from '../../services/configuration/schema/constants';
 import { SessionStatus } from '../../services/session/constants';
 import { createSession } from '../createSession';
+import { fakeEventsApi, isEventsPath } from '../fakeEventsApi';
 import { fakeShoppingListApi } from '../fakeShoppingListApi';
 import { TEST_HOUSEHOLD_ID } from '../fakeShoppingList/constants';
 import { TestProviders } from '../TestProviders';
@@ -27,7 +28,9 @@ export const answerHouseholds = (apiFetch: { mockImplementation: (fn: never) => 
         { status: 200 },
       );
     }
-    return fakeShoppingListApi(endpoint, init);
+    return isEventsPath(endpoint.path)
+      ? fakeEventsApi(endpoint, init)
+      : fakeShoppingListApi(endpoint, init);
   }) as never);
 
 type ShoppingListWrapperOptions = {
@@ -58,7 +61,7 @@ export const createShoppingListWrapper = ({
       {children}
     </TestProviders>
   );
-  return wrapper;
+  return Object.assign(wrapper, { apiFetch });
 };
 
 export const renderHookWithHousehold = async <T,>(
@@ -69,5 +72,5 @@ export const renderHookWithHousehold = async <T,>(
   const household = renderHook(() => useActiveHousehold(), { wrapper });
   const rendered = renderHook(useHookUnderTest, { wrapper });
   await waitFor(() => expect(household.result.current?.id).toBe(TEST_HOUSEHOLD_ID));
-  return rendered;
+  return Object.assign(rendered, { apiFetch: wrapper.apiFetch });
 };

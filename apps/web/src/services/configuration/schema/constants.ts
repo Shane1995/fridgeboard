@@ -29,6 +29,11 @@ export const WEB_FEATURE_FLAGS: readonly string[] = Object.values(WebFeatureFlag
 
 export enum WebService {
   clearItems = 'clearItems',
+  event = 'event',
+  eventOccurrence = 'eventOccurrence',
+  eventRule = 'eventRule',
+  eventRules = 'eventRules',
+  events = 'events',
   householdChanges = 'householdChanges',
   householdInvites = 'householdInvites',
   householdMembers = 'householdMembers',
@@ -57,6 +62,7 @@ export const WEB_SERVICES = Object.values(WebService);
 
 export enum QueryName {
   changes = 'changes',
+  events = 'events',
   me = 'me',
   onboarding = 'onboarding',
   households = 'households',
@@ -81,6 +87,9 @@ export enum MutationName {
   updateShop = 'updateShop',
   deleteShop = 'deleteShop',
   reorderShops = 'reorderShops',
+  createEvent = 'createEvent',
+  updateEvent = 'updateEvent',
+  deleteEvent = 'deleteEvent',
   signInWithPasskey = 'signInWithPasskey',
   registerPasskey = 'registerPasskey',
 }

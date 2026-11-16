@@ -184,6 +184,11 @@ describe('web configuration schema', () => {
   const ENDPOINTS = {
     households: '/api/v1/households',
     clearItems: '/api/v1/households/{householdId}/lists/{listId}/items/clear',
+    event: '/api/v1/households/{householdId}/events/{eventId}',
+    eventOccurrence: '/api/v1/households/{householdId}/event-rules/{ruleId}/occurrences/{date}',
+    eventRule: '/api/v1/households/{householdId}/event-rules/{ruleId}',
+    eventRules: '/api/v1/households/{householdId}/event-rules',
+    events: '/api/v1/households/{householdId}/events',
     householdChanges: '/api/v1/households/{householdId}/changes',
     householdInvites: '/api/v1/households/{householdId}/invites',
     householdMembers: '/api/v1/households/{householdId}/members',

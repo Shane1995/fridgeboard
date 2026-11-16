@@ -26,9 +26,15 @@ export const useCalendar = () => {
   const [anchor, setAnchor] = useState(today);
   const [editing, setEditing] = useState<CalendarEvent | undefined>(undefined);
   const dialog = useOverlayState();
-  const { events, createEvent, updateEvent, deleteEvent } = useCalendarEvents();
 
+  // Both views read the month grid of the anchor, so switching view or stepping a week inside the
+  // month never needs another request.
   const cells = buildMonthGrid({ date: anchor, weekStartsOn: WEEK_STARTS_ON });
+  const gridDates = cells.flat();
+  const { events, createEvent, updateEvent, deleteEvent } = useCalendarEvents({
+    from: gridDates[0]?.date ?? anchor,
+    to: gridDates.at(-1)?.date ?? anchor,
+  });
   const weekDates = buildWeek({ date: anchor, weekStartsOn: WEEK_STARTS_ON });
   const visibleDates =
     view === CalendarView.Month ? cells.flat().map((cell) => cell.date) : weekDates;

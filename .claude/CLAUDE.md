@@ -17,7 +17,7 @@ Fridgeboard: a PWA for Shane and his wife to share a shopping list and her work 
 | App code (PWA + Lambdas) | this repo; no Terraform here |
 | App infra (AWS + Cloudflare DNS) | `~/Dev/terraform-cloud-infra/projects/fridgeboard/production`, HCP org `Avocados`, project `fridgeboard`, workspace `fridgeboard-aws-production` |
 | AWS account `fridgeboard` (089475198576), budget, HCP OIDC role, SSO | `~/Dev/terraform-cloud-infra/foundation/aws-organization`, HCP Avocados / `foundation` / `aws-organization` |
-| Domain | `fridgeboard.uk` on Cloudflare: `app.` = PWA, `api.` = API, apex redirects to `app.` |
+| Domain | `fridgeboard.uk` on Cloudflare: `app.` = PWA and API (`app.fridgeboard.uk/api/v1`, CloudFront routes `/api/*` to API Gateway; there is no `api.` host), apex redirects to `app.` |
 | Region | `eu-west-2` |
 
 ## Tickets

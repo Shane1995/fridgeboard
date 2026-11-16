@@ -1,15 +1,13 @@
 import { Button, Input, Label, TextField, useOverlayState } from '@heroui/react';
 import { ConfirmDialog } from '../../../../../../components/ConfirmDialog';
-import {
-  EVENT_NOTE_MAX_LENGTH,
-  EVENT_TITLE_MAX_LENGTH,
-  OWNER_OPTIONS,
-} from '../../../../constants';
+import { EVENT_NOTE_MAX_LENGTH, EVENT_TITLE_MAX_LENGTH } from '../../../../constants';
+import { useOwners } from '../../../../hooks/useOwners';
 import { EVENT_FORM_COPY, FIELD_CLASS } from './constants';
 import { useEventForm } from './hooks/useEventForm';
 import type { EventFormProps } from './types';
 
 export const EventForm = ({ event, date, onSave, onDelete, onDone }: EventFormProps) => {
+  const owners = useOwners();
   const { draft, setField, handleSubmit, handleDelete } = useEventForm({
     event,
     date,
@@ -89,7 +87,7 @@ export const EventForm = ({ event, date, onSave, onDelete, onDone }: EventFormPr
             setField({ field: 'ownerId', value: changeEvent.target.value })
           }
         >
-          {OWNER_OPTIONS.map((member) => (
+          {owners.map((member) => (
             <option key={member.id} value={member.id}>
               {member.name}
             </option>
