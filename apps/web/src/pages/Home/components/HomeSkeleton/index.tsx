@@ -4,7 +4,7 @@ import { ItemRowSkeleton } from './components/ItemRowSkeleton';
 import { ShopSectionSkeleton } from './components/ShopSectionSkeleton';
 
 export const HomeSkeleton = () => (
-  <main className="mx-auto flex max-w-2xl flex-col gap-7 p-6">
+  <main className="mx-auto flex max-w-2xl flex-col gap-4 p-4 md:p-6">
     <div
       role="status"
       aria-busy="true"

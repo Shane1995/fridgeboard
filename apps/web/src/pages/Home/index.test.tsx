@@ -91,11 +91,13 @@ describe('Home', () => {
     ).toBeInTheDocument();
   });
 
-  it('puts the household name in the title', async () => {
+  it('titles the page with its name alone, like every other page', async () => {
     renderHome();
+
+    expect(await screen.findByRole('heading', { name: HOME_COPY.title })).toBeInTheDocument();
     expect(
-      await screen.findByRole('heading', { name: `Home ${HOME_COPY.title}` }),
-    ).toBeInTheDocument();
+      screen.queryByRole('heading', { name: `Home ${HOME_COPY.title}` }),
+    ).not.toBeInTheDocument();
   });
 
   it('says the list is empty', async () => {

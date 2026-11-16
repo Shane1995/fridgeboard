@@ -9,7 +9,6 @@ import {
   TOUCH_DRAG_TOLERANCE_PX,
 } from '../../../../utils/touchDragListeners/constants';
 import { useShopsQuery } from '../../../../hooks/useShopsQuery';
-import { useActiveHousehold } from '../../../../hooks/useActiveHousehold';
 import { useHouseholdsQuery } from '../../../../hooks/useHouseholdsQuery';
 import { useClearItemsMutation } from '../../../../hooks/useClearItemsMutation';
 import { useToast } from '../../../../hooks/useToast';
@@ -35,7 +34,6 @@ import { HOME_COPY } from '../../constants';
 import type { HomeState } from './types';
 
 export const useHome = (): HomeState => {
-  const household = useActiveHousehold();
   const households = useHouseholdsQuery();
   const shops = useShopsQuery();
   const items = useItemsQuery();
@@ -124,7 +122,7 @@ export const useHome = (): HomeState => {
   };
 
   return {
-    title: household === undefined ? HOME_COPY.title : `${household.name} ${HOME_COPY.title}`,
+    title: HOME_COPY.title,
     grouped,
     focusedId,
     setFocus,
