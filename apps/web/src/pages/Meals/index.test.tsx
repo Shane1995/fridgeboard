@@ -1,4 +1,4 @@
-import { fireEvent, screen, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { WebFeatureFlag } from '../../services/configuration/schema/constants';
 import { SessionStatus } from '../../services/session/constants';
 import { createSession } from '../../testUtils/createSession';
@@ -93,6 +93,21 @@ describe('Meals planner', () => {
 
     const dialog = await screen.findByRole('dialog');
     expect(within(dialog).getByText(/Add to Chop list/)).toBeInTheDocument();
+  });
+
+  it('closes the add ingredients dialog from its close button', async () => {
+    await openPlanner();
+    const monday = screen.getByRole('region', { name: 'Monday' });
+    fireEvent.click(
+      within(monday).getByRole('button', {
+        name: `${PLANNER_COPY.addIngredients} Spaghetti + mince`,
+      }),
+    );
+    const dialog = await screen.findByRole('dialog');
+
+    fireEvent.click(within(dialog).getByRole('button', { name: /close/i }));
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   });
 
   it('does not offer ingredients on a line without a recipe', async () => {

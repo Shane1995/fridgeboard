@@ -14,6 +14,7 @@ export const ItemInfoDialog = ({ item, state }: ItemInfoDialogProps) => {
       <Modal.Backdrop>
         <Modal.Container placement="auto">
           <Modal.Dialog>
+            <Modal.CloseTrigger />
             <Modal.Header>
               <Modal.Heading>{item.name}</Modal.Heading>
             </Modal.Header>

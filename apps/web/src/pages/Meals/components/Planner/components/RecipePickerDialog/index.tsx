@@ -14,6 +14,7 @@ export const RecipePickerDialog = ({ state, recipes, onPick }: RecipePickerDialo
       <Modal.Backdrop>
         <Modal.Container placement="auto" scroll="inside">
           <Modal.Dialog>
+            <Modal.CloseTrigger />
             <Modal.Header>
               <Modal.Heading>{PLANNER_COPY.pickerTitle}</Modal.Heading>
             </Modal.Header>
