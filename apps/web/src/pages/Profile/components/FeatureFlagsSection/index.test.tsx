@@ -48,28 +48,52 @@ describe('FeatureFlagsSection', () => {
     expect(flagSwitch(WebFeatureFlag.ENABLE_CALENDAR_API)).not.toBeChecked();
   });
 
-  it('stores the override and reloads the app when a flag is switched on', () => {
+  it('changes nothing and does not reload while switches are flipped', () => {
     renderSection();
 
     fireEvent.click(flagSwitch(WebFeatureFlag.ENABLE_CALENDAR_API));
+    fireEvent.click(flagSwitch(WebFeatureFlag.ENABLE_RECIPES));
 
-    expect(window.localStorage.getItem(FLAG_OVERRIDES_STORAGE_KEY)).toBe(
-      JSON.stringify({ [WebFeatureFlag.ENABLE_CALENDAR_API]: true }),
-    );
+    expect(flagSwitch(WebFeatureFlag.ENABLE_CALENDAR_API)).toBeChecked();
+    expect(flagSwitch(WebFeatureFlag.ENABLE_RECIPES)).not.toBeChecked();
+    expect(window.localStorage.getItem(FLAG_OVERRIDES_STORAGE_KEY)).toBeNull();
+    expect(reload).not.toHaveBeenCalled();
+  });
+
+  it('keeps Apply off until a switch has been flipped', () => {
+    renderSection();
+
+    expect(screen.getByRole('button', { name: FEATURE_FLAGS_COPY.apply })).toBeDisabled();
+
+    fireEvent.click(flagSwitch(WebFeatureFlag.ENABLE_CALENDAR_API));
+
+    expect(screen.getByRole('button', { name: FEATURE_FLAGS_COPY.apply })).toBeEnabled();
+  });
+
+  it('turns Apply off again when a flipped switch is flipped back', () => {
+    renderSection();
+
+    fireEvent.click(flagSwitch(WebFeatureFlag.ENABLE_CALENDAR_API));
+    fireEvent.click(flagSwitch(WebFeatureFlag.ENABLE_CALENDAR_API));
+
+    expect(screen.getByRole('button', { name: FEATURE_FLAGS_COPY.apply })).toBeDisabled();
+  });
+
+  it('stores every flipped switch and reloads once when Apply is pressed', () => {
+    renderSection();
+    fireEvent.click(flagSwitch(WebFeatureFlag.ENABLE_CALENDAR_API));
+    fireEvent.click(flagSwitch(WebFeatureFlag.ENABLE_RECIPES));
+
+    fireEvent.click(screen.getByRole('button', { name: FEATURE_FLAGS_COPY.apply }));
+
+    expect(JSON.parse(window.localStorage.getItem(FLAG_OVERRIDES_STORAGE_KEY) ?? '{}')).toEqual({
+      [WebFeatureFlag.ENABLE_CALENDAR_API]: true,
+      [WebFeatureFlag.ENABLE_RECIPES]: false,
+    });
     expect(reload).toHaveBeenCalledTimes(1);
   });
 
-  it('stores an override that switches a served flag off', () => {
-    renderSection();
-
-    fireEvent.click(flagSwitch(WebFeatureFlag.ENABLE_RECIPES));
-
-    expect(window.localStorage.getItem(FLAG_OVERRIDES_STORAGE_KEY)).toBe(
-      JSON.stringify({ [WebFeatureFlag.ENABLE_RECIPES]: false }),
-    );
-  });
-
-  it('keeps earlier overrides when another flag is switched', () => {
+  it('keeps earlier overrides when another flag is applied', () => {
     window.localStorage.setItem(
       FLAG_OVERRIDES_STORAGE_KEY,
       JSON.stringify({ [WebFeatureFlag.ENABLE_CALENDAR_API]: true }),
@@ -77,6 +101,7 @@ describe('FeatureFlagsSection', () => {
     renderSection();
 
     fireEvent.click(flagSwitch(WebFeatureFlag.ENABLE_RECIPES));
+    fireEvent.click(screen.getByRole('button', { name: FEATURE_FLAGS_COPY.apply }));
 
     expect(JSON.parse(window.localStorage.getItem(FLAG_OVERRIDES_STORAGE_KEY) ?? '{}')).toEqual({
       [WebFeatureFlag.ENABLE_CALENDAR_API]: true,

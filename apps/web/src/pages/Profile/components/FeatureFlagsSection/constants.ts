@@ -2,7 +2,8 @@ import { WebFeatureFlag } from '../../../../services/configuration/schema/consta
 
 export const FEATURE_FLAGS_COPY = {
   title: 'Feature flags',
-  hint: 'Switches apply on this device only and reload the app.',
+  hint: 'Switch what you want, then press Apply. Changes affect this device only and reload the app once.',
+  apply: 'Apply and reload',
   reset: 'Reset to defaults',
   changed: 'Changed',
 } as const;

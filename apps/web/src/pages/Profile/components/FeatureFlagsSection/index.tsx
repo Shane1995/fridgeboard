@@ -11,15 +11,24 @@ import { FEATURE_FLAGS_COPY, FEATURE_FLAG_LABELS } from './constants';
 
 const FLAGS = Object.values(WebFeatureFlag);
 
+// Switches only stage a change, so flipping several is instant; Apply stores them and reloads once.
 export const FeatureFlagsSection = () => {
   const { featureFlags } = useRemoteConfigContext();
-  const [overrides, setOverrides] = useState<FlagOverrides>(readFlagOverrides);
+  const [stored, setStored] = useState<FlagOverrides>(readFlagOverrides);
+  const [values, setValues] = useState(featureFlags);
+  const [isApplying, setIsApplying] = useState(false);
 
-  const apply = (next: FlagOverrides) => {
+  const changed = FLAGS.filter((flag) => values[flag] !== featureFlags[flag]);
+
+  const store = (next: FlagOverrides) => {
+    setIsApplying(true);
     writeFlagOverrides({ overrides: next });
-    setOverrides(next);
+    setStored(next);
     window.location.reload();
   };
+
+  const apply = () =>
+    store({ ...stored, ...Object.fromEntries(changed.map((flag) => [flag, values[flag]])) });
 
   return (
     <section aria-label={FEATURE_FLAGS_COPY.title} className="flex flex-col gap-3">
@@ -28,25 +37,33 @@ export const FeatureFlagsSection = () => {
       </Typography>
       <ul className="flex flex-col gap-2">
         {FLAGS.map((flag) => (
-          <li
-            key={flag}
-            className="flex items-center justify-between gap-3 rounded-2xl bg-white/70 px-4 py-3 shadow-sm"
-          >
+          <li key={flag} className="rounded-2xl bg-white/70 shadow-sm">
             <Switch
-              isSelected={featureFlags[flag]}
-              onChange={(isOn) => apply({ ...overrides, [flag]: isOn })}
+              isSelected={values[flag]}
+              onChange={(isOn) => setValues((current) => ({ ...current, [flag]: isOn }))}
+              className="flex min-h-14 w-full cursor-pointer items-center justify-between gap-3 px-4 py-3"
             >
+              <Switch.Content className="flex flex-1 items-center gap-2">
+                {FEATURE_FLAG_LABELS[flag]}
+                {flag in stored && <Chip size="sm">{FEATURE_FLAGS_COPY.changed}</Chip>}
+              </Switch.Content>
               <Switch.Control>
                 <Switch.Thumb />
               </Switch.Control>
-              <Switch.Content>{FEATURE_FLAG_LABELS[flag]}</Switch.Content>
             </Switch>
-            {flag in overrides && <Chip size="sm">{FEATURE_FLAGS_COPY.changed}</Chip>}
           </li>
         ))}
       </ul>
-      {Object.keys(overrides).length > 0 && (
-        <Button variant="secondary" onPress={() => apply({})}>
+      <Button
+        variant="primary"
+        isDisabled={changed.length === 0}
+        isPending={isApplying}
+        onPress={apply}
+      >
+        {FEATURE_FLAGS_COPY.apply}
+      </Button>
+      {Object.keys(stored).length > 0 && (
+        <Button variant="secondary" isDisabled={isApplying} onPress={() => store({})}>
           {FEATURE_FLAGS_COPY.reset}
         </Button>
       )}

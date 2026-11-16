@@ -108,6 +108,29 @@ describe('Calendar', () => {
     expect(within(agenda).getByText('Pizza night')).toBeInTheDocument();
   });
 
+  it('opens a new event on a day that is double pressed in the month grid', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-10-28T12:00:00'));
+    await renderCalendar(true);
+    const target = addDays({ date: getToday({ now: new Date() }), days: 1 });
+
+    fireEvent.doubleClick(screen.getByRole('button', { name: formatDayHeading({ date: target }) }));
+
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByLabelText('Date')).toHaveValue(target);
+  });
+
+  it('only selects a day on a single press', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-10-28T12:00:00'));
+    await renderCalendar(true);
+    const target = addDays({ date: getToday({ now: new Date() }), days: 1 });
+
+    fireEvent.click(screen.getByRole('button', { name: formatDayHeading({ date: target }) }));
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
   it('adds an event from the dialog', async () => {
     await renderCalendar(true);
     fireEvent.click(screen.getByRole('button', { name: CALENDAR_COPY.addEvent }));
