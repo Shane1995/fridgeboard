@@ -72,6 +72,16 @@ describe('commitChange', () => {
     ]);
   });
 
+  it('records an event change', async () => {
+    ddbMock.on(GetCommand).resolves({ Item: { PK: 'HH#hh-1', SK: 'META', name: 'Home' } });
+    ddbMock.on(TransactWriteCommand).resolves({});
+
+    const change = await commitChange({ ...OPTIONS, changes: [{ type: 'event', id: 'e-1' }] });
+
+    expect(change).toEqual([{ id: 'e-1', rev: 1, type: 'event' }]);
+    expect(sent()[0]?.TransactItems?.[2]?.Put?.Item).toMatchObject({ type: 'event', id: 'e-1' });
+  });
+
   it('moves on from the rev it read and requires it to be unchanged', async () => {
     ddbMock.on(GetCommand).resolves({ Item: { PK: 'HH#hh-1', SK: 'META', name: 'Home', rev: 41 } });
     ddbMock.on(TransactWriteCommand).resolves({});

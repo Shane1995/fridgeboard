@@ -5,6 +5,13 @@ import type {
   IVerifyNextResponse,
 } from '@fridgeboard/contract/auth';
 import type {
+  IEvent,
+  IEventErrorResponse,
+  IEventRule,
+  IEventRulesResponse,
+  IEventsResponse,
+} from '@fridgeboard/contract/events';
+import type {
   ICreateHouseholdErrorResponse,
   ICreateHouseholdResponse,
   IHouseholdMembersResponse,
@@ -48,6 +55,11 @@ export type ResponseBody =
   | IShopsResponse
   | IHistoryResponse
   | IListErrorResponse
+  | IEvent
+  | IEventsResponse
+  | IEventRule
+  | IEventRulesResponse
+  | IEventErrorResponse
   | IOnboardingResponse
   | IOnboardingErrorResponse
   | IPasskeyStartResponse

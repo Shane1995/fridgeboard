@@ -1,1 +1,1 @@
-export const CHANGE_TYPES = ['item', 'shop'] as const;
+export const CHANGE_TYPES = ['item', 'shop', 'event'] as const;
