@@ -1,6 +1,6 @@
-import { DAYS_PER_WEEK } from '../../constants';
+import { DAYS_PER_WEEK } from '../../../Calendar/constants';
 import type { PlannerPlan, PlannerSection } from '../../types';
-import { formatWeekdayName } from '../formatWeekdayName';
+import { formatWeekdayName } from '../../../Calendar/utils/formatWeekdayName';
 import { DUMMY_DAY_LINES, DUMMY_NOTES, DUMMY_RECIPE_LINKS } from './constants';
 import type { BuildDummyPlannerOptions } from './types';
 

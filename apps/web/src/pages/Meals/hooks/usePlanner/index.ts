@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useToast } from '../../../../hooks/useToast';
-import { WEEK_STARTS_ON } from '../../constants';
+import { WEEK_STARTS_ON } from '../../../Calendar/constants';
 import type { PlannerPlan, PlannerSection } from '../../types';
 import { buildDummyPlanner } from '../../utils/buildDummyPlanner';
-import { getToday } from '../../utils/getToday';
+import { getToday } from '../../../Calendar/utils/getToday';
 import { updateSection } from '../../utils/updateSection';
 import { NEW_NOTE_TITLE, PLANNER_TOAST_COPY } from './constants';
 import type {

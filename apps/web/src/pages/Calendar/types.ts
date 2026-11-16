@@ -23,14 +23,3 @@ export type EventDraft = {
 export type MonthCell = { date: string; inMonth: boolean };
 
 export type LondonParts = { date: string; time: string };
-
-export type PlannerLine = { id: string; text: string; recipeId?: string | undefined };
-
-export type PlannerSection = {
-  id: string;
-  title: string;
-  lines: PlannerLine[];
-  weekday?: number | undefined;
-};
-
-export type PlannerPlan = { days: PlannerSection[]; notes: PlannerSection[] };
