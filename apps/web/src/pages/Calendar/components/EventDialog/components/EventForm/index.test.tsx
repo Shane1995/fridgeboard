@@ -1,8 +1,10 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { WebFeatureFlag } from '../../../../../../services/configuration/schema/constants';
 import { ShopColor } from '../../../../../../services/shoppingList/constants';
 import { SessionStatus } from '../../../../../../services/session/constants';
 import { createSession } from '../../../../../../testUtils/createSession';
 import { TestProviders } from '../../../../../../testUtils/TestProviders';
+import { TEST_WEB_CONFIGURATION } from '../../../../../../testUtils/webConfiguration';
 import { buildEvent } from '../../../../utils/buildEvent';
 import { EVENT_FORM_COPY } from './constants';
 import { EventForm } from './index';
@@ -292,6 +294,187 @@ describe('EventForm who, colour and reminder', () => {
 
     expect(screen.getByRole('button', { name: 'sky' })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByLabelText(EVENT_FORM_COPY.reminderLabel)).toHaveValue('60');
+  });
+});
+
+describe('EventForm repeating', () => {
+  const apiConfig = {
+    ...TEST_WEB_CONFIGURATION,
+    featureFlags: {
+      ...TEST_WEB_CONFIGURATION.featureFlags,
+      [WebFeatureFlag.ENABLE_CALENDAR_API]: true,
+    },
+  };
+
+  const setUpNew = (date = '2026-11-05') => {
+    const onSave = vi.fn();
+    render(
+      <TestProviders session={session} config={apiConfig}>
+        <EventForm
+          event={undefined}
+          date={date}
+          onSave={onSave}
+          onDelete={vi.fn()}
+          onDone={vi.fn()}
+        />
+      </TestProviders>,
+    );
+    fireEvent.change(screen.getByLabelText(EVENT_FORM_COPY.titleLabel), {
+      target: { value: 'General waste' },
+    });
+    fireEvent.click(screen.getByLabelText(EVENT_FORM_COPY.allDayLabel));
+    return { onSave };
+  };
+
+  const repeat = () => screen.getByRole('radiogroup', { name: EVENT_FORM_COPY.repeatLabel });
+  const save = () => fireEvent.click(screen.getByRole('button', { name: EVENT_FORM_COPY.create }));
+
+  it('does not offer repeating while the events API is off', () => {
+    render(
+      <TestProviders session={session}>
+        <EventForm
+          event={undefined}
+          date="2026-11-05"
+          onSave={vi.fn()}
+          onDelete={vi.fn()}
+          onDone={vi.fn()}
+        />
+      </TestProviders>,
+    );
+
+    expect(
+      screen.queryByRole('radiogroup', { name: EVENT_FORM_COPY.repeatLabel }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('starts as a single event', () => {
+    const { onSave } = setUpNew();
+
+    expect(
+      within(repeat()).getByRole('radio', { name: EVENT_FORM_COPY.repeatNever }),
+    ).toBeChecked();
+    save();
+
+    expect(onSave.mock.calls[0]?.[0]).not.toHaveProperty('repeat');
+  });
+
+  it('sets up a bin day: every 2 weeks on the weekday of the first day', () => {
+    const { onSave } = setUpNew('2026-11-05');
+
+    fireEvent.click(within(repeat()).getByRole('radio', { name: EVENT_FORM_COPY.repeatWeekly }));
+    fireEvent.change(screen.getByLabelText(new RegExp(`^${EVENT_FORM_COPY.everyLabel}`)), {
+      target: { value: '2' },
+    });
+    save();
+
+    expect(onSave).toHaveBeenCalledWith(
+      expect.objectContaining({ repeat: { frequency: 'weekly', interval: 2, weekdays: [4] } }),
+    );
+  });
+
+  it('lets more weekdays be added but never none', () => {
+    const { onSave } = setUpNew('2026-11-05');
+    fireEvent.click(within(repeat()).getByRole('radio', { name: EVENT_FORM_COPY.repeatWeekly }));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Monday' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Thursday' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Monday' }));
+    save();
+
+    expect(onSave).toHaveBeenCalledWith(
+      expect.objectContaining({ repeat: expect.objectContaining({ weekdays: [1] }) }),
+    );
+  });
+
+  it('can end on a date', () => {
+    const { onSave } = setUpNew('2026-11-05');
+    fireEvent.click(within(repeat()).getByRole('radio', { name: EVENT_FORM_COPY.repeatDaily }));
+
+    fireEvent.change(screen.getByLabelText(EVENT_FORM_COPY.untilLabel), {
+      target: { value: '2027-01-01' },
+    });
+    save();
+
+    expect(onSave).toHaveBeenCalledWith(
+      expect.objectContaining({
+        repeat: expect.objectContaining({ frequency: 'daily', until: '2027-01-01' }),
+      }),
+    );
+  });
+
+  it('goes back to a single event when Never is chosen again', () => {
+    const { onSave } = setUpNew();
+    fireEvent.click(within(repeat()).getByRole('radio', { name: EVENT_FORM_COPY.repeatMonthly }));
+
+    fireEvent.click(within(repeat()).getByRole('radio', { name: EVENT_FORM_COPY.repeatNever }));
+    save();
+
+    expect(onSave.mock.calls[0]?.[0]).not.toHaveProperty('repeat');
+  });
+});
+
+describe('EventForm on a day of a repeating series', () => {
+  const occurrence = {
+    ...buildEvent({
+      id: 'rule-1_2026-11-12',
+      draft: {
+        title: 'Recycling',
+        allDay: true,
+        date: '2026-11-12',
+        startTime: '09:00',
+        endTime: '10:00',
+        ownerId: 'household',
+        note: '',
+      },
+    }),
+    ruleId: 'rule-1',
+  };
+
+  const setUp = () => {
+    const onSave = vi.fn();
+    const onDelete = vi.fn();
+    render(
+      <TestProviders session={session}>
+        <EventForm
+          event={occurrence}
+          date="2026-11-12"
+          onSave={onSave}
+          onDelete={onDelete}
+          onDone={vi.fn()}
+        />
+      </TestProviders>,
+    );
+    return { onSave, onDelete };
+  };
+
+  it('does not offer to change how it repeats', () => {
+    setUp();
+
+    expect(
+      screen.queryByRole('radiogroup', { name: EVENT_FORM_COPY.repeatLabel }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('asks whether a change is for this day or the whole series', () => {
+    const { onSave } = setUp();
+
+    fireEvent.click(screen.getByRole('button', { name: EVENT_FORM_COPY.saveThis }));
+    expect(onSave).toHaveBeenLastCalledWith(expect.objectContaining({ title: 'Recycling' }), 'one');
+
+    fireEvent.click(screen.getByRole('button', { name: EVENT_FORM_COPY.saveAll }));
+    expect(onSave).toHaveBeenLastCalledWith(expect.objectContaining({ title: 'Recycling' }), 'all');
+  });
+
+  it('asks whether a delete is for this day or the whole series', async () => {
+    const { onDelete } = setUp();
+
+    fireEvent.click(screen.getByRole('button', { name: EVENT_FORM_COPY.deleteThis }));
+    fireEvent.click(await screen.findByRole('button', { name: EVENT_FORM_COPY.confirm }));
+    await waitFor(() => expect(onDelete).toHaveBeenLastCalledWith('one'));
+
+    fireEvent.click(screen.getByRole('button', { name: EVENT_FORM_COPY.deleteAll }));
+    fireEvent.click(await screen.findByRole('button', { name: EVENT_FORM_COPY.confirm }));
+    await waitFor(() => expect(onDelete).toHaveBeenLastCalledWith('all'));
   });
 });
 

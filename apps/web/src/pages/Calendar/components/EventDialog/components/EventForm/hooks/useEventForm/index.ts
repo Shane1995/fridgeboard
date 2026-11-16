@@ -7,6 +7,7 @@ import {
 } from '../../../../../../constants';
 import type { EventDraft } from '../../../../../../types';
 import { eventToDraft } from '../../../../../../utils/eventToDraft';
+import type { RepeatScope } from '../../../../../../hooks/useLocalCalendarEvents/types';
 import type { SetFieldOptions } from '../../types';
 import type { UseEventFormOptions } from './types';
 
@@ -37,19 +38,32 @@ export const useEventForm = ({ event, date, onSave, onDelete, onDone }: UseEvent
         : next;
     });
 
-  const handleSubmit = (submitEvent: FormEvent) => {
-    submitEvent.preventDefault();
+  // A scope only exists for a day of a repeating series; every other save passes the draft alone.
+  const save = (scope?: RepeatScope) => {
     if (draft.title.trim() === '') {
       return;
     }
-    onSave(draft);
+    if (scope === undefined) {
+      onSave(draft);
+    } else {
+      onSave(draft, scope);
+    }
     onDone();
   };
 
-  const handleDelete = () => {
-    onDelete();
+  const handleSubmit = (submitEvent: FormEvent) => {
+    submitEvent.preventDefault();
+    save();
+  };
+
+  const handleDelete = (scope?: RepeatScope) => {
+    if (scope === undefined) {
+      onDelete();
+    } else {
+      onDelete(scope);
+    }
     onDone();
   };
 
-  return { draft, setField, handleSubmit, handleDelete };
+  return { draft, setField, save, handleSubmit, handleDelete };
 };

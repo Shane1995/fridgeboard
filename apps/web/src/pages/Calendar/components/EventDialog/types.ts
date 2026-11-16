@@ -1,10 +1,11 @@
 import type { UseOverlayStateReturn } from '@heroui/react';
+import type { RepeatScope } from '../../hooks/useLocalCalendarEvents/types';
 import type { CalendarEvent, EventDraft } from '../../types';
 
 export type EventDialogProps = {
   state: UseOverlayStateReturn;
   event: CalendarEvent | undefined;
   date: string;
-  onSave: (draft: EventDraft) => void;
-  onDelete: () => void;
+  onSave: (draft: EventDraft, scope?: RepeatScope) => void;
+  onDelete: (scope?: RepeatScope) => void;
 };

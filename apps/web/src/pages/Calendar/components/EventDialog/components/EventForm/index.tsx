@@ -1,4 +1,5 @@
 import { Button, Input, Label, TextField, useOverlayState } from '@heroui/react';
+import { useState } from 'react';
 import { ColorPicker } from '../../../../../../components/ColorPicker';
 import { ConfirmDialog } from '../../../../../../components/ConfirmDialog';
 import { useAutoFocus } from '../../../../../../hooks/useAutoFocus';
@@ -9,15 +10,19 @@ import {
   NO_REMINDER,
   REMINDER_OPTIONS,
 } from '../../../../constants';
+import { useFeatureFlag } from '../../../../../../hooks/useFeatureFlag';
+import { WebFeatureFlag } from '../../../../../../services/configuration/schema/constants';
+import type { RepeatScope } from '../../../../hooks/useLocalCalendarEvents/types';
 import { useOwners } from '../../../../hooks/useOwners';
 import { EVENT_FORM_COPY, FIELD_CLASS } from './constants';
+import { RepeatFields } from './components/RepeatFields';
 import { useEventForm } from './hooks/useEventForm';
 import type { EventFormProps } from './types';
 
 export const EventForm = ({ event, date, onSave, onDelete, onDone }: EventFormProps) => {
   const owners = useOwners();
   const titleRef = useAutoFocus<HTMLInputElement>();
-  const { draft, setField, handleSubmit, handleDelete } = useEventForm({
+  const { draft, setField, save, handleSubmit, handleDelete } = useEventForm({
     event,
     date,
     onSave,
@@ -26,9 +31,27 @@ export const EventForm = ({ event, date, onSave, onDelete, onDone }: EventFormPr
   });
 
   const confirmDelete = useOverlayState();
+  const [deleteScope, setDeleteScope] = useState<RepeatScope | undefined>(undefined);
+  const canRepeat = useFeatureFlag(WebFeatureFlag.ENABLE_CALENDAR_API) && event === undefined;
+  const isSeriesDay = event?.ruleId !== undefined;
+
+  const askToDelete = (scope?: RepeatScope) => {
+    setDeleteScope(scope);
+    confirmDelete.open();
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="flex min-w-0 flex-col gap-4">
+    <form
+      onSubmit={
+        isSeriesDay
+          ? (submitEvent) => {
+              submitEvent.preventDefault();
+              save('one');
+            }
+          : handleSubmit
+      }
+      className="flex min-w-0 flex-col gap-4"
+    >
       <TextField
         isRequired
         maxLength={EVENT_TITLE_MAX_LENGTH}
@@ -156,6 +179,13 @@ export const EventForm = ({ event, date, onSave, onDelete, onDone }: EventFormPr
           ))}
         </select>
       </label>
+      {canRepeat && (
+        <RepeatFields
+          date={draft.date}
+          value={draft.repeat}
+          onChange={(repeat) => setField({ field: 'repeat', value: repeat })}
+        />
+      )}
       <TextField
         maxLength={EVENT_NOTE_MAX_LENGTH}
         value={draft.note}
@@ -164,22 +194,53 @@ export const EventForm = ({ event, date, onSave, onDelete, onDone }: EventFormPr
         <Label>{EVENT_FORM_COPY.noteLabel}</Label>
         <Input />
       </TextField>
-      <Button type="submit" fullWidth>
-        {event === undefined ? EVENT_FORM_COPY.create : EVENT_FORM_COPY.save}
-      </Button>
-      {event !== undefined && (
+      {isSeriesDay ? (
         <>
-          <Button variant="danger-soft" fullWidth onPress={confirmDelete.open}>
-            {EVENT_FORM_COPY.delete}
+          <Button fullWidth onPress={() => save('one')}>
+            {EVENT_FORM_COPY.saveThis}
           </Button>
-          <ConfirmDialog
-            state={confirmDelete}
-            title={EVENT_FORM_COPY.confirmTitle(event.title)}
-            description={EVENT_FORM_COPY.confirmDescription}
-            confirmLabel={EVENT_FORM_COPY.confirm}
-            onConfirm={handleDelete}
-          />
+          <Button variant="secondary" fullWidth onPress={() => save('all')}>
+            {EVENT_FORM_COPY.saveAll}
+          </Button>
+          <Button variant="danger-soft" fullWidth onPress={() => askToDelete('one')}>
+            {EVENT_FORM_COPY.deleteThis}
+          </Button>
+          <Button variant="danger-soft" fullWidth onPress={() => askToDelete('all')}>
+            {EVENT_FORM_COPY.deleteAll}
+          </Button>
         </>
+      ) : (
+        <>
+          <Button type="submit" fullWidth>
+            {event === undefined ? EVENT_FORM_COPY.create : EVENT_FORM_COPY.save}
+          </Button>
+          {event !== undefined && (
+            <Button variant="danger-soft" fullWidth onPress={() => askToDelete()}>
+              {EVENT_FORM_COPY.delete}
+            </Button>
+          )}
+        </>
+      )}
+      {event !== undefined && (
+        <ConfirmDialog
+          state={confirmDelete}
+          title={
+            deleteScope === undefined
+              ? EVENT_FORM_COPY.confirmTitle(event.title)
+              : deleteScope === 'one'
+                ? EVENT_FORM_COPY.confirmTitleThis
+                : EVENT_FORM_COPY.confirmTitleAll
+          }
+          description={
+            deleteScope === 'one'
+              ? EVENT_FORM_COPY.confirmDescriptionThis
+              : deleteScope === 'all'
+                ? EVENT_FORM_COPY.confirmDescriptionAll
+                : EVENT_FORM_COPY.confirmDescription
+          }
+          confirmLabel={EVENT_FORM_COPY.confirm}
+          onConfirm={() => handleDelete(deleteScope)}
+        />
       )}
     </form>
   );
