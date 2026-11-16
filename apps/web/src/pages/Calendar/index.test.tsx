@@ -1,4 +1,5 @@
-import { fireEvent, screen, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { APP_DIALOG_COPY } from '../../components/AppDialog/constants';
 import { WebFeatureFlag } from '../../services/configuration/schema/constants';
 import { SessionStatus } from '../../services/session/constants';
 import { createSession } from '../../testUtils/createSession';
@@ -78,6 +79,33 @@ describe('Calendar', () => {
     fireEvent.click(screen.getByRole('button', { name: `${CALENDAR_COPY.addEventOn} ${heading}` }));
     const dialog = await screen.findByRole('dialog');
     expect(within(dialog).getByLabelText('Date')).toHaveValue(target);
+  });
+
+  it('closes the new event dialog without adding anything', async () => {
+    await renderCalendar(true);
+    fireEvent.click(screen.getByRole('button', { name: CALENDAR_COPY.addEvent }));
+    const dialog = await screen.findByRole('dialog');
+    fireEvent.change(within(dialog).getByRole('textbox', { name: /title/i }), {
+      target: { value: 'Never saved' },
+    });
+
+    fireEvent.click(within(dialog).getByRole('button', { name: APP_DIALOG_COPY.close }));
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(screen.queryByText('Never saved')).not.toBeInTheDocument();
+  });
+
+  it('closes the edit dialog without changing the event', async () => {
+    await renderCalendar(true);
+    const today = getToday({ now: new Date() });
+    const agenda = screen.getByRole('region', { name: formatDayHeading({ date: today }) });
+    fireEvent.click(within(agenda).getByText('Pizza night'));
+    const dialog = await screen.findByRole('dialog');
+
+    fireEvent.click(within(dialog).getByRole('button', { name: APP_DIALOG_COPY.close }));
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(within(agenda).getByText('Pizza night')).toBeInTheDocument();
   });
 
   it('adds an event from the dialog', async () => {
