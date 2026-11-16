@@ -22,6 +22,12 @@ body {
   font-family: var(--font-sans);
 }
 
+.modal__container[data-entering='true'] {
+  --tw-enter-scale: 0.97;
+  --tw-enter-translate-y: 0.5rem;
+  animation-duration: 180ms;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .skeleton,
   .skeleton::after {
