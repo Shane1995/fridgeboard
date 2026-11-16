@@ -1,5 +1,4 @@
 import { Link } from '@tanstack/react-router';
-import { SettingsMenu } from '../SettingsMenu';
 import { APP_NAME, NAV_ITEMS, NAV_LABEL } from './constants';
 
 export const AppNav = () => {
@@ -29,9 +28,6 @@ export const AppNav = () => {
               </Link>
             </li>
           ))}
-          <li className="flex-1 md:flex-none">
-            <SettingsMenu />
-          </li>
         </ul>
       </nav>
       <div aria-hidden className="hidden md:block md:w-48" />

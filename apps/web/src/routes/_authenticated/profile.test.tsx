@@ -1,8 +1,18 @@
-import { Profile } from '../../pages/Profile';
 import { Route } from './profile';
 
-describe('authenticated profile route', () => {
-  it('renders Profile', () => {
-    expect(Route.options.component).toBe(Profile);
+const thrownBy = (run: () => unknown): unknown => {
+  try {
+    run();
+  } catch (error) {
+    return error;
+  }
+  return undefined;
+};
+
+describe('old profile address', () => {
+  it('sends anyone on /profile to settings', () => {
+    const thrown = thrownBy(() => Route.options.beforeLoad?.({} as never));
+
+    expect(thrown).toMatchObject({ options: { to: '/settings' } });
   });
 });

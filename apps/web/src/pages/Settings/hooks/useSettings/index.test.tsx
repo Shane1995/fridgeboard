@@ -4,7 +4,7 @@ import { createProvidersWrapper } from '../../../../testUtils/createProvidersWra
 import { createSession } from '../../../../testUtils/createSession';
 import { WebFeatureFlag } from '../../../../services/configuration/schema/constants';
 import { TEST_WEB_CONFIGURATION } from '../../../../testUtils/webConfiguration';
-import { useProfile } from './index';
+import { useSettings } from './index';
 
 const ME = {
   sub: 's',
@@ -41,11 +41,11 @@ const setup = (
   });
   return {
     apiFetch,
-    ...renderHook(() => useProfile(), { wrapper: createProvidersWrapper(session, config) }),
+    ...renderHook(() => useSettings(), { wrapper: createProvidersWrapper(session, config) }),
   };
 };
 
-describe('useProfile', () => {
+describe('useSettings', () => {
   beforeEach(() => vi.resetAllMocks());
 
   it('loads the account and its households', async () => {

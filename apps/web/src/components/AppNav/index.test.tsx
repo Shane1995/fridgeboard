@@ -42,9 +42,17 @@ describe('AppNav', () => {
     expect(screen.getByRole('link', { name: 'Fridgeboard' })).toHaveAttribute('href', '/');
   });
 
-  it('offers the settings menu', async () => {
+  it('has Settings as a destination of its own, not a menu', async () => {
     await renderAt('/');
-    expect(screen.getByRole('button', { name: 'Settings' })).toBeInTheDocument();
+
+    expect(screen.getByRole('link', { name: 'Settings' })).toHaveAttribute('href', '/settings');
+    expect(screen.queryByRole('button', { name: 'Settings' })).not.toBeInTheDocument();
+  });
+
+  it('marks Settings as active on the settings page', async () => {
+    await renderAt('/settings');
+
+    expect(screen.getByRole('link', { name: 'Settings' })).toHaveAttribute('aria-current', 'page');
   });
 
   it('marks only the current page as active', async () => {

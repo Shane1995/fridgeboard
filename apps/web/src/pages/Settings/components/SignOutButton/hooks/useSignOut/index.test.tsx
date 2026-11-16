@@ -1,10 +1,9 @@
 import { useNavigate } from '@tanstack/react-router';
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { SessionStatus } from '../../../../services/session/constants';
-import { createProvidersWrapper } from '../../../../testUtils/createProvidersWrapper';
-import { createSession } from '../../../../testUtils/createSession';
-import { SettingsMenuAction } from '../../constants';
-import { useSettingsMenu } from './index';
+import { SessionStatus } from '../../../../../../services/session/constants';
+import { createProvidersWrapper } from '../../../../../../testUtils/createProvidersWrapper';
+import { createSession } from '../../../../../../testUtils/createSession';
+import { useSignOut } from '.';
 
 vi.mock('@tanstack/react-router', () => ({ useNavigate: vi.fn() }));
 
@@ -12,28 +11,20 @@ const setup = () => {
   const navigate = vi.fn();
   vi.mocked(useNavigate).mockReturnValue(navigate);
   const { session, signOut } = createSession(SessionStatus.SignedIn);
-  const { result } = renderHook(() => useSettingsMenu(), {
+  const { result } = renderHook(() => useSignOut(), {
     wrapper: createProvidersWrapper(session),
   });
   return { result, navigate, signOut };
 };
 
-describe('useSettingsMenu', () => {
+describe('useSignOut', () => {
   beforeEach(() => vi.resetAllMocks());
-
-  it('opens the profile page', () => {
-    const { result, navigate } = setup();
-
-    act(() => result.current.handleAction(SettingsMenuAction.Profile));
-
-    expect(navigate).toHaveBeenCalledWith({ to: '/profile' });
-  });
 
   it('signs out and then goes to the sign-in page', async () => {
     const { result, navigate, signOut } = setup();
     signOut.mockResolvedValue(undefined);
 
-    await act(async () => result.current.handleAction(SettingsMenuAction.SignOut));
+    await act(async () => result.current.signOut());
 
     expect(signOut).toHaveBeenCalled();
     await waitFor(() =>
@@ -45,7 +36,7 @@ describe('useSettingsMenu', () => {
     const { result, navigate, signOut } = setup();
     signOut.mockRejectedValue(new Error('network'));
 
-    await act(async () => result.current.handleAction(SettingsMenuAction.SignOut));
+    await act(async () => result.current.signOut());
 
     await waitFor(() => expect(navigate).toHaveBeenCalled());
   });

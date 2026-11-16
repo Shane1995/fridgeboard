@@ -1,5 +1,5 @@
-export const PROFILE_COPY = {
-  title: 'Profile',
+export const SETTINGS_COPY = {
+  title: 'Settings',
   households: 'Households',
   noHouseholds: 'You are not in a household yet.',
   loadFailed: 'Could not load your households.',
