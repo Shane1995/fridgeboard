@@ -6,10 +6,11 @@ import { TypographyVariant } from '../../components/Typography/constants';
 import { FeatureFlagsSection } from './components/FeatureFlagsSection';
 import { InviteForm } from './components/InviteForm';
 import { RefreshAppButton } from './components/RefreshAppButton';
-import { PROFILE_COPY } from './constants';
-import { useProfile } from './hooks/useProfile';
+import { SignOutButton } from './components/SignOutButton';
+import { SETTINGS_COPY } from './constants';
+import { useSettings } from './hooks/useSettings';
 
-export const Profile = () => {
+export const Settings = () => {
   const {
     me,
     households,
@@ -18,10 +19,10 @@ export const Profile = () => {
     showMembers,
     members,
     hasMembersError,
-  } = useProfile();
+  } = useSettings();
 
   return (
-    <PageShell title={PROFILE_COPY.title}>
+    <PageShell title={SETTINGS_COPY.title}>
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-1">
           {me && (
@@ -35,13 +36,13 @@ export const Profile = () => {
             </>
           )}
         </div>
-        <section aria-label={PROFILE_COPY.households} className="flex flex-col gap-3">
+        <section aria-label={SETTINGS_COPY.households} className="flex flex-col gap-3">
           <Typography variant={TypographyVariant.Heading3} as="h2">
-            {PROFILE_COPY.households}
+            {SETTINGS_COPY.households}
           </Typography>
-          {hasHouseholdsError && <Typography>{PROFILE_COPY.loadFailed}</Typography>}
+          {hasHouseholdsError && <Typography>{SETTINGS_COPY.loadFailed}</Typography>}
           {!isLoadingHouseholds && !hasHouseholdsError && households.length === 0 && (
-            <Typography>{PROFILE_COPY.noHouseholds}</Typography>
+            <Typography>{SETTINGS_COPY.noHouseholds}</Typography>
           )}
           <ul className="flex flex-col gap-2">
             {households.map(({ id, name, role }) => (
@@ -52,33 +53,33 @@ export const Profile = () => {
                 <Typography variant={TypographyVariant.Strong} as="span">
                   {name}
                 </Typography>
-                <Chip size="sm">{PROFILE_COPY.roles[role]}</Chip>
+                <Chip size="sm">{SETTINGS_COPY.roles[role]}</Chip>
               </li>
             ))}
           </ul>
         </section>
         {showMembers && (
-          <section aria-label={PROFILE_COPY.members} className="flex flex-col gap-3">
+          <section aria-label={SETTINGS_COPY.members} className="flex flex-col gap-3">
             <Typography variant={TypographyVariant.Heading3} as="h2">
-              {PROFILE_COPY.members}
+              {SETTINGS_COPY.members}
             </Typography>
-            {hasMembersError && <Typography>{PROFILE_COPY.membersLoadFailed}</Typography>}
-            <ul aria-label={PROFILE_COPY.members} className="flex flex-col gap-2">
+            {hasMembersError && <Typography>{SETTINGS_COPY.membersLoadFailed}</Typography>}
+            <ul aria-label={SETTINGS_COPY.members} className="flex flex-col gap-2">
               {members.map(({ id, username, role }) => (
                 <li
                   key={id}
                   className="flex items-center justify-between rounded-2xl bg-white/70 px-4 py-3 shadow-sm"
                 >
                   <Typography variant={TypographyVariant.Strong} as="span">
-                    {username ?? PROFILE_COPY.unnamedMember}
+                    {username ?? SETTINGS_COPY.unnamedMember}
                     {id === me?.sub && (
                       <Typography variant={TypographyVariant.Caption} as="span">
                         {' '}
-                        {PROFILE_COPY.you}
+                        {SETTINGS_COPY.you}
                       </Typography>
                     )}
                   </Typography>
-                  <Chip size="sm">{PROFILE_COPY.roles[role]}</Chip>
+                  <Chip size="sm">{SETTINGS_COPY.roles[role]}</Chip>
                 </li>
               ))}
             </ul>
@@ -87,6 +88,7 @@ export const Profile = () => {
         )}
         <FeatureFlagsSection />
         <RefreshAppButton />
+        <SignOutButton />
         <BuildInfo />
       </div>
     </PageShell>

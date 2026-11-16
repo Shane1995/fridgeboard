@@ -3,9 +3,9 @@ import { useHouseholdsQuery } from '../../../../hooks/useHouseholdsQuery';
 import { useMeQuery } from '../../../../hooks/useMeQuery';
 import { useMembersQuery } from '../../../../hooks/useMembersQuery';
 import { WebFeatureFlag } from '../../../../services/configuration/schema/constants';
-import type { ProfileState } from './types';
+import type { SettingsState } from './types';
 
-export const useProfile = (): ProfileState => {
+export const useSettings = (): SettingsState => {
   const { data: me } = useMeQuery();
   const households = useHouseholdsQuery();
   const showMembers = useFeatureFlag(WebFeatureFlag.ENABLE_HOUSEHOLD_INVITES);
