@@ -39,6 +39,7 @@ export const Calendar = () => {
             today={calendar.today}
             eventsByDay={calendar.eventsByDay}
             onSelectDay={(date) => calendar.selectDay({ date })}
+            onAddDay={(date) => calendar.openCreate({ date })}
           />
           <DayAgenda
             date={calendar.anchor}
