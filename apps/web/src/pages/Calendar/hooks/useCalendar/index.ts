@@ -15,6 +15,7 @@ import { useCalendarEvents } from '../useCalendarEvents';
 import type {
   EditEventOptions,
   OpenCreateOptions,
+  RemoveEditingOptions,
   SaveDraftOptions,
   SelectDayOptions,
 } from './types';
@@ -60,12 +61,14 @@ export const useCalendar = () => {
     dialog.open();
   };
 
-  const saveDraft = ({ draft }: SaveDraftOptions) =>
-    editing === undefined ? createEvent({ draft }) : updateEvent({ id: editing.id, draft });
+  const saveDraft = ({ draft, scope }: SaveDraftOptions) =>
+    editing === undefined
+      ? createEvent({ draft })
+      : updateEvent({ id: editing.id, draft, ...(scope === undefined ? {} : { scope }) });
 
-  const removeEditing = () => {
+  const removeEditing = ({ scope }: RemoveEditingOptions = {}) => {
     if (editing !== undefined) {
-      deleteEvent({ id: editing.id });
+      deleteEvent({ id: editing.id, ...(scope === undefined ? {} : { scope }) });
     }
   };
 

@@ -1,7 +1,8 @@
 import { act, waitFor } from '@testing-library/react';
 import { WebFeatureFlag } from '../../../../services/configuration/schema/constants';
 import { renderHookWithHousehold } from '../../../../testUtils/createShoppingListWrapper';
-import { resetFakeEvents } from '../../../../testUtils/fakeEventsApi';
+import { resetFakeEvents, seedFakeEvents } from '../../../../testUtils/fakeEventsApi';
+import type { CalendarEvent } from '../../types';
 import { CalendarView } from '../../constants';
 import { useCalendar } from '.';
 
@@ -67,5 +68,54 @@ describe('useCalendar with the events API on', () => {
 
     expect(result.current.anchor.slice(0, 7)).toBe('2026-11');
     expect(eventRequests(apiFetch)).toHaveLength(2);
+  });
+
+  it('passes the chosen scope on when a day of a series is saved or deleted', async () => {
+    seedFakeEvents([
+      {
+        id: 'rule-1_2026-11-12',
+        ruleId: 'rule-1',
+        title: 'Recycling',
+        note: '',
+        ownerId: 'household',
+        eventType: 'event',
+        allDay: true,
+        startDate: '2026-11-12',
+        endDate: '2026-11-12',
+      },
+    ]);
+    const { result, apiFetch } = await mounted();
+    await waitFor(() => expect(Object.keys(result.current.eventsByDay).length).toBeGreaterThan(0));
+    const series = result.current.eventsByDay['2026-11-12']?.[0];
+    act(() => result.current.openEdit({ event: series as CalendarEvent }));
+
+    act(() =>
+      result.current.saveDraft({
+        scope: 'all',
+        draft: {
+          title: 'Paper',
+          allDay: true,
+          date: '2026-11-12',
+          startTime: '09:00',
+          endTime: '10:00',
+          ownerId: 'household',
+          note: '',
+        },
+      }),
+    );
+    act(() => result.current.removeEditing({ scope: 'all' }));
+
+    await waitFor(() => {
+      const writes = apiFetch.mock.calls
+        .map(([endpoint, init]) => [
+          (endpoint as { path: string }).path,
+          (init as RequestInit | undefined)?.method,
+        ])
+        .filter(([path, method]) => String(path).includes('/event-rules/') && method !== undefined);
+      expect(writes).toEqual([
+        ['/api/v1/households/hh-1/event-rules/rule-1', 'PATCH'],
+        ['/api/v1/households/hh-1/event-rules/rule-1', 'DELETE'],
+      ]);
+    });
   });
 });

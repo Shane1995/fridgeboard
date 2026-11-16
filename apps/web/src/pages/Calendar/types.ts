@@ -18,6 +18,15 @@ export type CalendarEvent = TimedEvent | AllDayEvent;
 
 export type CalendarMember = { id: string; name: string; color: ShopColor };
 
+export type RepeatFrequency = 'daily' | 'weekly' | 'monthly';
+
+export type RepeatDraft = {
+  frequency: RepeatFrequency;
+  interval: number;
+  weekdays: number[];
+  until?: string;
+};
+
 export type EventDraft = {
   title: string;
   allDay: boolean;
@@ -25,6 +34,7 @@ export type EventDraft = {
   endDate?: string;
   color?: ShopColor;
   reminder?: number;
+  repeat?: RepeatDraft;
   startTime: string;
   endTime: string;
   ownerId: string;

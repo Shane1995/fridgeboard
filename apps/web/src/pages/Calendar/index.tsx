@@ -67,8 +67,10 @@ export const Calendar = () => {
         state={calendar.dialog}
         event={calendar.editing}
         date={calendar.anchor}
-        onSave={(draft) => calendar.saveDraft({ draft })}
-        onDelete={calendar.removeEditing}
+        onSave={(draft, scope) =>
+          calendar.saveDraft({ draft, ...(scope === undefined ? {} : { scope }) })
+        }
+        onDelete={(scope) => calendar.removeEditing(scope === undefined ? {} : { scope })}
       />
     </PageShell>
   );

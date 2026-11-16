@@ -90,6 +90,11 @@ export enum MutationName {
   createEvent = 'createEvent',
   updateEvent = 'updateEvent',
   deleteEvent = 'deleteEvent',
+  createEventRule = 'createEventRule',
+  updateEventRule = 'updateEventRule',
+  deleteEventRule = 'deleteEventRule',
+  skipOccurrence = 'skipOccurrence',
+  overrideOccurrence = 'overrideOccurrence',
   signInWithPasskey = 'signInWithPasskey',
   registerPasskey = 'registerPasskey',
 }
