@@ -1,7 +1,14 @@
 import { Button, Input, Label, TextField, useOverlayState } from '@heroui/react';
+import { ColorPicker } from '../../../../../../components/ColorPicker';
 import { ConfirmDialog } from '../../../../../../components/ConfirmDialog';
 import { useAutoFocus } from '../../../../../../hooks/useAutoFocus';
-import { EVENT_NOTE_MAX_LENGTH, EVENT_TITLE_MAX_LENGTH } from '../../../../constants';
+import { ShopSwatch } from '../../../../../../components/ShopSwatch';
+import {
+  EVENT_NOTE_MAX_LENGTH,
+  EVENT_TITLE_MAX_LENGTH,
+  NO_REMINDER,
+  REMINDER_OPTIONS,
+} from '../../../../constants';
 import { useOwners } from '../../../../hooks/useOwners';
 import { EVENT_FORM_COPY, FIELD_CLASS } from './constants';
 import { useEventForm } from './hooks/useEventForm';
@@ -31,9 +38,10 @@ export const EventForm = ({ event, date, onSave, onDelete, onDone }: EventFormPr
         <Label>{EVENT_FORM_COPY.titleLabel}</Label>
         <Input ref={titleRef} />
       </TextField>
-      <label className="flex items-center gap-2">
+      <label className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-full border border-separator px-4 py-2 text-sm font-medium has-[:checked]:border-accent has-[:checked]:bg-accent/10 has-[:checked]:text-accent has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-focus">
         <input
           type="checkbox"
+          className="sr-only"
           checked={draft.allDay}
           onChange={(changeEvent) =>
             setField({ field: 'allDay', value: changeEvent.target.checked })
@@ -94,18 +102,56 @@ export const EventForm = ({ event, date, onSave, onDelete, onDone }: EventFormPr
           </label>
         </div>
       )}
-      <label className="flex min-w-0 flex-col gap-1 text-sm font-medium">
-        {EVENT_FORM_COPY.ownerLabel}
-        <select
-          className={FIELD_CLASS}
-          value={draft.ownerId}
-          onChange={(changeEvent) =>
-            setField({ field: 'ownerId', value: changeEvent.target.value })
-          }
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-medium">{EVENT_FORM_COPY.ownerLabel}</span>
+        <div
+          role="radiogroup"
+          aria-label={EVENT_FORM_COPY.ownerLabel}
+          className="flex flex-wrap gap-2"
         >
           {owners.map((member) => (
-            <option key={member.id} value={member.id}>
+            <label
+              key={member.id}
+              className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-separator px-3 py-2 text-sm font-medium has-[:checked]:border-foreground has-[:checked]:bg-default has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-focus"
+            >
+              <input
+                type="radio"
+                name="owner"
+                className="sr-only"
+                value={member.id}
+                checked={draft.ownerId === member.id}
+                onChange={() => setField({ field: 'ownerId', value: member.id })}
+              />
+              <ShopSwatch color={member.color} size="sm" />
               {member.name}
+            </label>
+          ))}
+        </div>
+      </div>
+      <ColorPicker
+        label={EVENT_FORM_COPY.colorLabel}
+        noneLabel={EVENT_FORM_COPY.defaultColor}
+        value={draft.color}
+        onChange={(color) => setField({ field: 'color', value: color })}
+      />
+      <label className="flex min-w-0 flex-col gap-1 text-sm font-medium">
+        {EVENT_FORM_COPY.reminderLabel}
+        <select
+          className={FIELD_CLASS}
+          value={draft.reminder === undefined ? NO_REMINDER : String(draft.reminder)}
+          onChange={(changeEvent) =>
+            setField({
+              field: 'reminder',
+              value:
+                changeEvent.target.value === NO_REMINDER
+                  ? undefined
+                  : Number(changeEvent.target.value),
+            })
+          }
+        >
+          {REMINDER_OPTIONS.map(({ value, label }) => (
+            <option key={value} value={value}>
+              {label}
             </option>
           ))}
         </select>

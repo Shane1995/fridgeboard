@@ -9,6 +9,8 @@ export const buildEvent = ({ draft, id }: BuildEventOptions): CalendarEvent => {
     title: draft.title.trim(),
     ownerId: draft.ownerId,
     note: draft.note.trim(),
+    ...(draft.color === undefined ? {} : { color: draft.color }),
+    ...(draft.reminder === undefined ? {} : { reminder: draft.reminder }),
   };
   if (draft.allDay) {
     return { ...base, allDay: true, startDate: draft.date, endDate: lastDay({ draft }) };

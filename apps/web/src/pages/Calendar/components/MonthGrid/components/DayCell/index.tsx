@@ -4,7 +4,7 @@ import {
 } from '../../../../../../components/ShopSwatch/constants';
 import { CALENDAR_COPY, MAX_CHIPS_PER_DAY } from '../../../../constants';
 import { useOwners } from '../../../../hooks/useOwners';
-import { findOwner } from '../../../../utils/findOwner';
+import { eventColor } from '../../../../utils/eventColor';
 import { formatDayHeading } from '../../../../utils/formatDayHeading';
 import type { DayCellProps } from './types';
 
@@ -34,7 +34,7 @@ export const DayCell = ({
         {Number(date.slice(8))}
       </span>
       {events.slice(0, MAX_CHIPS_PER_DAY).map((event) => {
-        const { color } = findOwner({ ownerId: event.ownerId, owners });
+        const color = eventColor({ event, owners });
         return (
           <span
             key={event.id}
