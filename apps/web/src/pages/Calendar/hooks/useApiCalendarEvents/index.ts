@@ -5,7 +5,10 @@ import { eventDateRange } from '../../utils/eventDateRange';
 import { eventToDraft } from '../../utils/eventToDraft';
 import { toCalendarEvent } from '../../utils/toCalendarEvent';
 import { toEventBody } from '../../utils/toEventBody';
+import { toRuleBody } from '../../utils/toRuleBody';
+import { toRulePatch } from '../../utils/toRulePatch';
 import { useEventMutations } from '../useEventMutations';
+import { useEventRuleMutations } from '../useEventRuleMutations';
 import type { CalendarEventsState } from '../useLocalCalendarEvents/types';
 import type {
   DeleteEventOptions,
@@ -28,13 +31,16 @@ export const useApiCalendarEvents = ({
     [data],
   );
   const { createEvent, updateEvent, deleteEvent } = useEventMutations();
+  const rules = useEventRuleMutations();
   const find = (id: string) => events.find((event) => event.id === id);
 
   return {
     events,
     createEvent: ({ draft }: SaveEventOptions) =>
-      createEvent.mutate({ body: toEventBody({ draft }) }),
-    updateEvent: ({ id, draft }: UpdateEventOptions) => {
+      draft.repeat === undefined
+        ? createEvent.mutate({ body: toEventBody({ draft }) })
+        : rules.createRule.mutate({ title: draft.title.trim(), body: toRuleBody({ draft }) }),
+    updateEvent: ({ id, draft, scope = 'one' }: UpdateEventOptions) => {
       const current = find(id);
       if (current === undefined) {
         return;
@@ -46,16 +52,29 @@ export const useApiCalendarEvents = ({
       ) {
         return;
       }
-      updateEvent.mutate({ id, date: eventDateRange({ event: current }).startDate, body });
+      const date = eventDateRange({ event: current }).startDate;
+      const title = draft.title.trim();
+      if (current.ruleId === undefined) {
+        updateEvent.mutate({ id, date, body });
+      } else if (scope === 'all') {
+        rules.updateRule.mutate({ ruleId: current.ruleId, title, body: toRulePatch({ draft }) });
+      } else {
+        rules.overrideOccurrence.mutate({ ruleId: current.ruleId, date, title, body });
+      }
     },
-    deleteEvent: ({ id }: DeleteEventOptions) => {
+    deleteEvent: ({ id, scope = 'one' }: DeleteEventOptions) => {
       const current = find(id);
-      if (current !== undefined) {
-        deleteEvent.mutate({
-          id,
-          date: eventDateRange({ event: current }).startDate,
-          title: current.title,
-        });
+      if (current === undefined) {
+        return;
+      }
+      const date = eventDateRange({ event: current }).startDate;
+      const { title } = current;
+      if (current.ruleId === undefined) {
+        deleteEvent.mutate({ id, date, title });
+      } else if (scope === 'all') {
+        rules.deleteRule.mutate({ ruleId: current.ruleId, title });
+      } else {
+        rules.skipOccurrence.mutate({ ruleId: current.ruleId, date, title });
       }
     },
   };

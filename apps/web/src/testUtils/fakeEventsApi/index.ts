@@ -83,7 +83,14 @@ export const fakeEventsApi = async ({ path }: Endpoint, init: RequestInit = {}) 
   const query = new URLSearchParams(search);
   const method = init.method ?? 'GET';
   if (route === `${BASE}/event-rules`) {
-    return json(200, { rules: [] });
+    return method === 'GET' ? json(200, { rules: [] }) : json(201, { id: 'rule-1', skip: [] });
+  }
+  if (route.startsWith(`${BASE}/event-rules/`)) {
+    const isOccurrence = route.includes('/occurrences/');
+    if (isOccurrence) {
+      return method === 'POST' ? json(201, { id: 'event-from-rule' }) : json(204);
+    }
+    return method === 'PATCH' ? json(200, { id: 'rule-1', skip: [] }) : json(204);
   }
   if (route === `${BASE}/events`) {
     return method === 'GET' ? listEvents(query) : createEvent(init);

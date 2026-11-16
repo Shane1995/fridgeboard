@@ -61,6 +61,7 @@ export const CALENDAR_COPY = {
   eventAdded: (title: string) => `${title} added`,
   eventUpdated: (title: string) => `${title} updated`,
   eventDeleted: (title: string) => `${title} deleted`,
+  occurrenceSkipped: (title: string) => `${title} removed from that day`,
   eventAddFailed: (title: string) => `Could not add ${title}`,
   eventUpdateFailed: (title: string) => `Could not update ${title}`,
   eventDeleteFailed: (title: string) => `Could not delete ${title}`,
