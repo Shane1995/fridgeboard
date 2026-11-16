@@ -143,6 +143,7 @@ describe('createLiveSync', () => {
     expect(onChanges).toHaveBeenCalledWith([
       { type: 'item', id: undefined },
       { type: 'shop', id: undefined },
+      { type: 'event', id: undefined },
     ]);
   });
 
