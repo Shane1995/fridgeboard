@@ -47,4 +47,19 @@ describe('useCalendarEvents', () => {
     );
     expect(eventRequests(apiFetch)).toHaveLength(1);
   });
+
+  it('is never loading while the API flag is off', async () => {
+    const { result } = await renderHookWithHousehold(() => useCalendarEvents(WINDOW));
+
+    expect(result.current.isLoading).toBe(false);
+  });
+
+  it('is loading until the server has answered while the API flag is on', async () => {
+    const { result } = await renderHookWithHousehold(() => useCalendarEvents(WINDOW), {
+      flags: { [WebFeatureFlag.ENABLE_CALENDAR_API]: true },
+    });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.events).toHaveLength(1);
+  });
 });

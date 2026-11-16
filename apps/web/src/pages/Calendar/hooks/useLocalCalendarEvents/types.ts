@@ -11,6 +11,7 @@ export type DeleteEventOptions = { id: string; scope?: RepeatScope };
 
 export type CalendarEventsState = {
   events: CalendarEvent[];
+  isLoading: boolean;
   createEvent: (options: SaveEventOptions) => void;
   updateEvent: (options: UpdateEventOptions) => void;
   deleteEvent: (options: DeleteEventOptions) => void;

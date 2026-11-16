@@ -32,7 +32,7 @@ export const useCalendar = () => {
   // month never needs another request.
   const cells = buildMonthGrid({ date: anchor, weekStartsOn: WEEK_STARTS_ON });
   const gridDates = cells.flat();
-  const { events, createEvent, updateEvent, deleteEvent } = useCalendarEvents({
+  const { events, isLoading, createEvent, updateEvent, deleteEvent } = useCalendarEvents({
     from: gridDates[0]?.date ?? anchor,
     to: gridDates.at(-1)?.date ?? anchor,
   });
@@ -74,6 +74,7 @@ export const useCalendar = () => {
 
   return {
     enabled,
+    isLoading,
     view,
     setView,
     anchor,
