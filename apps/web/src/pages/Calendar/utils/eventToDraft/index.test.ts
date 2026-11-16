@@ -1,3 +1,4 @@
+import { ShopColor } from '../../../../services/shoppingList/constants';
 import { eventToDraft } from '.';
 
 const base = { id: 'e1', title: 'Dentist', ownerId: 'shane', note: 'card' };
@@ -51,5 +52,29 @@ describe('eventToDraft', () => {
     });
 
     expect(draft).not.toHaveProperty('endDate');
+  });
+
+  it('carries the colour and reminder of an event', () => {
+    const draft = eventToDraft({
+      event: {
+        ...base,
+        allDay: true,
+        startDate: '2026-11-03',
+        endDate: '2026-11-03',
+        color: ShopColor.Mint,
+        reminder: 60,
+      },
+    });
+
+    expect(draft).toMatchObject({ color: ShopColor.Mint, reminder: 60 });
+  });
+
+  it('leaves colour and reminder out when the event has none', () => {
+    const draft = eventToDraft({
+      event: { ...base, allDay: true, startDate: '2026-11-03', endDate: '2026-11-03' },
+    });
+
+    expect(draft).not.toHaveProperty('color');
+    expect(draft).not.toHaveProperty('reminder');
   });
 });

@@ -26,9 +26,12 @@ export const useEventForm = ({ event, date, onSave, onDelete, onDone }: UseEvent
       : eventToDraft({ event }),
   );
 
+  // An undefined value takes the field off the draft, so "no colour" and "no reminder" are absent
+  // rather than present-but-empty.
   const setField = <Field extends keyof EventDraft>({ field, value }: SetFieldOptions<Field>) =>
     setDraft((current) => {
-      const next = { ...current, [field]: value };
+      const { [field]: _removed, ...rest } = current;
+      const next = (value === undefined ? rest : { ...rest, [field]: value }) as EventDraft;
       return field === 'date' && next.endDate !== undefined && next.endDate < next.date
         ? { ...next, endDate: next.date }
         : next;

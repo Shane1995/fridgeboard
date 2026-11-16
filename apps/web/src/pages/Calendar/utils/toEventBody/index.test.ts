@@ -1,3 +1,4 @@
+import { ShopColor } from '../../../../services/shoppingList/constants';
 import { toEventBody } from '.';
 
 const draft = {
@@ -16,6 +17,8 @@ describe('toEventBody', () => {
       title: 'Dentist',
       note: 'bring card',
       ownerId: 'sub-1',
+      color: null,
+      reminder: null,
       allDay: false,
       startsAt: '2026-11-03T09:00:00.000Z',
       endsAt: '2026-11-03T10:00:00.000Z',
@@ -45,6 +48,8 @@ describe('toEventBody', () => {
       title: 'Dentist',
       note: 'bring card',
       ownerId: 'sub-1',
+      color: null,
+      reminder: null,
       allDay: true,
       startDate: '2026-11-03',
       endDate: '2026-11-03',
@@ -61,5 +66,22 @@ describe('toEventBody', () => {
     expect(toEventBody({ draft: { ...draft, allDay: true, endDate: '2026-11-01' } })).toMatchObject(
       { startDate: '2026-11-03', endDate: '2026-11-03' },
     );
+  });
+
+  it('carries the colour and reminder the draft chose', () => {
+    expect(toEventBody({ draft: { ...draft, color: ShopColor.Mint, reminder: 30 } })).toMatchObject(
+      {
+        color: 'mint',
+        reminder: 30,
+      },
+    );
+  });
+
+  it('sends null to clear a colour or reminder that was taken off', () => {
+    expect(toEventBody({ draft })).toMatchObject({ color: null, reminder: null });
+  });
+
+  it('keeps a reminder of zero minutes', () => {
+    expect(toEventBody({ draft: { ...draft, reminder: 0 } })).toMatchObject({ reminder: 0 });
   });
 });

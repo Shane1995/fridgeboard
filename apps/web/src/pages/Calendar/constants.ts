@@ -44,6 +44,19 @@ export const MEMBER_COLORS: readonly ShopColor[] = [
 ];
 export const UNNAMED_MEMBER = 'Member';
 
+export const NO_REMINDER = 'none';
+export const REMINDER_OPTIONS: readonly { value: string; label: string }[] = [
+  { value: NO_REMINDER, label: 'None' },
+  { value: '0', label: 'When it starts' },
+  { value: '5', label: '5 minutes before' },
+  { value: '15', label: '15 minutes before' },
+  { value: '30', label: '30 minutes before' },
+  { value: '60', label: '1 hour before' },
+  { value: '120', label: '2 hours before' },
+  { value: '1440', label: '1 day before' },
+  { value: '10080', label: '1 week before' },
+];
+
 export const CALENDAR_COPY = {
   eventAdded: (title: string) => `${title} added`,
   eventUpdated: (title: string) => `${title} updated`,

@@ -1,5 +1,6 @@
 import { ShopSwatch } from '../../../../components/ShopSwatch';
 import { useOwners } from '../../hooks/useOwners';
+import { eventColor } from '../../utils/eventColor';
 import { findOwner } from '../../utils/findOwner';
 import { formatEventTime } from '../../utils/formatEventTime';
 import type { EventRowProps } from './types';
@@ -14,7 +15,7 @@ export const EventRow = ({ event, onEdit }: EventRowProps) => {
       className="flex w-full cursor-pointer items-start gap-3 rounded-xl p-3 text-left outline-none hover:bg-default focus-visible:ring-2 focus-visible:ring-focus"
     >
       <span className="mt-1">
-        <ShopSwatch color={owner.color} size="md" name={owner.name} />
+        <ShopSwatch color={eventColor({ event, owners })} size="md" name={owner.name} />
       </span>
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="truncate font-semibold">{event.title}</span>
