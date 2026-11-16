@@ -4,7 +4,13 @@ import { toLondonParts } from '../toLondonParts';
 import type { EventToDraftOptions } from './types';
 
 export const eventToDraft = ({ event }: EventToDraftOptions): EventDraft => {
-  const common = { title: event.title, ownerId: event.ownerId, note: event.note };
+  const common = {
+    title: event.title,
+    ownerId: event.ownerId,
+    note: event.note,
+    ...(event.color === undefined ? {} : { color: event.color }),
+    ...(event.reminder === undefined ? {} : { reminder: event.reminder }),
+  };
   if (event.allDay) {
     return {
       ...common,

@@ -10,5 +10,5 @@ export type EventFormProps = {
 
 export type SetFieldOptions<Field extends keyof EventDraft> = {
   field: Field;
-  value: EventDraft[Field];
+  value: EventDraft[Field] | undefined;
 };
