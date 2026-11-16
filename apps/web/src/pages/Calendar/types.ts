@@ -14,6 +14,7 @@ export type EventDraft = {
   title: string;
   allDay: boolean;
   date: string;
+  endDate?: string;
   startTime: string;
   endTime: string;
   ownerId: string;
