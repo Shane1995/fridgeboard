@@ -2,7 +2,7 @@ import { useOverlayState } from '@heroui/react';
 import { useState } from 'react';
 import { useRecipeBook } from '../../../../hooks/useRecipeBook';
 import { ShopColor } from '../../../../services/shoppingList/constants';
-import { PLANNER_COPY, PLANNER_DAY_COLORS } from './constants';
+import { PLANNER_COPY, PLANNER_DAY_COLORS, SUGGESTION_COUNT } from './constants';
 import { PlannerSection } from './components/PlannerSection';
 import { AddToListDialog } from '../../../Recipes/components/AddToListDialog';
 import { WeekGlance } from './components/WeekGlance';
@@ -28,6 +28,9 @@ export const Planner = ({
   const [addRecipeId, setAddRecipeId] = useState<string | undefined>(undefined);
   const [selectedWeekday, setSelectedWeekday] = useState(todayWeekday);
   const recipesById = new Map(book.recipes.map((recipe) => [recipe.id, recipe]));
+  const suggestions = book.recipes
+    .filter((recipe) => recipe.isFavourite)
+    .slice(0, SUGGESTION_COUNT);
   const addRecipe = book.recipes.find((recipe) => recipe.id === addRecipeId);
 
   const openAddIngredients = ({ recipeId }: { recipeId: string }) => {
@@ -90,6 +93,8 @@ export const Planner = ({
             onAddLine={onAddLine}
             onUpdateLine={onUpdateLine}
             onRemoveLine={onRemoveLine}
+            suggestions={suggestions}
+            onAddRecipe={onAddRecipeLine}
             recipesById={recipesById}
             onAddIngredients={openAddIngredients}
             onPickRecipe={openPicker}

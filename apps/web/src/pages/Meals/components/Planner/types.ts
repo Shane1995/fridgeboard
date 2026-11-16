@@ -8,8 +8,6 @@ import type {
   UpdateLineOptions,
 } from '../../hooks/usePlanner/types';
 
-export type SectionStyle = { surface: string; border: string };
-
 export type PlannerProps = {
   days: readonly PlannerSection[];
   focusId: string | undefined;

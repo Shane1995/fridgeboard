@@ -211,6 +211,23 @@ describe('Meals planner', () => {
     ).toHaveAttribute('aria-pressed', 'true');
   });
 
+  it('offers favourite recipes as one-tap adds on an empty day', async () => {
+    await openPlanner();
+    const wednesday = screen.getByRole('region', { name: 'Wednesday' });
+    fireEvent.click(within(wednesday).getByRole('button', { name: 'Remove line Butternut soup' }));
+
+    fireEvent.click(
+      within(wednesday).getByRole('button', {
+        name: `${PLANNER_COPY.quickAdd} Spaghetti bolognese Wednesday`,
+      }),
+    );
+
+    expect(within(wednesday).getByDisplayValue('Spaghetti bolognese')).toBeInTheDocument();
+    expect(
+      within(wednesday).queryByRole('button', { name: /^Add Spaghetti bolognese/ }),
+    ).not.toBeInTheDocument();
+  });
+
   it('opens on today in the day strip and switches day on tap', async () => {
     await openPlanner();
     const todayName = formatWeekdayName({ weekday: new Date().getDay() });
