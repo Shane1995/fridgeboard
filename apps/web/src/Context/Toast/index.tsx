@@ -32,18 +32,34 @@ export const ToastProvider = ({ children }: PropsWithChildren) => {
       {children}
       <ToastRegion queue={queue}>
         {({ toast }) => (
-          <Toast toast={toast} variant={toast.content.variant}>
+          <Toast
+            toast={toast}
+            variant={toast.content.variant}
+            className="items-center rounded-2xl bg-foreground px-4 py-2.5 text-background shadow-lg"
+          >
             <Toast.Indicator variant={toast.content.variant} />
-            <Toast.Content>
-              <Toast.Title>{toast.content.title}</Toast.Title>
+            <Toast.Content
+              className={
+                toast.content.description
+                  ? 'flex-1'
+                  : 'flex-1 flex-row items-center justify-between gap-3'
+              }
+            >
+              <Toast.Title className="text-sm font-medium text-background">
+                {toast.content.title}
+              </Toast.Title>
               {toast.content.description && (
-                <Toast.Description>{toast.content.description}</Toast.Description>
+                <Toast.Description className="text-background/70">
+                  {toast.content.description}
+                </Toast.Description>
               )}
               {toast.content.actions && (
-                <div className="mt-2 flex flex-wrap gap-2">
+                <div className="flex shrink-0 items-center gap-1">
                   {toast.content.actions.map(({ label, onPress }) => (
                     <Toast.ActionButton
                       key={label}
+                      className="min-h-8 rounded-lg bg-white/15 px-3 text-sm font-semibold text-background hover:bg-white/25"
+
                       onPress={() => {
                         onPress();
                         queue.close(toast.key);
@@ -56,7 +72,7 @@ export const ToastProvider = ({ children }: PropsWithChildren) => {
               )}
             </Toast.Content>
             {(toast.content.variant !== 'success' || toast.content.actions !== undefined) && (
-              <Toast.CloseButton />
+              <Toast.CloseButton className="text-background/70 hover:text-background" />
             )}
           </Toast>
         )}
