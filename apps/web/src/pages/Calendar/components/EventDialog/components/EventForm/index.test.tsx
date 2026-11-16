@@ -160,3 +160,44 @@ describe('EventForm last day', () => {
     expect(lastDay()).toHaveValue('2026-11-05');
   });
 });
+
+describe('EventForm keyboard', () => {
+  const renderNew = () =>
+    render(
+      <TestProviders session={session}>
+        <EventForm
+          event={undefined}
+          date="2026-11-03"
+          onSave={vi.fn()}
+          onDelete={vi.fn()}
+          onDone={vi.fn()}
+        />
+      </TestProviders>,
+    );
+
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('does not focus the title on a touch device, so the keyboard stays closed', () => {
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      matches: false,
+      media: query,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
+    renderNew();
+
+    expect(screen.getByLabelText(EVENT_FORM_COPY.titleLabel)).not.toHaveFocus();
+  });
+
+  it('focuses the title when the device has a fine pointer', () => {
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      matches: true,
+      media: query,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
+    renderNew();
+
+    expect(screen.getByLabelText(EVENT_FORM_COPY.titleLabel)).toHaveFocus();
+  });
+});

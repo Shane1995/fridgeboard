@@ -1,4 +1,5 @@
 import { Button, Input, Label, TextField, useOverlayState } from '@heroui/react';
+import { useAutoFocus } from '../../../../hooks/useAutoFocus';
 import { SHOP_NAME_MAX_LENGTH, ShopColor } from '../../../../services/shoppingList/constants';
 import type { Shop } from '../../../../services/shoppingList/types';
 import { ConfirmDialog } from '../../../ConfirmDialog';
@@ -12,18 +13,13 @@ export const ShopForm = ({ shop, onDone }: ShopFormProps) => {
   const { name, setName, color, setColor, isSaving, isDeleting, handleSubmit, handleDelete } =
     useShopForm(shop, onDone);
   const confirmDelete = useOverlayState();
+  const nameRef = useAutoFocus<HTMLInputElement>();
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-      <TextField
-        isRequired
-        autoFocus
-        maxLength={SHOP_NAME_MAX_LENGTH}
-        value={name}
-        onChange={setName}
-      >
+      <TextField isRequired maxLength={SHOP_NAME_MAX_LENGTH} value={name} onChange={setName}>
         <Label>{SHOP_FORM_COPY.nameLabel}</Label>
-        <Input />
+        <Input ref={nameRef} />
       </TextField>
       <div className="flex flex-col gap-2">
         <span className="text-sm font-medium">{SHOP_FORM_COPY.colorLabel}</span>

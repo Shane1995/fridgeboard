@@ -1,5 +1,6 @@
 import { Button, Input, Label, TextField, useOverlayState } from '@heroui/react';
 import { ConfirmDialog } from '../../../../../../components/ConfirmDialog';
+import { useAutoFocus } from '../../../../../../hooks/useAutoFocus';
 import { EVENT_NOTE_MAX_LENGTH, EVENT_TITLE_MAX_LENGTH } from '../../../../constants';
 import { useOwners } from '../../../../hooks/useOwners';
 import { EVENT_FORM_COPY, FIELD_CLASS } from './constants';
@@ -8,6 +9,7 @@ import type { EventFormProps } from './types';
 
 export const EventForm = ({ event, date, onSave, onDelete, onDone }: EventFormProps) => {
   const owners = useOwners();
+  const titleRef = useAutoFocus<HTMLInputElement>();
   const { draft, setField, handleSubmit, handleDelete } = useEventForm({
     event,
     date,
@@ -22,13 +24,12 @@ export const EventForm = ({ event, date, onSave, onDelete, onDone }: EventFormPr
     <form onSubmit={handleSubmit} className="flex min-w-0 flex-col gap-4">
       <TextField
         isRequired
-        autoFocus
         maxLength={EVENT_TITLE_MAX_LENGTH}
         value={draft.title}
         onChange={(value) => setField({ field: 'title', value })}
       >
         <Label>{EVENT_FORM_COPY.titleLabel}</Label>
-        <Input />
+        <Input ref={titleRef} />
       </TextField>
       <label className="flex items-center gap-2">
         <input
