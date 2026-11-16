@@ -7,7 +7,9 @@ import { TestProviders } from '../../testUtils/TestProviders';
 import { TEST_WEB_CONFIGURATION } from '../../testUtils/webConfiguration';
 import { Calendar } from './index';
 import { CALENDAR_COPY } from './constants';
+import { PLANNER_COPY } from './components/Planner/constants';
 import { addDays } from './utils/addDays';
+import { formatWeekdayName } from './utils/formatWeekdayName';
 import { formatDayHeading } from './utils/formatDayHeading';
 import { getToday } from './utils/getToday';
 
@@ -101,7 +103,7 @@ describe('Calendar', () => {
     const tuesday = screen.getByRole('region', { name: 'Tuesday' });
     fireEvent.click(within(tuesday).getByRole('button', { name: 'Add line Tuesday' }));
     fireEvent.click(
-      within(tuesday).getAllByRole('button', { name: 'Link a recipe Tuesday' }).at(-1) ?? tuesday,
+      within(tuesday).getAllByRole('button', { name: 'Pick recipe Tuesday' }).at(-1) ?? tuesday,
     );
     const dialog = await screen.findByRole('dialog');
     fireEvent.click(within(dialog).getByRole('button', { name: 'Veggie chilli' }));
@@ -147,5 +149,95 @@ describe('Calendar', () => {
     });
     fireEvent.click(within(dialog).getByRole('button', { name: 'Add event' }));
     expect((await screen.findAllByText('Garden party')).length).toBeGreaterThan(0);
+  });
+});
+
+describe('Calendar planner', () => {
+  const openPlanner = async () => {
+    await renderCalendar(true);
+    fireEvent.click(screen.getByRole('button', { name: CALENDAR_COPY.planner }));
+  };
+
+  it('offers to add the ingredients of a recipe line to the list', async () => {
+    await openPlanner();
+    const monday = screen.getByRole('region', { name: 'Monday' });
+
+    fireEvent.click(
+      within(monday).getByRole('button', {
+        name: `${PLANNER_COPY.addIngredients} Spaghetti + mince`,
+      }),
+    );
+
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByText(/Add to Chop list/)).toBeInTheDocument();
+  });
+
+  it('does not offer ingredients on a line without a recipe', async () => {
+    await openPlanner();
+    const sunday = screen.getByRole('region', { name: 'Sunday' });
+    fireEvent.click(within(sunday).getByRole('button', { name: 'Add line Sunday' }));
+
+    expect(
+      within(sunday).queryByRole('button', { name: new RegExp(PLANNER_COPY.addIngredients) }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('starts the next line when Enter is pressed on a line with text', async () => {
+    await openPlanner();
+    const sunday = screen.getByRole('region', { name: 'Sunday' });
+    fireEvent.click(within(sunday).getByRole('button', { name: 'Add line Sunday' }));
+    const before = within(sunday).getAllByRole('textbox').length;
+    const input = within(sunday).getAllByRole('textbox').at(-1) ?? sunday;
+    fireEvent.change(input, { target: { value: 'Pancakes' } });
+
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    expect(within(sunday).getAllByRole('textbox')).toHaveLength(before + 1);
+    expect(within(sunday).getAllByRole('textbox').at(-1)).toHaveFocus();
+  });
+
+  it('does not add another line when Enter is pressed on an empty line', async () => {
+    await openPlanner();
+    const sunday = screen.getByRole('region', { name: 'Sunday' });
+    fireEvent.click(within(sunday).getByRole('button', { name: 'Add line Sunday' }));
+    const before = within(sunday).getAllByRole('textbox').length;
+
+    fireEvent.keyDown(within(sunday).getAllByRole('textbox').at(-1) ?? sunday, { key: 'Enter' });
+
+    expect(within(sunday).getAllByRole('textbox')).toHaveLength(before);
+  });
+
+  it('labels the recipe picker with words', async () => {
+    await openPlanner();
+    const sunday = screen.getByRole('region', { name: 'Sunday' });
+    fireEvent.click(within(sunday).getByRole('button', { name: 'Add line Sunday' }));
+
+    expect(
+      within(sunday)
+        .getAllByRole('button', { name: `${PLANNER_COPY.linkRecipe} Sunday` })
+        .at(-1),
+    ).toHaveTextContent(PLANNER_COPY.linkRecipe);
+  });
+
+  it('opens on today in the day strip and switches day on tap', async () => {
+    await openPlanner();
+    const todayName = formatWeekdayName({ weekday: new Date().getDay() });
+    const otherName = todayName === 'Tuesday' ? 'Wednesday' : 'Tuesday';
+    const strip = screen.getByRole('group', { name: PLANNER_COPY.dayStrip });
+
+    expect(
+      within(strip).getByRole('button', { name: `${PLANNER_COPY.showDay} ${todayName}` }),
+    ).toHaveAttribute('aria-pressed', 'true');
+
+    fireEvent.click(
+      within(strip).getByRole('button', { name: `${PLANNER_COPY.showDay} ${otherName}` }),
+    );
+
+    expect(
+      within(strip).getByRole('button', { name: `${PLANNER_COPY.showDay} ${otherName}` }),
+    ).toHaveAttribute('aria-pressed', 'true');
+    expect(
+      within(strip).getByRole('button', { name: `${PLANNER_COPY.showDay} ${todayName}` }),
+    ).toHaveAttribute('aria-pressed', 'false');
   });
 });

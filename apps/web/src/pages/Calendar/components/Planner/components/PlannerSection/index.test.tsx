@@ -16,7 +16,8 @@ const setUp = () => {
       onAddLine={vi.fn()}
       onUpdateLine={vi.fn()}
       onRemoveLine={vi.fn()}
-      knownRecipeIds={new Set()}
+      recipeIngredientCounts={new Map()}
+      onAddIngredients={vi.fn()}
       onPickRecipe={vi.fn()}
       onUnlinkRecipe={vi.fn()}
       onRename={vi.fn()}

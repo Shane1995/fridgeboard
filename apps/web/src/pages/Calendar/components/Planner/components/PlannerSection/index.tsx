@@ -21,11 +21,13 @@ export const PlannerSection = ({
   section,
   color,
   isToday,
+  isSelected = true,
   focusId,
   onAddLine,
   onUpdateLine,
   onRemoveLine,
-  knownRecipeIds,
+  recipeIngredientCounts,
+  onAddIngredients,
   onPickRecipe,
   onUnlinkRecipe,
   onRename,
@@ -36,7 +38,7 @@ export const PlannerSection = ({
   return (
     <section
       aria-label={section.title}
-      className={`flex flex-col overflow-hidden rounded-2xl border ${style.border} ${style.surface} ${isToday ? 'shadow-lg' : 'shadow-sm'}`}
+      className={`${isSelected ? 'flex' : 'hidden md:flex'} flex-col overflow-hidden rounded-2xl border ${style.border} ${style.surface} ${isToday ? 'shadow-lg' : 'shadow-sm'}`}
     >
       <div
         className={`flex items-center justify-between gap-2 px-3 py-2 ${SHOP_COLOR_CLASSES[color]} ${SHOP_TEXT_CLASSES[color]}`}
@@ -86,58 +88,78 @@ export const PlannerSection = ({
           <Typography variant={TypographyVariant.Caption}>{PLANNER_COPY.emptySection}</Typography>
         )}
         {section.lines.map((line) => (
-          <div key={line.id} className="flex items-center gap-2">
-            <input
-              aria-label={`${section.title} ${PLANNER_COPY.lineLabel}`}
-              placeholder={PLANNER_COPY.linePlaceholder}
-              maxLength={PLANNER_LINE_MAX_LENGTH}
-              autoFocus={line.id === focusId}
-              className={PLANNER_INPUT_CLASS}
-              value={line.text}
-              onChange={(event) =>
-                onUpdateLine({ sectionId: section.id, lineId: line.id, text: event.target.value })
-              }
-            />
-            {line.recipeId !== undefined && knownRecipeIds.has(line.recipeId) ? (
-              <>
-                <Link
-                  to="/recipes"
-                  search={{ recipe: line.recipeId }}
-                  aria-label={`${PLANNER_COPY.openRecipe} ${line.text}`}
-                  className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-accent outline-none focus-visible:ring-2 focus-visible:ring-focus"
-                >
-                  <BookOpen aria-hidden size={18} />
-                </Link>
+          <div key={line.id} className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <input
+                aria-label={`${section.title} ${PLANNER_COPY.lineLabel}`}
+                placeholder={PLANNER_COPY.linePlaceholder}
+                maxLength={PLANNER_LINE_MAX_LENGTH}
+                autoFocus={line.id === focusId}
+                className={PLANNER_INPUT_CLASS}
+                value={line.text}
+                onChange={(event) =>
+                  onUpdateLine({ sectionId: section.id, lineId: line.id, text: event.target.value })
+                }
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' && line.text.trim() !== '') {
+                    event.preventDefault();
+                    onAddLine({ sectionId: section.id });
+                  }
+                }}
+              />
+              {line.recipeId !== undefined && recipeIngredientCounts.has(line.recipeId) ? (
+                <>
+                  <Link
+                    to="/recipes"
+                    search={{ recipe: line.recipeId }}
+                    aria-label={`${PLANNER_COPY.openRecipe} ${line.text}`}
+                    className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-accent outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                  >
+                    <BookOpen aria-hidden size={18} />
+                  </Link>
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    variant="ghost"
+                    aria-label={`${PLANNER_COPY.unlinkRecipe} ${line.text}`}
+                    onPress={() => onUnlinkRecipe({ sectionId: section.id, lineId: line.id })}
+                  >
+                    <Link2Off aria-hidden size={16} />
+                  </Button>
+                </>
+              ) : (
                 <Button
-                  isIconOnly
                   size="sm"
                   variant="ghost"
-                  aria-label={`${PLANNER_COPY.unlinkRecipe} ${line.text}`}
-                  onPress={() => onUnlinkRecipe({ sectionId: section.id, lineId: line.id })}
+                  aria-label={`${PLANNER_COPY.linkRecipe} ${section.title}`}
+                  onPress={() => onPickRecipe({ sectionId: section.id, lineId: line.id })}
                 >
-                  <Link2Off aria-hidden size={16} />
+                  <Link2 aria-hidden size={16} />
+                  {PLANNER_COPY.linkRecipe}
                 </Button>
-              </>
-            ) : (
+              )}
               <Button
                 isIconOnly
                 size="sm"
                 variant="ghost"
-                aria-label={`${PLANNER_COPY.linkRecipe} ${section.title}`}
-                onPress={() => onPickRecipe({ sectionId: section.id, lineId: line.id })}
+                aria-label={`${PLANNER_COPY.removeLine} ${line.text}`}
+                onPress={() => onRemoveLine({ sectionId: section.id, lineId: line.id })}
               >
-                <Link2 aria-hidden size={16} />
+                <X aria-hidden size={16} />
+              </Button>
+            </div>
+            {line.recipeId !== undefined && recipeIngredientCounts.has(line.recipeId) && (
+              <Button
+                size="sm"
+                variant="secondary"
+                className="self-start"
+                aria-label={`${PLANNER_COPY.addIngredients} ${line.text}`}
+                onPress={() => onAddIngredients({ recipeId: line.recipeId ?? '' })}
+              >
+                <Plus aria-hidden size={16} />
+                {PLANNER_COPY.addIngredients} ({recipeIngredientCounts.get(line.recipeId)})
               </Button>
             )}
-            <Button
-              isIconOnly
-              size="sm"
-              variant="ghost"
-              aria-label={`${PLANNER_COPY.removeLine} ${line.text}`}
-              onPress={() => onRemoveLine({ sectionId: section.id, lineId: line.id })}
-            >
-              <X aria-hidden size={16} />
-            </Button>
           </div>
         ))}
         <Button

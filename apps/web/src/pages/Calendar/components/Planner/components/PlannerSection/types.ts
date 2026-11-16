@@ -13,11 +13,13 @@ export type PlannerSectionProps = {
   section: Section;
   color: ShopColor;
   isToday: boolean;
+  isSelected?: boolean;
   focusId: string | undefined;
   onAddLine: (options: AddLineOptions) => void;
   onUpdateLine: (options: UpdateLineOptions) => void;
   onRemoveLine: (options: RemoveLineOptions) => void;
-  knownRecipeIds: ReadonlySet<string>;
+  recipeIngredientCounts: ReadonlyMap<string, number>;
+  onAddIngredients: (options: { recipeId: string }) => void;
   onPickRecipe: (options: { sectionId: string; lineId: string }) => void;
   onUnlinkRecipe: (options: UnlinkRecipeOptions) => void;
   onRename?: (options: RenameNoteOptions) => void;
