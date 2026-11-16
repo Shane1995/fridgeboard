@@ -35,5 +35,5 @@ export const useLocalCalendarEvents = () => {
     }
   };
 
-  return { events, createEvent, updateEvent, deleteEvent };
+  return { events, isLoading: false, createEvent, updateEvent, deleteEvent };
 };

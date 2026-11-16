@@ -152,4 +152,26 @@ describe('useApiCalendarEvents', () => {
       endDate: '2026-11-12',
     });
   });
+
+  describe('loading', () => {
+    it('is loading until the first answer for the window arrives, then not', async () => {
+      const { result } = await renderHookWithHousehold(() => useApiCalendarEvents(WINDOW));
+
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
+      expect(result.current.events).toHaveLength(1);
+    });
+
+    it('is not loading while it is switched off', async () => {
+      const { result, apiFetch } = await renderHookWithHousehold(() =>
+        useApiCalendarEvents({ ...WINDOW, enabled: false }),
+      );
+
+      expect(result.current.isLoading).toBe(false);
+      expect(
+        apiFetch.mock.calls.some(([endpoint]) =>
+          (endpoint as { path: string }).path.includes('/events'),
+        ),
+      ).toBe(false);
+    });
+  });
 });

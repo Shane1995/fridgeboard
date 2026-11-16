@@ -6,6 +6,8 @@ import { createSession } from '../../testUtils/createSession';
 import { renderInRouter } from '../../testUtils/renderInRouter';
 import { TestProviders } from '../../testUtils/TestProviders';
 import { TEST_WEB_CONFIGURATION } from '../../testUtils/webConfiguration';
+import { answerHouseholds } from '../../testUtils/createShoppingListWrapper';
+import { CALENDAR_SKELETON_COPY } from './components/CalendarSkeleton/constants';
 import { Calendar } from './index';
 import { CALENDAR_COPY } from './constants';
 import { addDays } from './utils/addDays';
@@ -140,5 +142,68 @@ describe('Calendar', () => {
     });
     fireEvent.click(within(dialog).getByRole('button', { name: 'Add event' }));
     expect((await screen.findAllByText('Garden party')).length).toBeGreaterThan(0);
+  });
+});
+
+describe('Calendar while the events are on their way', () => {
+  const renderWithEvents = async (answerEvents: () => Promise<Response>) => {
+    const { session: apiSession, apiFetch } = createSession(SessionStatus.SignedIn);
+    answerHouseholds(apiFetch);
+    const answer = apiFetch.getMockImplementation();
+    apiFetch.mockImplementation((async (endpoint: { path: string }, init?: RequestInit) =>
+      endpoint.path.includes('/events')
+        ? answerEvents()
+        : answer?.(endpoint as never, init)) as never);
+    const config = {
+      ...TEST_WEB_CONFIGURATION,
+      featureFlags: {
+        ...TEST_WEB_CONFIGURATION.featureFlags,
+        [WebFeatureFlag.ENABLE_CALENDAR]: true,
+        [WebFeatureFlag.ENABLE_CALENDAR_API]: true,
+      },
+    };
+    await renderInRouter(
+      <TestProviders session={apiSession} config={config}>
+        <Calendar />
+      </TestProviders>,
+    );
+  };
+
+  it('shows a skeleton in place of the grid, with the toolbar still usable', async () => {
+    await renderWithEvents(() => new Promise<Response>(() => {}));
+
+    expect(
+      await screen.findByRole('status', { name: CALENDAR_SKELETON_COPY.label }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: CALENDAR_COPY.addEvent })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: CALENDAR_COPY.next })).toBeInTheDocument();
+    expect(screen.queryByRole('region')).not.toBeInTheDocument();
+  });
+
+  it('swaps the skeleton for the calendar once the events arrive', async () => {
+    await renderWithEvents(
+      async () => new Response(JSON.stringify({ events: [] }), { status: 200 }),
+    );
+
+    expect(await screen.findAllByRole('region')).toHaveLength(1);
+    expect(
+      screen.queryByRole('status', { name: CALENDAR_SKELETON_COPY.label }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows the week skeleton when the week view is chosen', async () => {
+    await renderWithEvents(() => new Promise<Response>(() => {}));
+
+    fireEvent.click(await screen.findByRole('button', { name: CALENDAR_COPY.week }));
+
+    expect(screen.getAllByTestId('skeleton-week-day')).toHaveLength(7);
+  });
+
+  it('never shows the skeleton for the local dummy calendar', async () => {
+    await renderCalendar(true);
+
+    expect(
+      screen.queryByRole('status', { name: CALENDAR_SKELETON_COPY.label }),
+    ).not.toBeInTheDocument();
   });
 });

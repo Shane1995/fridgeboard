@@ -1,6 +1,7 @@
 import { PageShell } from '../../components/PageShell';
 import { Typography } from '../../components/Typography';
 import { CALENDAR_COPY, CalendarView } from './constants';
+import { CalendarSkeleton } from './components/CalendarSkeleton';
 import { CalendarToolbar } from './components/CalendarToolbar';
 import { DayAgenda } from './components/DayAgenda';
 import { EventDialog } from './components/EventDialog';
@@ -31,7 +32,8 @@ export const Calendar = () => {
         onToday={calendar.goToday}
         onAdd={() => calendar.openCreate({ date: calendar.anchor })}
       />
-      {calendar.view === CalendarView.Month && (
+      {calendar.isLoading && <CalendarSkeleton view={calendar.view} rows={calendar.cells.length} />}
+      {!calendar.isLoading && calendar.view === CalendarView.Month && (
         <>
           <MonthGrid
             cells={calendar.cells}
@@ -48,7 +50,7 @@ export const Calendar = () => {
           />
         </>
       )}
-      {calendar.view === CalendarView.Week && (
+      {!calendar.isLoading && calendar.view === CalendarView.Week && (
         <WeekView
           dates={calendar.weekDates}
           today={calendar.today}

@@ -1,4 +1,5 @@
 import { useEventsQuery } from '../../../../hooks/useEventsQuery';
+import { useHouseholdsQuery } from '../../../../hooks/useHouseholdsQuery';
 import type { CalendarEvent } from '../../types';
 import { eventDateRange } from '../../utils/eventDateRange';
 import { eventToDraft } from '../../utils/eventToDraft';
@@ -20,13 +21,17 @@ export const useApiCalendarEvents = ({
   to,
   enabled = true,
 }: UseApiCalendarEventsOptions): CalendarEventsState => {
-  const { data } = useEventsQuery({ from, to, enabled });
+  const { data, isLoading: isFetchingEvents, isError } = useEventsQuery({ from, to, enabled });
+  const isWaitingForHousehold = useHouseholdsQuery().isPending;
   const events = data ?? NO_EVENTS;
   const { createEvent, updateEvent, deleteEvent } = useEventMutations();
   const find = (id: string) => events.find((event) => event.id === id);
 
   return {
     events,
+    // Also loading while the household is still being looked up, so the grid does not flash up empty
+    // first and turn into a skeleton once the request for the month starts.
+    isLoading: enabled && !isError && (isFetchingEvents || isWaitingForHousehold),
     createEvent: ({ draft }: SaveEventOptions) =>
       createEvent.mutate({ body: toEventBody({ draft }) }),
     updateEvent: ({ id, draft }: UpdateEventOptions) => {
