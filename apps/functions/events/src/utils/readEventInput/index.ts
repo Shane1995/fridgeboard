@@ -5,6 +5,7 @@ import type { IEvent } from '@fridgeboard/contract/events';
 import { ISO_UTC_INSTANT_PATTERN } from '../../constants.ts';
 import { readEventBasics } from '../readEventBasics/index.ts';
 import { toLondonDate } from '../toLondonDate/index.ts';
+import type { EventBasics } from '../readEventBasics/types.ts';
 import type { ReadEventInputOptions, ReadEventInputResult } from './types.ts';
 
 const carriedFields = (current: IEvent): Record<string, unknown> =>
@@ -18,6 +19,50 @@ const readInstant = (value: unknown): string | undefined => {
   }
   const time = Date.parse(value);
   return Number.isNaN(time) ? undefined : new Date(time).toISOString().replace('.000Z', 'Z');
+};
+
+type EventBase = EventBasics & { eventType: 'event' };
+
+const readAllDay = ({
+  merged,
+  base,
+}: {
+  merged: Record<string, unknown>;
+  base: EventBase;
+}): ReadEventInputResult => {
+  const { startDate, endDate } = merged;
+  if (!isCalendarDate(startDate) || !isCalendarDate(endDate) || endDate < startDate) {
+    return { reason: 'invalid-date' };
+  }
+  return daysBetween({ from: startDate, to: endDate }) > EVENT_MAX_SPAN_DAYS
+    ? { reason: 'invalid-range' }
+    : { event: { ...base, allDay: true, startDate, endDate } };
+};
+
+const readTimed = ({
+  merged,
+  base,
+}: {
+  merged: Record<string, unknown>;
+  base: EventBase;
+}): ReadEventInputResult => {
+  const startsAt = readInstant(merged.startsAt);
+  const endsAt = readInstant(merged.endsAt);
+  if (startsAt === undefined || endsAt === undefined) {
+    return { reason: 'invalid-time' };
+  }
+  const startDate = toLondonDate({ instant: startsAt });
+  const endDate = toLondonDate({ instant: endsAt });
+  if (
+    startDate === undefined ||
+    endDate === undefined ||
+    Date.parse(endsAt) < Date.parse(startsAt)
+  ) {
+    return { reason: 'invalid-time' };
+  }
+  return daysBetween({ from: startDate, to: endDate }) > EVENT_MAX_SPAN_DAYS
+    ? { reason: 'invalid-range' }
+    : { event: { ...base, allDay: false, startDate, endDate, startsAt, endsAt } };
 };
 
 export const readEventInput = ({
@@ -43,32 +88,5 @@ export const readEventInput = ({
     return { reason: read.reason };
   }
   const base = { ...read.basics, eventType: 'event' as const };
-
-  if (allDay) {
-    const { startDate, endDate } = merged;
-    if (!isCalendarDate(startDate) || !isCalendarDate(endDate) || endDate < startDate) {
-      return { reason: 'invalid-date' };
-    }
-    return daysBetween({ from: startDate, to: endDate }) > EVENT_MAX_SPAN_DAYS
-      ? { reason: 'invalid-range' }
-      : { event: { ...base, allDay: true, startDate, endDate } };
-  }
-
-  const startsAt = readInstant(merged.startsAt);
-  const endsAt = readInstant(merged.endsAt);
-  if (startsAt === undefined || endsAt === undefined) {
-    return { reason: 'invalid-time' };
-  }
-  const startDate = toLondonDate({ instant: startsAt });
-  const endDate = toLondonDate({ instant: endsAt });
-  if (
-    startDate === undefined ||
-    endDate === undefined ||
-    Date.parse(endsAt) < Date.parse(startsAt)
-  ) {
-    return { reason: 'invalid-time' };
-  }
-  return daysBetween({ from: startDate, to: endDate }) > EVENT_MAX_SPAN_DAYS
-    ? { reason: 'invalid-range' }
-    : { event: { ...base, allDay: false, startDate, endDate, startsAt, endsAt } };
+  return allDay ? readAllDay({ merged, base }) : readTimed({ merged, base });
 };
