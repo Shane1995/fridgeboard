@@ -34,4 +34,10 @@ describe('buildEvent', () => {
       endDate: '2026-11-03',
     });
   });
+
+  it('builds an all-day event across several days', () => {
+    expect(
+      buildEvent({ draft: { ...draft, allDay: true, endDate: '2026-11-05' }, id: 'e3' }),
+    ).toMatchObject({ allDay: true, startDate: '2026-11-03', endDate: '2026-11-05' });
+  });
 });

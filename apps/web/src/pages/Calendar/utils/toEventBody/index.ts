@@ -1,4 +1,5 @@
 import type { IEventInput } from '@fridgeboard/contract/events';
+import { lastDay } from '../lastDay';
 import { resolveEventTimes } from '../resolveEventTimes';
 import type { ToEventBodyOptions } from './types';
 
@@ -7,7 +8,7 @@ import type { ToEventBodyOptions } from './types';
 export const toEventBody = ({ draft }: ToEventBodyOptions): IEventInput => {
   const base = { title: draft.title.trim(), note: draft.note.trim(), ownerId: draft.ownerId };
   if (draft.allDay) {
-    return { ...base, allDay: true, startDate: draft.date, endDate: draft.date };
+    return { ...base, allDay: true, startDate: draft.date, endDate: lastDay({ draft }) };
   }
   return {
     ...base,

@@ -17,6 +17,7 @@ export const useEventForm = ({ event, date, onSave, onDelete, onDone }: UseEvent
           title: '',
           allDay: false,
           date,
+          endDate: date,
           startTime: DEFAULT_START_TIME,
           endTime: DEFAULT_END_TIME,
           ownerId: HOUSEHOLD_OWNER_ID,
@@ -26,7 +27,12 @@ export const useEventForm = ({ event, date, onSave, onDelete, onDone }: UseEvent
   );
 
   const setField = <Field extends keyof EventDraft>({ field, value }: SetFieldOptions<Field>) =>
-    setDraft((current) => ({ ...current, [field]: value }));
+    setDraft((current) => {
+      const next = { ...current, [field]: value };
+      return field === 'date' && next.endDate !== undefined && next.endDate < next.date
+        ? { ...next, endDate: next.date }
+        : next;
+    });
 
   const handleSubmit = (submitEvent: FormEvent) => {
     submitEvent.preventDefault();

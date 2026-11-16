@@ -1,4 +1,5 @@
 import type { CalendarEvent } from '../../types';
+import { lastDay } from '../lastDay';
 import { resolveEventTimes } from '../resolveEventTimes';
 import type { BuildEventOptions } from './types';
 
@@ -10,7 +11,7 @@ export const buildEvent = ({ draft, id }: BuildEventOptions): CalendarEvent => {
     note: draft.note.trim(),
   };
   if (draft.allDay) {
-    return { ...base, allDay: true, startDate: draft.date, endDate: draft.date };
+    return { ...base, allDay: true, startDate: draft.date, endDate: lastDay({ draft }) };
   }
   return {
     ...base,

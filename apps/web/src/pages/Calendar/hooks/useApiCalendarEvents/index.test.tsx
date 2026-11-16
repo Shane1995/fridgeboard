@@ -3,6 +3,8 @@ import { act, screen, waitFor } from '@testing-library/react';
 import { renderHookWithHousehold } from '../../../../testUtils/createShoppingListWrapper';
 import { resetFakeEvents, seedFakeEvents } from '../../../../testUtils/fakeEventsApi';
 import { CALENDAR_COPY } from '../../constants';
+import type { CalendarEvent } from '../../types';
+import { eventToDraft } from '../../utils/eventToDraft';
 import { useApiCalendarEvents } from '.';
 
 const WINDOW = { from: '2026-11-01', to: '2026-12-12' };
@@ -118,5 +120,36 @@ describe('useApiCalendarEvents', () => {
     act(() => result.current.updateEvent({ id: 'missing', draft }));
 
     expect(writes(apiFetch)).toEqual([]);
+  });
+
+  it('keeps every day of a multi-day event when its title is edited', async () => {
+    seedFakeEvents([
+      dentist,
+      {
+        ...dentist,
+        id: 'e-2',
+        title: 'Trip',
+        allDay: true,
+        startDate: '2026-11-10',
+        endDate: '2026-11-12',
+      } as IEvent,
+    ]);
+    const { result, apiFetch } = await renderHookWithHousehold(() => useApiCalendarEvents(WINDOW));
+    await waitFor(() => expect(result.current.events).toHaveLength(2));
+    const trip = result.current.events.find(({ id }) => id === 'e-2');
+
+    act(() =>
+      result.current.updateEvent({
+        id: 'e-2',
+        draft: { ...eventToDraft({ event: trip as CalendarEvent }), title: 'Holiday' },
+      }),
+    );
+
+    await screen.findByText(CALENDAR_COPY.eventUpdated('Holiday'));
+    expect(JSON.parse(String(writes(apiFetch)[0]?.body))).toMatchObject({
+      allDay: true,
+      startDate: '2026-11-10',
+      endDate: '2026-11-12',
+    });
   });
 });

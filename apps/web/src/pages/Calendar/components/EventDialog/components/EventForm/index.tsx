@@ -50,6 +50,21 @@ export const EventForm = ({ event, date, onSave, onDelete, onDone }: EventFormPr
           onChange={(changeEvent) => setField({ field: 'date', value: changeEvent.target.value })}
         />
       </label>
+      {draft.allDay && (
+        <label className="flex min-w-0 flex-col gap-1 text-sm font-medium">
+          {EVENT_FORM_COPY.lastDayLabel}
+          <input
+            type="date"
+            required
+            min={draft.date}
+            className={FIELD_CLASS}
+            value={draft.endDate ?? draft.date}
+            onChange={(changeEvent) =>
+              setField({ field: 'endDate', value: changeEvent.target.value })
+            }
+          />
+        </label>
+      )}
       {!draft.allDay && (
         <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3">
           <label className="flex min-w-0 flex-col gap-1 text-sm font-medium">

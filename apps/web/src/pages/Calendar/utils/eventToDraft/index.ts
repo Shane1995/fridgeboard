@@ -10,6 +10,7 @@ export const eventToDraft = ({ event }: EventToDraftOptions): EventDraft => {
       ...common,
       allDay: true,
       date: event.startDate,
+      endDate: event.endDate,
       startTime: DEFAULT_START_TIME,
       endTime: DEFAULT_END_TIME,
     };
