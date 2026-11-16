@@ -6,6 +6,7 @@ import { createSession } from '../../testUtils/createSession';
 import { TestProviders } from '../../testUtils/TestProviders';
 import { WebFeatureFlag } from '../../services/configuration/schema/constants';
 import { TEST_WEB_CONFIGURATION } from '../../testUtils/webConfiguration';
+import { FEATURE_FLAGS_COPY } from './components/FeatureFlagsSection/constants';
 import { INVITE_COPY } from './components/InviteForm/constants';
 import { PROFILE_COPY } from './constants';
 import { Profile } from '.';
@@ -69,6 +70,13 @@ describe('Profile', () => {
     expect(screen.getByText(PROFILE_COPY.roles.owner)).toBeInTheDocument();
     expect(screen.getByText('Parents')).toBeInTheDocument();
     expect(screen.getByText(PROFILE_COPY.roles.member)).toBeInTheDocument();
+  });
+
+  it('offers the feature flag switches', async () => {
+    respondWith([]);
+    await renderProfile();
+
+    expect(await screen.findByRole('region', { name: FEATURE_FLAGS_COPY.title })).toBeVisible();
   });
 
   it('says so when there are no households', async () => {

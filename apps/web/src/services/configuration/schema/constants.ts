@@ -15,6 +15,7 @@ export const WEB_CONFIGURATION_VERSION = 2;
 export enum WebFeatureFlag {
   ENABLE_ADMIN_INVITES = 'ENABLE_ADMIN_INVITES',
   ENABLE_CALENDAR = 'ENABLE_CALENDAR',
+  ENABLE_CALENDAR_API = 'ENABLE_CALENDAR_API',
   ENABLE_HOUSEHOLD_INVITES = 'ENABLE_HOUSEHOLD_INVITES',
   ENABLE_ITEM_DRAG = 'ENABLE_ITEM_DRAG',
   ENABLE_LIVE_SYNC = 'ENABLE_LIVE_SYNC',
@@ -28,6 +29,11 @@ export const WEB_FEATURE_FLAGS: readonly string[] = Object.values(WebFeatureFlag
 
 export enum WebService {
   clearItems = 'clearItems',
+  event = 'event',
+  eventOccurrence = 'eventOccurrence',
+  eventRule = 'eventRule',
+  eventRules = 'eventRules',
+  events = 'events',
   householdChanges = 'householdChanges',
   householdInvites = 'householdInvites',
   householdMembers = 'householdMembers',
@@ -56,6 +62,7 @@ export const WEB_SERVICES = Object.values(WebService);
 
 export enum QueryName {
   changes = 'changes',
+  events = 'events',
   me = 'me',
   onboarding = 'onboarding',
   households = 'households',
@@ -80,6 +87,9 @@ export enum MutationName {
   updateShop = 'updateShop',
   deleteShop = 'deleteShop',
   reorderShops = 'reorderShops',
+  createEvent = 'createEvent',
+  updateEvent = 'updateEvent',
+  deleteEvent = 'deleteEvent',
   signInWithPasskey = 'signInWithPasskey',
   registerPasskey = 'registerPasskey',
 }

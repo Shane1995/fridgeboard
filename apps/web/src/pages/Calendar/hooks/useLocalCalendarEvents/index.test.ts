@@ -3,7 +3,7 @@ import { createElement } from 'react';
 import type { PropsWithChildren } from 'react';
 import { ToastProvider } from '../../../../Context/Toast';
 import { CALENDAR_COPY } from '../../constants';
-import { useCalendarEvents } from '.';
+import { useLocalCalendarEvents } from '.';
 
 const draft = {
   title: 'Picnic',
@@ -15,14 +15,14 @@ const draft = {
   note: '',
 };
 
-describe('useCalendarEvents', () => {
+describe('useLocalCalendarEvents', () => {
   it('starts with the dummy events', () => {
-    const { result } = renderHook(() => useCalendarEvents());
+    const { result } = renderHook(() => useLocalCalendarEvents());
     expect(result.current.events.length).toBeGreaterThan(0);
   });
 
   it('creates, updates and deletes an event', () => {
-    const { result } = renderHook(() => useCalendarEvents());
+    const { result } = renderHook(() => useLocalCalendarEvents());
     const before = result.current.events.length;
 
     act(() => result.current.createEvent({ draft }));
@@ -44,7 +44,7 @@ describe('useCalendarEvents', () => {
       createElement(ToastProvider, null, children);
 
     it('says an event was added', async () => {
-      const { result } = renderHook(() => useCalendarEvents(), { wrapper });
+      const { result } = renderHook(() => useLocalCalendarEvents(), { wrapper });
 
       act(() => result.current.createEvent({ draft }));
 
@@ -52,7 +52,7 @@ describe('useCalendarEvents', () => {
     });
 
     it('says an event was updated', async () => {
-      const { result } = renderHook(() => useCalendarEvents(), { wrapper });
+      const { result } = renderHook(() => useLocalCalendarEvents(), { wrapper });
       act(() => result.current.createEvent({ draft }));
       const created = result.current.events.find((event) => event.title === 'Picnic');
 
@@ -64,7 +64,7 @@ describe('useCalendarEvents', () => {
     });
 
     it('says nothing when an event is saved without changes', async () => {
-      const { result } = renderHook(() => useCalendarEvents(), { wrapper });
+      const { result } = renderHook(() => useLocalCalendarEvents(), { wrapper });
       act(() => result.current.createEvent({ draft }));
       const created = result.current.events.find((event) => event.title === 'Picnic');
 
@@ -74,7 +74,7 @@ describe('useCalendarEvents', () => {
     });
 
     it('says an event was deleted, by name', async () => {
-      const { result } = renderHook(() => useCalendarEvents(), { wrapper });
+      const { result } = renderHook(() => useLocalCalendarEvents(), { wrapper });
       act(() => result.current.createEvent({ draft }));
       const created = result.current.events.find((event) => event.title === 'Picnic');
 
@@ -84,7 +84,7 @@ describe('useCalendarEvents', () => {
     });
 
     it('says nothing when the event to delete does not exist', () => {
-      const { result } = renderHook(() => useCalendarEvents(), { wrapper });
+      const { result } = renderHook(() => useLocalCalendarEvents(), { wrapper });
 
       act(() => result.current.deleteEvent({ id: 'missing' }));
 

@@ -1,5 +1,6 @@
 import { WebService } from '../../../web/src/services/configuration/schema/constants.ts';
 import type { ApiService } from '../../../web/src/services/configuration/schema/types.ts';
+import { handler as events } from '@fridgeboard/fn-events/index.ts';
 import { handler as households } from '@fridgeboard/fn-households/index.ts';
 import { handler as listShops } from '@fridgeboard/fn-list-shops/index.ts';
 import { handler as listItems } from '@fridgeboard/fn-list-items/index.ts';
@@ -38,6 +39,16 @@ const DEFINITIONS: RouteDefinition[] = [
   { method: 'PUT', service: WebService.listShopsOrder, jwt: true, handler: listShops },
   { method: 'PATCH', service: WebService.listShop, jwt: true, handler: listShops },
   { method: 'DELETE', service: WebService.listShop, jwt: true, handler: listShops },
+  { method: 'GET', service: WebService.events, jwt: true, handler: events },
+  { method: 'POST', service: WebService.events, jwt: true, handler: events },
+  { method: 'PATCH', service: WebService.event, jwt: true, handler: events },
+  { method: 'DELETE', service: WebService.event, jwt: true, handler: events },
+  { method: 'GET', service: WebService.eventRules, jwt: true, handler: events },
+  { method: 'POST', service: WebService.eventRules, jwt: true, handler: events },
+  { method: 'PATCH', service: WebService.eventRule, jwt: true, handler: events },
+  { method: 'DELETE', service: WebService.eventRule, jwt: true, handler: events },
+  { method: 'POST', service: WebService.eventOccurrence, jwt: true, handler: events },
+  { method: 'DELETE', service: WebService.eventOccurrence, jwt: true, handler: events },
   { method: 'POST', service: WebService.requestCode, jwt: false, handler: start },
   { method: 'POST', service: WebService.verify, jwt: false, handler: verify },
   { method: 'POST', service: WebService.refresh, jwt: false, handler: refresh },

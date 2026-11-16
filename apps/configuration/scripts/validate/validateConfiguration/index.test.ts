@@ -7,6 +7,7 @@ const VALID = {
   featureFlags: {
     ENABLE_ADMIN_INVITES: false,
     ENABLE_CALENDAR: false,
+    ENABLE_CALENDAR_API: false,
     ENABLE_HOUSEHOLD_INVITES: false,
     ENABLE_ITEM_DRAG: false,
     ENABLE_LIVE_SYNC: false,
@@ -29,6 +30,11 @@ const VALID = {
     api: {
       endpoints: {
         clearItems: '/api/v1/households/{householdId}/lists/{listId}/items/clear',
+        event: '/api/v1/households/{householdId}/events/{eventId}',
+        eventOccurrence: '/api/v1/households/{householdId}/event-rules/{ruleId}/occurrences/{date}',
+        eventRule: '/api/v1/households/{householdId}/event-rules/{ruleId}',
+        eventRules: '/api/v1/households/{householdId}/event-rules',
+        events: '/api/v1/households/{householdId}/events',
         householdChanges: '/api/v1/households/{householdId}/changes',
         householdInvites: '/api/v1/households/{householdId}/invites',
         householdMembers: '/api/v1/households/{householdId}/members',
