@@ -2,6 +2,7 @@ export const EVENT_FORM_COPY = {
   titleLabel: 'Title',
   allDayLabel: 'All day',
   dateLabel: 'Date',
+  lastDayLabel: 'Last day',
   startLabel: 'Starts',
   endLabel: 'Ends',
   ownerLabel: 'Who',

@@ -50,4 +50,16 @@ describe('toEventBody', () => {
       endDate: '2026-11-03',
     });
   });
+
+  it('ends an all-day body on the last day the draft names', () => {
+    expect(toEventBody({ draft: { ...draft, allDay: true, endDate: '2026-11-05' } })).toMatchObject(
+      { startDate: '2026-11-03', endDate: '2026-11-05' },
+    );
+  });
+
+  it('never ends an all-day body before it starts', () => {
+    expect(toEventBody({ draft: { ...draft, allDay: true, endDate: '2026-11-01' } })).toMatchObject(
+      { startDate: '2026-11-03', endDate: '2026-11-03' },
+    );
+  });
 });

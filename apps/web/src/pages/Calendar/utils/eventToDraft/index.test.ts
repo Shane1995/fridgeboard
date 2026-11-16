@@ -31,4 +31,25 @@ describe('eventToDraft', () => {
       }),
     ).toMatchObject({ allDay: true, date: '2026-11-03', startTime: '09:00', endTime: '10:00' });
   });
+
+  it('keeps the last day of a multi-day all-day event', () => {
+    expect(
+      eventToDraft({
+        event: { ...base, allDay: true, startDate: '2026-11-03', endDate: '2026-11-05' },
+      }),
+    ).toMatchObject({ allDay: true, date: '2026-11-03', endDate: '2026-11-05' });
+  });
+
+  it('leaves the last day out of a timed event', () => {
+    const draft = eventToDraft({
+      event: {
+        ...base,
+        allDay: false,
+        startsAt: '2026-07-15T08:00:00.000Z',
+        endsAt: '2026-07-15T09:30:00.000Z',
+      },
+    });
+
+    expect(draft).not.toHaveProperty('endDate');
+  });
 });
