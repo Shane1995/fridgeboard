@@ -8,8 +8,8 @@ import { updateSection } from '../../utils/updateSection';
 import { NEW_NOTE_TITLE, PLANNER_TOAST_COPY } from './constants';
 import type {
   AddLineOptions,
+  AddRecipeLineOptions,
   DeleteNoteOptions,
-  LinkRecipeOptions,
   RemoveLineOptions,
   RenameNoteOptions,
   RestoreLineOptions,
@@ -87,14 +87,12 @@ export const usePlanner = () => {
     }
   };
 
-  const linkRecipe = ({ sectionId, lineId, recipeId, name }: LinkRecipeOptions) =>
+  const addRecipeLine = ({ sectionId, recipeId, name }: AddRecipeLineOptions) =>
     change({
       sectionId,
       update: (section) => ({
         ...section,
-        lines: section.lines.map((line) =>
-          line.id === lineId ? { ...line, recipeId, text: name } : line,
-        ),
+        lines: [...section.lines, { id: crypto.randomUUID(), text: name, recipeId }],
       }),
     });
 
@@ -140,7 +138,7 @@ export const usePlanner = () => {
     addLine,
     updateLine,
     removeLine,
-    linkRecipe,
+    addRecipeLine,
     unlinkRecipe,
     addNote,
     renameNote,

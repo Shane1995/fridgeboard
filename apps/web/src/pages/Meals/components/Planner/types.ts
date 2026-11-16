@@ -1,7 +1,7 @@
 import type { PlannerSection } from '../../types';
 import type {
   AddLineOptions,
-  LinkRecipeOptions,
+  AddRecipeLineOptions,
   UnlinkRecipeOptions,
   DeleteNoteOptions,
   RemoveLineOptions,
@@ -19,7 +19,7 @@ export type PlannerProps = {
   onAddLine: (options: AddLineOptions) => void;
   onUpdateLine: (options: UpdateLineOptions) => void;
   onRemoveLine: (options: RemoveLineOptions) => void;
-  onLinkRecipe: (options: LinkRecipeOptions) => void;
+  onAddRecipeLine: (options: AddRecipeLineOptions) => void;
   onUnlinkRecipe: (options: UnlinkRecipeOptions) => void;
   onAddNote: () => void;
   onRenameNote: (options: RenameNoteOptions) => void;

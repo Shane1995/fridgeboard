@@ -1,6 +1,6 @@
 import { Button, useOverlayState } from '@heroui/react';
 import { Link } from '@tanstack/react-router';
-import { BookOpen, Link2, Link2Off, Plus, Trash2, X } from 'lucide-react';
+import { BookOpen, Link2Off, Plus, Trash2, X } from 'lucide-react';
 import {
   SHOP_COLOR_CLASSES,
   SHOP_TEXT_CLASSES,
@@ -127,17 +127,7 @@ export const PlannerSection = ({
                     <Link2Off aria-hidden size={16} />
                   </Button>
                 </>
-              ) : (
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  aria-label={`${PLANNER_COPY.linkRecipe} ${section.title}`}
-                  onPress={() => onPickRecipe({ sectionId: section.id, lineId: line.id })}
-                >
-                  <Link2 aria-hidden size={16} />
-                  {PLANNER_COPY.linkRecipe}
-                </Button>
-              )}
+              ) : null}
               <Button
                 isIconOnly
                 size="sm"
@@ -162,15 +152,26 @@ export const PlannerSection = ({
             )}
           </div>
         ))}
-        <Button
-          size="sm"
-          variant="ghost"
-          aria-label={`${PLANNER_COPY.addLine} ${section.title}`}
-          onPress={() => onAddLine({ sectionId: section.id })}
-        >
-          <Plus aria-hidden size={16} />
-          {PLANNER_COPY.addLine}
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            variant="ghost"
+            aria-label={`${PLANNER_COPY.addLine} ${section.title}`}
+            onPress={() => onAddLine({ sectionId: section.id })}
+          >
+            <Plus aria-hidden size={16} />
+            {PLANNER_COPY.addLine}
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            aria-label={`${PLANNER_COPY.addRecipe} ${section.title}`}
+            onPress={() => onPickRecipe({ sectionId: section.id })}
+          >
+            <BookOpen aria-hidden size={16} />
+            {PLANNER_COPY.addRecipe}
+          </Button>
+        </div>
       </div>
     </section>
   );

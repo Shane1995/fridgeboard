@@ -27,7 +27,7 @@ export const Meals = () => {
         onAddLine={meals.planner.addLine}
         onUpdateLine={meals.planner.updateLine}
         onRemoveLine={meals.planner.removeLine}
-        onLinkRecipe={meals.planner.linkRecipe}
+        onAddRecipeLine={meals.planner.addRecipeLine}
         onUnlinkRecipe={meals.planner.unlinkRecipe}
         onAddNote={meals.planner.addNote}
         onRenameNote={meals.planner.renameNote}

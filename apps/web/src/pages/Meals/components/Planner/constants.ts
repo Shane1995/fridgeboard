@@ -13,7 +13,7 @@ export const PLANNER_COPY = {
   confirmNote: 'Delete',
   noteTitleLabel: 'Box title',
   notesHeading: 'Notes',
-  linkRecipe: 'Pick recipe',
+  addRecipe: 'From recipe',
   addIngredients: 'Add ingredients',
   dayStrip: 'Days',
   showDay: 'Show',

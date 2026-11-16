@@ -20,7 +20,7 @@ export type PlannerSectionProps = {
   onRemoveLine: (options: RemoveLineOptions) => void;
   recipeIngredientCounts: ReadonlyMap<string, number>;
   onAddIngredients: (options: { recipeId: string }) => void;
-  onPickRecipe: (options: { sectionId: string; lineId: string }) => void;
+  onPickRecipe: (options: { sectionId: string }) => void;
   onUnlinkRecipe: (options: UnlinkRecipeOptions) => void;
   onRename?: (options: RenameNoteOptions) => void;
   onDelete?: (options: DeleteNoteOptions) => void;

@@ -47,12 +47,11 @@ describe('Meals', () => {
     expect(within(sunday).getByDisplayValue('Pancakes')).toBeInTheDocument();
   });
 
-  it('links a planner line to a recipe and opens it from the line', async () => {
+  it('adds a recipe to a day as a linked line and opens it from the line', async () => {
     await renderMeals(true);
     const tuesday = screen.getByRole('region', { name: 'Tuesday' });
-    fireEvent.click(within(tuesday).getByRole('button', { name: 'Add line Tuesday' }));
     fireEvent.click(
-      within(tuesday).getAllByRole('button', { name: 'Pick recipe Tuesday' }).at(-1) ?? tuesday,
+      within(tuesday).getByRole('button', { name: `${PLANNER_COPY.addRecipe} Tuesday` }),
     );
     const dialog = await screen.findByRole('dialog');
     fireEvent.click(within(dialog).getByRole('button', { name: 'Veggie chilli' }));
@@ -131,16 +130,18 @@ describe('Meals planner', () => {
     expect(within(sunday).getAllByRole('textbox')).toHaveLength(before);
   });
 
-  it('labels the recipe picker with words', async () => {
+  it('shows no recipe button on a plain line such as carrots', async () => {
     await openPlanner();
     const sunday = screen.getByRole('region', { name: 'Sunday' });
     fireEvent.click(within(sunday).getByRole('button', { name: 'Add line Sunday' }));
+    fireEvent.change(within(sunday).getAllByRole('textbox').at(-1) ?? sunday, {
+      target: { value: 'Carrots' },
+    });
 
+    expect(within(sunday).queryByText('Pick recipe')).not.toBeInTheDocument();
     expect(
-      within(sunday)
-        .getAllByRole('button', { name: `${PLANNER_COPY.linkRecipe} Sunday` })
-        .at(-1),
-    ).toHaveTextContent(PLANNER_COPY.linkRecipe);
+      within(sunday).queryByRole('button', { name: new RegExp(PLANNER_COPY.addIngredients) }),
+    ).not.toBeInTheDocument();
   });
 
   it('opens on today in the day strip and switches day on tap', async () => {

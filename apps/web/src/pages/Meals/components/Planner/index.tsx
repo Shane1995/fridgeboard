@@ -19,7 +19,7 @@ export const Planner = ({
   onAddLine,
   onUpdateLine,
   onRemoveLine,
-  onLinkRecipe,
+  onAddRecipeLine,
   onUnlinkRecipe,
   onAddNote,
   onRenameNote,
@@ -27,9 +27,7 @@ export const Planner = ({
 }: PlannerProps) => {
   const book = useRecipeBook();
   const picker = useOverlayState();
-  const [target, setTarget] = useState<{ sectionId: string; lineId: string } | undefined>(
-    undefined,
-  );
+  const [target, setTarget] = useState<{ sectionId: string } | undefined>(undefined);
   const addDialog = useOverlayState();
   const [addRecipeId, setAddRecipeId] = useState<string | undefined>(undefined);
   const [selectedWeekday, setSelectedWeekday] = useState(todayWeekday);
@@ -43,14 +41,14 @@ export const Planner = ({
     addDialog.open();
   };
 
-  const openPicker = (options: { sectionId: string; lineId: string }) => {
+  const openPicker = (options: { sectionId: string }) => {
     setTarget(options);
     picker.open();
   };
 
   const pickRecipe = ({ recipe }: { recipe: { id: string; name: string } }) => {
     if (target !== undefined) {
-      onLinkRecipe({ ...target, recipeId: recipe.id, name: recipe.name });
+      onAddRecipeLine({ ...target, recipeId: recipe.id, name: recipe.name });
     }
     picker.close();
   };

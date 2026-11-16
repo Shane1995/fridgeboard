@@ -36,26 +36,23 @@ describe('usePlanner', () => {
     expect(result.current.days[2]?.lines).toHaveLength(before);
   });
 
-  it('links a line to a recipe and unlinks it, keeping the name', () => {
+  it('adds a recipe as a line and unlinks it, keeping the name', () => {
     const { result } = renderHook(() => usePlanner());
     const sectionId = result.current.days[3]?.id ?? '';
-    act(() => result.current.addLine({ sectionId }));
-    const lineId = result.current.days[3]?.lines.at(-1)?.id ?? '';
+    const before = result.current.days[3]?.lines.length ?? 0;
 
     act(() =>
-      result.current.linkRecipe({
+      result.current.addRecipeLine({
         sectionId,
-        lineId,
         recipeId: 'mock-soup',
         name: 'Butternut squash soup',
       }),
     );
-    expect(result.current.days[3]?.lines.at(-1)).toMatchObject({
-      recipeId: 'mock-soup',
-      text: 'Butternut squash soup',
-    });
+    expect(result.current.days[3]?.lines).toHaveLength(before + 1);
+    const line = result.current.days[3]?.lines.at(-1);
+    expect(line).toMatchObject({ recipeId: 'mock-soup', text: 'Butternut squash soup' });
 
-    act(() => result.current.unlinkRecipe({ sectionId, lineId }));
+    act(() => result.current.unlinkRecipe({ sectionId, lineId: line?.id ?? '' }));
     expect(result.current.days[3]?.lines.at(-1)?.recipeId).toBeUndefined();
     expect(result.current.days[3]?.lines.at(-1)?.text).toBe('Butternut squash soup');
   });
