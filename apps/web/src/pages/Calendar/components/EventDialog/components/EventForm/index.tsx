@@ -2,6 +2,7 @@ import { Button, Input, Label, TextField, useOverlayState } from '@heroui/react'
 import { useState } from 'react';
 import { ColorPicker } from '../../../../../../components/ColorPicker';
 import { ConfirmDialog } from '../../../../../../components/ConfirmDialog';
+import { useAutoFocus } from '../../../../../../hooks/useAutoFocus';
 import { ShopSwatch } from '../../../../../../components/ShopSwatch';
 import {
   EVENT_NOTE_MAX_LENGTH,
@@ -20,6 +21,7 @@ import type { EventFormProps } from './types';
 
 export const EventForm = ({ event, date, onSave, onDelete, onDone }: EventFormProps) => {
   const owners = useOwners();
+  const titleRef = useAutoFocus<HTMLInputElement>();
   const { draft, setField, save, handleSubmit, handleDelete } = useEventForm({
     event,
     date,
@@ -52,13 +54,12 @@ export const EventForm = ({ event, date, onSave, onDelete, onDone }: EventFormPr
     >
       <TextField
         isRequired
-        autoFocus
         maxLength={EVENT_TITLE_MAX_LENGTH}
         value={draft.title}
         onChange={(value) => setField({ field: 'title', value })}
       >
         <Label>{EVENT_FORM_COPY.titleLabel}</Label>
-        <Input />
+        <Input ref={titleRef} />
       </TextField>
       <label className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-full border border-separator px-4 py-2 text-sm font-medium has-[:checked]:border-accent has-[:checked]:bg-accent/10 has-[:checked]:text-accent has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-focus">
         <input

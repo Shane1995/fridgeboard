@@ -24,4 +24,30 @@ describe('ShopDialog', () => {
 
     expect(await screen.findByText('closed')).toBeInTheDocument();
   });
+
+  it('does not focus the name field on a touch device, so the keyboard stays closed', async () => {
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      matches: false,
+      media: query,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
+    render(<Harness />, { wrapper: createShoppingListWrapper() });
+
+    expect(await screen.findByRole('textbox', { name: /name/i })).not.toHaveFocus();
+    vi.unstubAllGlobals();
+  });
+
+  it('focuses the name field when the device has a fine pointer', async () => {
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      matches: true,
+      media: query,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
+    render(<Harness />, { wrapper: createShoppingListWrapper() });
+
+    expect(await screen.findByRole('textbox', { name: /name/i })).toHaveFocus();
+    vi.unstubAllGlobals();
+  });
 });
