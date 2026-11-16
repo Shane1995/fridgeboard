@@ -1,6 +1,14 @@
 import type { ShopColor } from '../../services/shoppingList/constants';
 
-type EventBase = { id: string; title: string; ownerId: string; note: string };
+type EventBase = {
+  id: string;
+  title: string;
+  ownerId: string;
+  note: string;
+  color?: ShopColor;
+  reminder?: number;
+  ruleId?: string;
+};
 
 export type TimedEvent = EventBase & { allDay: false; startsAt: string; endsAt: string };
 
@@ -15,6 +23,8 @@ export type EventDraft = {
   allDay: boolean;
   date: string;
   endDate?: string;
+  color?: ShopColor;
+  reminder?: number;
   startTime: string;
   endTime: string;
   ownerId: string;

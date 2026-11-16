@@ -74,6 +74,8 @@ describe('useApiCalendarEvents', () => {
           title: 'Picnic',
           note: '',
           ownerId: 'household',
+          color: null,
+          reminder: null,
           allDay: true,
           startDate: '2026-11-03',
           endDate: '2026-11-03',

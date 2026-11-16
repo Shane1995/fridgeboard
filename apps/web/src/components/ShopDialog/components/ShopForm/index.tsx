@@ -1,8 +1,8 @@
 import { Button, Input, Label, TextField, useOverlayState } from '@heroui/react';
-import { SHOP_NAME_MAX_LENGTH, ShopColor } from '../../../../services/shoppingList/constants';
+import { SHOP_NAME_MAX_LENGTH } from '../../../../services/shoppingList/constants';
 import type { Shop } from '../../../../services/shoppingList/types';
+import { ColorPicker } from '../../../ColorPicker';
 import { ConfirmDialog } from '../../../ConfirmDialog';
-import { ShopSwatch } from '../../../ShopSwatch';
 import { SHOP_FORM_COPY } from './constants';
 import { useShopForm } from './hooks/useShopForm';
 
@@ -25,23 +25,7 @@ export const ShopForm = ({ shop, onDone }: ShopFormProps) => {
         <Label>{SHOP_FORM_COPY.nameLabel}</Label>
         <Input />
       </TextField>
-      <div className="flex flex-col gap-2">
-        <span className="text-sm font-medium">{SHOP_FORM_COPY.colorLabel}</span>
-        <div role="group" aria-label={SHOP_FORM_COPY.colorLabel} className="flex flex-wrap gap-3">
-          {Object.values(ShopColor).map((option) => (
-            <button
-              key={option}
-              type="button"
-              aria-label={option}
-              aria-pressed={option === color}
-              onClick={() => setColor(option)}
-              className="cursor-pointer rounded-full p-1 outline-none transition-transform hover:scale-110 aria-pressed:ring-2 aria-pressed:ring-foreground aria-pressed:ring-offset-2"
-            >
-              <ShopSwatch color={option} size="lg" />
-            </button>
-          ))}
-        </div>
-      </div>
+      <ColorPicker label={SHOP_FORM_COPY.colorLabel} value={color} onChange={setColor} />
       <Button type="submit" fullWidth isPending={isSaving}>
         {shop === undefined ? SHOP_FORM_COPY.create : SHOP_FORM_COPY.save}
       </Button>

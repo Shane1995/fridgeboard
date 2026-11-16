@@ -1,3 +1,4 @@
+import { ShopColor } from '../../../../services/shoppingList/constants';
 import { buildEvent } from '.';
 
 const draft = {
@@ -39,5 +40,18 @@ describe('buildEvent', () => {
     expect(
       buildEvent({ draft: { ...draft, allDay: true, endDate: '2026-11-05' }, id: 'e3' }),
     ).toMatchObject({ allDay: true, startDate: '2026-11-03', endDate: '2026-11-05' });
+  });
+
+  it('carries the colour and reminder the draft chose', () => {
+    expect(
+      buildEvent({ draft: { ...draft, color: ShopColor.Mint, reminder: 30 }, id: 'e4' }),
+    ).toMatchObject({ color: 'mint', reminder: 30 });
+  });
+
+  it('leaves colour and reminder out when the draft has none', () => {
+    const event = buildEvent({ draft, id: 'e5' });
+
+    expect(event).not.toHaveProperty('color');
+    expect(event).not.toHaveProperty('reminder');
   });
 });

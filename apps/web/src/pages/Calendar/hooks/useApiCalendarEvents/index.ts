@@ -1,7 +1,9 @@
+import { useMemo } from 'react';
 import { useEventsQuery } from '../../../../hooks/useEventsQuery';
 import type { CalendarEvent } from '../../types';
 import { eventDateRange } from '../../utils/eventDateRange';
 import { eventToDraft } from '../../utils/eventToDraft';
+import { toCalendarEvent } from '../../utils/toCalendarEvent';
 import { toEventBody } from '../../utils/toEventBody';
 import { useEventMutations } from '../useEventMutations';
 import type { CalendarEventsState } from '../useLocalCalendarEvents/types';
@@ -21,7 +23,10 @@ export const useApiCalendarEvents = ({
   enabled = true,
 }: UseApiCalendarEventsOptions): CalendarEventsState => {
   const { data } = useEventsQuery({ from, to, enabled });
-  const events = data ?? NO_EVENTS;
+  const events = useMemo(
+    () => (data === undefined ? NO_EVENTS : data.map((event) => toCalendarEvent({ event }))),
+    [data],
+  );
   const { createEvent, updateEvent, deleteEvent } = useEventMutations();
   const find = (id: string) => events.find((event) => event.id === id);
 
