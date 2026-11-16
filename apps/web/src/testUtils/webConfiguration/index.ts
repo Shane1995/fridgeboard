@@ -6,6 +6,7 @@ export const TEST_WEB_CONFIGURATION: WebConfiguration = {
   featureFlags: {
     [WebFeatureFlag.ENABLE_ADMIN_INVITES]: false,
     [WebFeatureFlag.ENABLE_CALENDAR]: false,
+    [WebFeatureFlag.ENABLE_CALENDAR_API]: false,
     [WebFeatureFlag.ENABLE_HOUSEHOLD_INVITES]: false,
     [WebFeatureFlag.ENABLE_ITEM_DRAG]: false,
     [WebFeatureFlag.ENABLE_LIVE_SYNC]: false,

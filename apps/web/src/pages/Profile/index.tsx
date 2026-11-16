@@ -3,6 +3,7 @@ import { BuildInfo } from '../../components/BuildInfo';
 import { PageHeader } from '../../components/PageHeader';
 import { Typography } from '../../components/Typography';
 import { TypographyVariant } from '../../components/Typography/constants';
+import { FeatureFlagsSection } from './components/FeatureFlagsSection';
 import { InviteForm } from './components/InviteForm';
 import { RefreshAppButton } from './components/RefreshAppButton';
 import { PROFILE_COPY } from './constants';
@@ -82,6 +83,7 @@ export const Profile = () => {
           <InviteForm />
         </section>
       )}
+      <FeatureFlagsSection />
       <RefreshAppButton />
       <BuildInfo />
     </main>

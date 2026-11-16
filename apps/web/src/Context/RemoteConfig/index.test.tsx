@@ -5,6 +5,7 @@ import { CONFIGURATION_ERROR_COPY } from '../../components/ConfigurationError/co
 import { APP_LOADER_COPY } from '../../components/AppLoader/constants';
 import { useRemoteConfigContext } from '../../hooks/useRemoteConfigContext';
 import { getConfiguration } from '../../services/configuration';
+import { FLAG_OVERRIDES_STORAGE_KEY } from '../../services/featureFlagOverrides/constants';
 import { TEST_WEB_CONFIGURATION } from '../../testUtils/webConfiguration';
 import { RemoteConfigProvider } from '.';
 
@@ -55,6 +56,18 @@ describe('RemoteConfigProvider', () => {
     renderProvider();
 
     expect(await screen.findByText('true')).toBeInTheDocument();
+  });
+
+  it('lets a flag override on this device win over the served value', async () => {
+    window.localStorage.setItem(
+      FLAG_OVERRIDES_STORAGE_KEY,
+      JSON.stringify({ [WebFeatureFlag.ENABLE_ADMIN_INVITES]: false }),
+    );
+    vi.mocked(getConfiguration).mockResolvedValue(served);
+    renderProvider();
+
+    expect(await screen.findByText('false')).toBeInTheDocument();
+    window.localStorage.clear();
   });
 
   it('shows the error screen on failure and retries from it', async () => {
