@@ -1,4 +1,4 @@
-import { PageHeader } from '../../components/PageHeader';
+import { PageShell } from '../../components/PageShell';
 import { Typography } from '../../components/Typography';
 import { CALENDAR_COPY, CalendarView } from './constants';
 import { CalendarToolbar } from './components/CalendarToolbar';
@@ -14,16 +14,14 @@ export const Calendar = () => {
 
   if (!calendar.enabled) {
     return (
-      <main className="mx-auto flex max-w-md flex-col gap-4 p-6">
-        <PageHeader title={CALENDAR_COPY.title} />
+      <PageShell title={CALENDAR_COPY.title}>
         <Typography>{CALENDAR_COPY.placeholder}</Typography>
-      </main>
+      </PageShell>
     );
   }
 
   return (
-    <main className="mx-auto flex max-w-2xl flex-col gap-4 p-4 md:p-6">
-      <PageHeader title={CALENDAR_COPY.title} />
+    <PageShell title={CALENDAR_COPY.title}>
       <CalendarToolbar
         title={calendar.title}
         view={calendar.view}
@@ -69,6 +67,6 @@ export const Calendar = () => {
         onSave={(draft) => calendar.saveDraft({ draft })}
         onDelete={calendar.removeEditing}
       />
-    </main>
+    </PageShell>
   );
 };

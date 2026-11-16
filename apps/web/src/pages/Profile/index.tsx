@@ -1,6 +1,6 @@
 import { Chip } from '@heroui/react';
 import { BuildInfo } from '../../components/BuildInfo';
-import { PageHeader } from '../../components/PageHeader';
+import { PageShell } from '../../components/PageShell';
 import { Typography } from '../../components/Typography';
 import { TypographyVariant } from '../../components/Typography/constants';
 import { FeatureFlagsSection } from './components/FeatureFlagsSection';
@@ -21,71 +21,74 @@ export const Profile = () => {
   } = useProfile();
 
   return (
-    <main className="mx-auto flex max-w-md flex-col gap-6 p-6">
-      <header className="flex flex-col gap-1">
-        <PageHeader title={PROFILE_COPY.title} />
-        {me && (
-          <>
-            <Typography variant={TypographyVariant.Strong} as="p">
-              {me.username ?? me.email}
-            </Typography>
-            {me.username && <Typography variant={TypographyVariant.Caption}>{me.email}</Typography>}
-          </>
-        )}
-      </header>
-      <section aria-label={PROFILE_COPY.households} className="flex flex-col gap-3">
-        <Typography variant={TypographyVariant.Heading3} as="h2">
-          {PROFILE_COPY.households}
-        </Typography>
-        {hasHouseholdsError && <Typography>{PROFILE_COPY.loadFailed}</Typography>}
-        {!isLoadingHouseholds && !hasHouseholdsError && households.length === 0 && (
-          <Typography>{PROFILE_COPY.noHouseholds}</Typography>
-        )}
-        <ul className="flex flex-col gap-2">
-          {households.map(({ id, name, role }) => (
-            <li
-              key={id}
-              className="flex items-center justify-between rounded-2xl bg-white/70 px-4 py-3 shadow-sm"
-            >
-              <Typography variant={TypographyVariant.Strong} as="span">
-                {name}
+    <PageShell title={PROFILE_COPY.title}>
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-1">
+          {me && (
+            <>
+              <Typography variant={TypographyVariant.Strong} as="p">
+                {me.username ?? me.email}
               </Typography>
-              <Chip size="sm">{PROFILE_COPY.roles[role]}</Chip>
-            </li>
-          ))}
-        </ul>
-      </section>
-      {showMembers && (
-        <section aria-label={PROFILE_COPY.members} className="flex flex-col gap-3">
+              {me.username && (
+                <Typography variant={TypographyVariant.Caption}>{me.email}</Typography>
+              )}
+            </>
+          )}
+        </div>
+        <section aria-label={PROFILE_COPY.households} className="flex flex-col gap-3">
           <Typography variant={TypographyVariant.Heading3} as="h2">
-            {PROFILE_COPY.members}
+            {PROFILE_COPY.households}
           </Typography>
-          {hasMembersError && <Typography>{PROFILE_COPY.membersLoadFailed}</Typography>}
-          <ul aria-label={PROFILE_COPY.members} className="flex flex-col gap-2">
-            {members.map(({ id, username, role }) => (
+          {hasHouseholdsError && <Typography>{PROFILE_COPY.loadFailed}</Typography>}
+          {!isLoadingHouseholds && !hasHouseholdsError && households.length === 0 && (
+            <Typography>{PROFILE_COPY.noHouseholds}</Typography>
+          )}
+          <ul className="flex flex-col gap-2">
+            {households.map(({ id, name, role }) => (
               <li
                 key={id}
                 className="flex items-center justify-between rounded-2xl bg-white/70 px-4 py-3 shadow-sm"
               >
                 <Typography variant={TypographyVariant.Strong} as="span">
-                  {username ?? PROFILE_COPY.unnamedMember}
-                  {id === me?.sub && (
-                    <Typography variant={TypographyVariant.Caption} as="span">
-                      {' '}
-                      {PROFILE_COPY.you}
-                    </Typography>
-                  )}
+                  {name}
                 </Typography>
                 <Chip size="sm">{PROFILE_COPY.roles[role]}</Chip>
               </li>
             ))}
           </ul>
-          <InviteForm />
         </section>
-      )}
-      <FeatureFlagsSection />
-      <RefreshAppButton />
-      <BuildInfo />
-    </main>
+        {showMembers && (
+          <section aria-label={PROFILE_COPY.members} className="flex flex-col gap-3">
+            <Typography variant={TypographyVariant.Heading3} as="h2">
+              {PROFILE_COPY.members}
+            </Typography>
+            {hasMembersError && <Typography>{PROFILE_COPY.membersLoadFailed}</Typography>}
+            <ul aria-label={PROFILE_COPY.members} className="flex flex-col gap-2">
+              {members.map(({ id, username, role }) => (
+                <li
+                  key={id}
+                  className="flex items-center justify-between rounded-2xl bg-white/70 px-4 py-3 shadow-sm"
+                >
+                  <Typography variant={TypographyVariant.Strong} as="span">
+                    {username ?? PROFILE_COPY.unnamedMember}
+                    {id === me?.sub && (
+                      <Typography variant={TypographyVariant.Caption} as="span">
+                        {' '}
+                        {PROFILE_COPY.you}
+                      </Typography>
+                    )}
+                  </Typography>
+                  <Chip size="sm">{PROFILE_COPY.roles[role]}</Chip>
+                </li>
+              ))}
+            </ul>
+            <InviteForm />
+          </section>
+        )}
+        <FeatureFlagsSection />
+        <RefreshAppButton />
+        <BuildInfo />
+      </div>
+    </PageShell>
   );
 };

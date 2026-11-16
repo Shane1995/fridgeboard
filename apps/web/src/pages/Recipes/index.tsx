@@ -1,5 +1,5 @@
 import { useSearch } from '@tanstack/react-router';
-import { PageHeader } from '../../components/PageHeader';
+import { PageShell } from '../../components/PageShell';
 import { Typography } from '../../components/Typography';
 import { RECIPES_COPY } from './constants';
 import { AddToListDialog } from './components/AddToListDialog';
@@ -19,16 +19,14 @@ export const Recipes = () => {
 
   if (!recipes.enabled) {
     return (
-      <main className="mx-auto flex max-w-md flex-col gap-4 p-6">
-        <PageHeader title={RECIPES_COPY.title} />
+      <PageShell title={RECIPES_COPY.title}>
         <Typography>{RECIPES_COPY.placeholder}</Typography>
-      </main>
+      </PageShell>
     );
   }
 
   return (
-    <main className="mx-auto flex max-w-2xl flex-col gap-4 p-4 md:p-6">
-      <PageHeader title={RECIPES_COPY.title} />
+    <PageShell title={RECIPES_COPY.title}>
       {screen.kind === 'list' && (
         <>
           <ImportsTray
@@ -91,6 +89,6 @@ export const Recipes = () => {
       )}
       <ImportDialog state={recipes.importDialog} onImport={recipes.startImport} />
       <IdeasDialog state={recipes.ideasDialog} onImport={recipes.startImport} />
-    </main>
+    </PageShell>
   );
 };
